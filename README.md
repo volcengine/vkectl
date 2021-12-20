@@ -1,8 +1,10 @@
-<h1 align="center">VKE CLI</h1>
+<h1 align="center">vkectl</h1>
 
 ## Introduction
 
-The VKE(VolcanoEngine Kubernetes Engine) CLI is a tool to manage VKE resources through a command line interface. It is written in Go and built on the top of VKE OpenAPI.
+vkectl is a tool to manage VKE(VolcanoEngine Kubernetes Engine) resources through a CLI(Command Line Interface). It is written in Go and built on the top of VKE OpenAPI.
+
+VKECTL IS EXPERIMENTAL. THE BEHAVIOR MAY CHANGE. 
 
 ## Usage
 ### Set Environment
