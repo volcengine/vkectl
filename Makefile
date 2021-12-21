@@ -28,3 +28,7 @@ build:
 	    -X $(ROOT)/pkg/version.gitTreeState=$(GITTREESTATE)                \
 	    -X $(ROOT)/pkg/version.buildDate=$(BUILDDATE)"                     \
 	  $(CMD_DIR);
+
+generate:
+	hack/gen_client/generate.sh
+	go run hack/gen_client/main.go
