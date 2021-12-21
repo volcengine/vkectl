@@ -17,9 +17,12 @@ import (
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/overview"
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/paastob/productivity/common"
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/paastob/vke/resourceserver"
+	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/publicverify"
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/quota"
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/rbac"
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/storage"
+	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/trade"
+	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/vci"
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/vpc"
 )
 
@@ -35,36 +38,37 @@ func NewServiceInfo() *kitex.ServiceInfo {
 	methods := map[string]kitex.MethodInfo{
 		"GetClusterOverview":                kitex.NewMethodInfo(getClusterOverviewHandler, newResourceServiceGetClusterOverviewArgs, newResourceServiceGetClusterOverviewResult, false),
 		"GetKubeConfig":                     kitex.NewMethodInfo(getKubeConfigHandler, newResourceServiceGetKubeConfigArgs, newResourceServiceGetKubeConfigResult, false),
-		"RevokeKubeConfig":                  kitex.NewMethodInfo(revokeKubeConfigHandler, newResourceServiceRevokeKubeConfigArgs, newResourceServiceRevokeKubeConfigResult, false),
-		"ListKubeConfig":                    kitex.NewMethodInfo(listKubeConfigHandler, newResourceServiceListKubeConfigArgs, newResourceServiceListKubeConfigResult, false),
+		"GetKubeconfig":                     kitex.NewMethodInfo(getKubeconfigHandler, newResourceServiceGetKubeconfigArgs, newResourceServiceGetKubeconfigResult, false),
+		"RevokeKubeconfig":                  kitex.NewMethodInfo(revokeKubeconfigHandler, newResourceServiceRevokeKubeconfigArgs, newResourceServiceRevokeKubeconfigResult, false),
+		"ListKubeconfigUsers":               kitex.NewMethodInfo(listKubeconfigUsersHandler, newResourceServiceListKubeconfigUsersArgs, newResourceServiceListKubeconfigUsersResult, false),
 		"CreateCluster":                     kitex.NewMethodInfo(createClusterHandler, newResourceServiceCreateClusterArgs, newResourceServiceCreateClusterResult, false),
 		"RegisterCluster":                   kitex.NewMethodInfo(registerClusterHandler, newResourceServiceRegisterClusterArgs, newResourceServiceRegisterClusterResult, false),
 		"UpdateCluster":                     kitex.NewMethodInfo(updateClusterHandler, newResourceServiceUpdateClusterArgs, newResourceServiceUpdateClusterResult, false),
 		"UpgradeCluster":                    kitex.NewMethodInfo(upgradeClusterHandler, newResourceServiceUpgradeClusterArgs, newResourceServiceUpgradeClusterResult, false),
 		"DeleteCluster":                     kitex.NewMethodInfo(deleteClusterHandler, newResourceServiceDeleteClusterArgs, newResourceServiceDeleteClusterResult, false),
 		"GetCluster":                        kitex.NewMethodInfo(getClusterHandler, newResourceServiceGetClusterArgs, newResourceServiceGetClusterResult, false),
-		"ListCluster":                       kitex.NewMethodInfo(listClusterHandler, newResourceServiceListClusterArgs, newResourceServiceListClusterResult, false),
+		"ListClusters":                      kitex.NewMethodInfo(listClustersHandler, newResourceServiceListClustersArgs, newResourceServiceListClustersResult, false),
 		"GetClusterDeployProgress":          kitex.NewMethodInfo(getClusterDeployProgressHandler, newResourceServiceGetClusterDeployProgressArgs, newResourceServiceGetClusterDeployProgressResult, false),
-		"ListClusterKubernetesVersion":      kitex.NewMethodInfo(listClusterKubernetesVersionHandler, newResourceServiceListClusterKubernetesVersionArgs, newResourceServiceListClusterKubernetesVersionResult, false),
-		"ListClusterNetworkCidr":            kitex.NewMethodInfo(listClusterNetworkCidrHandler, newResourceServiceListClusterNetworkCidrArgs, newResourceServiceListClusterNetworkCidrResult, false),
-		"ListSupportGpuModel":               kitex.NewMethodInfo(listSupportGpuModelHandler, newResourceServiceListSupportGpuModelArgs, newResourceServiceListSupportGpuModelResult, false),
-		"ListClusterNode":                   kitex.NewMethodInfo(listClusterNodeHandler, newResourceServiceListClusterNodeArgs, newResourceServiceListClusterNodeResult, false),
-		"AddClusterNode":                    kitex.NewMethodInfo(addClusterNodeHandler, newResourceServiceAddClusterNodeArgs, newResourceServiceAddClusterNodeResult, false),
-		"GetClusterNode":                    kitex.NewMethodInfo(getClusterNodeHandler, newResourceServiceGetClusterNodeArgs, newResourceServiceGetClusterNodeResult, false),
-		"DeleteClusterNode":                 kitex.NewMethodInfo(deleteClusterNodeHandler, newResourceServiceDeleteClusterNodeArgs, newResourceServiceDeleteClusterNodeResult, false),
-		"ListClusterNodeLabel":              kitex.NewMethodInfo(listClusterNodeLabelHandler, newResourceServiceListClusterNodeLabelArgs, newResourceServiceListClusterNodeLabelResult, false),
-		"UpdateClusterNode":                 kitex.NewMethodInfo(updateClusterNodeHandler, newResourceServiceUpdateClusterNodeArgs, newResourceServiceUpdateClusterNodeResult, false),
-		"GetAutoScalingRule":                kitex.NewMethodInfo(getAutoScalingRuleHandler, newResourceServiceGetAutoScalingRuleArgs, newResourceServiceGetAutoScalingRuleResult, false),
-		"UpdateAutoScalingRule":             kitex.NewMethodInfo(updateAutoScalingRuleHandler, newResourceServiceUpdateAutoScalingRuleArgs, newResourceServiceUpdateAutoScalingRuleResult, false),
-		"NodePoolScaleUp":                   kitex.NewMethodInfo(nodePoolScaleUpHandler, newResourceServiceNodePoolScaleUpArgs, newResourceServiceNodePoolScaleUpResult, false),
-		"NodePoolScaleDown":                 kitex.NewMethodInfo(nodePoolScaleDownHandler, newResourceServiceNodePoolScaleDownArgs, newResourceServiceNodePoolScaleDownResult, false),
-		"ListNodePool":                      kitex.NewMethodInfo(listNodePoolHandler, newResourceServiceListNodePoolArgs, newResourceServiceListNodePoolResult, false),
+		"ListSupportedKubernetesVersions":   kitex.NewMethodInfo(listSupportedKubernetesVersionsHandler, newResourceServiceListSupportedKubernetesVersionsArgs, newResourceServiceListSupportedKubernetesVersionsResult, false),
+		"ListClusterNetworkCidrs":           kitex.NewMethodInfo(listClusterNetworkCidrsHandler, newResourceServiceListClusterNetworkCidrsArgs, newResourceServiceListClusterNetworkCidrsResult, false),
+		"ListSupportedGpuModels":            kitex.NewMethodInfo(listSupportedGpuModelsHandler, newResourceServiceListSupportedGpuModelsArgs, newResourceServiceListSupportedGpuModelsResult, false),
+		"ListNodes":                         kitex.NewMethodInfo(listNodesHandler, newResourceServiceListNodesArgs, newResourceServiceListNodesResult, false),
+		"AddNodes":                          kitex.NewMethodInfo(addNodesHandler, newResourceServiceAddNodesArgs, newResourceServiceAddNodesResult, false),
+		"GetNode":                           kitex.NewMethodInfo(getNodeHandler, newResourceServiceGetNodeArgs, newResourceServiceGetNodeResult, false),
+		"DeleteNodes":                       kitex.NewMethodInfo(deleteNodesHandler, newResourceServiceDeleteNodesArgs, newResourceServiceDeleteNodesResult, false),
+		"ListNodeLabels":                    kitex.NewMethodInfo(listNodeLabelsHandler, newResourceServiceListNodeLabelsArgs, newResourceServiceListNodeLabelsResult, false),
+		"UpdateNode":                        kitex.NewMethodInfo(updateNodeHandler, newResourceServiceUpdateNodeArgs, newResourceServiceUpdateNodeResult, false),
+		"GetClusterAutoScalingRule":         kitex.NewMethodInfo(getClusterAutoScalingRuleHandler, newResourceServiceGetClusterAutoScalingRuleArgs, newResourceServiceGetClusterAutoScalingRuleResult, false),
+		"UpdateClusterAutoScalingRule":      kitex.NewMethodInfo(updateClusterAutoScalingRuleHandler, newResourceServiceUpdateClusterAutoScalingRuleArgs, newResourceServiceUpdateClusterAutoScalingRuleResult, false),
+		"ScaleUpNodePool":                   kitex.NewMethodInfo(scaleUpNodePoolHandler, newResourceServiceScaleUpNodePoolArgs, newResourceServiceScaleUpNodePoolResult, false),
+		"ScaleDownNodePool":                 kitex.NewMethodInfo(scaleDownNodePoolHandler, newResourceServiceScaleDownNodePoolArgs, newResourceServiceScaleDownNodePoolResult, false),
+		"ListNodePools":                     kitex.NewMethodInfo(listNodePoolsHandler, newResourceServiceListNodePoolsArgs, newResourceServiceListNodePoolsResult, false),
 		"CreateNodePool":                    kitex.NewMethodInfo(createNodePoolHandler, newResourceServiceCreateNodePoolArgs, newResourceServiceCreateNodePoolResult, false),
 		"GetNodePool":                       kitex.NewMethodInfo(getNodePoolHandler, newResourceServiceGetNodePoolArgs, newResourceServiceGetNodePoolResult, false),
 		"UpdateNodePool":                    kitex.NewMethodInfo(updateNodePoolHandler, newResourceServiceUpdateNodePoolArgs, newResourceServiceUpdateNodePoolResult, false),
 		"DeleteNodePool":                    kitex.NewMethodInfo(deleteNodePoolHandler, newResourceServiceDeleteNodePoolArgs, newResourceServiceDeleteNodePoolResult, false),
 		"ListNodePoolScalingRecords":        kitex.NewMethodInfo(listNodePoolScalingRecordsHandler, newResourceServiceListNodePoolScalingRecordsArgs, newResourceServiceListNodePoolScalingRecordsResult, false),
-		"ListNodePoolNode":                  kitex.NewMethodInfo(listNodePoolNodeHandler, newResourceServiceListNodePoolNodeArgs, newResourceServiceListNodePoolNodeResult, false),
+		"ListNodePoolNodes":                 kitex.NewMethodInfo(listNodePoolNodesHandler, newResourceServiceListNodePoolNodesArgs, newResourceServiceListNodePoolNodesResult, false),
 		"ListNamespace":                     kitex.NewMethodInfo(listNamespaceHandler, newResourceServiceListNamespaceArgs, newResourceServiceListNamespaceResult, false),
 		"CreateNamespace":                   kitex.NewMethodInfo(createNamespaceHandler, newResourceServiceCreateNamespaceArgs, newResourceServiceCreateNamespaceResult, false),
 		"GetNamespace":                      kitex.NewMethodInfo(getNamespaceHandler, newResourceServiceGetNamespaceArgs, newResourceServiceGetNamespaceResult, false),
@@ -101,8 +105,9 @@ func NewServiceInfo() *kitex.ServiceInfo {
 		"ListCustomRoles":                   kitex.NewMethodInfo(listCustomRolesHandler, newResourceServiceListCustomRolesArgs, newResourceServiceListCustomRolesResult, false),
 		"ListSupportedAddons":               kitex.NewMethodInfo(listSupportedAddonsHandler, newResourceServiceListSupportedAddonsArgs, newResourceServiceListSupportedAddonsResult, false),
 		"ListAddons":                        kitex.NewMethodInfo(listAddonsHandler, newResourceServiceListAddonsArgs, newResourceServiceListAddonsResult, false),
-		"InstallAddon":                      kitex.NewMethodInfo(installAddonHandler, newResourceServiceInstallAddonArgs, newResourceServiceInstallAddonResult, false),
-		"UninstallAddon":                    kitex.NewMethodInfo(uninstallAddonHandler, newResourceServiceUninstallAddonArgs, newResourceServiceUninstallAddonResult, false),
+		"InstallAddons":                     kitex.NewMethodInfo(installAddonsHandler, newResourceServiceInstallAddonsArgs, newResourceServiceInstallAddonsResult, false),
+		"ReinstallAddon":                    kitex.NewMethodInfo(reinstallAddonHandler, newResourceServiceReinstallAddonArgs, newResourceServiceReinstallAddonResult, false),
+		"UninstallAddons":                   kitex.NewMethodInfo(uninstallAddonsHandler, newResourceServiceUninstallAddonsArgs, newResourceServiceUninstallAddonsResult, false),
 		"UpgradeAddon":                      kitex.NewMethodInfo(upgradeAddonHandler, newResourceServiceUpgradeAddonArgs, newResourceServiceUpgradeAddonResult, false),
 		"GetAddon":                          kitex.NewMethodInfo(getAddonHandler, newResourceServiceGetAddonArgs, newResourceServiceGetAddonResult, false),
 		"CheckResourceExist":                kitex.NewMethodInfo(checkResourceExistHandler, newResourceServiceCheckResourceExistArgs, newResourceServiceCheckResourceExistResult, false),
@@ -111,11 +116,13 @@ func NewServiceInfo() *kitex.ServiceInfo {
 		"GetInstanceConsole":                kitex.NewMethodInfo(getInstanceConsoleHandler, newResourceServiceGetInstanceConsoleArgs, newResourceServiceGetInstanceConsoleResult, false),
 		"ListZones":                         kitex.NewMethodInfo(listZonesHandler, newResourceServiceListZonesArgs, newResourceServiceListZonesResult, false),
 		"ListVolumes":                       kitex.NewMethodInfo(listVolumesHandler, newResourceServiceListVolumesArgs, newResourceServiceListVolumesResult, false),
+		"ListKeyPairs":                      kitex.NewMethodInfo(listKeyPairsHandler, newResourceServiceListKeyPairsArgs, newResourceServiceListKeyPairsResult, false),
 		"ListSubnets":                       kitex.NewMethodInfo(listSubnetsHandler, newResourceServiceListSubnetsArgs, newResourceServiceListSubnetsResult, false),
-		"ListElasticIPPools":                kitex.NewMethodInfo(listElasticIPPoolsHandler, newResourceServiceListElasticIPPoolsArgs, newResourceServiceListElasticIPPoolsResult, false),
+		"ListElasticIpPools":                kitex.NewMethodInfo(listElasticIpPoolsHandler, newResourceServiceListElasticIpPoolsArgs, newResourceServiceListElasticIpPoolsResult, false),
 		"ListVpcs":                          kitex.NewMethodInfo(listVpcsHandler, newResourceServiceListVpcsArgs, newResourceServiceListVpcsResult, false),
 		"ListSecurityGroups":                kitex.NewMethodInfo(listSecurityGroupsHandler, newResourceServiceListSecurityGroupsArgs, newResourceServiceListSecurityGroupsResult, false),
 		"ListClbs":                          kitex.NewMethodInfo(listClbsHandler, newResourceServiceListClbsArgs, newResourceServiceListClbsResult, false),
+		"ListClbListeners":                  kitex.NewMethodInfo(listClbListenersHandler, newResourceServiceListClbListenersArgs, newResourceServiceListClbListenersResult, false),
 		"ListQuotas":                        kitex.NewMethodInfo(listQuotasHandler, newResourceServiceListQuotasArgs, newResourceServiceListQuotasResult, false),
 		"GetQuota":                          kitex.NewMethodInfo(getQuotaHandler, newResourceServiceGetQuotaArgs, newResourceServiceGetQuotaResult, false),
 		"CreateBareMachine":                 kitex.NewMethodInfo(createBareMachineHandler, newResourceServiceCreateBareMachineArgs, newResourceServiceCreateBareMachineResult, false),
@@ -128,6 +135,11 @@ func NewServiceInfo() *kitex.ServiceInfo {
 		"GetBareMachineImportExcelTemplate": kitex.NewMethodInfo(getBareMachineImportExcelTemplateHandler, newResourceServiceGetBareMachineImportExcelTemplateArgs, newResourceServiceGetBareMachineImportExcelTemplateResult, false),
 		"CheckCidrConflict":                 kitex.NewMethodInfo(checkCidrConflictHandler, newResourceServiceCheckCidrConflictArgs, newResourceServiceCheckCidrConflictResult, false),
 		"RecommendCidr":                     kitex.NewMethodInfo(recommendCidrHandler, newResourceServiceRecommendCidrArgs, newResourceServiceRecommendCidrResult, false),
+		"AddVciSubnets":                     kitex.NewMethodInfo(addVciSubnetsHandler, newResourceServiceAddVciSubnetsArgs, newResourceServiceAddVciSubnetsResult, false),
+		"IsInShortTermWhiteList":            kitex.NewMethodInfo(isInShortTermWhiteListHandler, newResourceServiceIsInShortTermWhiteListArgs, newResourceServiceIsInShortTermWhiteListResult, false),
+		"AllowUserPublicTest":               kitex.NewMethodInfo(allowUserPublicTestHandler, newResourceServiceAllowUserPublicTestArgs, newResourceServiceAllowUserPublicTestResult, false),
+		"ListVciAvailabilityZones":          kitex.NewMethodInfo(listVciAvailabilityZonesHandler, newResourceServiceListVciAvailabilityZonesArgs, newResourceServiceListVciAvailabilityZonesResult, false),
+		"ListNodeZones":                     kitex.NewMethodInfo(listNodeZonesHandler, newResourceServiceListNodeZonesArgs, newResourceServiceListNodeZonesResult, false),
 	}
 	extra := map[string]interface{}{
 		"PackageName": "resourceserver",
@@ -191,10 +203,10 @@ func newResourceServiceGetKubeConfigResult() interface{} {
 	return resourceserver.NewResourceServiceGetKubeConfigResult()
 }
 
-func revokeKubeConfigHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*resourceserver.ResourceServiceRevokeKubeConfigArgs)
-	realResult := result.(*resourceserver.ResourceServiceRevokeKubeConfigResult)
-	success, err := handler.(resourceserver.ResourceService).RevokeKubeConfig(ctx, realArg.Req)
+func getKubeconfigHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*resourceserver.ResourceServiceGetKubeconfigArgs)
+	realResult := result.(*resourceserver.ResourceServiceGetKubeconfigResult)
+	success, err := handler.(resourceserver.ResourceService).GetKubeconfig(ctx, realArg.Req)
 	if err != nil {
 		switch v := err.(type) {
 		case *common.Error:
@@ -207,18 +219,18 @@ func revokeKubeConfigHandler(ctx context.Context, handler interface{}, arg, resu
 	}
 	return nil
 }
-func newResourceServiceRevokeKubeConfigArgs() interface{} {
-	return resourceserver.NewResourceServiceRevokeKubeConfigArgs()
+func newResourceServiceGetKubeconfigArgs() interface{} {
+	return resourceserver.NewResourceServiceGetKubeconfigArgs()
 }
 
-func newResourceServiceRevokeKubeConfigResult() interface{} {
-	return resourceserver.NewResourceServiceRevokeKubeConfigResult()
+func newResourceServiceGetKubeconfigResult() interface{} {
+	return resourceserver.NewResourceServiceGetKubeconfigResult()
 }
 
-func listKubeConfigHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*resourceserver.ResourceServiceListKubeConfigArgs)
-	realResult := result.(*resourceserver.ResourceServiceListKubeConfigResult)
-	success, err := handler.(resourceserver.ResourceService).ListKubeConfig(ctx, realArg.Req)
+func revokeKubeconfigHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*resourceserver.ResourceServiceRevokeKubeconfigArgs)
+	realResult := result.(*resourceserver.ResourceServiceRevokeKubeconfigResult)
+	success, err := handler.(resourceserver.ResourceService).RevokeKubeconfig(ctx, realArg.Req)
 	if err != nil {
 		switch v := err.(type) {
 		case *common.Error:
@@ -231,12 +243,36 @@ func listKubeConfigHandler(ctx context.Context, handler interface{}, arg, result
 	}
 	return nil
 }
-func newResourceServiceListKubeConfigArgs() interface{} {
-	return resourceserver.NewResourceServiceListKubeConfigArgs()
+func newResourceServiceRevokeKubeconfigArgs() interface{} {
+	return resourceserver.NewResourceServiceRevokeKubeconfigArgs()
 }
 
-func newResourceServiceListKubeConfigResult() interface{} {
-	return resourceserver.NewResourceServiceListKubeConfigResult()
+func newResourceServiceRevokeKubeconfigResult() interface{} {
+	return resourceserver.NewResourceServiceRevokeKubeconfigResult()
+}
+
+func listKubeconfigUsersHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*resourceserver.ResourceServiceListKubeconfigUsersArgs)
+	realResult := result.(*resourceserver.ResourceServiceListKubeconfigUsersResult)
+	success, err := handler.(resourceserver.ResourceService).ListKubeconfigUsers(ctx, realArg.Req)
+	if err != nil {
+		switch v := err.(type) {
+		case *common.Error:
+			realResult.Err = v
+		default:
+			return err
+		}
+	} else {
+		realResult.Success = success
+	}
+	return nil
+}
+func newResourceServiceListKubeconfigUsersArgs() interface{} {
+	return resourceserver.NewResourceServiceListKubeconfigUsersArgs()
+}
+
+func newResourceServiceListKubeconfigUsersResult() interface{} {
+	return resourceserver.NewResourceServiceListKubeconfigUsersResult()
 }
 
 func createClusterHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
@@ -383,10 +419,10 @@ func newResourceServiceGetClusterResult() interface{} {
 	return resourceserver.NewResourceServiceGetClusterResult()
 }
 
-func listClusterHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*resourceserver.ResourceServiceListClusterArgs)
-	realResult := result.(*resourceserver.ResourceServiceListClusterResult)
-	success, err := handler.(resourceserver.ResourceService).ListCluster(ctx, realArg.Req)
+func listClustersHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*resourceserver.ResourceServiceListClustersArgs)
+	realResult := result.(*resourceserver.ResourceServiceListClustersResult)
+	success, err := handler.(resourceserver.ResourceService).ListClusters(ctx, realArg.Req)
 	if err != nil {
 		switch v := err.(type) {
 		case *common.Error:
@@ -399,12 +435,12 @@ func listClusterHandler(ctx context.Context, handler interface{}, arg, result in
 	}
 	return nil
 }
-func newResourceServiceListClusterArgs() interface{} {
-	return resourceserver.NewResourceServiceListClusterArgs()
+func newResourceServiceListClustersArgs() interface{} {
+	return resourceserver.NewResourceServiceListClustersArgs()
 }
 
-func newResourceServiceListClusterResult() interface{} {
-	return resourceserver.NewResourceServiceListClusterResult()
+func newResourceServiceListClustersResult() interface{} {
+	return resourceserver.NewResourceServiceListClustersResult()
 }
 
 func getClusterDeployProgressHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
@@ -431,10 +467,10 @@ func newResourceServiceGetClusterDeployProgressResult() interface{} {
 	return resourceserver.NewResourceServiceGetClusterDeployProgressResult()
 }
 
-func listClusterKubernetesVersionHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*resourceserver.ResourceServiceListClusterKubernetesVersionArgs)
-	realResult := result.(*resourceserver.ResourceServiceListClusterKubernetesVersionResult)
-	success, err := handler.(resourceserver.ResourceService).ListClusterKubernetesVersion(ctx, realArg.Req)
+func listSupportedKubernetesVersionsHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*resourceserver.ResourceServiceListSupportedKubernetesVersionsArgs)
+	realResult := result.(*resourceserver.ResourceServiceListSupportedKubernetesVersionsResult)
+	success, err := handler.(resourceserver.ResourceService).ListSupportedKubernetesVersions(ctx, realArg.Req)
 	if err != nil {
 		switch v := err.(type) {
 		case *common.Error:
@@ -447,18 +483,18 @@ func listClusterKubernetesVersionHandler(ctx context.Context, handler interface{
 	}
 	return nil
 }
-func newResourceServiceListClusterKubernetesVersionArgs() interface{} {
-	return resourceserver.NewResourceServiceListClusterKubernetesVersionArgs()
+func newResourceServiceListSupportedKubernetesVersionsArgs() interface{} {
+	return resourceserver.NewResourceServiceListSupportedKubernetesVersionsArgs()
 }
 
-func newResourceServiceListClusterKubernetesVersionResult() interface{} {
-	return resourceserver.NewResourceServiceListClusterKubernetesVersionResult()
+func newResourceServiceListSupportedKubernetesVersionsResult() interface{} {
+	return resourceserver.NewResourceServiceListSupportedKubernetesVersionsResult()
 }
 
-func listClusterNetworkCidrHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*resourceserver.ResourceServiceListClusterNetworkCidrArgs)
-	realResult := result.(*resourceserver.ResourceServiceListClusterNetworkCidrResult)
-	success, err := handler.(resourceserver.ResourceService).ListClusterNetworkCidr(ctx, realArg.Req)
+func listClusterNetworkCidrsHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*resourceserver.ResourceServiceListClusterNetworkCidrsArgs)
+	realResult := result.(*resourceserver.ResourceServiceListClusterNetworkCidrsResult)
+	success, err := handler.(resourceserver.ResourceService).ListClusterNetworkCidrs(ctx, realArg.Req)
 	if err != nil {
 		switch v := err.(type) {
 		case *common.Error:
@@ -471,18 +507,18 @@ func listClusterNetworkCidrHandler(ctx context.Context, handler interface{}, arg
 	}
 	return nil
 }
-func newResourceServiceListClusterNetworkCidrArgs() interface{} {
-	return resourceserver.NewResourceServiceListClusterNetworkCidrArgs()
+func newResourceServiceListClusterNetworkCidrsArgs() interface{} {
+	return resourceserver.NewResourceServiceListClusterNetworkCidrsArgs()
 }
 
-func newResourceServiceListClusterNetworkCidrResult() interface{} {
-	return resourceserver.NewResourceServiceListClusterNetworkCidrResult()
+func newResourceServiceListClusterNetworkCidrsResult() interface{} {
+	return resourceserver.NewResourceServiceListClusterNetworkCidrsResult()
 }
 
-func listSupportGpuModelHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*resourceserver.ResourceServiceListSupportGpuModelArgs)
-	realResult := result.(*resourceserver.ResourceServiceListSupportGpuModelResult)
-	success, err := handler.(resourceserver.ResourceService).ListSupportGpuModel(ctx, realArg.Req)
+func listSupportedGpuModelsHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*resourceserver.ResourceServiceListSupportedGpuModelsArgs)
+	realResult := result.(*resourceserver.ResourceServiceListSupportedGpuModelsResult)
+	success, err := handler.(resourceserver.ResourceService).ListSupportedGpuModels(ctx, realArg.Req)
 	if err != nil {
 		switch v := err.(type) {
 		case *common.Error:
@@ -495,18 +531,18 @@ func listSupportGpuModelHandler(ctx context.Context, handler interface{}, arg, r
 	}
 	return nil
 }
-func newResourceServiceListSupportGpuModelArgs() interface{} {
-	return resourceserver.NewResourceServiceListSupportGpuModelArgs()
+func newResourceServiceListSupportedGpuModelsArgs() interface{} {
+	return resourceserver.NewResourceServiceListSupportedGpuModelsArgs()
 }
 
-func newResourceServiceListSupportGpuModelResult() interface{} {
-	return resourceserver.NewResourceServiceListSupportGpuModelResult()
+func newResourceServiceListSupportedGpuModelsResult() interface{} {
+	return resourceserver.NewResourceServiceListSupportedGpuModelsResult()
 }
 
-func listClusterNodeHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*resourceserver.ResourceServiceListClusterNodeArgs)
-	realResult := result.(*resourceserver.ResourceServiceListClusterNodeResult)
-	success, err := handler.(resourceserver.ResourceService).ListClusterNode(ctx, realArg.Req)
+func listNodesHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*resourceserver.ResourceServiceListNodesArgs)
+	realResult := result.(*resourceserver.ResourceServiceListNodesResult)
+	success, err := handler.(resourceserver.ResourceService).ListNodes(ctx, realArg.Req)
 	if err != nil {
 		switch v := err.(type) {
 		case *common.Error:
@@ -519,18 +555,18 @@ func listClusterNodeHandler(ctx context.Context, handler interface{}, arg, resul
 	}
 	return nil
 }
-func newResourceServiceListClusterNodeArgs() interface{} {
-	return resourceserver.NewResourceServiceListClusterNodeArgs()
+func newResourceServiceListNodesArgs() interface{} {
+	return resourceserver.NewResourceServiceListNodesArgs()
 }
 
-func newResourceServiceListClusterNodeResult() interface{} {
-	return resourceserver.NewResourceServiceListClusterNodeResult()
+func newResourceServiceListNodesResult() interface{} {
+	return resourceserver.NewResourceServiceListNodesResult()
 }
 
-func addClusterNodeHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*resourceserver.ResourceServiceAddClusterNodeArgs)
-	realResult := result.(*resourceserver.ResourceServiceAddClusterNodeResult)
-	success, err := handler.(resourceserver.ResourceService).AddClusterNode(ctx, realArg.Req)
+func addNodesHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*resourceserver.ResourceServiceAddNodesArgs)
+	realResult := result.(*resourceserver.ResourceServiceAddNodesResult)
+	success, err := handler.(resourceserver.ResourceService).AddNodes(ctx, realArg.Req)
 	if err != nil {
 		switch v := err.(type) {
 		case *common.Error:
@@ -543,18 +579,18 @@ func addClusterNodeHandler(ctx context.Context, handler interface{}, arg, result
 	}
 	return nil
 }
-func newResourceServiceAddClusterNodeArgs() interface{} {
-	return resourceserver.NewResourceServiceAddClusterNodeArgs()
+func newResourceServiceAddNodesArgs() interface{} {
+	return resourceserver.NewResourceServiceAddNodesArgs()
 }
 
-func newResourceServiceAddClusterNodeResult() interface{} {
-	return resourceserver.NewResourceServiceAddClusterNodeResult()
+func newResourceServiceAddNodesResult() interface{} {
+	return resourceserver.NewResourceServiceAddNodesResult()
 }
 
-func getClusterNodeHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*resourceserver.ResourceServiceGetClusterNodeArgs)
-	realResult := result.(*resourceserver.ResourceServiceGetClusterNodeResult)
-	success, err := handler.(resourceserver.ResourceService).GetClusterNode(ctx, realArg.Req)
+func getNodeHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*resourceserver.ResourceServiceGetNodeArgs)
+	realResult := result.(*resourceserver.ResourceServiceGetNodeResult)
+	success, err := handler.(resourceserver.ResourceService).GetNode(ctx, realArg.Req)
 	if err != nil {
 		switch v := err.(type) {
 		case *common.Error:
@@ -567,18 +603,18 @@ func getClusterNodeHandler(ctx context.Context, handler interface{}, arg, result
 	}
 	return nil
 }
-func newResourceServiceGetClusterNodeArgs() interface{} {
-	return resourceserver.NewResourceServiceGetClusterNodeArgs()
+func newResourceServiceGetNodeArgs() interface{} {
+	return resourceserver.NewResourceServiceGetNodeArgs()
 }
 
-func newResourceServiceGetClusterNodeResult() interface{} {
-	return resourceserver.NewResourceServiceGetClusterNodeResult()
+func newResourceServiceGetNodeResult() interface{} {
+	return resourceserver.NewResourceServiceGetNodeResult()
 }
 
-func deleteClusterNodeHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*resourceserver.ResourceServiceDeleteClusterNodeArgs)
-	realResult := result.(*resourceserver.ResourceServiceDeleteClusterNodeResult)
-	success, err := handler.(resourceserver.ResourceService).DeleteClusterNode(ctx, realArg.Req)
+func deleteNodesHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*resourceserver.ResourceServiceDeleteNodesArgs)
+	realResult := result.(*resourceserver.ResourceServiceDeleteNodesResult)
+	success, err := handler.(resourceserver.ResourceService).DeleteNodes(ctx, realArg.Req)
 	if err != nil {
 		switch v := err.(type) {
 		case *common.Error:
@@ -591,18 +627,18 @@ func deleteClusterNodeHandler(ctx context.Context, handler interface{}, arg, res
 	}
 	return nil
 }
-func newResourceServiceDeleteClusterNodeArgs() interface{} {
-	return resourceserver.NewResourceServiceDeleteClusterNodeArgs()
+func newResourceServiceDeleteNodesArgs() interface{} {
+	return resourceserver.NewResourceServiceDeleteNodesArgs()
 }
 
-func newResourceServiceDeleteClusterNodeResult() interface{} {
-	return resourceserver.NewResourceServiceDeleteClusterNodeResult()
+func newResourceServiceDeleteNodesResult() interface{} {
+	return resourceserver.NewResourceServiceDeleteNodesResult()
 }
 
-func listClusterNodeLabelHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*resourceserver.ResourceServiceListClusterNodeLabelArgs)
-	realResult := result.(*resourceserver.ResourceServiceListClusterNodeLabelResult)
-	success, err := handler.(resourceserver.ResourceService).ListClusterNodeLabel(ctx, realArg.Req)
+func listNodeLabelsHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*resourceserver.ResourceServiceListNodeLabelsArgs)
+	realResult := result.(*resourceserver.ResourceServiceListNodeLabelsResult)
+	success, err := handler.(resourceserver.ResourceService).ListNodeLabels(ctx, realArg.Req)
 	if err != nil {
 		switch v := err.(type) {
 		case *common.Error:
@@ -615,18 +651,18 @@ func listClusterNodeLabelHandler(ctx context.Context, handler interface{}, arg, 
 	}
 	return nil
 }
-func newResourceServiceListClusterNodeLabelArgs() interface{} {
-	return resourceserver.NewResourceServiceListClusterNodeLabelArgs()
+func newResourceServiceListNodeLabelsArgs() interface{} {
+	return resourceserver.NewResourceServiceListNodeLabelsArgs()
 }
 
-func newResourceServiceListClusterNodeLabelResult() interface{} {
-	return resourceserver.NewResourceServiceListClusterNodeLabelResult()
+func newResourceServiceListNodeLabelsResult() interface{} {
+	return resourceserver.NewResourceServiceListNodeLabelsResult()
 }
 
-func updateClusterNodeHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*resourceserver.ResourceServiceUpdateClusterNodeArgs)
-	realResult := result.(*resourceserver.ResourceServiceUpdateClusterNodeResult)
-	success, err := handler.(resourceserver.ResourceService).UpdateClusterNode(ctx, realArg.Req)
+func updateNodeHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*resourceserver.ResourceServiceUpdateNodeArgs)
+	realResult := result.(*resourceserver.ResourceServiceUpdateNodeResult)
+	success, err := handler.(resourceserver.ResourceService).UpdateNode(ctx, realArg.Req)
 	if err != nil {
 		switch v := err.(type) {
 		case *common.Error:
@@ -639,18 +675,18 @@ func updateClusterNodeHandler(ctx context.Context, handler interface{}, arg, res
 	}
 	return nil
 }
-func newResourceServiceUpdateClusterNodeArgs() interface{} {
-	return resourceserver.NewResourceServiceUpdateClusterNodeArgs()
+func newResourceServiceUpdateNodeArgs() interface{} {
+	return resourceserver.NewResourceServiceUpdateNodeArgs()
 }
 
-func newResourceServiceUpdateClusterNodeResult() interface{} {
-	return resourceserver.NewResourceServiceUpdateClusterNodeResult()
+func newResourceServiceUpdateNodeResult() interface{} {
+	return resourceserver.NewResourceServiceUpdateNodeResult()
 }
 
-func getAutoScalingRuleHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*resourceserver.ResourceServiceGetAutoScalingRuleArgs)
-	realResult := result.(*resourceserver.ResourceServiceGetAutoScalingRuleResult)
-	success, err := handler.(resourceserver.ResourceService).GetAutoScalingRule(ctx, realArg.Req)
+func getClusterAutoScalingRuleHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*resourceserver.ResourceServiceGetClusterAutoScalingRuleArgs)
+	realResult := result.(*resourceserver.ResourceServiceGetClusterAutoScalingRuleResult)
+	success, err := handler.(resourceserver.ResourceService).GetClusterAutoScalingRule(ctx, realArg.Req)
 	if err != nil {
 		switch v := err.(type) {
 		case *common.Error:
@@ -663,18 +699,18 @@ func getAutoScalingRuleHandler(ctx context.Context, handler interface{}, arg, re
 	}
 	return nil
 }
-func newResourceServiceGetAutoScalingRuleArgs() interface{} {
-	return resourceserver.NewResourceServiceGetAutoScalingRuleArgs()
+func newResourceServiceGetClusterAutoScalingRuleArgs() interface{} {
+	return resourceserver.NewResourceServiceGetClusterAutoScalingRuleArgs()
 }
 
-func newResourceServiceGetAutoScalingRuleResult() interface{} {
-	return resourceserver.NewResourceServiceGetAutoScalingRuleResult()
+func newResourceServiceGetClusterAutoScalingRuleResult() interface{} {
+	return resourceserver.NewResourceServiceGetClusterAutoScalingRuleResult()
 }
 
-func updateAutoScalingRuleHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*resourceserver.ResourceServiceUpdateAutoScalingRuleArgs)
-	realResult := result.(*resourceserver.ResourceServiceUpdateAutoScalingRuleResult)
-	success, err := handler.(resourceserver.ResourceService).UpdateAutoScalingRule(ctx, realArg.Req)
+func updateClusterAutoScalingRuleHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*resourceserver.ResourceServiceUpdateClusterAutoScalingRuleArgs)
+	realResult := result.(*resourceserver.ResourceServiceUpdateClusterAutoScalingRuleResult)
+	success, err := handler.(resourceserver.ResourceService).UpdateClusterAutoScalingRule(ctx, realArg.Req)
 	if err != nil {
 		switch v := err.(type) {
 		case *common.Error:
@@ -687,18 +723,18 @@ func updateAutoScalingRuleHandler(ctx context.Context, handler interface{}, arg,
 	}
 	return nil
 }
-func newResourceServiceUpdateAutoScalingRuleArgs() interface{} {
-	return resourceserver.NewResourceServiceUpdateAutoScalingRuleArgs()
+func newResourceServiceUpdateClusterAutoScalingRuleArgs() interface{} {
+	return resourceserver.NewResourceServiceUpdateClusterAutoScalingRuleArgs()
 }
 
-func newResourceServiceUpdateAutoScalingRuleResult() interface{} {
-	return resourceserver.NewResourceServiceUpdateAutoScalingRuleResult()
+func newResourceServiceUpdateClusterAutoScalingRuleResult() interface{} {
+	return resourceserver.NewResourceServiceUpdateClusterAutoScalingRuleResult()
 }
 
-func nodePoolScaleUpHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*resourceserver.ResourceServiceNodePoolScaleUpArgs)
-	realResult := result.(*resourceserver.ResourceServiceNodePoolScaleUpResult)
-	success, err := handler.(resourceserver.ResourceService).NodePoolScaleUp(ctx, realArg.Req)
+func scaleUpNodePoolHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*resourceserver.ResourceServiceScaleUpNodePoolArgs)
+	realResult := result.(*resourceserver.ResourceServiceScaleUpNodePoolResult)
+	success, err := handler.(resourceserver.ResourceService).ScaleUpNodePool(ctx, realArg.Req)
 	if err != nil {
 		switch v := err.(type) {
 		case *common.Error:
@@ -711,18 +747,18 @@ func nodePoolScaleUpHandler(ctx context.Context, handler interface{}, arg, resul
 	}
 	return nil
 }
-func newResourceServiceNodePoolScaleUpArgs() interface{} {
-	return resourceserver.NewResourceServiceNodePoolScaleUpArgs()
+func newResourceServiceScaleUpNodePoolArgs() interface{} {
+	return resourceserver.NewResourceServiceScaleUpNodePoolArgs()
 }
 
-func newResourceServiceNodePoolScaleUpResult() interface{} {
-	return resourceserver.NewResourceServiceNodePoolScaleUpResult()
+func newResourceServiceScaleUpNodePoolResult() interface{} {
+	return resourceserver.NewResourceServiceScaleUpNodePoolResult()
 }
 
-func nodePoolScaleDownHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*resourceserver.ResourceServiceNodePoolScaleDownArgs)
-	realResult := result.(*resourceserver.ResourceServiceNodePoolScaleDownResult)
-	success, err := handler.(resourceserver.ResourceService).NodePoolScaleDown(ctx, realArg.Req)
+func scaleDownNodePoolHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*resourceserver.ResourceServiceScaleDownNodePoolArgs)
+	realResult := result.(*resourceserver.ResourceServiceScaleDownNodePoolResult)
+	success, err := handler.(resourceserver.ResourceService).ScaleDownNodePool(ctx, realArg.Req)
 	if err != nil {
 		switch v := err.(type) {
 		case *common.Error:
@@ -735,18 +771,18 @@ func nodePoolScaleDownHandler(ctx context.Context, handler interface{}, arg, res
 	}
 	return nil
 }
-func newResourceServiceNodePoolScaleDownArgs() interface{} {
-	return resourceserver.NewResourceServiceNodePoolScaleDownArgs()
+func newResourceServiceScaleDownNodePoolArgs() interface{} {
+	return resourceserver.NewResourceServiceScaleDownNodePoolArgs()
 }
 
-func newResourceServiceNodePoolScaleDownResult() interface{} {
-	return resourceserver.NewResourceServiceNodePoolScaleDownResult()
+func newResourceServiceScaleDownNodePoolResult() interface{} {
+	return resourceserver.NewResourceServiceScaleDownNodePoolResult()
 }
 
-func listNodePoolHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*resourceserver.ResourceServiceListNodePoolArgs)
-	realResult := result.(*resourceserver.ResourceServiceListNodePoolResult)
-	success, err := handler.(resourceserver.ResourceService).ListNodePool(ctx, realArg.Req)
+func listNodePoolsHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*resourceserver.ResourceServiceListNodePoolsArgs)
+	realResult := result.(*resourceserver.ResourceServiceListNodePoolsResult)
+	success, err := handler.(resourceserver.ResourceService).ListNodePools(ctx, realArg.Req)
 	if err != nil {
 		switch v := err.(type) {
 		case *common.Error:
@@ -759,12 +795,12 @@ func listNodePoolHandler(ctx context.Context, handler interface{}, arg, result i
 	}
 	return nil
 }
-func newResourceServiceListNodePoolArgs() interface{} {
-	return resourceserver.NewResourceServiceListNodePoolArgs()
+func newResourceServiceListNodePoolsArgs() interface{} {
+	return resourceserver.NewResourceServiceListNodePoolsArgs()
 }
 
-func newResourceServiceListNodePoolResult() interface{} {
-	return resourceserver.NewResourceServiceListNodePoolResult()
+func newResourceServiceListNodePoolsResult() interface{} {
+	return resourceserver.NewResourceServiceListNodePoolsResult()
 }
 
 func createNodePoolHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
@@ -887,10 +923,10 @@ func newResourceServiceListNodePoolScalingRecordsResult() interface{} {
 	return resourceserver.NewResourceServiceListNodePoolScalingRecordsResult()
 }
 
-func listNodePoolNodeHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*resourceserver.ResourceServiceListNodePoolNodeArgs)
-	realResult := result.(*resourceserver.ResourceServiceListNodePoolNodeResult)
-	success, err := handler.(resourceserver.ResourceService).ListNodePoolNode(ctx, realArg.Req)
+func listNodePoolNodesHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*resourceserver.ResourceServiceListNodePoolNodesArgs)
+	realResult := result.(*resourceserver.ResourceServiceListNodePoolNodesResult)
+	success, err := handler.(resourceserver.ResourceService).ListNodePoolNodes(ctx, realArg.Req)
 	if err != nil {
 		switch v := err.(type) {
 		case *common.Error:
@@ -903,12 +939,12 @@ func listNodePoolNodeHandler(ctx context.Context, handler interface{}, arg, resu
 	}
 	return nil
 }
-func newResourceServiceListNodePoolNodeArgs() interface{} {
-	return resourceserver.NewResourceServiceListNodePoolNodeArgs()
+func newResourceServiceListNodePoolNodesArgs() interface{} {
+	return resourceserver.NewResourceServiceListNodePoolNodesArgs()
 }
 
-func newResourceServiceListNodePoolNodeResult() interface{} {
-	return resourceserver.NewResourceServiceListNodePoolNodeResult()
+func newResourceServiceListNodePoolNodesResult() interface{} {
+	return resourceserver.NewResourceServiceListNodePoolNodesResult()
 }
 
 func listNamespaceHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
@@ -1775,10 +1811,10 @@ func newResourceServiceListAddonsResult() interface{} {
 	return resourceserver.NewResourceServiceListAddonsResult()
 }
 
-func installAddonHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*resourceserver.ResourceServiceInstallAddonArgs)
-	realResult := result.(*resourceserver.ResourceServiceInstallAddonResult)
-	success, err := handler.(resourceserver.ResourceService).InstallAddon(ctx, realArg.Req)
+func installAddonsHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*resourceserver.ResourceServiceInstallAddonsArgs)
+	realResult := result.(*resourceserver.ResourceServiceInstallAddonsResult)
+	success, err := handler.(resourceserver.ResourceService).InstallAddons(ctx, realArg.Req)
 	if err != nil {
 		switch v := err.(type) {
 		case *common.Error:
@@ -1791,18 +1827,18 @@ func installAddonHandler(ctx context.Context, handler interface{}, arg, result i
 	}
 	return nil
 }
-func newResourceServiceInstallAddonArgs() interface{} {
-	return resourceserver.NewResourceServiceInstallAddonArgs()
+func newResourceServiceInstallAddonsArgs() interface{} {
+	return resourceserver.NewResourceServiceInstallAddonsArgs()
 }
 
-func newResourceServiceInstallAddonResult() interface{} {
-	return resourceserver.NewResourceServiceInstallAddonResult()
+func newResourceServiceInstallAddonsResult() interface{} {
+	return resourceserver.NewResourceServiceInstallAddonsResult()
 }
 
-func uninstallAddonHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*resourceserver.ResourceServiceUninstallAddonArgs)
-	realResult := result.(*resourceserver.ResourceServiceUninstallAddonResult)
-	success, err := handler.(resourceserver.ResourceService).UninstallAddon(ctx, realArg.Req)
+func reinstallAddonHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*resourceserver.ResourceServiceReinstallAddonArgs)
+	realResult := result.(*resourceserver.ResourceServiceReinstallAddonResult)
+	success, err := handler.(resourceserver.ResourceService).ReinstallAddon(ctx, realArg.Req)
 	if err != nil {
 		switch v := err.(type) {
 		case *common.Error:
@@ -1815,12 +1851,36 @@ func uninstallAddonHandler(ctx context.Context, handler interface{}, arg, result
 	}
 	return nil
 }
-func newResourceServiceUninstallAddonArgs() interface{} {
-	return resourceserver.NewResourceServiceUninstallAddonArgs()
+func newResourceServiceReinstallAddonArgs() interface{} {
+	return resourceserver.NewResourceServiceReinstallAddonArgs()
 }
 
-func newResourceServiceUninstallAddonResult() interface{} {
-	return resourceserver.NewResourceServiceUninstallAddonResult()
+func newResourceServiceReinstallAddonResult() interface{} {
+	return resourceserver.NewResourceServiceReinstallAddonResult()
+}
+
+func uninstallAddonsHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*resourceserver.ResourceServiceUninstallAddonsArgs)
+	realResult := result.(*resourceserver.ResourceServiceUninstallAddonsResult)
+	success, err := handler.(resourceserver.ResourceService).UninstallAddons(ctx, realArg.Req)
+	if err != nil {
+		switch v := err.(type) {
+		case *common.Error:
+			realResult.Err = v
+		default:
+			return err
+		}
+	} else {
+		realResult.Success = success
+	}
+	return nil
+}
+func newResourceServiceUninstallAddonsArgs() interface{} {
+	return resourceserver.NewResourceServiceUninstallAddonsArgs()
+}
+
+func newResourceServiceUninstallAddonsResult() interface{} {
+	return resourceserver.NewResourceServiceUninstallAddonsResult()
 }
 
 func upgradeAddonHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
@@ -2015,6 +2075,30 @@ func newResourceServiceListVolumesResult() interface{} {
 	return resourceserver.NewResourceServiceListVolumesResult()
 }
 
+func listKeyPairsHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*resourceserver.ResourceServiceListKeyPairsArgs)
+	realResult := result.(*resourceserver.ResourceServiceListKeyPairsResult)
+	success, err := handler.(resourceserver.ResourceService).ListKeyPairs(ctx, realArg.Req)
+	if err != nil {
+		switch v := err.(type) {
+		case *common.Error:
+			realResult.Err = v
+		default:
+			return err
+		}
+	} else {
+		realResult.Success = success
+	}
+	return nil
+}
+func newResourceServiceListKeyPairsArgs() interface{} {
+	return resourceserver.NewResourceServiceListKeyPairsArgs()
+}
+
+func newResourceServiceListKeyPairsResult() interface{} {
+	return resourceserver.NewResourceServiceListKeyPairsResult()
+}
+
 func listSubnetsHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*resourceserver.ResourceServiceListSubnetsArgs)
 	realResult := result.(*resourceserver.ResourceServiceListSubnetsResult)
@@ -2039,10 +2123,10 @@ func newResourceServiceListSubnetsResult() interface{} {
 	return resourceserver.NewResourceServiceListSubnetsResult()
 }
 
-func listElasticIPPoolsHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*resourceserver.ResourceServiceListElasticIPPoolsArgs)
-	realResult := result.(*resourceserver.ResourceServiceListElasticIPPoolsResult)
-	success, err := handler.(resourceserver.ResourceService).ListElasticIPPools(ctx, realArg.Req)
+func listElasticIpPoolsHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*resourceserver.ResourceServiceListElasticIpPoolsArgs)
+	realResult := result.(*resourceserver.ResourceServiceListElasticIpPoolsResult)
+	success, err := handler.(resourceserver.ResourceService).ListElasticIpPools(ctx, realArg.Req)
 	if err != nil {
 		switch v := err.(type) {
 		case *common.Error:
@@ -2055,12 +2139,12 @@ func listElasticIPPoolsHandler(ctx context.Context, handler interface{}, arg, re
 	}
 	return nil
 }
-func newResourceServiceListElasticIPPoolsArgs() interface{} {
-	return resourceserver.NewResourceServiceListElasticIPPoolsArgs()
+func newResourceServiceListElasticIpPoolsArgs() interface{} {
+	return resourceserver.NewResourceServiceListElasticIpPoolsArgs()
 }
 
-func newResourceServiceListElasticIPPoolsResult() interface{} {
-	return resourceserver.NewResourceServiceListElasticIPPoolsResult()
+func newResourceServiceListElasticIpPoolsResult() interface{} {
+	return resourceserver.NewResourceServiceListElasticIpPoolsResult()
 }
 
 func listVpcsHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
@@ -2133,6 +2217,30 @@ func newResourceServiceListClbsArgs() interface{} {
 
 func newResourceServiceListClbsResult() interface{} {
 	return resourceserver.NewResourceServiceListClbsResult()
+}
+
+func listClbListenersHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*resourceserver.ResourceServiceListClbListenersArgs)
+	realResult := result.(*resourceserver.ResourceServiceListClbListenersResult)
+	success, err := handler.(resourceserver.ResourceService).ListClbListeners(ctx, realArg.Req)
+	if err != nil {
+		switch v := err.(type) {
+		case *common.Error:
+			realResult.Err = v
+		default:
+			return err
+		}
+	} else {
+		realResult.Success = success
+	}
+	return nil
+}
+func newResourceServiceListClbListenersArgs() interface{} {
+	return resourceserver.NewResourceServiceListClbListenersArgs()
+}
+
+func newResourceServiceListClbListenersResult() interface{} {
+	return resourceserver.NewResourceServiceListClbListenersResult()
 }
 
 func listQuotasHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
@@ -2423,6 +2531,126 @@ func newResourceServiceRecommendCidrResult() interface{} {
 	return resourceserver.NewResourceServiceRecommendCidrResult()
 }
 
+func addVciSubnetsHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*resourceserver.ResourceServiceAddVciSubnetsArgs)
+	realResult := result.(*resourceserver.ResourceServiceAddVciSubnetsResult)
+	success, err := handler.(resourceserver.ResourceService).AddVciSubnets(ctx, realArg.Req)
+	if err != nil {
+		switch v := err.(type) {
+		case *common.Error:
+			realResult.Err = v
+		default:
+			return err
+		}
+	} else {
+		realResult.Success = success
+	}
+	return nil
+}
+func newResourceServiceAddVciSubnetsArgs() interface{} {
+	return resourceserver.NewResourceServiceAddVciSubnetsArgs()
+}
+
+func newResourceServiceAddVciSubnetsResult() interface{} {
+	return resourceserver.NewResourceServiceAddVciSubnetsResult()
+}
+
+func isInShortTermWhiteListHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*resourceserver.ResourceServiceIsInShortTermWhiteListArgs)
+	realResult := result.(*resourceserver.ResourceServiceIsInShortTermWhiteListResult)
+	success, err := handler.(resourceserver.ResourceService).IsInShortTermWhiteList(ctx, realArg.Req)
+	if err != nil {
+		switch v := err.(type) {
+		case *common.Error:
+			realResult.Err = v
+		default:
+			return err
+		}
+	} else {
+		realResult.Success = success
+	}
+	return nil
+}
+func newResourceServiceIsInShortTermWhiteListArgs() interface{} {
+	return resourceserver.NewResourceServiceIsInShortTermWhiteListArgs()
+}
+
+func newResourceServiceIsInShortTermWhiteListResult() interface{} {
+	return resourceserver.NewResourceServiceIsInShortTermWhiteListResult()
+}
+
+func allowUserPublicTestHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*resourceserver.ResourceServiceAllowUserPublicTestArgs)
+	realResult := result.(*resourceserver.ResourceServiceAllowUserPublicTestResult)
+	success, err := handler.(resourceserver.ResourceService).AllowUserPublicTest(ctx, realArg.Req)
+	if err != nil {
+		switch v := err.(type) {
+		case *common.Error:
+			realResult.Err = v
+		default:
+			return err
+		}
+	} else {
+		realResult.Success = success
+	}
+	return nil
+}
+func newResourceServiceAllowUserPublicTestArgs() interface{} {
+	return resourceserver.NewResourceServiceAllowUserPublicTestArgs()
+}
+
+func newResourceServiceAllowUserPublicTestResult() interface{} {
+	return resourceserver.NewResourceServiceAllowUserPublicTestResult()
+}
+
+func listVciAvailabilityZonesHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*resourceserver.ResourceServiceListVciAvailabilityZonesArgs)
+	realResult := result.(*resourceserver.ResourceServiceListVciAvailabilityZonesResult)
+	success, err := handler.(resourceserver.ResourceService).ListVciAvailabilityZones(ctx, realArg.Req)
+	if err != nil {
+		switch v := err.(type) {
+		case *common.Error:
+			realResult.Err = v
+		default:
+			return err
+		}
+	} else {
+		realResult.Success = success
+	}
+	return nil
+}
+func newResourceServiceListVciAvailabilityZonesArgs() interface{} {
+	return resourceserver.NewResourceServiceListVciAvailabilityZonesArgs()
+}
+
+func newResourceServiceListVciAvailabilityZonesResult() interface{} {
+	return resourceserver.NewResourceServiceListVciAvailabilityZonesResult()
+}
+
+func listNodeZonesHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*resourceserver.ResourceServiceListNodeZonesArgs)
+	realResult := result.(*resourceserver.ResourceServiceListNodeZonesResult)
+	success, err := handler.(resourceserver.ResourceService).ListNodeZones(ctx, realArg.Req)
+	if err != nil {
+		switch v := err.(type) {
+		case *common.Error:
+			realResult.Err = v
+		default:
+			return err
+		}
+	} else {
+		realResult.Success = success
+	}
+	return nil
+}
+func newResourceServiceListNodeZonesArgs() interface{} {
+	return resourceserver.NewResourceServiceListNodeZonesArgs()
+}
+
+func newResourceServiceListNodeZonesResult() interface{} {
+	return resourceserver.NewResourceServiceListNodeZonesResult()
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -2461,11 +2689,11 @@ func (p *kClient) GetKubeConfig(ctx context.Context, req *cluster.GetKubeConfigR
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) RevokeKubeConfig(ctx context.Context, req *cluster.RevokeKubeConfigRequest) (r *cluster.RevokeKubeConfigResponse, err error) {
-	var _args resourceserver.ResourceServiceRevokeKubeConfigArgs
+func (p *kClient) GetKubeconfig(ctx context.Context, req *cluster.GetKubeconfigRequest) (r *cluster.GetKubeconfigResponse, err error) {
+	var _args resourceserver.ResourceServiceGetKubeconfigArgs
 	_args.Req = req
-	var _result resourceserver.ResourceServiceRevokeKubeConfigResult
-	if err = p.c.Call(ctx, "RevokeKubeConfig", &_args, &_result); err != nil {
+	var _result resourceserver.ResourceServiceGetKubeconfigResult
+	if err = p.c.Call(ctx, "GetKubeconfig", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -2475,11 +2703,25 @@ func (p *kClient) RevokeKubeConfig(ctx context.Context, req *cluster.RevokeKubeC
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) ListKubeConfig(ctx context.Context, req *cluster.ListKubeConfigRequest) (r *cluster.ListKubeConfigResponse, err error) {
-	var _args resourceserver.ResourceServiceListKubeConfigArgs
+func (p *kClient) RevokeKubeconfig(ctx context.Context, req *cluster.RevokeKubeconfigRequest) (r *cluster.RevokeKubeconfigResponse, err error) {
+	var _args resourceserver.ResourceServiceRevokeKubeconfigArgs
 	_args.Req = req
-	var _result resourceserver.ResourceServiceListKubeConfigResult
-	if err = p.c.Call(ctx, "ListKubeConfig", &_args, &_result); err != nil {
+	var _result resourceserver.ResourceServiceRevokeKubeconfigResult
+	if err = p.c.Call(ctx, "RevokeKubeconfig", &_args, &_result); err != nil {
+		return
+	}
+	switch {
+	case _result.Err != nil:
+		return r, _result.Err
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) ListKubeconfigUsers(ctx context.Context, req *cluster.ListKubeconfigUsersRequest) (r *cluster.ListKubeconfigUsersResponse, err error) {
+	var _args resourceserver.ResourceServiceListKubeconfigUsersArgs
+	_args.Req = req
+	var _result resourceserver.ResourceServiceListKubeconfigUsersResult
+	if err = p.c.Call(ctx, "ListKubeconfigUsers", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -2573,11 +2815,11 @@ func (p *kClient) GetCluster(ctx context.Context, req *cluster.GetClusterRequest
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) ListCluster(ctx context.Context, req *cluster.ListClusterRequest) (r *cluster.ListClusterResponse, err error) {
-	var _args resourceserver.ResourceServiceListClusterArgs
+func (p *kClient) ListClusters(ctx context.Context, req *cluster.ListClustersRequest) (r *cluster.ListClustersResponse, err error) {
+	var _args resourceserver.ResourceServiceListClustersArgs
 	_args.Req = req
-	var _result resourceserver.ResourceServiceListClusterResult
-	if err = p.c.Call(ctx, "ListCluster", &_args, &_result); err != nil {
+	var _result resourceserver.ResourceServiceListClustersResult
+	if err = p.c.Call(ctx, "ListClusters", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -2601,11 +2843,11 @@ func (p *kClient) GetClusterDeployProgress(ctx context.Context, req *cluster.Get
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) ListClusterKubernetesVersion(ctx context.Context, req *cluster.ListClusterKubernetesVersionRequest) (r *cluster.ListClusterKubernetesVersionResponse, err error) {
-	var _args resourceserver.ResourceServiceListClusterKubernetesVersionArgs
+func (p *kClient) ListSupportedKubernetesVersions(ctx context.Context, req *cluster.ListSupportedKubernetesVersionsRequest) (r *cluster.ListSupportedKubernetesVersionsResponse, err error) {
+	var _args resourceserver.ResourceServiceListSupportedKubernetesVersionsArgs
 	_args.Req = req
-	var _result resourceserver.ResourceServiceListClusterKubernetesVersionResult
-	if err = p.c.Call(ctx, "ListClusterKubernetesVersion", &_args, &_result); err != nil {
+	var _result resourceserver.ResourceServiceListSupportedKubernetesVersionsResult
+	if err = p.c.Call(ctx, "ListSupportedKubernetesVersions", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -2615,11 +2857,11 @@ func (p *kClient) ListClusterKubernetesVersion(ctx context.Context, req *cluster
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) ListClusterNetworkCidr(ctx context.Context, req *cluster.ListClusterNetworkCidrRequest) (r *cluster.ListClusterNetworkCidrResponse, err error) {
-	var _args resourceserver.ResourceServiceListClusterNetworkCidrArgs
+func (p *kClient) ListClusterNetworkCidrs(ctx context.Context, req *cluster.ListClusterNetworkCidrsRequest) (r *cluster.ListClusterNetworkCidrsResponse, err error) {
+	var _args resourceserver.ResourceServiceListClusterNetworkCidrsArgs
 	_args.Req = req
-	var _result resourceserver.ResourceServiceListClusterNetworkCidrResult
-	if err = p.c.Call(ctx, "ListClusterNetworkCidr", &_args, &_result); err != nil {
+	var _result resourceserver.ResourceServiceListClusterNetworkCidrsResult
+	if err = p.c.Call(ctx, "ListClusterNetworkCidrs", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -2629,11 +2871,11 @@ func (p *kClient) ListClusterNetworkCidr(ctx context.Context, req *cluster.ListC
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) ListSupportGpuModel(ctx context.Context, req *cluster.ListSupportGpuModelRequest) (r *cluster.ListSupportGpuModelResponse, err error) {
-	var _args resourceserver.ResourceServiceListSupportGpuModelArgs
+func (p *kClient) ListSupportedGpuModels(ctx context.Context, req *cluster.ListSupportedGpuModelsRequest) (r *cluster.ListSupportedGpuModelsResponse, err error) {
+	var _args resourceserver.ResourceServiceListSupportedGpuModelsArgs
 	_args.Req = req
-	var _result resourceserver.ResourceServiceListSupportGpuModelResult
-	if err = p.c.Call(ctx, "ListSupportGpuModel", &_args, &_result); err != nil {
+	var _result resourceserver.ResourceServiceListSupportedGpuModelsResult
+	if err = p.c.Call(ctx, "ListSupportedGpuModels", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -2643,11 +2885,11 @@ func (p *kClient) ListSupportGpuModel(ctx context.Context, req *cluster.ListSupp
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) ListClusterNode(ctx context.Context, req *cluster.ListClusterNodeRequest) (r *cluster.ListClusterNodeResponse, err error) {
-	var _args resourceserver.ResourceServiceListClusterNodeArgs
+func (p *kClient) ListNodes(ctx context.Context, req *cluster.ListNodesRequest) (r *cluster.ListNodesResponse, err error) {
+	var _args resourceserver.ResourceServiceListNodesArgs
 	_args.Req = req
-	var _result resourceserver.ResourceServiceListClusterNodeResult
-	if err = p.c.Call(ctx, "ListClusterNode", &_args, &_result); err != nil {
+	var _result resourceserver.ResourceServiceListNodesResult
+	if err = p.c.Call(ctx, "ListNodes", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -2657,11 +2899,11 @@ func (p *kClient) ListClusterNode(ctx context.Context, req *cluster.ListClusterN
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) AddClusterNode(ctx context.Context, req *cluster.AddClusterNodeRequest) (r *cluster.AddClusterNodeResponse, err error) {
-	var _args resourceserver.ResourceServiceAddClusterNodeArgs
+func (p *kClient) AddNodes(ctx context.Context, req *cluster.AddNodesRequest) (r *cluster.AddNodesResponse, err error) {
+	var _args resourceserver.ResourceServiceAddNodesArgs
 	_args.Req = req
-	var _result resourceserver.ResourceServiceAddClusterNodeResult
-	if err = p.c.Call(ctx, "AddClusterNode", &_args, &_result); err != nil {
+	var _result resourceserver.ResourceServiceAddNodesResult
+	if err = p.c.Call(ctx, "AddNodes", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -2671,11 +2913,11 @@ func (p *kClient) AddClusterNode(ctx context.Context, req *cluster.AddClusterNod
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) GetClusterNode(ctx context.Context, req *cluster.GetClusterNodeRequest) (r *cluster.GetClusterNodeResponse, err error) {
-	var _args resourceserver.ResourceServiceGetClusterNodeArgs
+func (p *kClient) GetNode(ctx context.Context, req *cluster.GetNodeRequest) (r *cluster.GetNodeResponse, err error) {
+	var _args resourceserver.ResourceServiceGetNodeArgs
 	_args.Req = req
-	var _result resourceserver.ResourceServiceGetClusterNodeResult
-	if err = p.c.Call(ctx, "GetClusterNode", &_args, &_result); err != nil {
+	var _result resourceserver.ResourceServiceGetNodeResult
+	if err = p.c.Call(ctx, "GetNode", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -2685,11 +2927,11 @@ func (p *kClient) GetClusterNode(ctx context.Context, req *cluster.GetClusterNod
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) DeleteClusterNode(ctx context.Context, req *cluster.DeleteClusterNodeRequest) (r *cluster.DeleteClusterNodeResponse, err error) {
-	var _args resourceserver.ResourceServiceDeleteClusterNodeArgs
+func (p *kClient) DeleteNodes(ctx context.Context, req *cluster.DeleteNodesRequest) (r *cluster.DeleteNodesResponse, err error) {
+	var _args resourceserver.ResourceServiceDeleteNodesArgs
 	_args.Req = req
-	var _result resourceserver.ResourceServiceDeleteClusterNodeResult
-	if err = p.c.Call(ctx, "DeleteClusterNode", &_args, &_result); err != nil {
+	var _result resourceserver.ResourceServiceDeleteNodesResult
+	if err = p.c.Call(ctx, "DeleteNodes", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -2699,11 +2941,11 @@ func (p *kClient) DeleteClusterNode(ctx context.Context, req *cluster.DeleteClus
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) ListClusterNodeLabel(ctx context.Context, req *cluster.ListClusterNodeLabelRequest) (r *cluster.ListClusterNodeLabelResponse, err error) {
-	var _args resourceserver.ResourceServiceListClusterNodeLabelArgs
+func (p *kClient) ListNodeLabels(ctx context.Context, req *cluster.ListNodeLabelsRequest) (r *cluster.ListNodeLabelsResponse, err error) {
+	var _args resourceserver.ResourceServiceListNodeLabelsArgs
 	_args.Req = req
-	var _result resourceserver.ResourceServiceListClusterNodeLabelResult
-	if err = p.c.Call(ctx, "ListClusterNodeLabel", &_args, &_result); err != nil {
+	var _result resourceserver.ResourceServiceListNodeLabelsResult
+	if err = p.c.Call(ctx, "ListNodeLabels", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -2713,11 +2955,11 @@ func (p *kClient) ListClusterNodeLabel(ctx context.Context, req *cluster.ListClu
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) UpdateClusterNode(ctx context.Context, req *cluster.UpdateClusterNodeRequest) (r *cluster.UpdateClusterNodeResponse, err error) {
-	var _args resourceserver.ResourceServiceUpdateClusterNodeArgs
+func (p *kClient) UpdateNode(ctx context.Context, req *cluster.UpdateNodeRequest) (r *cluster.UpdateNodeResponse, err error) {
+	var _args resourceserver.ResourceServiceUpdateNodeArgs
 	_args.Req = req
-	var _result resourceserver.ResourceServiceUpdateClusterNodeResult
-	if err = p.c.Call(ctx, "UpdateClusterNode", &_args, &_result); err != nil {
+	var _result resourceserver.ResourceServiceUpdateNodeResult
+	if err = p.c.Call(ctx, "UpdateNode", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -2727,11 +2969,11 @@ func (p *kClient) UpdateClusterNode(ctx context.Context, req *cluster.UpdateClus
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) GetAutoScalingRule(ctx context.Context, req *cluster.GetAutoScalingRuleRequest) (r *cluster.GetAutoScalingRuleResponse, err error) {
-	var _args resourceserver.ResourceServiceGetAutoScalingRuleArgs
+func (p *kClient) GetClusterAutoScalingRule(ctx context.Context, req *cluster.GetClusterAutoScalingRuleRequest) (r *cluster.GetClusterAutoScalingRuleResponse, err error) {
+	var _args resourceserver.ResourceServiceGetClusterAutoScalingRuleArgs
 	_args.Req = req
-	var _result resourceserver.ResourceServiceGetAutoScalingRuleResult
-	if err = p.c.Call(ctx, "GetAutoScalingRule", &_args, &_result); err != nil {
+	var _result resourceserver.ResourceServiceGetClusterAutoScalingRuleResult
+	if err = p.c.Call(ctx, "GetClusterAutoScalingRule", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -2741,11 +2983,11 @@ func (p *kClient) GetAutoScalingRule(ctx context.Context, req *cluster.GetAutoSc
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) UpdateAutoScalingRule(ctx context.Context, req *cluster.UpdateAutoScalingRuleRequest) (r *cluster.UpdateAutoScalingRuleResponse, err error) {
-	var _args resourceserver.ResourceServiceUpdateAutoScalingRuleArgs
+func (p *kClient) UpdateClusterAutoScalingRule(ctx context.Context, req *cluster.UpdateClusterAutoScalingRuleRequest) (r *cluster.UpdateClusterAutoScalingRuleResponse, err error) {
+	var _args resourceserver.ResourceServiceUpdateClusterAutoScalingRuleArgs
 	_args.Req = req
-	var _result resourceserver.ResourceServiceUpdateAutoScalingRuleResult
-	if err = p.c.Call(ctx, "UpdateAutoScalingRule", &_args, &_result); err != nil {
+	var _result resourceserver.ResourceServiceUpdateClusterAutoScalingRuleResult
+	if err = p.c.Call(ctx, "UpdateClusterAutoScalingRule", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -2755,11 +2997,11 @@ func (p *kClient) UpdateAutoScalingRule(ctx context.Context, req *cluster.Update
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) NodePoolScaleUp(ctx context.Context, req *cluster.NodePoolScaleUpRequest) (r *cluster.NodePoolScaleUpResponse, err error) {
-	var _args resourceserver.ResourceServiceNodePoolScaleUpArgs
+func (p *kClient) ScaleUpNodePool(ctx context.Context, req *cluster.ScaleUpNodePoolRequest) (r *cluster.ScaleUpNodePoolResponse, err error) {
+	var _args resourceserver.ResourceServiceScaleUpNodePoolArgs
 	_args.Req = req
-	var _result resourceserver.ResourceServiceNodePoolScaleUpResult
-	if err = p.c.Call(ctx, "NodePoolScaleUp", &_args, &_result); err != nil {
+	var _result resourceserver.ResourceServiceScaleUpNodePoolResult
+	if err = p.c.Call(ctx, "ScaleUpNodePool", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -2769,11 +3011,11 @@ func (p *kClient) NodePoolScaleUp(ctx context.Context, req *cluster.NodePoolScal
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) NodePoolScaleDown(ctx context.Context, req *cluster.NodePoolScaleDownRequest) (r *cluster.NodePoolScaleDownResponse, err error) {
-	var _args resourceserver.ResourceServiceNodePoolScaleDownArgs
+func (p *kClient) ScaleDownNodePool(ctx context.Context, req *cluster.ScaleDownNodePoolRequest) (r *cluster.ScaleDownNodePoolResponse, err error) {
+	var _args resourceserver.ResourceServiceScaleDownNodePoolArgs
 	_args.Req = req
-	var _result resourceserver.ResourceServiceNodePoolScaleDownResult
-	if err = p.c.Call(ctx, "NodePoolScaleDown", &_args, &_result); err != nil {
+	var _result resourceserver.ResourceServiceScaleDownNodePoolResult
+	if err = p.c.Call(ctx, "ScaleDownNodePool", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -2783,11 +3025,11 @@ func (p *kClient) NodePoolScaleDown(ctx context.Context, req *cluster.NodePoolSc
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) ListNodePool(ctx context.Context, req *cluster.ListNodePoolRequest) (r *cluster.ListNodePoolResponse, err error) {
-	var _args resourceserver.ResourceServiceListNodePoolArgs
+func (p *kClient) ListNodePools(ctx context.Context, req *cluster.ListNodePoolsRequest) (r *cluster.ListNodePoolsResponse, err error) {
+	var _args resourceserver.ResourceServiceListNodePoolsArgs
 	_args.Req = req
-	var _result resourceserver.ResourceServiceListNodePoolResult
-	if err = p.c.Call(ctx, "ListNodePool", &_args, &_result); err != nil {
+	var _result resourceserver.ResourceServiceListNodePoolsResult
+	if err = p.c.Call(ctx, "ListNodePools", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -2853,7 +3095,7 @@ func (p *kClient) DeleteNodePool(ctx context.Context, req *cluster.DeleteNodePoo
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) ListNodePoolScalingRecords(ctx context.Context, req *cluster.ListNodePoolScalingRecordRequest) (r *cluster.ListNodePoolScalingRecordResponse, err error) {
+func (p *kClient) ListNodePoolScalingRecords(ctx context.Context, req *cluster.ListNodePoolScalingRecordsRequest) (r *cluster.ListNodePoolScalingRecordsResponse, err error) {
 	var _args resourceserver.ResourceServiceListNodePoolScalingRecordsArgs
 	_args.Req = req
 	var _result resourceserver.ResourceServiceListNodePoolScalingRecordsResult
@@ -2867,11 +3109,11 @@ func (p *kClient) ListNodePoolScalingRecords(ctx context.Context, req *cluster.L
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) ListNodePoolNode(ctx context.Context, req *cluster.ListNodePoolNodeRequest) (r *cluster.ListNodePoolNodeResponse, err error) {
-	var _args resourceserver.ResourceServiceListNodePoolNodeArgs
+func (p *kClient) ListNodePoolNodes(ctx context.Context, req *cluster.ListNodePoolNodesRequest) (r *cluster.ListNodePoolNodesResponse, err error) {
+	var _args resourceserver.ResourceServiceListNodePoolNodesArgs
 	_args.Req = req
-	var _result resourceserver.ResourceServiceListNodePoolNodeResult
-	if err = p.c.Call(ctx, "ListNodePoolNode", &_args, &_result); err != nil {
+	var _result resourceserver.ResourceServiceListNodePoolNodesResult
+	if err = p.c.Call(ctx, "ListNodePoolNodes", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -3357,7 +3599,7 @@ func (p *kClient) ListCustomRoles(ctx context.Context, req *rbac.ListCustomRoles
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) ListSupportedAddons(ctx context.Context, req *addon.ListSupportedAddonRequest) (r *addon.ListSupportedAddonResponse, err error) {
+func (p *kClient) ListSupportedAddons(ctx context.Context, req *addon.ListSupportedAddonsRequest) (r *addon.ListSupportedAddonsResponse, err error) {
 	var _args resourceserver.ResourceServiceListSupportedAddonsArgs
 	_args.Req = req
 	var _result resourceserver.ResourceServiceListSupportedAddonsResult
@@ -3371,7 +3613,7 @@ func (p *kClient) ListSupportedAddons(ctx context.Context, req *addon.ListSuppor
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) ListAddons(ctx context.Context, req *addon.ListAddonRequest) (r *addon.ListAddonResponse, err error) {
+func (p *kClient) ListAddons(ctx context.Context, req *addon.ListAddonsRequest) (r *addon.ListAddonsResponse, err error) {
 	var _args resourceserver.ResourceServiceListAddonsArgs
 	_args.Req = req
 	var _result resourceserver.ResourceServiceListAddonsResult
@@ -3385,11 +3627,11 @@ func (p *kClient) ListAddons(ctx context.Context, req *addon.ListAddonRequest) (
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) InstallAddon(ctx context.Context, req *addon.InstallAddonRequest) (r *addon.InstallAddonResponse, err error) {
-	var _args resourceserver.ResourceServiceInstallAddonArgs
+func (p *kClient) InstallAddons(ctx context.Context, req *addon.InstallAddonsRequest) (r *addon.InstallAddonsResponse, err error) {
+	var _args resourceserver.ResourceServiceInstallAddonsArgs
 	_args.Req = req
-	var _result resourceserver.ResourceServiceInstallAddonResult
-	if err = p.c.Call(ctx, "InstallAddon", &_args, &_result); err != nil {
+	var _result resourceserver.ResourceServiceInstallAddonsResult
+	if err = p.c.Call(ctx, "InstallAddons", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -3399,11 +3641,25 @@ func (p *kClient) InstallAddon(ctx context.Context, req *addon.InstallAddonReque
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) UninstallAddon(ctx context.Context, req *addon.UninstallAddonRequest) (r *addon.UninstallAddonResponse, err error) {
-	var _args resourceserver.ResourceServiceUninstallAddonArgs
+func (p *kClient) ReinstallAddon(ctx context.Context, req *addon.ReinstallAddonRequest) (r *addon.ReinstallAddonResponse, err error) {
+	var _args resourceserver.ResourceServiceReinstallAddonArgs
 	_args.Req = req
-	var _result resourceserver.ResourceServiceUninstallAddonResult
-	if err = p.c.Call(ctx, "UninstallAddon", &_args, &_result); err != nil {
+	var _result resourceserver.ResourceServiceReinstallAddonResult
+	if err = p.c.Call(ctx, "ReinstallAddon", &_args, &_result); err != nil {
+		return
+	}
+	switch {
+	case _result.Err != nil:
+		return r, _result.Err
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) UninstallAddons(ctx context.Context, req *addon.UninstallAddonsRequest) (r *addon.UninstallAddonsResponse, err error) {
+	var _args resourceserver.ResourceServiceUninstallAddonsArgs
+	_args.Req = req
+	var _result resourceserver.ResourceServiceUninstallAddonsResult
+	if err = p.c.Call(ctx, "UninstallAddons", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -3525,6 +3781,20 @@ func (p *kClient) ListVolumes(ctx context.Context, req *instance.ListVolumesRequ
 	return _result.GetSuccess(), nil
 }
 
+func (p *kClient) ListKeyPairs(ctx context.Context, req *instance.ListKeyPairsRequest) (r *instance.ListKeyPairsResponse, err error) {
+	var _args resourceserver.ResourceServiceListKeyPairsArgs
+	_args.Req = req
+	var _result resourceserver.ResourceServiceListKeyPairsResult
+	if err = p.c.Call(ctx, "ListKeyPairs", &_args, &_result); err != nil {
+		return
+	}
+	switch {
+	case _result.Err != nil:
+		return r, _result.Err
+	}
+	return _result.GetSuccess(), nil
+}
+
 func (p *kClient) ListSubnets(ctx context.Context, req *vpc.ListSubnetsRequest) (r *vpc.ListSubnetsResponse, err error) {
 	var _args resourceserver.ResourceServiceListSubnetsArgs
 	_args.Req = req
@@ -3539,11 +3809,11 @@ func (p *kClient) ListSubnets(ctx context.Context, req *vpc.ListSubnetsRequest) 
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) ListElasticIPPools(ctx context.Context, req *vpc.ListElasticIPPoolsRequest) (r *vpc.ListElasticIPPoolsResponse, err error) {
-	var _args resourceserver.ResourceServiceListElasticIPPoolsArgs
+func (p *kClient) ListElasticIpPools(ctx context.Context, req *vpc.ListElasticIpPoolsRequest) (r *vpc.ListElasticIpPoolsResponse, err error) {
+	var _args resourceserver.ResourceServiceListElasticIpPoolsArgs
 	_args.Req = req
-	var _result resourceserver.ResourceServiceListElasticIPPoolsResult
-	if err = p.c.Call(ctx, "ListElasticIPPools", &_args, &_result); err != nil {
+	var _result resourceserver.ResourceServiceListElasticIpPoolsResult
+	if err = p.c.Call(ctx, "ListElasticIpPools", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -3581,11 +3851,25 @@ func (p *kClient) ListSecurityGroups(ctx context.Context, req *vpc.ListSecurityG
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) ListClbs(ctx context.Context, req *clb.ListClbRequest) (r *clb.ListClbResponse, err error) {
+func (p *kClient) ListClbs(ctx context.Context, req *clb.ListClbsRequest) (r *clb.ListClbsResponse, err error) {
 	var _args resourceserver.ResourceServiceListClbsArgs
 	_args.Req = req
 	var _result resourceserver.ResourceServiceListClbsResult
 	if err = p.c.Call(ctx, "ListClbs", &_args, &_result); err != nil {
+		return
+	}
+	switch {
+	case _result.Err != nil:
+		return r, _result.Err
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) ListClbListeners(ctx context.Context, req *clb.ListClbListenersRequest) (r *clb.ListClbListenersResponse, err error) {
+	var _args resourceserver.ResourceServiceListClbListenersArgs
+	_args.Req = req
+	var _result resourceserver.ResourceServiceListClbListenersResult
+	if err = p.c.Call(ctx, "ListClbListeners", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -3754,6 +4038,76 @@ func (p *kClient) RecommendCidr(ctx context.Context, req *cluster.RecommendCidrR
 	_args.Req = req
 	var _result resourceserver.ResourceServiceRecommendCidrResult
 	if err = p.c.Call(ctx, "RecommendCidr", &_args, &_result); err != nil {
+		return
+	}
+	switch {
+	case _result.Err != nil:
+		return r, _result.Err
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) AddVciSubnets(ctx context.Context, req *cluster.AddVciSubnetsRequest) (r *cluster.AddVciSubnetsResponse, err error) {
+	var _args resourceserver.ResourceServiceAddVciSubnetsArgs
+	_args.Req = req
+	var _result resourceserver.ResourceServiceAddVciSubnetsResult
+	if err = p.c.Call(ctx, "AddVciSubnets", &_args, &_result); err != nil {
+		return
+	}
+	switch {
+	case _result.Err != nil:
+		return r, _result.Err
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) IsInShortTermWhiteList(ctx context.Context, req *trade.IsInShortTermWhiteListRequest) (r *trade.IsInShortTermWhiteListResponse, err error) {
+	var _args resourceserver.ResourceServiceIsInShortTermWhiteListArgs
+	_args.Req = req
+	var _result resourceserver.ResourceServiceIsInShortTermWhiteListResult
+	if err = p.c.Call(ctx, "IsInShortTermWhiteList", &_args, &_result); err != nil {
+		return
+	}
+	switch {
+	case _result.Err != nil:
+		return r, _result.Err
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) AllowUserPublicTest(ctx context.Context, req *publicverify.PublicTestAllowedReq) (r *publicverify.PublicTestAllowedResp, err error) {
+	var _args resourceserver.ResourceServiceAllowUserPublicTestArgs
+	_args.Req = req
+	var _result resourceserver.ResourceServiceAllowUserPublicTestResult
+	if err = p.c.Call(ctx, "AllowUserPublicTest", &_args, &_result); err != nil {
+		return
+	}
+	switch {
+	case _result.Err != nil:
+		return r, _result.Err
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) ListVciAvailabilityZones(ctx context.Context, req *vci.ListVciAvailabilityZonesRequest) (r *vci.ListVciAvailabilityZonesResponse, err error) {
+	var _args resourceserver.ResourceServiceListVciAvailabilityZonesArgs
+	_args.Req = req
+	var _result resourceserver.ResourceServiceListVciAvailabilityZonesResult
+	if err = p.c.Call(ctx, "ListVciAvailabilityZones", &_args, &_result); err != nil {
+		return
+	}
+	switch {
+	case _result.Err != nil:
+		return r, _result.Err
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) ListNodeZones(ctx context.Context, req *cluster.ListNodeZonesRequest) (r *cluster.ListNodeZonesResponse, err error) {
+	var _args resourceserver.ResourceServiceListNodeZonesArgs
+	_args.Req = req
+	var _result resourceserver.ResourceServiceListNodeZonesResult
+	if err = p.c.Call(ctx, "ListNodeZones", &_args, &_result); err != nil {
 		return
 	}
 	switch {

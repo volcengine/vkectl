@@ -1284,7 +1284,7 @@ func (p *CreateBareMachineRequest) Field255DeepEqual(src *base.Base) bool {
 }
 
 type CreateBareMachineResponse struct {
-	Id   string     `thrift:"Id,1,required" json:"Id"`
+	Ids  []string   `thrift:"Ids,1,required" json:"Ids"`
 	Base *base.Base `thrift:"Base,255" json:"Base,omitempty"`
 }
 
@@ -1292,8 +1292,8 @@ func NewCreateBareMachineResponse() *CreateBareMachineResponse {
 	return &CreateBareMachineResponse{}
 }
 
-func (p *CreateBareMachineResponse) GetId() (v string) {
-	return p.Id
+func (p *CreateBareMachineResponse) GetIds() (v []string) {
+	return p.Ids
 }
 
 var CreateBareMachineResponse_Base_DEFAULT *base.Base
@@ -1304,15 +1304,15 @@ func (p *CreateBareMachineResponse) GetBase() (v *base.Base) {
 	}
 	return p.Base
 }
-func (p *CreateBareMachineResponse) SetId(val string) {
-	p.Id = val
+func (p *CreateBareMachineResponse) SetIds(val []string) {
+	p.Ids = val
 }
 func (p *CreateBareMachineResponse) SetBase(val *base.Base) {
 	p.Base = val
 }
 
 var fieldIDToName_CreateBareMachineResponse = map[int16]string{
-	1:   "Id",
+	1:   "Ids",
 	255: "Base",
 }
 
@@ -1324,7 +1324,7 @@ func (p *CreateBareMachineResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetId bool = false
+	var issetIds bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -1341,11 +1341,11 @@ func (p *CreateBareMachineResponse) Read(iprot thrift.TProtocol) (err error) {
 
 		switch fieldId {
 		case 1:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.LIST {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetId = true
+				issetIds = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -1375,7 +1375,7 @@ func (p *CreateBareMachineResponse) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
-	if !issetId {
+	if !issetIds {
 		fieldId = 1
 		goto RequiredFieldNotSetError
 	}
@@ -1398,10 +1398,23 @@ RequiredFieldNotSetError:
 }
 
 func (p *CreateBareMachineResponse) ReadField1(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadString(); err != nil {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
 		return err
-	} else {
-		p.Id = v
+	}
+	p.Ids = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		p.Ids = append(p.Ids, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
 	}
 	return nil
 }
@@ -1448,10 +1461,18 @@ WriteStructEndError:
 }
 
 func (p *CreateBareMachineResponse) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("Id", thrift.STRING, 1); err != nil {
+	if err = oprot.WriteFieldBegin("Ids", thrift.LIST, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Id); err != nil {
+	if err := oprot.WriteListBegin(thrift.STRING, len(p.Ids)); err != nil {
+		return err
+	}
+	for _, v := range p.Ids {
+		if err := oprot.WriteString(v); err != nil {
+			return err
+		}
+	}
+	if err := oprot.WriteListEnd(); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1496,7 +1517,7 @@ func (p *CreateBareMachineResponse) DeepEqual(ano *CreateBareMachineResponse) bo
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.Id) {
+	if !p.Field1DeepEqual(ano.Ids) {
 		return false
 	}
 	if !p.Field255DeepEqual(ano.Base) {
@@ -1505,10 +1526,16 @@ func (p *CreateBareMachineResponse) DeepEqual(ano *CreateBareMachineResponse) bo
 	return true
 }
 
-func (p *CreateBareMachineResponse) Field1DeepEqual(src string) bool {
+func (p *CreateBareMachineResponse) Field1DeepEqual(src []string) bool {
 
-	if strings.Compare(p.Id, src) != 0 {
+	if len(p.Ids) != len(src) {
 		return false
+	}
+	for i, v := range p.Ids {
+		_src := src[i]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
 	}
 	return true
 }
@@ -1522,7 +1549,7 @@ func (p *CreateBareMachineResponse) Field255DeepEqual(src *base.Base) bool {
 
 type UpdateBareMachineRequest struct {
 	Id     string          `thrift:"Id,1,required" json:"Id"`
-	Name   *string         `thrift:"Name,2" validate:"k8sAlias"`
+	Name   *string         `thrift:"Name,2" json:"Name,omitempty"`
 	Login  *Login          `thrift:"Login,3" json:"Login,omitempty"`
 	Labels []*helper.Label `thrift:"Labels,4" json:"Labels,omitempty"`
 	Top    *base.TopParam  `thrift:"Top,254,required" json:"Top"`

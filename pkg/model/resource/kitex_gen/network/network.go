@@ -557,10 +557,14 @@ type RulePath struct {
 	Path        string `thrift:"Path,1,required" validate:"required"`
 	ServiceName string `thrift:"ServiceName,2,required" validate:"required"`
 	ServicePort int32  `thrift:"ServicePort,3,required" validate:"required"`
+	PathType    string `thrift:"PathType,4" json:"PathType,omitempty"`
 }
 
 func NewRulePath() *RulePath {
-	return &RulePath{}
+	return &RulePath{
+
+		PathType: "Exact",
+	}
 }
 
 func (p *RulePath) GetPath() (v string) {
@@ -574,6 +578,15 @@ func (p *RulePath) GetServiceName() (v string) {
 func (p *RulePath) GetServicePort() (v int32) {
 	return p.ServicePort
 }
+
+var RulePath_PathType_DEFAULT string = "Exact"
+
+func (p *RulePath) GetPathType() (v string) {
+	if !p.IsSetPathType() {
+		return RulePath_PathType_DEFAULT
+	}
+	return p.PathType
+}
 func (p *RulePath) SetPath(val string) {
 	p.Path = val
 }
@@ -583,11 +596,19 @@ func (p *RulePath) SetServiceName(val string) {
 func (p *RulePath) SetServicePort(val int32) {
 	p.ServicePort = val
 }
+func (p *RulePath) SetPathType(val string) {
+	p.PathType = val
+}
 
 var fieldIDToName_RulePath = map[int16]string{
 	1: "Path",
 	2: "ServiceName",
 	3: "ServicePort",
+	4: "PathType",
+}
+
+func (p *RulePath) IsSetPathType() bool {
+	return p.PathType != RulePath_PathType_DEFAULT
 }
 
 func (p *RulePath) Read(iprot thrift.TProtocol) (err error) {
@@ -640,6 +661,16 @@ func (p *RulePath) Read(iprot thrift.TProtocol) (err error) {
 					goto ReadFieldError
 				}
 				issetServicePort = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 4:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField4(iprot); err != nil {
+					goto ReadFieldError
+				}
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -718,6 +749,15 @@ func (p *RulePath) ReadField3(iprot thrift.TProtocol) error {
 	return nil
 }
 
+func (p *RulePath) ReadField4(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.PathType = v
+	}
+	return nil
+}
+
 func (p *RulePath) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
 	if err = oprot.WriteStructBegin("RulePath"); err != nil {
@@ -734,6 +774,10 @@ func (p *RulePath) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField3(oprot); err != nil {
 			fieldId = 3
+			goto WriteFieldError
+		}
+		if err = p.writeField4(oprot); err != nil {
+			fieldId = 4
 			goto WriteFieldError
 		}
 
@@ -806,6 +850,25 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
+func (p *RulePath) writeField4(oprot thrift.TProtocol) (err error) {
+	if p.IsSetPathType() {
+		if err = oprot.WriteFieldBegin("PathType", thrift.STRING, 4); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(p.PathType); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
+}
+
 func (p *RulePath) String() string {
 	if p == nil {
 		return "<nil>"
@@ -828,6 +891,9 @@ func (p *RulePath) DeepEqual(ano *RulePath) bool {
 	if !p.Field3DeepEqual(ano.ServicePort) {
 		return false
 	}
+	if !p.Field4DeepEqual(ano.PathType) {
+		return false
+	}
 	return true
 }
 
@@ -848,6 +914,13 @@ func (p *RulePath) Field2DeepEqual(src string) bool {
 func (p *RulePath) Field3DeepEqual(src int32) bool {
 
 	if p.ServicePort != src {
+		return false
+	}
+	return true
+}
+func (p *RulePath) Field4DeepEqual(src string) bool {
+
+	if strings.Compare(p.PathType, src) != 0 {
 		return false
 	}
 	return true

@@ -21,9 +21,12 @@ import (
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/network"
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/overview"
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/paastob/productivity/common"
+	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/publicverify"
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/quota"
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/rbac"
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/storage"
+	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/trade"
+	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/vci"
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/vpc"
 )
 
@@ -45,9 +48,12 @@ var (
 	_ = instance.KitexUnusedProtection
 	_ = network.KitexUnusedProtection
 	_ = overview.KitexUnusedProtection
+	_ = publicverify.KitexUnusedProtection
 	_ = quota.KitexUnusedProtection
 	_ = rbac.KitexUnusedProtection
 	_ = storage.KitexUnusedProtection
+	_ = trade.KitexUnusedProtection
+	_ = vci.KitexUnusedProtection
 	_ = vpc.KitexUnusedProtection
 )
 
@@ -653,7 +659,7 @@ func (p *ResourceServiceGetKubeConfigResult) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceRevokeKubeConfigArgs) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceGetKubeconfigArgs) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -715,7 +721,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceRevokeKubeConfigArgs[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceGetKubeconfigArgs[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -724,9 +730,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceRevokeKubeConfigArgs) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceGetKubeconfigArgs) FastReadField1(buf []byte) (int, error) {
 	offset := 0
-	p.Req = cluster.NewRevokeKubeConfigRequest()
+	p.Req = cluster.NewGetKubeconfigRequest()
 	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -736,13 +742,13 @@ func (p *ResourceServiceRevokeKubeConfigArgs) FastReadField1(buf []byte) (int, e
 }
 
 // for compatibility
-func (p *ResourceServiceRevokeKubeConfigArgs) FastWrite(buf []byte) int {
+func (p *ResourceServiceGetKubeconfigArgs) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceRevokeKubeConfigArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceGetKubeconfigArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "RevokeKubeConfig_args")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "GetKubeconfig_args")
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
 	}
@@ -751,9 +757,9 @@ func (p *ResourceServiceRevokeKubeConfigArgs) FastWriteNocopy(buf []byte, binary
 	return offset
 }
 
-func (p *ResourceServiceRevokeKubeConfigArgs) BLength() int {
+func (p *ResourceServiceGetKubeconfigArgs) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("RevokeKubeConfig_args")
+	l += bthrift.Binary.StructBeginLength("GetKubeconfig_args")
 	if p != nil {
 		l += p.field1Length()
 	}
@@ -762,7 +768,7 @@ func (p *ResourceServiceRevokeKubeConfigArgs) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceRevokeKubeConfigArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceGetKubeconfigArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req", thrift.STRUCT, 1)
 	offset += p.Req.FastWriteNocopy(buf[offset:], binaryWriter)
@@ -770,7 +776,7 @@ func (p *ResourceServiceRevokeKubeConfigArgs) fastWriteField1(buf []byte, binary
 	return offset
 }
 
-func (p *ResourceServiceRevokeKubeConfigArgs) field1Length() int {
+func (p *ResourceServiceGetKubeconfigArgs) field1Length() int {
 	l := 0
 	l += bthrift.Binary.FieldBeginLength("req", thrift.STRUCT, 1)
 	l += p.Req.BLength()
@@ -778,7 +784,7 @@ func (p *ResourceServiceRevokeKubeConfigArgs) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceRevokeKubeConfigResult) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceGetKubeconfigResult) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -854,7 +860,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceRevokeKubeConfigResult[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceGetKubeconfigResult[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -863,9 +869,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceRevokeKubeConfigResult) FastReadField0(buf []byte) (int, error) {
+func (p *ResourceServiceGetKubeconfigResult) FastReadField0(buf []byte) (int, error) {
 	offset := 0
-	p.Success = cluster.NewRevokeKubeConfigResponse()
+	p.Success = cluster.NewGetKubeconfigResponse()
 	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -874,7 +880,7 @@ func (p *ResourceServiceRevokeKubeConfigResult) FastReadField0(buf []byte) (int,
 	return offset, nil
 }
 
-func (p *ResourceServiceRevokeKubeConfigResult) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceGetKubeconfigResult) FastReadField1(buf []byte) (int, error) {
 	offset := 0
 	p.Err = common.NewError()
 	if l, err := p.Err.FastRead(buf[offset:]); err != nil {
@@ -886,13 +892,13 @@ func (p *ResourceServiceRevokeKubeConfigResult) FastReadField1(buf []byte) (int,
 }
 
 // for compatibility
-func (p *ResourceServiceRevokeKubeConfigResult) FastWrite(buf []byte) int {
+func (p *ResourceServiceGetKubeconfigResult) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceRevokeKubeConfigResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceGetKubeconfigResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "RevokeKubeConfig_result")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "GetKubeconfig_result")
 	if p != nil {
 		offset += p.fastWriteField0(buf[offset:], binaryWriter)
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
@@ -902,9 +908,9 @@ func (p *ResourceServiceRevokeKubeConfigResult) FastWriteNocopy(buf []byte, bina
 	return offset
 }
 
-func (p *ResourceServiceRevokeKubeConfigResult) BLength() int {
+func (p *ResourceServiceGetKubeconfigResult) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("RevokeKubeConfig_result")
+	l += bthrift.Binary.StructBeginLength("GetKubeconfig_result")
 	if p != nil {
 		l += p.field0Length()
 		l += p.field1Length()
@@ -914,7 +920,7 @@ func (p *ResourceServiceRevokeKubeConfigResult) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceRevokeKubeConfigResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceGetKubeconfigResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetSuccess() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "success", thrift.STRUCT, 0)
@@ -924,7 +930,7 @@ func (p *ResourceServiceRevokeKubeConfigResult) fastWriteField0(buf []byte, bina
 	return offset
 }
 
-func (p *ResourceServiceRevokeKubeConfigResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceGetKubeconfigResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetErr() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "err", thrift.STRUCT, 1)
@@ -934,7 +940,7 @@ func (p *ResourceServiceRevokeKubeConfigResult) fastWriteField1(buf []byte, bina
 	return offset
 }
 
-func (p *ResourceServiceRevokeKubeConfigResult) field0Length() int {
+func (p *ResourceServiceGetKubeconfigResult) field0Length() int {
 	l := 0
 	if p.IsSetSuccess() {
 		l += bthrift.Binary.FieldBeginLength("success", thrift.STRUCT, 0)
@@ -944,7 +950,7 @@ func (p *ResourceServiceRevokeKubeConfigResult) field0Length() int {
 	return l
 }
 
-func (p *ResourceServiceRevokeKubeConfigResult) field1Length() int {
+func (p *ResourceServiceGetKubeconfigResult) field1Length() int {
 	l := 0
 	if p.IsSetErr() {
 		l += bthrift.Binary.FieldBeginLength("err", thrift.STRUCT, 1)
@@ -954,7 +960,7 @@ func (p *ResourceServiceRevokeKubeConfigResult) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceListKubeConfigArgs) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceRevokeKubeconfigArgs) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -1016,7 +1022,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListKubeConfigArgs[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceRevokeKubeconfigArgs[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -1025,9 +1031,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListKubeConfigArgs) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceRevokeKubeconfigArgs) FastReadField1(buf []byte) (int, error) {
 	offset := 0
-	p.Req = cluster.NewListKubeConfigRequest()
+	p.Req = cluster.NewRevokeKubeconfigRequest()
 	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -1037,13 +1043,13 @@ func (p *ResourceServiceListKubeConfigArgs) FastReadField1(buf []byte) (int, err
 }
 
 // for compatibility
-func (p *ResourceServiceListKubeConfigArgs) FastWrite(buf []byte) int {
+func (p *ResourceServiceRevokeKubeconfigArgs) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceListKubeConfigArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceRevokeKubeconfigArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListKubeConfig_args")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "RevokeKubeconfig_args")
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
 	}
@@ -1052,9 +1058,9 @@ func (p *ResourceServiceListKubeConfigArgs) FastWriteNocopy(buf []byte, binaryWr
 	return offset
 }
 
-func (p *ResourceServiceListKubeConfigArgs) BLength() int {
+func (p *ResourceServiceRevokeKubeconfigArgs) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("ListKubeConfig_args")
+	l += bthrift.Binary.StructBeginLength("RevokeKubeconfig_args")
 	if p != nil {
 		l += p.field1Length()
 	}
@@ -1063,7 +1069,7 @@ func (p *ResourceServiceListKubeConfigArgs) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceListKubeConfigArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceRevokeKubeconfigArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req", thrift.STRUCT, 1)
 	offset += p.Req.FastWriteNocopy(buf[offset:], binaryWriter)
@@ -1071,7 +1077,7 @@ func (p *ResourceServiceListKubeConfigArgs) fastWriteField1(buf []byte, binaryWr
 	return offset
 }
 
-func (p *ResourceServiceListKubeConfigArgs) field1Length() int {
+func (p *ResourceServiceRevokeKubeconfigArgs) field1Length() int {
 	l := 0
 	l += bthrift.Binary.FieldBeginLength("req", thrift.STRUCT, 1)
 	l += p.Req.BLength()
@@ -1079,7 +1085,7 @@ func (p *ResourceServiceListKubeConfigArgs) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceListKubeConfigResult) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceRevokeKubeconfigResult) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -1155,7 +1161,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListKubeConfigResult[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceRevokeKubeconfigResult[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -1164,9 +1170,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListKubeConfigResult) FastReadField0(buf []byte) (int, error) {
+func (p *ResourceServiceRevokeKubeconfigResult) FastReadField0(buf []byte) (int, error) {
 	offset := 0
-	p.Success = cluster.NewListKubeConfigResponse()
+	p.Success = cluster.NewRevokeKubeconfigResponse()
 	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -1175,7 +1181,7 @@ func (p *ResourceServiceListKubeConfigResult) FastReadField0(buf []byte) (int, e
 	return offset, nil
 }
 
-func (p *ResourceServiceListKubeConfigResult) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceRevokeKubeconfigResult) FastReadField1(buf []byte) (int, error) {
 	offset := 0
 	p.Err = common.NewError()
 	if l, err := p.Err.FastRead(buf[offset:]); err != nil {
@@ -1187,13 +1193,13 @@ func (p *ResourceServiceListKubeConfigResult) FastReadField1(buf []byte) (int, e
 }
 
 // for compatibility
-func (p *ResourceServiceListKubeConfigResult) FastWrite(buf []byte) int {
+func (p *ResourceServiceRevokeKubeconfigResult) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceListKubeConfigResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceRevokeKubeconfigResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListKubeConfig_result")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "RevokeKubeconfig_result")
 	if p != nil {
 		offset += p.fastWriteField0(buf[offset:], binaryWriter)
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
@@ -1203,9 +1209,9 @@ func (p *ResourceServiceListKubeConfigResult) FastWriteNocopy(buf []byte, binary
 	return offset
 }
 
-func (p *ResourceServiceListKubeConfigResult) BLength() int {
+func (p *ResourceServiceRevokeKubeconfigResult) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("ListKubeConfig_result")
+	l += bthrift.Binary.StructBeginLength("RevokeKubeconfig_result")
 	if p != nil {
 		l += p.field0Length()
 		l += p.field1Length()
@@ -1215,7 +1221,7 @@ func (p *ResourceServiceListKubeConfigResult) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceListKubeConfigResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceRevokeKubeconfigResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetSuccess() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "success", thrift.STRUCT, 0)
@@ -1225,7 +1231,7 @@ func (p *ResourceServiceListKubeConfigResult) fastWriteField0(buf []byte, binary
 	return offset
 }
 
-func (p *ResourceServiceListKubeConfigResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceRevokeKubeconfigResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetErr() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "err", thrift.STRUCT, 1)
@@ -1235,7 +1241,7 @@ func (p *ResourceServiceListKubeConfigResult) fastWriteField1(buf []byte, binary
 	return offset
 }
 
-func (p *ResourceServiceListKubeConfigResult) field0Length() int {
+func (p *ResourceServiceRevokeKubeconfigResult) field0Length() int {
 	l := 0
 	if p.IsSetSuccess() {
 		l += bthrift.Binary.FieldBeginLength("success", thrift.STRUCT, 0)
@@ -1245,7 +1251,308 @@ func (p *ResourceServiceListKubeConfigResult) field0Length() int {
 	return l
 }
 
-func (p *ResourceServiceListKubeConfigResult) field1Length() int {
+func (p *ResourceServiceRevokeKubeconfigResult) field1Length() int {
+	l := 0
+	if p.IsSetErr() {
+		l += bthrift.Binary.FieldBeginLength("err", thrift.STRUCT, 1)
+		l += p.Err.BLength()
+		l += bthrift.Binary.FieldEndLength()
+	}
+	return l
+}
+
+func (p *ResourceServiceListKubeconfigUsersArgs) FastRead(buf []byte) (int, error) {
+	var err error
+	var offset int
+	var l int
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	_, l, err = bthrift.Binary.ReadStructBegin(buf)
+	offset += l
+	if err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, l, err = bthrift.Binary.ReadFieldBegin(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				l, err = p.FastReadField1(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+			offset += l
+			if err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		l, err = bthrift.Binary.ReadFieldEnd(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	l, err = bthrift.Binary.ReadStructEnd(buf[offset:])
+	offset += l
+	if err != nil {
+		goto ReadStructEndError
+	}
+
+	return offset, nil
+ReadStructBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListKubeconfigUsersArgs[fieldId]), err)
+SkipFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+ReadFieldEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListKubeconfigUsersArgs) FastReadField1(buf []byte) (int, error) {
+	offset := 0
+	p.Req = cluster.NewListKubeconfigUsersRequest()
+	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+	}
+	return offset, nil
+}
+
+// for compatibility
+func (p *ResourceServiceListKubeconfigUsersArgs) FastWrite(buf []byte) int {
+	return 0
+}
+
+func (p *ResourceServiceListKubeconfigUsersArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListKubeconfigUsers_args")
+	if p != nil {
+		offset += p.fastWriteField1(buf[offset:], binaryWriter)
+	}
+	offset += bthrift.Binary.WriteFieldStop(buf[offset:])
+	offset += bthrift.Binary.WriteStructEnd(buf[offset:])
+	return offset
+}
+
+func (p *ResourceServiceListKubeconfigUsersArgs) BLength() int {
+	l := 0
+	l += bthrift.Binary.StructBeginLength("ListKubeconfigUsers_args")
+	if p != nil {
+		l += p.field1Length()
+	}
+	l += bthrift.Binary.FieldStopLength()
+	l += bthrift.Binary.StructEndLength()
+	return l
+}
+
+func (p *ResourceServiceListKubeconfigUsersArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req", thrift.STRUCT, 1)
+	offset += p.Req.FastWriteNocopy(buf[offset:], binaryWriter)
+	offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	return offset
+}
+
+func (p *ResourceServiceListKubeconfigUsersArgs) field1Length() int {
+	l := 0
+	l += bthrift.Binary.FieldBeginLength("req", thrift.STRUCT, 1)
+	l += p.Req.BLength()
+	l += bthrift.Binary.FieldEndLength()
+	return l
+}
+
+func (p *ResourceServiceListKubeconfigUsersResult) FastRead(buf []byte) (int, error) {
+	var err error
+	var offset int
+	var l int
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	_, l, err = bthrift.Binary.ReadStructBegin(buf)
+	offset += l
+	if err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, l, err = bthrift.Binary.ReadFieldBegin(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				l, err = p.FastReadField0(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				l, err = p.FastReadField1(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+			offset += l
+			if err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		l, err = bthrift.Binary.ReadFieldEnd(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	l, err = bthrift.Binary.ReadStructEnd(buf[offset:])
+	offset += l
+	if err != nil {
+		goto ReadStructEndError
+	}
+
+	return offset, nil
+ReadStructBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListKubeconfigUsersResult[fieldId]), err)
+SkipFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+ReadFieldEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListKubeconfigUsersResult) FastReadField0(buf []byte) (int, error) {
+	offset := 0
+	p.Success = cluster.NewListKubeconfigUsersResponse()
+	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+	}
+	return offset, nil
+}
+
+func (p *ResourceServiceListKubeconfigUsersResult) FastReadField1(buf []byte) (int, error) {
+	offset := 0
+	p.Err = common.NewError()
+	if l, err := p.Err.FastRead(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+	}
+	return offset, nil
+}
+
+// for compatibility
+func (p *ResourceServiceListKubeconfigUsersResult) FastWrite(buf []byte) int {
+	return 0
+}
+
+func (p *ResourceServiceListKubeconfigUsersResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListKubeconfigUsers_result")
+	if p != nil {
+		offset += p.fastWriteField0(buf[offset:], binaryWriter)
+		offset += p.fastWriteField1(buf[offset:], binaryWriter)
+	}
+	offset += bthrift.Binary.WriteFieldStop(buf[offset:])
+	offset += bthrift.Binary.WriteStructEnd(buf[offset:])
+	return offset
+}
+
+func (p *ResourceServiceListKubeconfigUsersResult) BLength() int {
+	l := 0
+	l += bthrift.Binary.StructBeginLength("ListKubeconfigUsers_result")
+	if p != nil {
+		l += p.field0Length()
+		l += p.field1Length()
+	}
+	l += bthrift.Binary.FieldStopLength()
+	l += bthrift.Binary.StructEndLength()
+	return l
+}
+
+func (p *ResourceServiceListKubeconfigUsersResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	if p.IsSetSuccess() {
+		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "success", thrift.STRUCT, 0)
+		offset += p.Success.FastWriteNocopy(buf[offset:], binaryWriter)
+		offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	}
+	return offset
+}
+
+func (p *ResourceServiceListKubeconfigUsersResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	if p.IsSetErr() {
+		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "err", thrift.STRUCT, 1)
+		offset += p.Err.FastWriteNocopy(buf[offset:], binaryWriter)
+		offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	}
+	return offset
+}
+
+func (p *ResourceServiceListKubeconfigUsersResult) field0Length() int {
+	l := 0
+	if p.IsSetSuccess() {
+		l += bthrift.Binary.FieldBeginLength("success", thrift.STRUCT, 0)
+		l += p.Success.BLength()
+		l += bthrift.Binary.FieldEndLength()
+	}
+	return l
+}
+
+func (p *ResourceServiceListKubeconfigUsersResult) field1Length() int {
 	l := 0
 	if p.IsSetErr() {
 		l += bthrift.Binary.FieldBeginLength("err", thrift.STRUCT, 1)
@@ -3061,7 +3368,7 @@ func (p *ResourceServiceGetClusterResult) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceListClusterArgs) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceListClustersArgs) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -3123,7 +3430,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListClusterArgs[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListClustersArgs[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -3132,9 +3439,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterArgs) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceListClustersArgs) FastReadField1(buf []byte) (int, error) {
 	offset := 0
-	p.Req = cluster.NewListClusterRequest()
+	p.Req = cluster.NewListClustersRequest()
 	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -3144,13 +3451,13 @@ func (p *ResourceServiceListClusterArgs) FastReadField1(buf []byte) (int, error)
 }
 
 // for compatibility
-func (p *ResourceServiceListClusterArgs) FastWrite(buf []byte) int {
+func (p *ResourceServiceListClustersArgs) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceListClusterArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListClustersArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListCluster_args")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListClusters_args")
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
 	}
@@ -3159,9 +3466,9 @@ func (p *ResourceServiceListClusterArgs) FastWriteNocopy(buf []byte, binaryWrite
 	return offset
 }
 
-func (p *ResourceServiceListClusterArgs) BLength() int {
+func (p *ResourceServiceListClustersArgs) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("ListCluster_args")
+	l += bthrift.Binary.StructBeginLength("ListClusters_args")
 	if p != nil {
 		l += p.field1Length()
 	}
@@ -3170,7 +3477,7 @@ func (p *ResourceServiceListClusterArgs) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceListClusterArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListClustersArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req", thrift.STRUCT, 1)
 	offset += p.Req.FastWriteNocopy(buf[offset:], binaryWriter)
@@ -3178,7 +3485,7 @@ func (p *ResourceServiceListClusterArgs) fastWriteField1(buf []byte, binaryWrite
 	return offset
 }
 
-func (p *ResourceServiceListClusterArgs) field1Length() int {
+func (p *ResourceServiceListClustersArgs) field1Length() int {
 	l := 0
 	l += bthrift.Binary.FieldBeginLength("req", thrift.STRUCT, 1)
 	l += p.Req.BLength()
@@ -3186,7 +3493,7 @@ func (p *ResourceServiceListClusterArgs) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceListClusterResult) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceListClustersResult) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -3262,7 +3569,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListClusterResult[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListClustersResult[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -3271,9 +3578,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterResult) FastReadField0(buf []byte) (int, error) {
+func (p *ResourceServiceListClustersResult) FastReadField0(buf []byte) (int, error) {
 	offset := 0
-	p.Success = cluster.NewListClusterResponse()
+	p.Success = cluster.NewListClustersResponse()
 	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -3282,7 +3589,7 @@ func (p *ResourceServiceListClusterResult) FastReadField0(buf []byte) (int, erro
 	return offset, nil
 }
 
-func (p *ResourceServiceListClusterResult) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceListClustersResult) FastReadField1(buf []byte) (int, error) {
 	offset := 0
 	p.Err = common.NewError()
 	if l, err := p.Err.FastRead(buf[offset:]); err != nil {
@@ -3294,13 +3601,13 @@ func (p *ResourceServiceListClusterResult) FastReadField1(buf []byte) (int, erro
 }
 
 // for compatibility
-func (p *ResourceServiceListClusterResult) FastWrite(buf []byte) int {
+func (p *ResourceServiceListClustersResult) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceListClusterResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListClustersResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListCluster_result")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListClusters_result")
 	if p != nil {
 		offset += p.fastWriteField0(buf[offset:], binaryWriter)
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
@@ -3310,9 +3617,9 @@ func (p *ResourceServiceListClusterResult) FastWriteNocopy(buf []byte, binaryWri
 	return offset
 }
 
-func (p *ResourceServiceListClusterResult) BLength() int {
+func (p *ResourceServiceListClustersResult) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("ListCluster_result")
+	l += bthrift.Binary.StructBeginLength("ListClusters_result")
 	if p != nil {
 		l += p.field0Length()
 		l += p.field1Length()
@@ -3322,7 +3629,7 @@ func (p *ResourceServiceListClusterResult) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceListClusterResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListClustersResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetSuccess() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "success", thrift.STRUCT, 0)
@@ -3332,7 +3639,7 @@ func (p *ResourceServiceListClusterResult) fastWriteField0(buf []byte, binaryWri
 	return offset
 }
 
-func (p *ResourceServiceListClusterResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListClustersResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetErr() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "err", thrift.STRUCT, 1)
@@ -3342,7 +3649,7 @@ func (p *ResourceServiceListClusterResult) fastWriteField1(buf []byte, binaryWri
 	return offset
 }
 
-func (p *ResourceServiceListClusterResult) field0Length() int {
+func (p *ResourceServiceListClustersResult) field0Length() int {
 	l := 0
 	if p.IsSetSuccess() {
 		l += bthrift.Binary.FieldBeginLength("success", thrift.STRUCT, 0)
@@ -3352,7 +3659,7 @@ func (p *ResourceServiceListClusterResult) field0Length() int {
 	return l
 }
 
-func (p *ResourceServiceListClusterResult) field1Length() int {
+func (p *ResourceServiceListClustersResult) field1Length() int {
 	l := 0
 	if p.IsSetErr() {
 		l += bthrift.Binary.FieldBeginLength("err", thrift.STRUCT, 1)
@@ -3663,7 +3970,7 @@ func (p *ResourceServiceGetClusterDeployProgressResult) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionArgs) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceListSupportedKubernetesVersionsArgs) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -3725,7 +4032,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListClusterKubernetesVersionArgs[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListSupportedKubernetesVersionsArgs[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -3734,9 +4041,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionArgs) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceListSupportedKubernetesVersionsArgs) FastReadField1(buf []byte) (int, error) {
 	offset := 0
-	p.Req = cluster.NewListClusterKubernetesVersionRequest()
+	p.Req = cluster.NewListSupportedKubernetesVersionsRequest()
 	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -3746,13 +4053,13 @@ func (p *ResourceServiceListClusterKubernetesVersionArgs) FastReadField1(buf []b
 }
 
 // for compatibility
-func (p *ResourceServiceListClusterKubernetesVersionArgs) FastWrite(buf []byte) int {
+func (p *ResourceServiceListSupportedKubernetesVersionsArgs) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListSupportedKubernetesVersionsArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListClusterKubernetesVersion_args")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListSupportedKubernetesVersions_args")
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
 	}
@@ -3761,9 +4068,9 @@ func (p *ResourceServiceListClusterKubernetesVersionArgs) FastWriteNocopy(buf []
 	return offset
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionArgs) BLength() int {
+func (p *ResourceServiceListSupportedKubernetesVersionsArgs) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("ListClusterKubernetesVersion_args")
+	l += bthrift.Binary.StructBeginLength("ListSupportedKubernetesVersions_args")
 	if p != nil {
 		l += p.field1Length()
 	}
@@ -3772,7 +4079,7 @@ func (p *ResourceServiceListClusterKubernetesVersionArgs) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListSupportedKubernetesVersionsArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req", thrift.STRUCT, 1)
 	offset += p.Req.FastWriteNocopy(buf[offset:], binaryWriter)
@@ -3780,7 +4087,7 @@ func (p *ResourceServiceListClusterKubernetesVersionArgs) fastWriteField1(buf []
 	return offset
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionArgs) field1Length() int {
+func (p *ResourceServiceListSupportedKubernetesVersionsArgs) field1Length() int {
 	l := 0
 	l += bthrift.Binary.FieldBeginLength("req", thrift.STRUCT, 1)
 	l += p.Req.BLength()
@@ -3788,7 +4095,7 @@ func (p *ResourceServiceListClusterKubernetesVersionArgs) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionResult) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceListSupportedKubernetesVersionsResult) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -3864,7 +4171,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListClusterKubernetesVersionResult[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListSupportedKubernetesVersionsResult[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -3873,9 +4180,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionResult) FastReadField0(buf []byte) (int, error) {
+func (p *ResourceServiceListSupportedKubernetesVersionsResult) FastReadField0(buf []byte) (int, error) {
 	offset := 0
-	p.Success = cluster.NewListClusterKubernetesVersionResponse()
+	p.Success = cluster.NewListSupportedKubernetesVersionsResponse()
 	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -3884,7 +4191,7 @@ func (p *ResourceServiceListClusterKubernetesVersionResult) FastReadField0(buf [
 	return offset, nil
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionResult) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceListSupportedKubernetesVersionsResult) FastReadField1(buf []byte) (int, error) {
 	offset := 0
 	p.Err = common.NewError()
 	if l, err := p.Err.FastRead(buf[offset:]); err != nil {
@@ -3896,13 +4203,13 @@ func (p *ResourceServiceListClusterKubernetesVersionResult) FastReadField1(buf [
 }
 
 // for compatibility
-func (p *ResourceServiceListClusterKubernetesVersionResult) FastWrite(buf []byte) int {
+func (p *ResourceServiceListSupportedKubernetesVersionsResult) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListSupportedKubernetesVersionsResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListClusterKubernetesVersion_result")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListSupportedKubernetesVersions_result")
 	if p != nil {
 		offset += p.fastWriteField0(buf[offset:], binaryWriter)
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
@@ -3912,9 +4219,9 @@ func (p *ResourceServiceListClusterKubernetesVersionResult) FastWriteNocopy(buf 
 	return offset
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionResult) BLength() int {
+func (p *ResourceServiceListSupportedKubernetesVersionsResult) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("ListClusterKubernetesVersion_result")
+	l += bthrift.Binary.StructBeginLength("ListSupportedKubernetesVersions_result")
 	if p != nil {
 		l += p.field0Length()
 		l += p.field1Length()
@@ -3924,7 +4231,7 @@ func (p *ResourceServiceListClusterKubernetesVersionResult) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListSupportedKubernetesVersionsResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetSuccess() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "success", thrift.STRUCT, 0)
@@ -3934,7 +4241,7 @@ func (p *ResourceServiceListClusterKubernetesVersionResult) fastWriteField0(buf 
 	return offset
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListSupportedKubernetesVersionsResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetErr() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "err", thrift.STRUCT, 1)
@@ -3944,7 +4251,7 @@ func (p *ResourceServiceListClusterKubernetesVersionResult) fastWriteField1(buf 
 	return offset
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionResult) field0Length() int {
+func (p *ResourceServiceListSupportedKubernetesVersionsResult) field0Length() int {
 	l := 0
 	if p.IsSetSuccess() {
 		l += bthrift.Binary.FieldBeginLength("success", thrift.STRUCT, 0)
@@ -3954,7 +4261,7 @@ func (p *ResourceServiceListClusterKubernetesVersionResult) field0Length() int {
 	return l
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionResult) field1Length() int {
+func (p *ResourceServiceListSupportedKubernetesVersionsResult) field1Length() int {
 	l := 0
 	if p.IsSetErr() {
 		l += bthrift.Binary.FieldBeginLength("err", thrift.STRUCT, 1)
@@ -3964,7 +4271,7 @@ func (p *ResourceServiceListClusterKubernetesVersionResult) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceListClusterNetworkCidrArgs) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceListClusterNetworkCidrsArgs) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -4026,7 +4333,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListClusterNetworkCidrArgs[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListClusterNetworkCidrsArgs[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -4035,9 +4342,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterNetworkCidrArgs) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceListClusterNetworkCidrsArgs) FastReadField1(buf []byte) (int, error) {
 	offset := 0
-	p.Req = cluster.NewListClusterNetworkCidrRequest()
+	p.Req = cluster.NewListClusterNetworkCidrsRequest()
 	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -4047,13 +4354,13 @@ func (p *ResourceServiceListClusterNetworkCidrArgs) FastReadField1(buf []byte) (
 }
 
 // for compatibility
-func (p *ResourceServiceListClusterNetworkCidrArgs) FastWrite(buf []byte) int {
+func (p *ResourceServiceListClusterNetworkCidrsArgs) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceListClusterNetworkCidrArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListClusterNetworkCidrsArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListClusterNetworkCidr_args")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListClusterNetworkCidrs_args")
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
 	}
@@ -4062,9 +4369,9 @@ func (p *ResourceServiceListClusterNetworkCidrArgs) FastWriteNocopy(buf []byte, 
 	return offset
 }
 
-func (p *ResourceServiceListClusterNetworkCidrArgs) BLength() int {
+func (p *ResourceServiceListClusterNetworkCidrsArgs) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("ListClusterNetworkCidr_args")
+	l += bthrift.Binary.StructBeginLength("ListClusterNetworkCidrs_args")
 	if p != nil {
 		l += p.field1Length()
 	}
@@ -4073,7 +4380,7 @@ func (p *ResourceServiceListClusterNetworkCidrArgs) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceListClusterNetworkCidrArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListClusterNetworkCidrsArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req", thrift.STRUCT, 1)
 	offset += p.Req.FastWriteNocopy(buf[offset:], binaryWriter)
@@ -4081,7 +4388,7 @@ func (p *ResourceServiceListClusterNetworkCidrArgs) fastWriteField1(buf []byte, 
 	return offset
 }
 
-func (p *ResourceServiceListClusterNetworkCidrArgs) field1Length() int {
+func (p *ResourceServiceListClusterNetworkCidrsArgs) field1Length() int {
 	l := 0
 	l += bthrift.Binary.FieldBeginLength("req", thrift.STRUCT, 1)
 	l += p.Req.BLength()
@@ -4089,7 +4396,7 @@ func (p *ResourceServiceListClusterNetworkCidrArgs) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceListClusterNetworkCidrResult) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceListClusterNetworkCidrsResult) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -4165,7 +4472,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListClusterNetworkCidrResult[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListClusterNetworkCidrsResult[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -4174,9 +4481,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterNetworkCidrResult) FastReadField0(buf []byte) (int, error) {
+func (p *ResourceServiceListClusterNetworkCidrsResult) FastReadField0(buf []byte) (int, error) {
 	offset := 0
-	p.Success = cluster.NewListClusterNetworkCidrResponse()
+	p.Success = cluster.NewListClusterNetworkCidrsResponse()
 	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -4185,7 +4492,7 @@ func (p *ResourceServiceListClusterNetworkCidrResult) FastReadField0(buf []byte)
 	return offset, nil
 }
 
-func (p *ResourceServiceListClusterNetworkCidrResult) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceListClusterNetworkCidrsResult) FastReadField1(buf []byte) (int, error) {
 	offset := 0
 	p.Err = common.NewError()
 	if l, err := p.Err.FastRead(buf[offset:]); err != nil {
@@ -4197,13 +4504,13 @@ func (p *ResourceServiceListClusterNetworkCidrResult) FastReadField1(buf []byte)
 }
 
 // for compatibility
-func (p *ResourceServiceListClusterNetworkCidrResult) FastWrite(buf []byte) int {
+func (p *ResourceServiceListClusterNetworkCidrsResult) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceListClusterNetworkCidrResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListClusterNetworkCidrsResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListClusterNetworkCidr_result")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListClusterNetworkCidrs_result")
 	if p != nil {
 		offset += p.fastWriteField0(buf[offset:], binaryWriter)
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
@@ -4213,9 +4520,9 @@ func (p *ResourceServiceListClusterNetworkCidrResult) FastWriteNocopy(buf []byte
 	return offset
 }
 
-func (p *ResourceServiceListClusterNetworkCidrResult) BLength() int {
+func (p *ResourceServiceListClusterNetworkCidrsResult) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("ListClusterNetworkCidr_result")
+	l += bthrift.Binary.StructBeginLength("ListClusterNetworkCidrs_result")
 	if p != nil {
 		l += p.field0Length()
 		l += p.field1Length()
@@ -4225,7 +4532,7 @@ func (p *ResourceServiceListClusterNetworkCidrResult) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceListClusterNetworkCidrResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListClusterNetworkCidrsResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetSuccess() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "success", thrift.STRUCT, 0)
@@ -4235,7 +4542,7 @@ func (p *ResourceServiceListClusterNetworkCidrResult) fastWriteField0(buf []byte
 	return offset
 }
 
-func (p *ResourceServiceListClusterNetworkCidrResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListClusterNetworkCidrsResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetErr() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "err", thrift.STRUCT, 1)
@@ -4245,7 +4552,7 @@ func (p *ResourceServiceListClusterNetworkCidrResult) fastWriteField1(buf []byte
 	return offset
 }
 
-func (p *ResourceServiceListClusterNetworkCidrResult) field0Length() int {
+func (p *ResourceServiceListClusterNetworkCidrsResult) field0Length() int {
 	l := 0
 	if p.IsSetSuccess() {
 		l += bthrift.Binary.FieldBeginLength("success", thrift.STRUCT, 0)
@@ -4255,7 +4562,7 @@ func (p *ResourceServiceListClusterNetworkCidrResult) field0Length() int {
 	return l
 }
 
-func (p *ResourceServiceListClusterNetworkCidrResult) field1Length() int {
+func (p *ResourceServiceListClusterNetworkCidrsResult) field1Length() int {
 	l := 0
 	if p.IsSetErr() {
 		l += bthrift.Binary.FieldBeginLength("err", thrift.STRUCT, 1)
@@ -4265,7 +4572,7 @@ func (p *ResourceServiceListClusterNetworkCidrResult) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceListSupportGpuModelArgs) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceListSupportedGpuModelsArgs) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -4327,7 +4634,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListSupportGpuModelArgs[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListSupportedGpuModelsArgs[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -4336,9 +4643,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListSupportGpuModelArgs) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceListSupportedGpuModelsArgs) FastReadField1(buf []byte) (int, error) {
 	offset := 0
-	p.Req = cluster.NewListSupportGpuModelRequest()
+	p.Req = cluster.NewListSupportedGpuModelsRequest()
 	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -4348,13 +4655,13 @@ func (p *ResourceServiceListSupportGpuModelArgs) FastReadField1(buf []byte) (int
 }
 
 // for compatibility
-func (p *ResourceServiceListSupportGpuModelArgs) FastWrite(buf []byte) int {
+func (p *ResourceServiceListSupportedGpuModelsArgs) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceListSupportGpuModelArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListSupportedGpuModelsArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListSupportGpuModel_args")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListSupportedGpuModels_args")
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
 	}
@@ -4363,9 +4670,9 @@ func (p *ResourceServiceListSupportGpuModelArgs) FastWriteNocopy(buf []byte, bin
 	return offset
 }
 
-func (p *ResourceServiceListSupportGpuModelArgs) BLength() int {
+func (p *ResourceServiceListSupportedGpuModelsArgs) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("ListSupportGpuModel_args")
+	l += bthrift.Binary.StructBeginLength("ListSupportedGpuModels_args")
 	if p != nil {
 		l += p.field1Length()
 	}
@@ -4374,7 +4681,7 @@ func (p *ResourceServiceListSupportGpuModelArgs) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceListSupportGpuModelArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListSupportedGpuModelsArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req", thrift.STRUCT, 1)
 	offset += p.Req.FastWriteNocopy(buf[offset:], binaryWriter)
@@ -4382,7 +4689,7 @@ func (p *ResourceServiceListSupportGpuModelArgs) fastWriteField1(buf []byte, bin
 	return offset
 }
 
-func (p *ResourceServiceListSupportGpuModelArgs) field1Length() int {
+func (p *ResourceServiceListSupportedGpuModelsArgs) field1Length() int {
 	l := 0
 	l += bthrift.Binary.FieldBeginLength("req", thrift.STRUCT, 1)
 	l += p.Req.BLength()
@@ -4390,7 +4697,7 @@ func (p *ResourceServiceListSupportGpuModelArgs) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceListSupportGpuModelResult) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceListSupportedGpuModelsResult) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -4466,7 +4773,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListSupportGpuModelResult[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListSupportedGpuModelsResult[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -4475,9 +4782,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListSupportGpuModelResult) FastReadField0(buf []byte) (int, error) {
+func (p *ResourceServiceListSupportedGpuModelsResult) FastReadField0(buf []byte) (int, error) {
 	offset := 0
-	p.Success = cluster.NewListSupportGpuModelResponse()
+	p.Success = cluster.NewListSupportedGpuModelsResponse()
 	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -4486,7 +4793,7 @@ func (p *ResourceServiceListSupportGpuModelResult) FastReadField0(buf []byte) (i
 	return offset, nil
 }
 
-func (p *ResourceServiceListSupportGpuModelResult) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceListSupportedGpuModelsResult) FastReadField1(buf []byte) (int, error) {
 	offset := 0
 	p.Err = common.NewError()
 	if l, err := p.Err.FastRead(buf[offset:]); err != nil {
@@ -4498,13 +4805,13 @@ func (p *ResourceServiceListSupportGpuModelResult) FastReadField1(buf []byte) (i
 }
 
 // for compatibility
-func (p *ResourceServiceListSupportGpuModelResult) FastWrite(buf []byte) int {
+func (p *ResourceServiceListSupportedGpuModelsResult) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceListSupportGpuModelResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListSupportedGpuModelsResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListSupportGpuModel_result")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListSupportedGpuModels_result")
 	if p != nil {
 		offset += p.fastWriteField0(buf[offset:], binaryWriter)
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
@@ -4514,9 +4821,9 @@ func (p *ResourceServiceListSupportGpuModelResult) FastWriteNocopy(buf []byte, b
 	return offset
 }
 
-func (p *ResourceServiceListSupportGpuModelResult) BLength() int {
+func (p *ResourceServiceListSupportedGpuModelsResult) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("ListSupportGpuModel_result")
+	l += bthrift.Binary.StructBeginLength("ListSupportedGpuModels_result")
 	if p != nil {
 		l += p.field0Length()
 		l += p.field1Length()
@@ -4526,7 +4833,7 @@ func (p *ResourceServiceListSupportGpuModelResult) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceListSupportGpuModelResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListSupportedGpuModelsResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetSuccess() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "success", thrift.STRUCT, 0)
@@ -4536,7 +4843,7 @@ func (p *ResourceServiceListSupportGpuModelResult) fastWriteField0(buf []byte, b
 	return offset
 }
 
-func (p *ResourceServiceListSupportGpuModelResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListSupportedGpuModelsResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetErr() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "err", thrift.STRUCT, 1)
@@ -4546,7 +4853,7 @@ func (p *ResourceServiceListSupportGpuModelResult) fastWriteField1(buf []byte, b
 	return offset
 }
 
-func (p *ResourceServiceListSupportGpuModelResult) field0Length() int {
+func (p *ResourceServiceListSupportedGpuModelsResult) field0Length() int {
 	l := 0
 	if p.IsSetSuccess() {
 		l += bthrift.Binary.FieldBeginLength("success", thrift.STRUCT, 0)
@@ -4556,7 +4863,7 @@ func (p *ResourceServiceListSupportGpuModelResult) field0Length() int {
 	return l
 }
 
-func (p *ResourceServiceListSupportGpuModelResult) field1Length() int {
+func (p *ResourceServiceListSupportedGpuModelsResult) field1Length() int {
 	l := 0
 	if p.IsSetErr() {
 		l += bthrift.Binary.FieldBeginLength("err", thrift.STRUCT, 1)
@@ -4566,7 +4873,7 @@ func (p *ResourceServiceListSupportGpuModelResult) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceListClusterNodeArgs) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceListNodesArgs) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -4628,7 +4935,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListClusterNodeArgs[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListNodesArgs[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -4637,9 +4944,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterNodeArgs) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceListNodesArgs) FastReadField1(buf []byte) (int, error) {
 	offset := 0
-	p.Req = cluster.NewListClusterNodeRequest()
+	p.Req = cluster.NewListNodesRequest()
 	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -4649,13 +4956,13 @@ func (p *ResourceServiceListClusterNodeArgs) FastReadField1(buf []byte) (int, er
 }
 
 // for compatibility
-func (p *ResourceServiceListClusterNodeArgs) FastWrite(buf []byte) int {
+func (p *ResourceServiceListNodesArgs) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceListClusterNodeArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListNodesArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListClusterNode_args")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListNodes_args")
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
 	}
@@ -4664,9 +4971,9 @@ func (p *ResourceServiceListClusterNodeArgs) FastWriteNocopy(buf []byte, binaryW
 	return offset
 }
 
-func (p *ResourceServiceListClusterNodeArgs) BLength() int {
+func (p *ResourceServiceListNodesArgs) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("ListClusterNode_args")
+	l += bthrift.Binary.StructBeginLength("ListNodes_args")
 	if p != nil {
 		l += p.field1Length()
 	}
@@ -4675,7 +4982,7 @@ func (p *ResourceServiceListClusterNodeArgs) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceListClusterNodeArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListNodesArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req", thrift.STRUCT, 1)
 	offset += p.Req.FastWriteNocopy(buf[offset:], binaryWriter)
@@ -4683,7 +4990,7 @@ func (p *ResourceServiceListClusterNodeArgs) fastWriteField1(buf []byte, binaryW
 	return offset
 }
 
-func (p *ResourceServiceListClusterNodeArgs) field1Length() int {
+func (p *ResourceServiceListNodesArgs) field1Length() int {
 	l := 0
 	l += bthrift.Binary.FieldBeginLength("req", thrift.STRUCT, 1)
 	l += p.Req.BLength()
@@ -4691,7 +4998,7 @@ func (p *ResourceServiceListClusterNodeArgs) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceListClusterNodeResult) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceListNodesResult) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -4767,7 +5074,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListClusterNodeResult[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListNodesResult[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -4776,9 +5083,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterNodeResult) FastReadField0(buf []byte) (int, error) {
+func (p *ResourceServiceListNodesResult) FastReadField0(buf []byte) (int, error) {
 	offset := 0
-	p.Success = cluster.NewListClusterNodeResponse()
+	p.Success = cluster.NewListNodesResponse()
 	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -4787,7 +5094,7 @@ func (p *ResourceServiceListClusterNodeResult) FastReadField0(buf []byte) (int, 
 	return offset, nil
 }
 
-func (p *ResourceServiceListClusterNodeResult) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceListNodesResult) FastReadField1(buf []byte) (int, error) {
 	offset := 0
 	p.Err = common.NewError()
 	if l, err := p.Err.FastRead(buf[offset:]); err != nil {
@@ -4799,13 +5106,13 @@ func (p *ResourceServiceListClusterNodeResult) FastReadField1(buf []byte) (int, 
 }
 
 // for compatibility
-func (p *ResourceServiceListClusterNodeResult) FastWrite(buf []byte) int {
+func (p *ResourceServiceListNodesResult) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceListClusterNodeResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListNodesResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListClusterNode_result")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListNodes_result")
 	if p != nil {
 		offset += p.fastWriteField0(buf[offset:], binaryWriter)
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
@@ -4815,9 +5122,9 @@ func (p *ResourceServiceListClusterNodeResult) FastWriteNocopy(buf []byte, binar
 	return offset
 }
 
-func (p *ResourceServiceListClusterNodeResult) BLength() int {
+func (p *ResourceServiceListNodesResult) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("ListClusterNode_result")
+	l += bthrift.Binary.StructBeginLength("ListNodes_result")
 	if p != nil {
 		l += p.field0Length()
 		l += p.field1Length()
@@ -4827,7 +5134,7 @@ func (p *ResourceServiceListClusterNodeResult) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceListClusterNodeResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListNodesResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetSuccess() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "success", thrift.STRUCT, 0)
@@ -4837,7 +5144,7 @@ func (p *ResourceServiceListClusterNodeResult) fastWriteField0(buf []byte, binar
 	return offset
 }
 
-func (p *ResourceServiceListClusterNodeResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListNodesResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetErr() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "err", thrift.STRUCT, 1)
@@ -4847,7 +5154,7 @@ func (p *ResourceServiceListClusterNodeResult) fastWriteField1(buf []byte, binar
 	return offset
 }
 
-func (p *ResourceServiceListClusterNodeResult) field0Length() int {
+func (p *ResourceServiceListNodesResult) field0Length() int {
 	l := 0
 	if p.IsSetSuccess() {
 		l += bthrift.Binary.FieldBeginLength("success", thrift.STRUCT, 0)
@@ -4857,7 +5164,7 @@ func (p *ResourceServiceListClusterNodeResult) field0Length() int {
 	return l
 }
 
-func (p *ResourceServiceListClusterNodeResult) field1Length() int {
+func (p *ResourceServiceListNodesResult) field1Length() int {
 	l := 0
 	if p.IsSetErr() {
 		l += bthrift.Binary.FieldBeginLength("err", thrift.STRUCT, 1)
@@ -4867,7 +5174,7 @@ func (p *ResourceServiceListClusterNodeResult) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceAddClusterNodeArgs) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceAddNodesArgs) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -4929,7 +5236,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceAddClusterNodeArgs[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceAddNodesArgs[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -4938,9 +5245,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceAddClusterNodeArgs) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceAddNodesArgs) FastReadField1(buf []byte) (int, error) {
 	offset := 0
-	p.Req = cluster.NewAddClusterNodeRequest()
+	p.Req = cluster.NewAddNodesRequest()
 	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -4950,13 +5257,13 @@ func (p *ResourceServiceAddClusterNodeArgs) FastReadField1(buf []byte) (int, err
 }
 
 // for compatibility
-func (p *ResourceServiceAddClusterNodeArgs) FastWrite(buf []byte) int {
+func (p *ResourceServiceAddNodesArgs) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceAddClusterNodeArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceAddNodesArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "AddClusterNode_args")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "AddNodes_args")
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
 	}
@@ -4965,9 +5272,9 @@ func (p *ResourceServiceAddClusterNodeArgs) FastWriteNocopy(buf []byte, binaryWr
 	return offset
 }
 
-func (p *ResourceServiceAddClusterNodeArgs) BLength() int {
+func (p *ResourceServiceAddNodesArgs) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("AddClusterNode_args")
+	l += bthrift.Binary.StructBeginLength("AddNodes_args")
 	if p != nil {
 		l += p.field1Length()
 	}
@@ -4976,7 +5283,7 @@ func (p *ResourceServiceAddClusterNodeArgs) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceAddClusterNodeArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceAddNodesArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req", thrift.STRUCT, 1)
 	offset += p.Req.FastWriteNocopy(buf[offset:], binaryWriter)
@@ -4984,7 +5291,7 @@ func (p *ResourceServiceAddClusterNodeArgs) fastWriteField1(buf []byte, binaryWr
 	return offset
 }
 
-func (p *ResourceServiceAddClusterNodeArgs) field1Length() int {
+func (p *ResourceServiceAddNodesArgs) field1Length() int {
 	l := 0
 	l += bthrift.Binary.FieldBeginLength("req", thrift.STRUCT, 1)
 	l += p.Req.BLength()
@@ -4992,7 +5299,7 @@ func (p *ResourceServiceAddClusterNodeArgs) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceAddClusterNodeResult) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceAddNodesResult) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -5068,7 +5375,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceAddClusterNodeResult[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceAddNodesResult[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -5077,9 +5384,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceAddClusterNodeResult) FastReadField0(buf []byte) (int, error) {
+func (p *ResourceServiceAddNodesResult) FastReadField0(buf []byte) (int, error) {
 	offset := 0
-	p.Success = cluster.NewAddClusterNodeResponse()
+	p.Success = cluster.NewAddNodesResponse()
 	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -5088,7 +5395,7 @@ func (p *ResourceServiceAddClusterNodeResult) FastReadField0(buf []byte) (int, e
 	return offset, nil
 }
 
-func (p *ResourceServiceAddClusterNodeResult) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceAddNodesResult) FastReadField1(buf []byte) (int, error) {
 	offset := 0
 	p.Err = common.NewError()
 	if l, err := p.Err.FastRead(buf[offset:]); err != nil {
@@ -5100,13 +5407,13 @@ func (p *ResourceServiceAddClusterNodeResult) FastReadField1(buf []byte) (int, e
 }
 
 // for compatibility
-func (p *ResourceServiceAddClusterNodeResult) FastWrite(buf []byte) int {
+func (p *ResourceServiceAddNodesResult) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceAddClusterNodeResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceAddNodesResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "AddClusterNode_result")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "AddNodes_result")
 	if p != nil {
 		offset += p.fastWriteField0(buf[offset:], binaryWriter)
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
@@ -5116,9 +5423,9 @@ func (p *ResourceServiceAddClusterNodeResult) FastWriteNocopy(buf []byte, binary
 	return offset
 }
 
-func (p *ResourceServiceAddClusterNodeResult) BLength() int {
+func (p *ResourceServiceAddNodesResult) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("AddClusterNode_result")
+	l += bthrift.Binary.StructBeginLength("AddNodes_result")
 	if p != nil {
 		l += p.field0Length()
 		l += p.field1Length()
@@ -5128,7 +5435,7 @@ func (p *ResourceServiceAddClusterNodeResult) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceAddClusterNodeResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceAddNodesResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetSuccess() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "success", thrift.STRUCT, 0)
@@ -5138,7 +5445,7 @@ func (p *ResourceServiceAddClusterNodeResult) fastWriteField0(buf []byte, binary
 	return offset
 }
 
-func (p *ResourceServiceAddClusterNodeResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceAddNodesResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetErr() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "err", thrift.STRUCT, 1)
@@ -5148,7 +5455,7 @@ func (p *ResourceServiceAddClusterNodeResult) fastWriteField1(buf []byte, binary
 	return offset
 }
 
-func (p *ResourceServiceAddClusterNodeResult) field0Length() int {
+func (p *ResourceServiceAddNodesResult) field0Length() int {
 	l := 0
 	if p.IsSetSuccess() {
 		l += bthrift.Binary.FieldBeginLength("success", thrift.STRUCT, 0)
@@ -5158,7 +5465,7 @@ func (p *ResourceServiceAddClusterNodeResult) field0Length() int {
 	return l
 }
 
-func (p *ResourceServiceAddClusterNodeResult) field1Length() int {
+func (p *ResourceServiceAddNodesResult) field1Length() int {
 	l := 0
 	if p.IsSetErr() {
 		l += bthrift.Binary.FieldBeginLength("err", thrift.STRUCT, 1)
@@ -5168,7 +5475,7 @@ func (p *ResourceServiceAddClusterNodeResult) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceGetClusterNodeArgs) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceGetNodeArgs) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -5230,7 +5537,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceGetClusterNodeArgs[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceGetNodeArgs[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -5239,9 +5546,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceGetClusterNodeArgs) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceGetNodeArgs) FastReadField1(buf []byte) (int, error) {
 	offset := 0
-	p.Req = cluster.NewGetClusterNodeRequest()
+	p.Req = cluster.NewGetNodeRequest()
 	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -5251,13 +5558,13 @@ func (p *ResourceServiceGetClusterNodeArgs) FastReadField1(buf []byte) (int, err
 }
 
 // for compatibility
-func (p *ResourceServiceGetClusterNodeArgs) FastWrite(buf []byte) int {
+func (p *ResourceServiceGetNodeArgs) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceGetClusterNodeArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceGetNodeArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "GetClusterNode_args")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "GetNode_args")
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
 	}
@@ -5266,9 +5573,9 @@ func (p *ResourceServiceGetClusterNodeArgs) FastWriteNocopy(buf []byte, binaryWr
 	return offset
 }
 
-func (p *ResourceServiceGetClusterNodeArgs) BLength() int {
+func (p *ResourceServiceGetNodeArgs) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("GetClusterNode_args")
+	l += bthrift.Binary.StructBeginLength("GetNode_args")
 	if p != nil {
 		l += p.field1Length()
 	}
@@ -5277,7 +5584,7 @@ func (p *ResourceServiceGetClusterNodeArgs) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceGetClusterNodeArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceGetNodeArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req", thrift.STRUCT, 1)
 	offset += p.Req.FastWriteNocopy(buf[offset:], binaryWriter)
@@ -5285,7 +5592,7 @@ func (p *ResourceServiceGetClusterNodeArgs) fastWriteField1(buf []byte, binaryWr
 	return offset
 }
 
-func (p *ResourceServiceGetClusterNodeArgs) field1Length() int {
+func (p *ResourceServiceGetNodeArgs) field1Length() int {
 	l := 0
 	l += bthrift.Binary.FieldBeginLength("req", thrift.STRUCT, 1)
 	l += p.Req.BLength()
@@ -5293,7 +5600,7 @@ func (p *ResourceServiceGetClusterNodeArgs) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceGetClusterNodeResult) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceGetNodeResult) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -5369,7 +5676,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceGetClusterNodeResult[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceGetNodeResult[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -5378,9 +5685,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceGetClusterNodeResult) FastReadField0(buf []byte) (int, error) {
+func (p *ResourceServiceGetNodeResult) FastReadField0(buf []byte) (int, error) {
 	offset := 0
-	p.Success = cluster.NewGetClusterNodeResponse()
+	p.Success = cluster.NewGetNodeResponse()
 	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -5389,7 +5696,7 @@ func (p *ResourceServiceGetClusterNodeResult) FastReadField0(buf []byte) (int, e
 	return offset, nil
 }
 
-func (p *ResourceServiceGetClusterNodeResult) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceGetNodeResult) FastReadField1(buf []byte) (int, error) {
 	offset := 0
 	p.Err = common.NewError()
 	if l, err := p.Err.FastRead(buf[offset:]); err != nil {
@@ -5401,13 +5708,13 @@ func (p *ResourceServiceGetClusterNodeResult) FastReadField1(buf []byte) (int, e
 }
 
 // for compatibility
-func (p *ResourceServiceGetClusterNodeResult) FastWrite(buf []byte) int {
+func (p *ResourceServiceGetNodeResult) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceGetClusterNodeResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceGetNodeResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "GetClusterNode_result")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "GetNode_result")
 	if p != nil {
 		offset += p.fastWriteField0(buf[offset:], binaryWriter)
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
@@ -5417,9 +5724,9 @@ func (p *ResourceServiceGetClusterNodeResult) FastWriteNocopy(buf []byte, binary
 	return offset
 }
 
-func (p *ResourceServiceGetClusterNodeResult) BLength() int {
+func (p *ResourceServiceGetNodeResult) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("GetClusterNode_result")
+	l += bthrift.Binary.StructBeginLength("GetNode_result")
 	if p != nil {
 		l += p.field0Length()
 		l += p.field1Length()
@@ -5429,7 +5736,7 @@ func (p *ResourceServiceGetClusterNodeResult) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceGetClusterNodeResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceGetNodeResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetSuccess() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "success", thrift.STRUCT, 0)
@@ -5439,7 +5746,7 @@ func (p *ResourceServiceGetClusterNodeResult) fastWriteField0(buf []byte, binary
 	return offset
 }
 
-func (p *ResourceServiceGetClusterNodeResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceGetNodeResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetErr() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "err", thrift.STRUCT, 1)
@@ -5449,7 +5756,7 @@ func (p *ResourceServiceGetClusterNodeResult) fastWriteField1(buf []byte, binary
 	return offset
 }
 
-func (p *ResourceServiceGetClusterNodeResult) field0Length() int {
+func (p *ResourceServiceGetNodeResult) field0Length() int {
 	l := 0
 	if p.IsSetSuccess() {
 		l += bthrift.Binary.FieldBeginLength("success", thrift.STRUCT, 0)
@@ -5459,7 +5766,7 @@ func (p *ResourceServiceGetClusterNodeResult) field0Length() int {
 	return l
 }
 
-func (p *ResourceServiceGetClusterNodeResult) field1Length() int {
+func (p *ResourceServiceGetNodeResult) field1Length() int {
 	l := 0
 	if p.IsSetErr() {
 		l += bthrift.Binary.FieldBeginLength("err", thrift.STRUCT, 1)
@@ -5469,7 +5776,7 @@ func (p *ResourceServiceGetClusterNodeResult) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceDeleteClusterNodeArgs) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceDeleteNodesArgs) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -5531,7 +5838,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceDeleteClusterNodeArgs[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceDeleteNodesArgs[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -5540,9 +5847,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceDeleteClusterNodeArgs) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceDeleteNodesArgs) FastReadField1(buf []byte) (int, error) {
 	offset := 0
-	p.Req = cluster.NewDeleteClusterNodeRequest()
+	p.Req = cluster.NewDeleteNodesRequest()
 	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -5552,13 +5859,13 @@ func (p *ResourceServiceDeleteClusterNodeArgs) FastReadField1(buf []byte) (int, 
 }
 
 // for compatibility
-func (p *ResourceServiceDeleteClusterNodeArgs) FastWrite(buf []byte) int {
+func (p *ResourceServiceDeleteNodesArgs) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceDeleteClusterNodeArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceDeleteNodesArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "DeleteClusterNode_args")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "DeleteNodes_args")
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
 	}
@@ -5567,9 +5874,9 @@ func (p *ResourceServiceDeleteClusterNodeArgs) FastWriteNocopy(buf []byte, binar
 	return offset
 }
 
-func (p *ResourceServiceDeleteClusterNodeArgs) BLength() int {
+func (p *ResourceServiceDeleteNodesArgs) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("DeleteClusterNode_args")
+	l += bthrift.Binary.StructBeginLength("DeleteNodes_args")
 	if p != nil {
 		l += p.field1Length()
 	}
@@ -5578,7 +5885,7 @@ func (p *ResourceServiceDeleteClusterNodeArgs) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceDeleteClusterNodeArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceDeleteNodesArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req", thrift.STRUCT, 1)
 	offset += p.Req.FastWriteNocopy(buf[offset:], binaryWriter)
@@ -5586,7 +5893,7 @@ func (p *ResourceServiceDeleteClusterNodeArgs) fastWriteField1(buf []byte, binar
 	return offset
 }
 
-func (p *ResourceServiceDeleteClusterNodeArgs) field1Length() int {
+func (p *ResourceServiceDeleteNodesArgs) field1Length() int {
 	l := 0
 	l += bthrift.Binary.FieldBeginLength("req", thrift.STRUCT, 1)
 	l += p.Req.BLength()
@@ -5594,7 +5901,7 @@ func (p *ResourceServiceDeleteClusterNodeArgs) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceDeleteClusterNodeResult) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceDeleteNodesResult) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -5670,7 +5977,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceDeleteClusterNodeResult[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceDeleteNodesResult[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -5679,9 +5986,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceDeleteClusterNodeResult) FastReadField0(buf []byte) (int, error) {
+func (p *ResourceServiceDeleteNodesResult) FastReadField0(buf []byte) (int, error) {
 	offset := 0
-	p.Success = cluster.NewDeleteClusterNodeResponse()
+	p.Success = cluster.NewDeleteNodesResponse()
 	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -5690,7 +5997,7 @@ func (p *ResourceServiceDeleteClusterNodeResult) FastReadField0(buf []byte) (int
 	return offset, nil
 }
 
-func (p *ResourceServiceDeleteClusterNodeResult) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceDeleteNodesResult) FastReadField1(buf []byte) (int, error) {
 	offset := 0
 	p.Err = common.NewError()
 	if l, err := p.Err.FastRead(buf[offset:]); err != nil {
@@ -5702,13 +6009,13 @@ func (p *ResourceServiceDeleteClusterNodeResult) FastReadField1(buf []byte) (int
 }
 
 // for compatibility
-func (p *ResourceServiceDeleteClusterNodeResult) FastWrite(buf []byte) int {
+func (p *ResourceServiceDeleteNodesResult) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceDeleteClusterNodeResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceDeleteNodesResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "DeleteClusterNode_result")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "DeleteNodes_result")
 	if p != nil {
 		offset += p.fastWriteField0(buf[offset:], binaryWriter)
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
@@ -5718,9 +6025,9 @@ func (p *ResourceServiceDeleteClusterNodeResult) FastWriteNocopy(buf []byte, bin
 	return offset
 }
 
-func (p *ResourceServiceDeleteClusterNodeResult) BLength() int {
+func (p *ResourceServiceDeleteNodesResult) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("DeleteClusterNode_result")
+	l += bthrift.Binary.StructBeginLength("DeleteNodes_result")
 	if p != nil {
 		l += p.field0Length()
 		l += p.field1Length()
@@ -5730,7 +6037,7 @@ func (p *ResourceServiceDeleteClusterNodeResult) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceDeleteClusterNodeResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceDeleteNodesResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetSuccess() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "success", thrift.STRUCT, 0)
@@ -5740,7 +6047,7 @@ func (p *ResourceServiceDeleteClusterNodeResult) fastWriteField0(buf []byte, bin
 	return offset
 }
 
-func (p *ResourceServiceDeleteClusterNodeResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceDeleteNodesResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetErr() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "err", thrift.STRUCT, 1)
@@ -5750,7 +6057,7 @@ func (p *ResourceServiceDeleteClusterNodeResult) fastWriteField1(buf []byte, bin
 	return offset
 }
 
-func (p *ResourceServiceDeleteClusterNodeResult) field0Length() int {
+func (p *ResourceServiceDeleteNodesResult) field0Length() int {
 	l := 0
 	if p.IsSetSuccess() {
 		l += bthrift.Binary.FieldBeginLength("success", thrift.STRUCT, 0)
@@ -5760,7 +6067,7 @@ func (p *ResourceServiceDeleteClusterNodeResult) field0Length() int {
 	return l
 }
 
-func (p *ResourceServiceDeleteClusterNodeResult) field1Length() int {
+func (p *ResourceServiceDeleteNodesResult) field1Length() int {
 	l := 0
 	if p.IsSetErr() {
 		l += bthrift.Binary.FieldBeginLength("err", thrift.STRUCT, 1)
@@ -5770,7 +6077,7 @@ func (p *ResourceServiceDeleteClusterNodeResult) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceListClusterNodeLabelArgs) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceListNodeLabelsArgs) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -5832,7 +6139,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListClusterNodeLabelArgs[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListNodeLabelsArgs[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -5841,9 +6148,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterNodeLabelArgs) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceListNodeLabelsArgs) FastReadField1(buf []byte) (int, error) {
 	offset := 0
-	p.Req = cluster.NewListClusterNodeLabelRequest()
+	p.Req = cluster.NewListNodeLabelsRequest()
 	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -5853,13 +6160,13 @@ func (p *ResourceServiceListClusterNodeLabelArgs) FastReadField1(buf []byte) (in
 }
 
 // for compatibility
-func (p *ResourceServiceListClusterNodeLabelArgs) FastWrite(buf []byte) int {
+func (p *ResourceServiceListNodeLabelsArgs) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceListClusterNodeLabelArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListNodeLabelsArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListClusterNodeLabel_args")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListNodeLabels_args")
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
 	}
@@ -5868,9 +6175,9 @@ func (p *ResourceServiceListClusterNodeLabelArgs) FastWriteNocopy(buf []byte, bi
 	return offset
 }
 
-func (p *ResourceServiceListClusterNodeLabelArgs) BLength() int {
+func (p *ResourceServiceListNodeLabelsArgs) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("ListClusterNodeLabel_args")
+	l += bthrift.Binary.StructBeginLength("ListNodeLabels_args")
 	if p != nil {
 		l += p.field1Length()
 	}
@@ -5879,7 +6186,7 @@ func (p *ResourceServiceListClusterNodeLabelArgs) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceListClusterNodeLabelArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListNodeLabelsArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req", thrift.STRUCT, 1)
 	offset += p.Req.FastWriteNocopy(buf[offset:], binaryWriter)
@@ -5887,7 +6194,7 @@ func (p *ResourceServiceListClusterNodeLabelArgs) fastWriteField1(buf []byte, bi
 	return offset
 }
 
-func (p *ResourceServiceListClusterNodeLabelArgs) field1Length() int {
+func (p *ResourceServiceListNodeLabelsArgs) field1Length() int {
 	l := 0
 	l += bthrift.Binary.FieldBeginLength("req", thrift.STRUCT, 1)
 	l += p.Req.BLength()
@@ -5895,7 +6202,7 @@ func (p *ResourceServiceListClusterNodeLabelArgs) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceListClusterNodeLabelResult) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceListNodeLabelsResult) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -5971,7 +6278,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListClusterNodeLabelResult[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListNodeLabelsResult[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -5980,9 +6287,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterNodeLabelResult) FastReadField0(buf []byte) (int, error) {
+func (p *ResourceServiceListNodeLabelsResult) FastReadField0(buf []byte) (int, error) {
 	offset := 0
-	p.Success = cluster.NewListClusterNodeLabelResponse()
+	p.Success = cluster.NewListNodeLabelsResponse()
 	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -5991,7 +6298,7 @@ func (p *ResourceServiceListClusterNodeLabelResult) FastReadField0(buf []byte) (
 	return offset, nil
 }
 
-func (p *ResourceServiceListClusterNodeLabelResult) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceListNodeLabelsResult) FastReadField1(buf []byte) (int, error) {
 	offset := 0
 	p.Err = common.NewError()
 	if l, err := p.Err.FastRead(buf[offset:]); err != nil {
@@ -6003,13 +6310,13 @@ func (p *ResourceServiceListClusterNodeLabelResult) FastReadField1(buf []byte) (
 }
 
 // for compatibility
-func (p *ResourceServiceListClusterNodeLabelResult) FastWrite(buf []byte) int {
+func (p *ResourceServiceListNodeLabelsResult) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceListClusterNodeLabelResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListNodeLabelsResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListClusterNodeLabel_result")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListNodeLabels_result")
 	if p != nil {
 		offset += p.fastWriteField0(buf[offset:], binaryWriter)
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
@@ -6019,9 +6326,9 @@ func (p *ResourceServiceListClusterNodeLabelResult) FastWriteNocopy(buf []byte, 
 	return offset
 }
 
-func (p *ResourceServiceListClusterNodeLabelResult) BLength() int {
+func (p *ResourceServiceListNodeLabelsResult) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("ListClusterNodeLabel_result")
+	l += bthrift.Binary.StructBeginLength("ListNodeLabels_result")
 	if p != nil {
 		l += p.field0Length()
 		l += p.field1Length()
@@ -6031,7 +6338,7 @@ func (p *ResourceServiceListClusterNodeLabelResult) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceListClusterNodeLabelResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListNodeLabelsResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetSuccess() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "success", thrift.STRUCT, 0)
@@ -6041,7 +6348,7 @@ func (p *ResourceServiceListClusterNodeLabelResult) fastWriteField0(buf []byte, 
 	return offset
 }
 
-func (p *ResourceServiceListClusterNodeLabelResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListNodeLabelsResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetErr() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "err", thrift.STRUCT, 1)
@@ -6051,7 +6358,7 @@ func (p *ResourceServiceListClusterNodeLabelResult) fastWriteField1(buf []byte, 
 	return offset
 }
 
-func (p *ResourceServiceListClusterNodeLabelResult) field0Length() int {
+func (p *ResourceServiceListNodeLabelsResult) field0Length() int {
 	l := 0
 	if p.IsSetSuccess() {
 		l += bthrift.Binary.FieldBeginLength("success", thrift.STRUCT, 0)
@@ -6061,7 +6368,7 @@ func (p *ResourceServiceListClusterNodeLabelResult) field0Length() int {
 	return l
 }
 
-func (p *ResourceServiceListClusterNodeLabelResult) field1Length() int {
+func (p *ResourceServiceListNodeLabelsResult) field1Length() int {
 	l := 0
 	if p.IsSetErr() {
 		l += bthrift.Binary.FieldBeginLength("err", thrift.STRUCT, 1)
@@ -6071,7 +6378,7 @@ func (p *ResourceServiceListClusterNodeLabelResult) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceUpdateClusterNodeArgs) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceUpdateNodeArgs) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -6133,7 +6440,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceUpdateClusterNodeArgs[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceUpdateNodeArgs[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -6142,9 +6449,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceUpdateClusterNodeArgs) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceUpdateNodeArgs) FastReadField1(buf []byte) (int, error) {
 	offset := 0
-	p.Req = cluster.NewUpdateClusterNodeRequest()
+	p.Req = cluster.NewUpdateNodeRequest()
 	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -6154,13 +6461,13 @@ func (p *ResourceServiceUpdateClusterNodeArgs) FastReadField1(buf []byte) (int, 
 }
 
 // for compatibility
-func (p *ResourceServiceUpdateClusterNodeArgs) FastWrite(buf []byte) int {
+func (p *ResourceServiceUpdateNodeArgs) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceUpdateClusterNodeArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceUpdateNodeArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "UpdateClusterNode_args")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "UpdateNode_args")
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
 	}
@@ -6169,9 +6476,9 @@ func (p *ResourceServiceUpdateClusterNodeArgs) FastWriteNocopy(buf []byte, binar
 	return offset
 }
 
-func (p *ResourceServiceUpdateClusterNodeArgs) BLength() int {
+func (p *ResourceServiceUpdateNodeArgs) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("UpdateClusterNode_args")
+	l += bthrift.Binary.StructBeginLength("UpdateNode_args")
 	if p != nil {
 		l += p.field1Length()
 	}
@@ -6180,7 +6487,7 @@ func (p *ResourceServiceUpdateClusterNodeArgs) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceUpdateClusterNodeArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceUpdateNodeArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req", thrift.STRUCT, 1)
 	offset += p.Req.FastWriteNocopy(buf[offset:], binaryWriter)
@@ -6188,7 +6495,7 @@ func (p *ResourceServiceUpdateClusterNodeArgs) fastWriteField1(buf []byte, binar
 	return offset
 }
 
-func (p *ResourceServiceUpdateClusterNodeArgs) field1Length() int {
+func (p *ResourceServiceUpdateNodeArgs) field1Length() int {
 	l := 0
 	l += bthrift.Binary.FieldBeginLength("req", thrift.STRUCT, 1)
 	l += p.Req.BLength()
@@ -6196,7 +6503,7 @@ func (p *ResourceServiceUpdateClusterNodeArgs) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceUpdateClusterNodeResult) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceUpdateNodeResult) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -6272,7 +6579,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceUpdateClusterNodeResult[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceUpdateNodeResult[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -6281,9 +6588,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceUpdateClusterNodeResult) FastReadField0(buf []byte) (int, error) {
+func (p *ResourceServiceUpdateNodeResult) FastReadField0(buf []byte) (int, error) {
 	offset := 0
-	p.Success = cluster.NewUpdateClusterNodeResponse()
+	p.Success = cluster.NewUpdateNodeResponse()
 	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -6292,7 +6599,7 @@ func (p *ResourceServiceUpdateClusterNodeResult) FastReadField0(buf []byte) (int
 	return offset, nil
 }
 
-func (p *ResourceServiceUpdateClusterNodeResult) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceUpdateNodeResult) FastReadField1(buf []byte) (int, error) {
 	offset := 0
 	p.Err = common.NewError()
 	if l, err := p.Err.FastRead(buf[offset:]); err != nil {
@@ -6304,13 +6611,13 @@ func (p *ResourceServiceUpdateClusterNodeResult) FastReadField1(buf []byte) (int
 }
 
 // for compatibility
-func (p *ResourceServiceUpdateClusterNodeResult) FastWrite(buf []byte) int {
+func (p *ResourceServiceUpdateNodeResult) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceUpdateClusterNodeResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceUpdateNodeResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "UpdateClusterNode_result")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "UpdateNode_result")
 	if p != nil {
 		offset += p.fastWriteField0(buf[offset:], binaryWriter)
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
@@ -6320,9 +6627,9 @@ func (p *ResourceServiceUpdateClusterNodeResult) FastWriteNocopy(buf []byte, bin
 	return offset
 }
 
-func (p *ResourceServiceUpdateClusterNodeResult) BLength() int {
+func (p *ResourceServiceUpdateNodeResult) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("UpdateClusterNode_result")
+	l += bthrift.Binary.StructBeginLength("UpdateNode_result")
 	if p != nil {
 		l += p.field0Length()
 		l += p.field1Length()
@@ -6332,7 +6639,7 @@ func (p *ResourceServiceUpdateClusterNodeResult) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceUpdateClusterNodeResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceUpdateNodeResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetSuccess() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "success", thrift.STRUCT, 0)
@@ -6342,7 +6649,7 @@ func (p *ResourceServiceUpdateClusterNodeResult) fastWriteField0(buf []byte, bin
 	return offset
 }
 
-func (p *ResourceServiceUpdateClusterNodeResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceUpdateNodeResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetErr() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "err", thrift.STRUCT, 1)
@@ -6352,7 +6659,7 @@ func (p *ResourceServiceUpdateClusterNodeResult) fastWriteField1(buf []byte, bin
 	return offset
 }
 
-func (p *ResourceServiceUpdateClusterNodeResult) field0Length() int {
+func (p *ResourceServiceUpdateNodeResult) field0Length() int {
 	l := 0
 	if p.IsSetSuccess() {
 		l += bthrift.Binary.FieldBeginLength("success", thrift.STRUCT, 0)
@@ -6362,7 +6669,7 @@ func (p *ResourceServiceUpdateClusterNodeResult) field0Length() int {
 	return l
 }
 
-func (p *ResourceServiceUpdateClusterNodeResult) field1Length() int {
+func (p *ResourceServiceUpdateNodeResult) field1Length() int {
 	l := 0
 	if p.IsSetErr() {
 		l += bthrift.Binary.FieldBeginLength("err", thrift.STRUCT, 1)
@@ -6372,7 +6679,7 @@ func (p *ResourceServiceUpdateClusterNodeResult) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceGetAutoScalingRuleArgs) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceGetClusterAutoScalingRuleArgs) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -6434,7 +6741,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceGetAutoScalingRuleArgs[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceGetClusterAutoScalingRuleArgs[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -6443,9 +6750,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceGetAutoScalingRuleArgs) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceGetClusterAutoScalingRuleArgs) FastReadField1(buf []byte) (int, error) {
 	offset := 0
-	p.Req = cluster.NewGetAutoScalingRuleRequest()
+	p.Req = cluster.NewGetClusterAutoScalingRuleRequest()
 	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -6455,13 +6762,13 @@ func (p *ResourceServiceGetAutoScalingRuleArgs) FastReadField1(buf []byte) (int,
 }
 
 // for compatibility
-func (p *ResourceServiceGetAutoScalingRuleArgs) FastWrite(buf []byte) int {
+func (p *ResourceServiceGetClusterAutoScalingRuleArgs) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceGetAutoScalingRuleArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceGetClusterAutoScalingRuleArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "GetAutoScalingRule_args")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "GetClusterAutoScalingRule_args")
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
 	}
@@ -6470,9 +6777,9 @@ func (p *ResourceServiceGetAutoScalingRuleArgs) FastWriteNocopy(buf []byte, bina
 	return offset
 }
 
-func (p *ResourceServiceGetAutoScalingRuleArgs) BLength() int {
+func (p *ResourceServiceGetClusterAutoScalingRuleArgs) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("GetAutoScalingRule_args")
+	l += bthrift.Binary.StructBeginLength("GetClusterAutoScalingRule_args")
 	if p != nil {
 		l += p.field1Length()
 	}
@@ -6481,7 +6788,7 @@ func (p *ResourceServiceGetAutoScalingRuleArgs) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceGetAutoScalingRuleArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceGetClusterAutoScalingRuleArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req", thrift.STRUCT, 1)
 	offset += p.Req.FastWriteNocopy(buf[offset:], binaryWriter)
@@ -6489,7 +6796,7 @@ func (p *ResourceServiceGetAutoScalingRuleArgs) fastWriteField1(buf []byte, bina
 	return offset
 }
 
-func (p *ResourceServiceGetAutoScalingRuleArgs) field1Length() int {
+func (p *ResourceServiceGetClusterAutoScalingRuleArgs) field1Length() int {
 	l := 0
 	l += bthrift.Binary.FieldBeginLength("req", thrift.STRUCT, 1)
 	l += p.Req.BLength()
@@ -6497,7 +6804,7 @@ func (p *ResourceServiceGetAutoScalingRuleArgs) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceGetAutoScalingRuleResult) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceGetClusterAutoScalingRuleResult) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -6573,7 +6880,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceGetAutoScalingRuleResult[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceGetClusterAutoScalingRuleResult[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -6582,9 +6889,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceGetAutoScalingRuleResult) FastReadField0(buf []byte) (int, error) {
+func (p *ResourceServiceGetClusterAutoScalingRuleResult) FastReadField0(buf []byte) (int, error) {
 	offset := 0
-	p.Success = cluster.NewGetAutoScalingRuleResponse()
+	p.Success = cluster.NewGetClusterAutoScalingRuleResponse()
 	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -6593,7 +6900,7 @@ func (p *ResourceServiceGetAutoScalingRuleResult) FastReadField0(buf []byte) (in
 	return offset, nil
 }
 
-func (p *ResourceServiceGetAutoScalingRuleResult) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceGetClusterAutoScalingRuleResult) FastReadField1(buf []byte) (int, error) {
 	offset := 0
 	p.Err = common.NewError()
 	if l, err := p.Err.FastRead(buf[offset:]); err != nil {
@@ -6605,13 +6912,13 @@ func (p *ResourceServiceGetAutoScalingRuleResult) FastReadField1(buf []byte) (in
 }
 
 // for compatibility
-func (p *ResourceServiceGetAutoScalingRuleResult) FastWrite(buf []byte) int {
+func (p *ResourceServiceGetClusterAutoScalingRuleResult) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceGetAutoScalingRuleResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceGetClusterAutoScalingRuleResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "GetAutoScalingRule_result")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "GetClusterAutoScalingRule_result")
 	if p != nil {
 		offset += p.fastWriteField0(buf[offset:], binaryWriter)
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
@@ -6621,9 +6928,9 @@ func (p *ResourceServiceGetAutoScalingRuleResult) FastWriteNocopy(buf []byte, bi
 	return offset
 }
 
-func (p *ResourceServiceGetAutoScalingRuleResult) BLength() int {
+func (p *ResourceServiceGetClusterAutoScalingRuleResult) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("GetAutoScalingRule_result")
+	l += bthrift.Binary.StructBeginLength("GetClusterAutoScalingRule_result")
 	if p != nil {
 		l += p.field0Length()
 		l += p.field1Length()
@@ -6633,7 +6940,7 @@ func (p *ResourceServiceGetAutoScalingRuleResult) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceGetAutoScalingRuleResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceGetClusterAutoScalingRuleResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetSuccess() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "success", thrift.STRUCT, 0)
@@ -6643,7 +6950,7 @@ func (p *ResourceServiceGetAutoScalingRuleResult) fastWriteField0(buf []byte, bi
 	return offset
 }
 
-func (p *ResourceServiceGetAutoScalingRuleResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceGetClusterAutoScalingRuleResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetErr() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "err", thrift.STRUCT, 1)
@@ -6653,7 +6960,7 @@ func (p *ResourceServiceGetAutoScalingRuleResult) fastWriteField1(buf []byte, bi
 	return offset
 }
 
-func (p *ResourceServiceGetAutoScalingRuleResult) field0Length() int {
+func (p *ResourceServiceGetClusterAutoScalingRuleResult) field0Length() int {
 	l := 0
 	if p.IsSetSuccess() {
 		l += bthrift.Binary.FieldBeginLength("success", thrift.STRUCT, 0)
@@ -6663,7 +6970,7 @@ func (p *ResourceServiceGetAutoScalingRuleResult) field0Length() int {
 	return l
 }
 
-func (p *ResourceServiceGetAutoScalingRuleResult) field1Length() int {
+func (p *ResourceServiceGetClusterAutoScalingRuleResult) field1Length() int {
 	l := 0
 	if p.IsSetErr() {
 		l += bthrift.Binary.FieldBeginLength("err", thrift.STRUCT, 1)
@@ -6673,7 +6980,7 @@ func (p *ResourceServiceGetAutoScalingRuleResult) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceUpdateAutoScalingRuleArgs) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleArgs) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -6735,7 +7042,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceUpdateAutoScalingRuleArgs[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceUpdateClusterAutoScalingRuleArgs[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -6744,9 +7051,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceUpdateAutoScalingRuleArgs) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleArgs) FastReadField1(buf []byte) (int, error) {
 	offset := 0
-	p.Req = cluster.NewUpdateAutoScalingRuleRequest()
+	p.Req = cluster.NewUpdateClusterAutoScalingRuleRequest()
 	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -6756,13 +7063,13 @@ func (p *ResourceServiceUpdateAutoScalingRuleArgs) FastReadField1(buf []byte) (i
 }
 
 // for compatibility
-func (p *ResourceServiceUpdateAutoScalingRuleArgs) FastWrite(buf []byte) int {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleArgs) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceUpdateAutoScalingRuleArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "UpdateAutoScalingRule_args")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "UpdateClusterAutoScalingRule_args")
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
 	}
@@ -6771,9 +7078,9 @@ func (p *ResourceServiceUpdateAutoScalingRuleArgs) FastWriteNocopy(buf []byte, b
 	return offset
 }
 
-func (p *ResourceServiceUpdateAutoScalingRuleArgs) BLength() int {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleArgs) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("UpdateAutoScalingRule_args")
+	l += bthrift.Binary.StructBeginLength("UpdateClusterAutoScalingRule_args")
 	if p != nil {
 		l += p.field1Length()
 	}
@@ -6782,7 +7089,7 @@ func (p *ResourceServiceUpdateAutoScalingRuleArgs) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceUpdateAutoScalingRuleArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req", thrift.STRUCT, 1)
 	offset += p.Req.FastWriteNocopy(buf[offset:], binaryWriter)
@@ -6790,7 +7097,7 @@ func (p *ResourceServiceUpdateAutoScalingRuleArgs) fastWriteField1(buf []byte, b
 	return offset
 }
 
-func (p *ResourceServiceUpdateAutoScalingRuleArgs) field1Length() int {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleArgs) field1Length() int {
 	l := 0
 	l += bthrift.Binary.FieldBeginLength("req", thrift.STRUCT, 1)
 	l += p.Req.BLength()
@@ -6798,7 +7105,7 @@ func (p *ResourceServiceUpdateAutoScalingRuleArgs) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceUpdateAutoScalingRuleResult) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleResult) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -6874,7 +7181,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceUpdateAutoScalingRuleResult[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceUpdateClusterAutoScalingRuleResult[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -6883,9 +7190,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceUpdateAutoScalingRuleResult) FastReadField0(buf []byte) (int, error) {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleResult) FastReadField0(buf []byte) (int, error) {
 	offset := 0
-	p.Success = cluster.NewUpdateAutoScalingRuleResponse()
+	p.Success = cluster.NewUpdateClusterAutoScalingRuleResponse()
 	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -6894,7 +7201,7 @@ func (p *ResourceServiceUpdateAutoScalingRuleResult) FastReadField0(buf []byte) 
 	return offset, nil
 }
 
-func (p *ResourceServiceUpdateAutoScalingRuleResult) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleResult) FastReadField1(buf []byte) (int, error) {
 	offset := 0
 	p.Err = common.NewError()
 	if l, err := p.Err.FastRead(buf[offset:]); err != nil {
@@ -6906,13 +7213,13 @@ func (p *ResourceServiceUpdateAutoScalingRuleResult) FastReadField1(buf []byte) 
 }
 
 // for compatibility
-func (p *ResourceServiceUpdateAutoScalingRuleResult) FastWrite(buf []byte) int {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleResult) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceUpdateAutoScalingRuleResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "UpdateAutoScalingRule_result")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "UpdateClusterAutoScalingRule_result")
 	if p != nil {
 		offset += p.fastWriteField0(buf[offset:], binaryWriter)
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
@@ -6922,9 +7229,9 @@ func (p *ResourceServiceUpdateAutoScalingRuleResult) FastWriteNocopy(buf []byte,
 	return offset
 }
 
-func (p *ResourceServiceUpdateAutoScalingRuleResult) BLength() int {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleResult) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("UpdateAutoScalingRule_result")
+	l += bthrift.Binary.StructBeginLength("UpdateClusterAutoScalingRule_result")
 	if p != nil {
 		l += p.field0Length()
 		l += p.field1Length()
@@ -6934,7 +7241,7 @@ func (p *ResourceServiceUpdateAutoScalingRuleResult) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceUpdateAutoScalingRuleResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetSuccess() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "success", thrift.STRUCT, 0)
@@ -6944,7 +7251,7 @@ func (p *ResourceServiceUpdateAutoScalingRuleResult) fastWriteField0(buf []byte,
 	return offset
 }
 
-func (p *ResourceServiceUpdateAutoScalingRuleResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetErr() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "err", thrift.STRUCT, 1)
@@ -6954,7 +7261,7 @@ func (p *ResourceServiceUpdateAutoScalingRuleResult) fastWriteField1(buf []byte,
 	return offset
 }
 
-func (p *ResourceServiceUpdateAutoScalingRuleResult) field0Length() int {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleResult) field0Length() int {
 	l := 0
 	if p.IsSetSuccess() {
 		l += bthrift.Binary.FieldBeginLength("success", thrift.STRUCT, 0)
@@ -6964,7 +7271,7 @@ func (p *ResourceServiceUpdateAutoScalingRuleResult) field0Length() int {
 	return l
 }
 
-func (p *ResourceServiceUpdateAutoScalingRuleResult) field1Length() int {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleResult) field1Length() int {
 	l := 0
 	if p.IsSetErr() {
 		l += bthrift.Binary.FieldBeginLength("err", thrift.STRUCT, 1)
@@ -6974,7 +7281,7 @@ func (p *ResourceServiceUpdateAutoScalingRuleResult) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceNodePoolScaleUpArgs) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceScaleUpNodePoolArgs) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -7036,7 +7343,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceNodePoolScaleUpArgs[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceScaleUpNodePoolArgs[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -7045,9 +7352,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceNodePoolScaleUpArgs) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceScaleUpNodePoolArgs) FastReadField1(buf []byte) (int, error) {
 	offset := 0
-	p.Req = cluster.NewNodePoolScaleUpRequest()
+	p.Req = cluster.NewScaleUpNodePoolRequest()
 	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -7057,13 +7364,13 @@ func (p *ResourceServiceNodePoolScaleUpArgs) FastReadField1(buf []byte) (int, er
 }
 
 // for compatibility
-func (p *ResourceServiceNodePoolScaleUpArgs) FastWrite(buf []byte) int {
+func (p *ResourceServiceScaleUpNodePoolArgs) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceNodePoolScaleUpArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceScaleUpNodePoolArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "NodePoolScaleUp_args")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ScaleUpNodePool_args")
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
 	}
@@ -7072,9 +7379,9 @@ func (p *ResourceServiceNodePoolScaleUpArgs) FastWriteNocopy(buf []byte, binaryW
 	return offset
 }
 
-func (p *ResourceServiceNodePoolScaleUpArgs) BLength() int {
+func (p *ResourceServiceScaleUpNodePoolArgs) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("NodePoolScaleUp_args")
+	l += bthrift.Binary.StructBeginLength("ScaleUpNodePool_args")
 	if p != nil {
 		l += p.field1Length()
 	}
@@ -7083,7 +7390,7 @@ func (p *ResourceServiceNodePoolScaleUpArgs) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceNodePoolScaleUpArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceScaleUpNodePoolArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req", thrift.STRUCT, 1)
 	offset += p.Req.FastWriteNocopy(buf[offset:], binaryWriter)
@@ -7091,7 +7398,7 @@ func (p *ResourceServiceNodePoolScaleUpArgs) fastWriteField1(buf []byte, binaryW
 	return offset
 }
 
-func (p *ResourceServiceNodePoolScaleUpArgs) field1Length() int {
+func (p *ResourceServiceScaleUpNodePoolArgs) field1Length() int {
 	l := 0
 	l += bthrift.Binary.FieldBeginLength("req", thrift.STRUCT, 1)
 	l += p.Req.BLength()
@@ -7099,7 +7406,7 @@ func (p *ResourceServiceNodePoolScaleUpArgs) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceNodePoolScaleUpResult) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceScaleUpNodePoolResult) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -7175,7 +7482,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceNodePoolScaleUpResult[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceScaleUpNodePoolResult[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -7184,9 +7491,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceNodePoolScaleUpResult) FastReadField0(buf []byte) (int, error) {
+func (p *ResourceServiceScaleUpNodePoolResult) FastReadField0(buf []byte) (int, error) {
 	offset := 0
-	p.Success = cluster.NewNodePoolScaleUpResponse()
+	p.Success = cluster.NewScaleUpNodePoolResponse()
 	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -7195,7 +7502,7 @@ func (p *ResourceServiceNodePoolScaleUpResult) FastReadField0(buf []byte) (int, 
 	return offset, nil
 }
 
-func (p *ResourceServiceNodePoolScaleUpResult) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceScaleUpNodePoolResult) FastReadField1(buf []byte) (int, error) {
 	offset := 0
 	p.Err = common.NewError()
 	if l, err := p.Err.FastRead(buf[offset:]); err != nil {
@@ -7207,13 +7514,13 @@ func (p *ResourceServiceNodePoolScaleUpResult) FastReadField1(buf []byte) (int, 
 }
 
 // for compatibility
-func (p *ResourceServiceNodePoolScaleUpResult) FastWrite(buf []byte) int {
+func (p *ResourceServiceScaleUpNodePoolResult) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceNodePoolScaleUpResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceScaleUpNodePoolResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "NodePoolScaleUp_result")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ScaleUpNodePool_result")
 	if p != nil {
 		offset += p.fastWriteField0(buf[offset:], binaryWriter)
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
@@ -7223,9 +7530,9 @@ func (p *ResourceServiceNodePoolScaleUpResult) FastWriteNocopy(buf []byte, binar
 	return offset
 }
 
-func (p *ResourceServiceNodePoolScaleUpResult) BLength() int {
+func (p *ResourceServiceScaleUpNodePoolResult) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("NodePoolScaleUp_result")
+	l += bthrift.Binary.StructBeginLength("ScaleUpNodePool_result")
 	if p != nil {
 		l += p.field0Length()
 		l += p.field1Length()
@@ -7235,7 +7542,7 @@ func (p *ResourceServiceNodePoolScaleUpResult) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceNodePoolScaleUpResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceScaleUpNodePoolResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetSuccess() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "success", thrift.STRUCT, 0)
@@ -7245,7 +7552,7 @@ func (p *ResourceServiceNodePoolScaleUpResult) fastWriteField0(buf []byte, binar
 	return offset
 }
 
-func (p *ResourceServiceNodePoolScaleUpResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceScaleUpNodePoolResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetErr() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "err", thrift.STRUCT, 1)
@@ -7255,7 +7562,7 @@ func (p *ResourceServiceNodePoolScaleUpResult) fastWriteField1(buf []byte, binar
 	return offset
 }
 
-func (p *ResourceServiceNodePoolScaleUpResult) field0Length() int {
+func (p *ResourceServiceScaleUpNodePoolResult) field0Length() int {
 	l := 0
 	if p.IsSetSuccess() {
 		l += bthrift.Binary.FieldBeginLength("success", thrift.STRUCT, 0)
@@ -7265,7 +7572,7 @@ func (p *ResourceServiceNodePoolScaleUpResult) field0Length() int {
 	return l
 }
 
-func (p *ResourceServiceNodePoolScaleUpResult) field1Length() int {
+func (p *ResourceServiceScaleUpNodePoolResult) field1Length() int {
 	l := 0
 	if p.IsSetErr() {
 		l += bthrift.Binary.FieldBeginLength("err", thrift.STRUCT, 1)
@@ -7275,7 +7582,7 @@ func (p *ResourceServiceNodePoolScaleUpResult) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceNodePoolScaleDownArgs) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceScaleDownNodePoolArgs) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -7337,7 +7644,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceNodePoolScaleDownArgs[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceScaleDownNodePoolArgs[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -7346,9 +7653,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceNodePoolScaleDownArgs) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceScaleDownNodePoolArgs) FastReadField1(buf []byte) (int, error) {
 	offset := 0
-	p.Req = cluster.NewNodePoolScaleDownRequest()
+	p.Req = cluster.NewScaleDownNodePoolRequest()
 	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -7358,13 +7665,13 @@ func (p *ResourceServiceNodePoolScaleDownArgs) FastReadField1(buf []byte) (int, 
 }
 
 // for compatibility
-func (p *ResourceServiceNodePoolScaleDownArgs) FastWrite(buf []byte) int {
+func (p *ResourceServiceScaleDownNodePoolArgs) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceNodePoolScaleDownArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceScaleDownNodePoolArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "NodePoolScaleDown_args")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ScaleDownNodePool_args")
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
 	}
@@ -7373,9 +7680,9 @@ func (p *ResourceServiceNodePoolScaleDownArgs) FastWriteNocopy(buf []byte, binar
 	return offset
 }
 
-func (p *ResourceServiceNodePoolScaleDownArgs) BLength() int {
+func (p *ResourceServiceScaleDownNodePoolArgs) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("NodePoolScaleDown_args")
+	l += bthrift.Binary.StructBeginLength("ScaleDownNodePool_args")
 	if p != nil {
 		l += p.field1Length()
 	}
@@ -7384,7 +7691,7 @@ func (p *ResourceServiceNodePoolScaleDownArgs) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceNodePoolScaleDownArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceScaleDownNodePoolArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req", thrift.STRUCT, 1)
 	offset += p.Req.FastWriteNocopy(buf[offset:], binaryWriter)
@@ -7392,7 +7699,7 @@ func (p *ResourceServiceNodePoolScaleDownArgs) fastWriteField1(buf []byte, binar
 	return offset
 }
 
-func (p *ResourceServiceNodePoolScaleDownArgs) field1Length() int {
+func (p *ResourceServiceScaleDownNodePoolArgs) field1Length() int {
 	l := 0
 	l += bthrift.Binary.FieldBeginLength("req", thrift.STRUCT, 1)
 	l += p.Req.BLength()
@@ -7400,7 +7707,7 @@ func (p *ResourceServiceNodePoolScaleDownArgs) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceNodePoolScaleDownResult) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceScaleDownNodePoolResult) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -7476,7 +7783,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceNodePoolScaleDownResult[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceScaleDownNodePoolResult[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -7485,9 +7792,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceNodePoolScaleDownResult) FastReadField0(buf []byte) (int, error) {
+func (p *ResourceServiceScaleDownNodePoolResult) FastReadField0(buf []byte) (int, error) {
 	offset := 0
-	p.Success = cluster.NewNodePoolScaleDownResponse()
+	p.Success = cluster.NewScaleDownNodePoolResponse()
 	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -7496,7 +7803,7 @@ func (p *ResourceServiceNodePoolScaleDownResult) FastReadField0(buf []byte) (int
 	return offset, nil
 }
 
-func (p *ResourceServiceNodePoolScaleDownResult) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceScaleDownNodePoolResult) FastReadField1(buf []byte) (int, error) {
 	offset := 0
 	p.Err = common.NewError()
 	if l, err := p.Err.FastRead(buf[offset:]); err != nil {
@@ -7508,13 +7815,13 @@ func (p *ResourceServiceNodePoolScaleDownResult) FastReadField1(buf []byte) (int
 }
 
 // for compatibility
-func (p *ResourceServiceNodePoolScaleDownResult) FastWrite(buf []byte) int {
+func (p *ResourceServiceScaleDownNodePoolResult) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceNodePoolScaleDownResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceScaleDownNodePoolResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "NodePoolScaleDown_result")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ScaleDownNodePool_result")
 	if p != nil {
 		offset += p.fastWriteField0(buf[offset:], binaryWriter)
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
@@ -7524,9 +7831,9 @@ func (p *ResourceServiceNodePoolScaleDownResult) FastWriteNocopy(buf []byte, bin
 	return offset
 }
 
-func (p *ResourceServiceNodePoolScaleDownResult) BLength() int {
+func (p *ResourceServiceScaleDownNodePoolResult) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("NodePoolScaleDown_result")
+	l += bthrift.Binary.StructBeginLength("ScaleDownNodePool_result")
 	if p != nil {
 		l += p.field0Length()
 		l += p.field1Length()
@@ -7536,7 +7843,7 @@ func (p *ResourceServiceNodePoolScaleDownResult) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceNodePoolScaleDownResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceScaleDownNodePoolResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetSuccess() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "success", thrift.STRUCT, 0)
@@ -7546,7 +7853,7 @@ func (p *ResourceServiceNodePoolScaleDownResult) fastWriteField0(buf []byte, bin
 	return offset
 }
 
-func (p *ResourceServiceNodePoolScaleDownResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceScaleDownNodePoolResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetErr() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "err", thrift.STRUCT, 1)
@@ -7556,7 +7863,7 @@ func (p *ResourceServiceNodePoolScaleDownResult) fastWriteField1(buf []byte, bin
 	return offset
 }
 
-func (p *ResourceServiceNodePoolScaleDownResult) field0Length() int {
+func (p *ResourceServiceScaleDownNodePoolResult) field0Length() int {
 	l := 0
 	if p.IsSetSuccess() {
 		l += bthrift.Binary.FieldBeginLength("success", thrift.STRUCT, 0)
@@ -7566,7 +7873,7 @@ func (p *ResourceServiceNodePoolScaleDownResult) field0Length() int {
 	return l
 }
 
-func (p *ResourceServiceNodePoolScaleDownResult) field1Length() int {
+func (p *ResourceServiceScaleDownNodePoolResult) field1Length() int {
 	l := 0
 	if p.IsSetErr() {
 		l += bthrift.Binary.FieldBeginLength("err", thrift.STRUCT, 1)
@@ -7576,7 +7883,7 @@ func (p *ResourceServiceNodePoolScaleDownResult) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceListNodePoolArgs) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceListNodePoolsArgs) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -7638,7 +7945,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListNodePoolArgs[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListNodePoolsArgs[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -7647,9 +7954,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListNodePoolArgs) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceListNodePoolsArgs) FastReadField1(buf []byte) (int, error) {
 	offset := 0
-	p.Req = cluster.NewListNodePoolRequest()
+	p.Req = cluster.NewListNodePoolsRequest()
 	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -7659,13 +7966,13 @@ func (p *ResourceServiceListNodePoolArgs) FastReadField1(buf []byte) (int, error
 }
 
 // for compatibility
-func (p *ResourceServiceListNodePoolArgs) FastWrite(buf []byte) int {
+func (p *ResourceServiceListNodePoolsArgs) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceListNodePoolArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListNodePoolsArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListNodePool_args")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListNodePools_args")
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
 	}
@@ -7674,9 +7981,9 @@ func (p *ResourceServiceListNodePoolArgs) FastWriteNocopy(buf []byte, binaryWrit
 	return offset
 }
 
-func (p *ResourceServiceListNodePoolArgs) BLength() int {
+func (p *ResourceServiceListNodePoolsArgs) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("ListNodePool_args")
+	l += bthrift.Binary.StructBeginLength("ListNodePools_args")
 	if p != nil {
 		l += p.field1Length()
 	}
@@ -7685,7 +7992,7 @@ func (p *ResourceServiceListNodePoolArgs) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceListNodePoolArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListNodePoolsArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req", thrift.STRUCT, 1)
 	offset += p.Req.FastWriteNocopy(buf[offset:], binaryWriter)
@@ -7693,7 +8000,7 @@ func (p *ResourceServiceListNodePoolArgs) fastWriteField1(buf []byte, binaryWrit
 	return offset
 }
 
-func (p *ResourceServiceListNodePoolArgs) field1Length() int {
+func (p *ResourceServiceListNodePoolsArgs) field1Length() int {
 	l := 0
 	l += bthrift.Binary.FieldBeginLength("req", thrift.STRUCT, 1)
 	l += p.Req.BLength()
@@ -7701,7 +8008,7 @@ func (p *ResourceServiceListNodePoolArgs) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceListNodePoolResult) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceListNodePoolsResult) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -7777,7 +8084,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListNodePoolResult[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListNodePoolsResult[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -7786,9 +8093,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListNodePoolResult) FastReadField0(buf []byte) (int, error) {
+func (p *ResourceServiceListNodePoolsResult) FastReadField0(buf []byte) (int, error) {
 	offset := 0
-	p.Success = cluster.NewListNodePoolResponse()
+	p.Success = cluster.NewListNodePoolsResponse()
 	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -7797,7 +8104,7 @@ func (p *ResourceServiceListNodePoolResult) FastReadField0(buf []byte) (int, err
 	return offset, nil
 }
 
-func (p *ResourceServiceListNodePoolResult) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceListNodePoolsResult) FastReadField1(buf []byte) (int, error) {
 	offset := 0
 	p.Err = common.NewError()
 	if l, err := p.Err.FastRead(buf[offset:]); err != nil {
@@ -7809,13 +8116,13 @@ func (p *ResourceServiceListNodePoolResult) FastReadField1(buf []byte) (int, err
 }
 
 // for compatibility
-func (p *ResourceServiceListNodePoolResult) FastWrite(buf []byte) int {
+func (p *ResourceServiceListNodePoolsResult) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceListNodePoolResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListNodePoolsResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListNodePool_result")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListNodePools_result")
 	if p != nil {
 		offset += p.fastWriteField0(buf[offset:], binaryWriter)
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
@@ -7825,9 +8132,9 @@ func (p *ResourceServiceListNodePoolResult) FastWriteNocopy(buf []byte, binaryWr
 	return offset
 }
 
-func (p *ResourceServiceListNodePoolResult) BLength() int {
+func (p *ResourceServiceListNodePoolsResult) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("ListNodePool_result")
+	l += bthrift.Binary.StructBeginLength("ListNodePools_result")
 	if p != nil {
 		l += p.field0Length()
 		l += p.field1Length()
@@ -7837,7 +8144,7 @@ func (p *ResourceServiceListNodePoolResult) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceListNodePoolResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListNodePoolsResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetSuccess() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "success", thrift.STRUCT, 0)
@@ -7847,7 +8154,7 @@ func (p *ResourceServiceListNodePoolResult) fastWriteField0(buf []byte, binaryWr
 	return offset
 }
 
-func (p *ResourceServiceListNodePoolResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListNodePoolsResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetErr() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "err", thrift.STRUCT, 1)
@@ -7857,7 +8164,7 @@ func (p *ResourceServiceListNodePoolResult) fastWriteField1(buf []byte, binaryWr
 	return offset
 }
 
-func (p *ResourceServiceListNodePoolResult) field0Length() int {
+func (p *ResourceServiceListNodePoolsResult) field0Length() int {
 	l := 0
 	if p.IsSetSuccess() {
 		l += bthrift.Binary.FieldBeginLength("success", thrift.STRUCT, 0)
@@ -7867,7 +8174,7 @@ func (p *ResourceServiceListNodePoolResult) field0Length() int {
 	return l
 }
 
-func (p *ResourceServiceListNodePoolResult) field1Length() int {
+func (p *ResourceServiceListNodePoolsResult) field1Length() int {
 	l := 0
 	if p.IsSetErr() {
 		l += bthrift.Binary.FieldBeginLength("err", thrift.STRUCT, 1)
@@ -9154,7 +9461,7 @@ ReadStructEndError:
 
 func (p *ResourceServiceListNodePoolScalingRecordsArgs) FastReadField1(buf []byte) (int, error) {
 	offset := 0
-	p.Req = cluster.NewListNodePoolScalingRecordRequest()
+	p.Req = cluster.NewListNodePoolScalingRecordsRequest()
 	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -9293,7 +9600,7 @@ ReadStructEndError:
 
 func (p *ResourceServiceListNodePoolScalingRecordsResult) FastReadField0(buf []byte) (int, error) {
 	offset := 0
-	p.Success = cluster.NewListNodePoolScalingRecordResponse()
+	p.Success = cluster.NewListNodePoolScalingRecordsResponse()
 	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -9382,7 +9689,7 @@ func (p *ResourceServiceListNodePoolScalingRecordsResult) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceListNodePoolNodeArgs) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceListNodePoolNodesArgs) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -9444,7 +9751,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListNodePoolNodeArgs[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListNodePoolNodesArgs[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -9453,9 +9760,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListNodePoolNodeArgs) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceListNodePoolNodesArgs) FastReadField1(buf []byte) (int, error) {
 	offset := 0
-	p.Req = cluster.NewListNodePoolNodeRequest()
+	p.Req = cluster.NewListNodePoolNodesRequest()
 	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -9465,13 +9772,13 @@ func (p *ResourceServiceListNodePoolNodeArgs) FastReadField1(buf []byte) (int, e
 }
 
 // for compatibility
-func (p *ResourceServiceListNodePoolNodeArgs) FastWrite(buf []byte) int {
+func (p *ResourceServiceListNodePoolNodesArgs) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceListNodePoolNodeArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListNodePoolNodesArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListNodePoolNode_args")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListNodePoolNodes_args")
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
 	}
@@ -9480,9 +9787,9 @@ func (p *ResourceServiceListNodePoolNodeArgs) FastWriteNocopy(buf []byte, binary
 	return offset
 }
 
-func (p *ResourceServiceListNodePoolNodeArgs) BLength() int {
+func (p *ResourceServiceListNodePoolNodesArgs) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("ListNodePoolNode_args")
+	l += bthrift.Binary.StructBeginLength("ListNodePoolNodes_args")
 	if p != nil {
 		l += p.field1Length()
 	}
@@ -9491,7 +9798,7 @@ func (p *ResourceServiceListNodePoolNodeArgs) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceListNodePoolNodeArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListNodePoolNodesArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req", thrift.STRUCT, 1)
 	offset += p.Req.FastWriteNocopy(buf[offset:], binaryWriter)
@@ -9499,7 +9806,7 @@ func (p *ResourceServiceListNodePoolNodeArgs) fastWriteField1(buf []byte, binary
 	return offset
 }
 
-func (p *ResourceServiceListNodePoolNodeArgs) field1Length() int {
+func (p *ResourceServiceListNodePoolNodesArgs) field1Length() int {
 	l := 0
 	l += bthrift.Binary.FieldBeginLength("req", thrift.STRUCT, 1)
 	l += p.Req.BLength()
@@ -9507,7 +9814,7 @@ func (p *ResourceServiceListNodePoolNodeArgs) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceListNodePoolNodeResult) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceListNodePoolNodesResult) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -9583,7 +9890,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListNodePoolNodeResult[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListNodePoolNodesResult[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -9592,9 +9899,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListNodePoolNodeResult) FastReadField0(buf []byte) (int, error) {
+func (p *ResourceServiceListNodePoolNodesResult) FastReadField0(buf []byte) (int, error) {
 	offset := 0
-	p.Success = cluster.NewListNodePoolNodeResponse()
+	p.Success = cluster.NewListNodePoolNodesResponse()
 	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -9603,7 +9910,7 @@ func (p *ResourceServiceListNodePoolNodeResult) FastReadField0(buf []byte) (int,
 	return offset, nil
 }
 
-func (p *ResourceServiceListNodePoolNodeResult) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceListNodePoolNodesResult) FastReadField1(buf []byte) (int, error) {
 	offset := 0
 	p.Err = common.NewError()
 	if l, err := p.Err.FastRead(buf[offset:]); err != nil {
@@ -9615,13 +9922,13 @@ func (p *ResourceServiceListNodePoolNodeResult) FastReadField1(buf []byte) (int,
 }
 
 // for compatibility
-func (p *ResourceServiceListNodePoolNodeResult) FastWrite(buf []byte) int {
+func (p *ResourceServiceListNodePoolNodesResult) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceListNodePoolNodeResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListNodePoolNodesResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListNodePoolNode_result")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListNodePoolNodes_result")
 	if p != nil {
 		offset += p.fastWriteField0(buf[offset:], binaryWriter)
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
@@ -9631,9 +9938,9 @@ func (p *ResourceServiceListNodePoolNodeResult) FastWriteNocopy(buf []byte, bina
 	return offset
 }
 
-func (p *ResourceServiceListNodePoolNodeResult) BLength() int {
+func (p *ResourceServiceListNodePoolNodesResult) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("ListNodePoolNode_result")
+	l += bthrift.Binary.StructBeginLength("ListNodePoolNodes_result")
 	if p != nil {
 		l += p.field0Length()
 		l += p.field1Length()
@@ -9643,7 +9950,7 @@ func (p *ResourceServiceListNodePoolNodeResult) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceListNodePoolNodeResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListNodePoolNodesResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetSuccess() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "success", thrift.STRUCT, 0)
@@ -9653,7 +9960,7 @@ func (p *ResourceServiceListNodePoolNodeResult) fastWriteField0(buf []byte, bina
 	return offset
 }
 
-func (p *ResourceServiceListNodePoolNodeResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListNodePoolNodesResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetErr() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "err", thrift.STRUCT, 1)
@@ -9663,7 +9970,7 @@ func (p *ResourceServiceListNodePoolNodeResult) fastWriteField1(buf []byte, bina
 	return offset
 }
 
-func (p *ResourceServiceListNodePoolNodeResult) field0Length() int {
+func (p *ResourceServiceListNodePoolNodesResult) field0Length() int {
 	l := 0
 	if p.IsSetSuccess() {
 		l += bthrift.Binary.FieldBeginLength("success", thrift.STRUCT, 0)
@@ -9673,7 +9980,7 @@ func (p *ResourceServiceListNodePoolNodeResult) field0Length() int {
 	return l
 }
 
-func (p *ResourceServiceListNodePoolNodeResult) field1Length() int {
+func (p *ResourceServiceListNodePoolNodesResult) field1Length() int {
 	l := 0
 	if p.IsSetErr() {
 		l += bthrift.Binary.FieldBeginLength("err", thrift.STRUCT, 1)
@@ -19990,7 +20297,7 @@ ReadStructEndError:
 
 func (p *ResourceServiceListSupportedAddonsArgs) FastReadField1(buf []byte) (int, error) {
 	offset := 0
-	p.Req = addon.NewListSupportedAddonRequest()
+	p.Req = addon.NewListSupportedAddonsRequest()
 	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -20129,7 +20436,7 @@ ReadStructEndError:
 
 func (p *ResourceServiceListSupportedAddonsResult) FastReadField0(buf []byte) (int, error) {
 	offset := 0
-	p.Success = addon.NewListSupportedAddonResponse()
+	p.Success = addon.NewListSupportedAddonsResponse()
 	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -20291,7 +20598,7 @@ ReadStructEndError:
 
 func (p *ResourceServiceListAddonsArgs) FastReadField1(buf []byte) (int, error) {
 	offset := 0
-	p.Req = addon.NewListAddonRequest()
+	p.Req = addon.NewListAddonsRequest()
 	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -20430,7 +20737,7 @@ ReadStructEndError:
 
 func (p *ResourceServiceListAddonsResult) FastReadField0(buf []byte) (int, error) {
 	offset := 0
-	p.Success = addon.NewListAddonResponse()
+	p.Success = addon.NewListAddonsResponse()
 	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -20519,7 +20826,7 @@ func (p *ResourceServiceListAddonsResult) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceInstallAddonArgs) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceInstallAddonsArgs) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -20581,7 +20888,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceInstallAddonArgs[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceInstallAddonsArgs[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -20590,9 +20897,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceInstallAddonArgs) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceInstallAddonsArgs) FastReadField1(buf []byte) (int, error) {
 	offset := 0
-	p.Req = addon.NewInstallAddonRequest()
+	p.Req = addon.NewInstallAddonsRequest()
 	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -20602,13 +20909,13 @@ func (p *ResourceServiceInstallAddonArgs) FastReadField1(buf []byte) (int, error
 }
 
 // for compatibility
-func (p *ResourceServiceInstallAddonArgs) FastWrite(buf []byte) int {
+func (p *ResourceServiceInstallAddonsArgs) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceInstallAddonArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceInstallAddonsArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "InstallAddon_args")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "InstallAddons_args")
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
 	}
@@ -20617,9 +20924,9 @@ func (p *ResourceServiceInstallAddonArgs) FastWriteNocopy(buf []byte, binaryWrit
 	return offset
 }
 
-func (p *ResourceServiceInstallAddonArgs) BLength() int {
+func (p *ResourceServiceInstallAddonsArgs) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("InstallAddon_args")
+	l += bthrift.Binary.StructBeginLength("InstallAddons_args")
 	if p != nil {
 		l += p.field1Length()
 	}
@@ -20628,7 +20935,7 @@ func (p *ResourceServiceInstallAddonArgs) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceInstallAddonArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceInstallAddonsArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req", thrift.STRUCT, 1)
 	offset += p.Req.FastWriteNocopy(buf[offset:], binaryWriter)
@@ -20636,7 +20943,7 @@ func (p *ResourceServiceInstallAddonArgs) fastWriteField1(buf []byte, binaryWrit
 	return offset
 }
 
-func (p *ResourceServiceInstallAddonArgs) field1Length() int {
+func (p *ResourceServiceInstallAddonsArgs) field1Length() int {
 	l := 0
 	l += bthrift.Binary.FieldBeginLength("req", thrift.STRUCT, 1)
 	l += p.Req.BLength()
@@ -20644,7 +20951,7 @@ func (p *ResourceServiceInstallAddonArgs) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceInstallAddonResult) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceInstallAddonsResult) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -20720,7 +21027,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceInstallAddonResult[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceInstallAddonsResult[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -20729,9 +21036,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceInstallAddonResult) FastReadField0(buf []byte) (int, error) {
+func (p *ResourceServiceInstallAddonsResult) FastReadField0(buf []byte) (int, error) {
 	offset := 0
-	p.Success = addon.NewInstallAddonResponse()
+	p.Success = addon.NewInstallAddonsResponse()
 	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -20740,7 +21047,7 @@ func (p *ResourceServiceInstallAddonResult) FastReadField0(buf []byte) (int, err
 	return offset, nil
 }
 
-func (p *ResourceServiceInstallAddonResult) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceInstallAddonsResult) FastReadField1(buf []byte) (int, error) {
 	offset := 0
 	p.Err = common.NewError()
 	if l, err := p.Err.FastRead(buf[offset:]); err != nil {
@@ -20752,13 +21059,13 @@ func (p *ResourceServiceInstallAddonResult) FastReadField1(buf []byte) (int, err
 }
 
 // for compatibility
-func (p *ResourceServiceInstallAddonResult) FastWrite(buf []byte) int {
+func (p *ResourceServiceInstallAddonsResult) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceInstallAddonResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceInstallAddonsResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "InstallAddon_result")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "InstallAddons_result")
 	if p != nil {
 		offset += p.fastWriteField0(buf[offset:], binaryWriter)
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
@@ -20768,9 +21075,9 @@ func (p *ResourceServiceInstallAddonResult) FastWriteNocopy(buf []byte, binaryWr
 	return offset
 }
 
-func (p *ResourceServiceInstallAddonResult) BLength() int {
+func (p *ResourceServiceInstallAddonsResult) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("InstallAddon_result")
+	l += bthrift.Binary.StructBeginLength("InstallAddons_result")
 	if p != nil {
 		l += p.field0Length()
 		l += p.field1Length()
@@ -20780,7 +21087,7 @@ func (p *ResourceServiceInstallAddonResult) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceInstallAddonResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceInstallAddonsResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetSuccess() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "success", thrift.STRUCT, 0)
@@ -20790,7 +21097,7 @@ func (p *ResourceServiceInstallAddonResult) fastWriteField0(buf []byte, binaryWr
 	return offset
 }
 
-func (p *ResourceServiceInstallAddonResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceInstallAddonsResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetErr() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "err", thrift.STRUCT, 1)
@@ -20800,7 +21107,7 @@ func (p *ResourceServiceInstallAddonResult) fastWriteField1(buf []byte, binaryWr
 	return offset
 }
 
-func (p *ResourceServiceInstallAddonResult) field0Length() int {
+func (p *ResourceServiceInstallAddonsResult) field0Length() int {
 	l := 0
 	if p.IsSetSuccess() {
 		l += bthrift.Binary.FieldBeginLength("success", thrift.STRUCT, 0)
@@ -20810,7 +21117,7 @@ func (p *ResourceServiceInstallAddonResult) field0Length() int {
 	return l
 }
 
-func (p *ResourceServiceInstallAddonResult) field1Length() int {
+func (p *ResourceServiceInstallAddonsResult) field1Length() int {
 	l := 0
 	if p.IsSetErr() {
 		l += bthrift.Binary.FieldBeginLength("err", thrift.STRUCT, 1)
@@ -20820,7 +21127,7 @@ func (p *ResourceServiceInstallAddonResult) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceUninstallAddonArgs) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceReinstallAddonArgs) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -20882,7 +21189,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceUninstallAddonArgs[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceReinstallAddonArgs[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -20891,9 +21198,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceUninstallAddonArgs) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceReinstallAddonArgs) FastReadField1(buf []byte) (int, error) {
 	offset := 0
-	p.Req = addon.NewUninstallAddonRequest()
+	p.Req = addon.NewReinstallAddonRequest()
 	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -20903,13 +21210,13 @@ func (p *ResourceServiceUninstallAddonArgs) FastReadField1(buf []byte) (int, err
 }
 
 // for compatibility
-func (p *ResourceServiceUninstallAddonArgs) FastWrite(buf []byte) int {
+func (p *ResourceServiceReinstallAddonArgs) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceUninstallAddonArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceReinstallAddonArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "UninstallAddon_args")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ReinstallAddon_args")
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
 	}
@@ -20918,9 +21225,9 @@ func (p *ResourceServiceUninstallAddonArgs) FastWriteNocopy(buf []byte, binaryWr
 	return offset
 }
 
-func (p *ResourceServiceUninstallAddonArgs) BLength() int {
+func (p *ResourceServiceReinstallAddonArgs) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("UninstallAddon_args")
+	l += bthrift.Binary.StructBeginLength("ReinstallAddon_args")
 	if p != nil {
 		l += p.field1Length()
 	}
@@ -20929,7 +21236,7 @@ func (p *ResourceServiceUninstallAddonArgs) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceUninstallAddonArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceReinstallAddonArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req", thrift.STRUCT, 1)
 	offset += p.Req.FastWriteNocopy(buf[offset:], binaryWriter)
@@ -20937,7 +21244,7 @@ func (p *ResourceServiceUninstallAddonArgs) fastWriteField1(buf []byte, binaryWr
 	return offset
 }
 
-func (p *ResourceServiceUninstallAddonArgs) field1Length() int {
+func (p *ResourceServiceReinstallAddonArgs) field1Length() int {
 	l := 0
 	l += bthrift.Binary.FieldBeginLength("req", thrift.STRUCT, 1)
 	l += p.Req.BLength()
@@ -20945,7 +21252,7 @@ func (p *ResourceServiceUninstallAddonArgs) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceUninstallAddonResult) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceReinstallAddonResult) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -21021,7 +21328,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceUninstallAddonResult[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceReinstallAddonResult[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -21030,9 +21337,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceUninstallAddonResult) FastReadField0(buf []byte) (int, error) {
+func (p *ResourceServiceReinstallAddonResult) FastReadField0(buf []byte) (int, error) {
 	offset := 0
-	p.Success = addon.NewUninstallAddonResponse()
+	p.Success = addon.NewReinstallAddonResponse()
 	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -21041,7 +21348,7 @@ func (p *ResourceServiceUninstallAddonResult) FastReadField0(buf []byte) (int, e
 	return offset, nil
 }
 
-func (p *ResourceServiceUninstallAddonResult) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceReinstallAddonResult) FastReadField1(buf []byte) (int, error) {
 	offset := 0
 	p.Err = common.NewError()
 	if l, err := p.Err.FastRead(buf[offset:]); err != nil {
@@ -21053,13 +21360,13 @@ func (p *ResourceServiceUninstallAddonResult) FastReadField1(buf []byte) (int, e
 }
 
 // for compatibility
-func (p *ResourceServiceUninstallAddonResult) FastWrite(buf []byte) int {
+func (p *ResourceServiceReinstallAddonResult) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceUninstallAddonResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceReinstallAddonResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "UninstallAddon_result")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ReinstallAddon_result")
 	if p != nil {
 		offset += p.fastWriteField0(buf[offset:], binaryWriter)
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
@@ -21069,9 +21376,9 @@ func (p *ResourceServiceUninstallAddonResult) FastWriteNocopy(buf []byte, binary
 	return offset
 }
 
-func (p *ResourceServiceUninstallAddonResult) BLength() int {
+func (p *ResourceServiceReinstallAddonResult) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("UninstallAddon_result")
+	l += bthrift.Binary.StructBeginLength("ReinstallAddon_result")
 	if p != nil {
 		l += p.field0Length()
 		l += p.field1Length()
@@ -21081,7 +21388,7 @@ func (p *ResourceServiceUninstallAddonResult) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceUninstallAddonResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceReinstallAddonResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetSuccess() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "success", thrift.STRUCT, 0)
@@ -21091,7 +21398,7 @@ func (p *ResourceServiceUninstallAddonResult) fastWriteField0(buf []byte, binary
 	return offset
 }
 
-func (p *ResourceServiceUninstallAddonResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceReinstallAddonResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetErr() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "err", thrift.STRUCT, 1)
@@ -21101,7 +21408,7 @@ func (p *ResourceServiceUninstallAddonResult) fastWriteField1(buf []byte, binary
 	return offset
 }
 
-func (p *ResourceServiceUninstallAddonResult) field0Length() int {
+func (p *ResourceServiceReinstallAddonResult) field0Length() int {
 	l := 0
 	if p.IsSetSuccess() {
 		l += bthrift.Binary.FieldBeginLength("success", thrift.STRUCT, 0)
@@ -21111,7 +21418,308 @@ func (p *ResourceServiceUninstallAddonResult) field0Length() int {
 	return l
 }
 
-func (p *ResourceServiceUninstallAddonResult) field1Length() int {
+func (p *ResourceServiceReinstallAddonResult) field1Length() int {
+	l := 0
+	if p.IsSetErr() {
+		l += bthrift.Binary.FieldBeginLength("err", thrift.STRUCT, 1)
+		l += p.Err.BLength()
+		l += bthrift.Binary.FieldEndLength()
+	}
+	return l
+}
+
+func (p *ResourceServiceUninstallAddonsArgs) FastRead(buf []byte) (int, error) {
+	var err error
+	var offset int
+	var l int
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	_, l, err = bthrift.Binary.ReadStructBegin(buf)
+	offset += l
+	if err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, l, err = bthrift.Binary.ReadFieldBegin(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				l, err = p.FastReadField1(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+			offset += l
+			if err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		l, err = bthrift.Binary.ReadFieldEnd(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	l, err = bthrift.Binary.ReadStructEnd(buf[offset:])
+	offset += l
+	if err != nil {
+		goto ReadStructEndError
+	}
+
+	return offset, nil
+ReadStructBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceUninstallAddonsArgs[fieldId]), err)
+SkipFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+ReadFieldEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceUninstallAddonsArgs) FastReadField1(buf []byte) (int, error) {
+	offset := 0
+	p.Req = addon.NewUninstallAddonsRequest()
+	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+	}
+	return offset, nil
+}
+
+// for compatibility
+func (p *ResourceServiceUninstallAddonsArgs) FastWrite(buf []byte) int {
+	return 0
+}
+
+func (p *ResourceServiceUninstallAddonsArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "UninstallAddons_args")
+	if p != nil {
+		offset += p.fastWriteField1(buf[offset:], binaryWriter)
+	}
+	offset += bthrift.Binary.WriteFieldStop(buf[offset:])
+	offset += bthrift.Binary.WriteStructEnd(buf[offset:])
+	return offset
+}
+
+func (p *ResourceServiceUninstallAddonsArgs) BLength() int {
+	l := 0
+	l += bthrift.Binary.StructBeginLength("UninstallAddons_args")
+	if p != nil {
+		l += p.field1Length()
+	}
+	l += bthrift.Binary.FieldStopLength()
+	l += bthrift.Binary.StructEndLength()
+	return l
+}
+
+func (p *ResourceServiceUninstallAddonsArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req", thrift.STRUCT, 1)
+	offset += p.Req.FastWriteNocopy(buf[offset:], binaryWriter)
+	offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	return offset
+}
+
+func (p *ResourceServiceUninstallAddonsArgs) field1Length() int {
+	l := 0
+	l += bthrift.Binary.FieldBeginLength("req", thrift.STRUCT, 1)
+	l += p.Req.BLength()
+	l += bthrift.Binary.FieldEndLength()
+	return l
+}
+
+func (p *ResourceServiceUninstallAddonsResult) FastRead(buf []byte) (int, error) {
+	var err error
+	var offset int
+	var l int
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	_, l, err = bthrift.Binary.ReadStructBegin(buf)
+	offset += l
+	if err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, l, err = bthrift.Binary.ReadFieldBegin(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				l, err = p.FastReadField0(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				l, err = p.FastReadField1(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+			offset += l
+			if err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		l, err = bthrift.Binary.ReadFieldEnd(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	l, err = bthrift.Binary.ReadStructEnd(buf[offset:])
+	offset += l
+	if err != nil {
+		goto ReadStructEndError
+	}
+
+	return offset, nil
+ReadStructBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceUninstallAddonsResult[fieldId]), err)
+SkipFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+ReadFieldEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceUninstallAddonsResult) FastReadField0(buf []byte) (int, error) {
+	offset := 0
+	p.Success = addon.NewUninstallAddonsResponse()
+	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+	}
+	return offset, nil
+}
+
+func (p *ResourceServiceUninstallAddonsResult) FastReadField1(buf []byte) (int, error) {
+	offset := 0
+	p.Err = common.NewError()
+	if l, err := p.Err.FastRead(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+	}
+	return offset, nil
+}
+
+// for compatibility
+func (p *ResourceServiceUninstallAddonsResult) FastWrite(buf []byte) int {
+	return 0
+}
+
+func (p *ResourceServiceUninstallAddonsResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "UninstallAddons_result")
+	if p != nil {
+		offset += p.fastWriteField0(buf[offset:], binaryWriter)
+		offset += p.fastWriteField1(buf[offset:], binaryWriter)
+	}
+	offset += bthrift.Binary.WriteFieldStop(buf[offset:])
+	offset += bthrift.Binary.WriteStructEnd(buf[offset:])
+	return offset
+}
+
+func (p *ResourceServiceUninstallAddonsResult) BLength() int {
+	l := 0
+	l += bthrift.Binary.StructBeginLength("UninstallAddons_result")
+	if p != nil {
+		l += p.field0Length()
+		l += p.field1Length()
+	}
+	l += bthrift.Binary.FieldStopLength()
+	l += bthrift.Binary.StructEndLength()
+	return l
+}
+
+func (p *ResourceServiceUninstallAddonsResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	if p.IsSetSuccess() {
+		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "success", thrift.STRUCT, 0)
+		offset += p.Success.FastWriteNocopy(buf[offset:], binaryWriter)
+		offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	}
+	return offset
+}
+
+func (p *ResourceServiceUninstallAddonsResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	if p.IsSetErr() {
+		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "err", thrift.STRUCT, 1)
+		offset += p.Err.FastWriteNocopy(buf[offset:], binaryWriter)
+		offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	}
+	return offset
+}
+
+func (p *ResourceServiceUninstallAddonsResult) field0Length() int {
+	l := 0
+	if p.IsSetSuccess() {
+		l += bthrift.Binary.FieldBeginLength("success", thrift.STRUCT, 0)
+		l += p.Success.BLength()
+		l += bthrift.Binary.FieldEndLength()
+	}
+	return l
+}
+
+func (p *ResourceServiceUninstallAddonsResult) field1Length() int {
 	l := 0
 	if p.IsSetErr() {
 		l += bthrift.Binary.FieldBeginLength("err", thrift.STRUCT, 1)
@@ -23529,6 +24137,307 @@ func (p *ResourceServiceListVolumesResult) field1Length() int {
 	return l
 }
 
+func (p *ResourceServiceListKeyPairsArgs) FastRead(buf []byte) (int, error) {
+	var err error
+	var offset int
+	var l int
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	_, l, err = bthrift.Binary.ReadStructBegin(buf)
+	offset += l
+	if err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, l, err = bthrift.Binary.ReadFieldBegin(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				l, err = p.FastReadField1(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+			offset += l
+			if err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		l, err = bthrift.Binary.ReadFieldEnd(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	l, err = bthrift.Binary.ReadStructEnd(buf[offset:])
+	offset += l
+	if err != nil {
+		goto ReadStructEndError
+	}
+
+	return offset, nil
+ReadStructBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListKeyPairsArgs[fieldId]), err)
+SkipFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+ReadFieldEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListKeyPairsArgs) FastReadField1(buf []byte) (int, error) {
+	offset := 0
+	p.Req = instance.NewListKeyPairsRequest()
+	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+	}
+	return offset, nil
+}
+
+// for compatibility
+func (p *ResourceServiceListKeyPairsArgs) FastWrite(buf []byte) int {
+	return 0
+}
+
+func (p *ResourceServiceListKeyPairsArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListKeyPairs_args")
+	if p != nil {
+		offset += p.fastWriteField1(buf[offset:], binaryWriter)
+	}
+	offset += bthrift.Binary.WriteFieldStop(buf[offset:])
+	offset += bthrift.Binary.WriteStructEnd(buf[offset:])
+	return offset
+}
+
+func (p *ResourceServiceListKeyPairsArgs) BLength() int {
+	l := 0
+	l += bthrift.Binary.StructBeginLength("ListKeyPairs_args")
+	if p != nil {
+		l += p.field1Length()
+	}
+	l += bthrift.Binary.FieldStopLength()
+	l += bthrift.Binary.StructEndLength()
+	return l
+}
+
+func (p *ResourceServiceListKeyPairsArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req", thrift.STRUCT, 1)
+	offset += p.Req.FastWriteNocopy(buf[offset:], binaryWriter)
+	offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	return offset
+}
+
+func (p *ResourceServiceListKeyPairsArgs) field1Length() int {
+	l := 0
+	l += bthrift.Binary.FieldBeginLength("req", thrift.STRUCT, 1)
+	l += p.Req.BLength()
+	l += bthrift.Binary.FieldEndLength()
+	return l
+}
+
+func (p *ResourceServiceListKeyPairsResult) FastRead(buf []byte) (int, error) {
+	var err error
+	var offset int
+	var l int
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	_, l, err = bthrift.Binary.ReadStructBegin(buf)
+	offset += l
+	if err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, l, err = bthrift.Binary.ReadFieldBegin(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				l, err = p.FastReadField0(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				l, err = p.FastReadField1(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+			offset += l
+			if err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		l, err = bthrift.Binary.ReadFieldEnd(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	l, err = bthrift.Binary.ReadStructEnd(buf[offset:])
+	offset += l
+	if err != nil {
+		goto ReadStructEndError
+	}
+
+	return offset, nil
+ReadStructBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListKeyPairsResult[fieldId]), err)
+SkipFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+ReadFieldEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListKeyPairsResult) FastReadField0(buf []byte) (int, error) {
+	offset := 0
+	p.Success = instance.NewListKeyPairsResponse()
+	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+	}
+	return offset, nil
+}
+
+func (p *ResourceServiceListKeyPairsResult) FastReadField1(buf []byte) (int, error) {
+	offset := 0
+	p.Err = common.NewError()
+	if l, err := p.Err.FastRead(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+	}
+	return offset, nil
+}
+
+// for compatibility
+func (p *ResourceServiceListKeyPairsResult) FastWrite(buf []byte) int {
+	return 0
+}
+
+func (p *ResourceServiceListKeyPairsResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListKeyPairs_result")
+	if p != nil {
+		offset += p.fastWriteField0(buf[offset:], binaryWriter)
+		offset += p.fastWriteField1(buf[offset:], binaryWriter)
+	}
+	offset += bthrift.Binary.WriteFieldStop(buf[offset:])
+	offset += bthrift.Binary.WriteStructEnd(buf[offset:])
+	return offset
+}
+
+func (p *ResourceServiceListKeyPairsResult) BLength() int {
+	l := 0
+	l += bthrift.Binary.StructBeginLength("ListKeyPairs_result")
+	if p != nil {
+		l += p.field0Length()
+		l += p.field1Length()
+	}
+	l += bthrift.Binary.FieldStopLength()
+	l += bthrift.Binary.StructEndLength()
+	return l
+}
+
+func (p *ResourceServiceListKeyPairsResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	if p.IsSetSuccess() {
+		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "success", thrift.STRUCT, 0)
+		offset += p.Success.FastWriteNocopy(buf[offset:], binaryWriter)
+		offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	}
+	return offset
+}
+
+func (p *ResourceServiceListKeyPairsResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	if p.IsSetErr() {
+		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "err", thrift.STRUCT, 1)
+		offset += p.Err.FastWriteNocopy(buf[offset:], binaryWriter)
+		offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	}
+	return offset
+}
+
+func (p *ResourceServiceListKeyPairsResult) field0Length() int {
+	l := 0
+	if p.IsSetSuccess() {
+		l += bthrift.Binary.FieldBeginLength("success", thrift.STRUCT, 0)
+		l += p.Success.BLength()
+		l += bthrift.Binary.FieldEndLength()
+	}
+	return l
+}
+
+func (p *ResourceServiceListKeyPairsResult) field1Length() int {
+	l := 0
+	if p.IsSetErr() {
+		l += bthrift.Binary.FieldBeginLength("err", thrift.STRUCT, 1)
+		l += p.Err.BLength()
+		l += bthrift.Binary.FieldEndLength()
+	}
+	return l
+}
+
 func (p *ResourceServiceListSubnetsArgs) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
@@ -23830,7 +24739,7 @@ func (p *ResourceServiceListSubnetsResult) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceListElasticIPPoolsArgs) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceListElasticIpPoolsArgs) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -23892,7 +24801,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListElasticIPPoolsArgs[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListElasticIpPoolsArgs[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -23901,9 +24810,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListElasticIPPoolsArgs) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceListElasticIpPoolsArgs) FastReadField1(buf []byte) (int, error) {
 	offset := 0
-	p.Req = vpc.NewListElasticIPPoolsRequest()
+	p.Req = vpc.NewListElasticIpPoolsRequest()
 	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -23913,13 +24822,13 @@ func (p *ResourceServiceListElasticIPPoolsArgs) FastReadField1(buf []byte) (int,
 }
 
 // for compatibility
-func (p *ResourceServiceListElasticIPPoolsArgs) FastWrite(buf []byte) int {
+func (p *ResourceServiceListElasticIpPoolsArgs) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceListElasticIPPoolsArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListElasticIpPoolsArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListElasticIPPools_args")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListElasticIpPools_args")
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
 	}
@@ -23928,9 +24837,9 @@ func (p *ResourceServiceListElasticIPPoolsArgs) FastWriteNocopy(buf []byte, bina
 	return offset
 }
 
-func (p *ResourceServiceListElasticIPPoolsArgs) BLength() int {
+func (p *ResourceServiceListElasticIpPoolsArgs) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("ListElasticIPPools_args")
+	l += bthrift.Binary.StructBeginLength("ListElasticIpPools_args")
 	if p != nil {
 		l += p.field1Length()
 	}
@@ -23939,7 +24848,7 @@ func (p *ResourceServiceListElasticIPPoolsArgs) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceListElasticIPPoolsArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListElasticIpPoolsArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req", thrift.STRUCT, 1)
 	offset += p.Req.FastWriteNocopy(buf[offset:], binaryWriter)
@@ -23947,7 +24856,7 @@ func (p *ResourceServiceListElasticIPPoolsArgs) fastWriteField1(buf []byte, bina
 	return offset
 }
 
-func (p *ResourceServiceListElasticIPPoolsArgs) field1Length() int {
+func (p *ResourceServiceListElasticIpPoolsArgs) field1Length() int {
 	l := 0
 	l += bthrift.Binary.FieldBeginLength("req", thrift.STRUCT, 1)
 	l += p.Req.BLength()
@@ -23955,7 +24864,7 @@ func (p *ResourceServiceListElasticIPPoolsArgs) field1Length() int {
 	return l
 }
 
-func (p *ResourceServiceListElasticIPPoolsResult) FastRead(buf []byte) (int, error) {
+func (p *ResourceServiceListElasticIpPoolsResult) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -24031,7 +24940,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListElasticIPPoolsResult[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListElasticIpPoolsResult[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -24040,9 +24949,9 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListElasticIPPoolsResult) FastReadField0(buf []byte) (int, error) {
+func (p *ResourceServiceListElasticIpPoolsResult) FastReadField0(buf []byte) (int, error) {
 	offset := 0
-	p.Success = vpc.NewListElasticIPPoolsResponse()
+	p.Success = vpc.NewListElasticIpPoolsResponse()
 	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -24051,7 +24960,7 @@ func (p *ResourceServiceListElasticIPPoolsResult) FastReadField0(buf []byte) (in
 	return offset, nil
 }
 
-func (p *ResourceServiceListElasticIPPoolsResult) FastReadField1(buf []byte) (int, error) {
+func (p *ResourceServiceListElasticIpPoolsResult) FastReadField1(buf []byte) (int, error) {
 	offset := 0
 	p.Err = common.NewError()
 	if l, err := p.Err.FastRead(buf[offset:]); err != nil {
@@ -24063,13 +24972,13 @@ func (p *ResourceServiceListElasticIPPoolsResult) FastReadField1(buf []byte) (in
 }
 
 // for compatibility
-func (p *ResourceServiceListElasticIPPoolsResult) FastWrite(buf []byte) int {
+func (p *ResourceServiceListElasticIpPoolsResult) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *ResourceServiceListElasticIPPoolsResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListElasticIpPoolsResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListElasticIPPools_result")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListElasticIpPools_result")
 	if p != nil {
 		offset += p.fastWriteField0(buf[offset:], binaryWriter)
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
@@ -24079,9 +24988,9 @@ func (p *ResourceServiceListElasticIPPoolsResult) FastWriteNocopy(buf []byte, bi
 	return offset
 }
 
-func (p *ResourceServiceListElasticIPPoolsResult) BLength() int {
+func (p *ResourceServiceListElasticIpPoolsResult) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("ListElasticIPPools_result")
+	l += bthrift.Binary.StructBeginLength("ListElasticIpPools_result")
 	if p != nil {
 		l += p.field0Length()
 		l += p.field1Length()
@@ -24091,7 +25000,7 @@ func (p *ResourceServiceListElasticIPPoolsResult) BLength() int {
 	return l
 }
 
-func (p *ResourceServiceListElasticIPPoolsResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListElasticIpPoolsResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetSuccess() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "success", thrift.STRUCT, 0)
@@ -24101,7 +25010,7 @@ func (p *ResourceServiceListElasticIPPoolsResult) fastWriteField0(buf []byte, bi
 	return offset
 }
 
-func (p *ResourceServiceListElasticIPPoolsResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *ResourceServiceListElasticIpPoolsResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetErr() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "err", thrift.STRUCT, 1)
@@ -24111,7 +25020,7 @@ func (p *ResourceServiceListElasticIPPoolsResult) fastWriteField1(buf []byte, bi
 	return offset
 }
 
-func (p *ResourceServiceListElasticIPPoolsResult) field0Length() int {
+func (p *ResourceServiceListElasticIpPoolsResult) field0Length() int {
 	l := 0
 	if p.IsSetSuccess() {
 		l += bthrift.Binary.FieldBeginLength("success", thrift.STRUCT, 0)
@@ -24121,7 +25030,7 @@ func (p *ResourceServiceListElasticIPPoolsResult) field0Length() int {
 	return l
 }
 
-func (p *ResourceServiceListElasticIPPoolsResult) field1Length() int {
+func (p *ResourceServiceListElasticIpPoolsResult) field1Length() int {
 	l := 0
 	if p.IsSetErr() {
 		l += bthrift.Binary.FieldBeginLength("err", thrift.STRUCT, 1)
@@ -24806,7 +25715,7 @@ ReadStructEndError:
 
 func (p *ResourceServiceListClbsArgs) FastReadField1(buf []byte) (int, error) {
 	offset := 0
-	p.Req = clb.NewListClbRequest()
+	p.Req = clb.NewListClbsRequest()
 	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -24945,7 +25854,7 @@ ReadStructEndError:
 
 func (p *ResourceServiceListClbsResult) FastReadField0(buf []byte) (int, error) {
 	offset := 0
-	p.Success = clb.NewListClbResponse()
+	p.Success = clb.NewListClbsResponse()
 	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -25025,6 +25934,307 @@ func (p *ResourceServiceListClbsResult) field0Length() int {
 }
 
 func (p *ResourceServiceListClbsResult) field1Length() int {
+	l := 0
+	if p.IsSetErr() {
+		l += bthrift.Binary.FieldBeginLength("err", thrift.STRUCT, 1)
+		l += p.Err.BLength()
+		l += bthrift.Binary.FieldEndLength()
+	}
+	return l
+}
+
+func (p *ResourceServiceListClbListenersArgs) FastRead(buf []byte) (int, error) {
+	var err error
+	var offset int
+	var l int
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	_, l, err = bthrift.Binary.ReadStructBegin(buf)
+	offset += l
+	if err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, l, err = bthrift.Binary.ReadFieldBegin(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				l, err = p.FastReadField1(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+			offset += l
+			if err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		l, err = bthrift.Binary.ReadFieldEnd(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	l, err = bthrift.Binary.ReadStructEnd(buf[offset:])
+	offset += l
+	if err != nil {
+		goto ReadStructEndError
+	}
+
+	return offset, nil
+ReadStructBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListClbListenersArgs[fieldId]), err)
+SkipFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+ReadFieldEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListClbListenersArgs) FastReadField1(buf []byte) (int, error) {
+	offset := 0
+	p.Req = clb.NewListClbListenersRequest()
+	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+	}
+	return offset, nil
+}
+
+// for compatibility
+func (p *ResourceServiceListClbListenersArgs) FastWrite(buf []byte) int {
+	return 0
+}
+
+func (p *ResourceServiceListClbListenersArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListClbListeners_args")
+	if p != nil {
+		offset += p.fastWriteField1(buf[offset:], binaryWriter)
+	}
+	offset += bthrift.Binary.WriteFieldStop(buf[offset:])
+	offset += bthrift.Binary.WriteStructEnd(buf[offset:])
+	return offset
+}
+
+func (p *ResourceServiceListClbListenersArgs) BLength() int {
+	l := 0
+	l += bthrift.Binary.StructBeginLength("ListClbListeners_args")
+	if p != nil {
+		l += p.field1Length()
+	}
+	l += bthrift.Binary.FieldStopLength()
+	l += bthrift.Binary.StructEndLength()
+	return l
+}
+
+func (p *ResourceServiceListClbListenersArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req", thrift.STRUCT, 1)
+	offset += p.Req.FastWriteNocopy(buf[offset:], binaryWriter)
+	offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	return offset
+}
+
+func (p *ResourceServiceListClbListenersArgs) field1Length() int {
+	l := 0
+	l += bthrift.Binary.FieldBeginLength("req", thrift.STRUCT, 1)
+	l += p.Req.BLength()
+	l += bthrift.Binary.FieldEndLength()
+	return l
+}
+
+func (p *ResourceServiceListClbListenersResult) FastRead(buf []byte) (int, error) {
+	var err error
+	var offset int
+	var l int
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	_, l, err = bthrift.Binary.ReadStructBegin(buf)
+	offset += l
+	if err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, l, err = bthrift.Binary.ReadFieldBegin(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				l, err = p.FastReadField0(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				l, err = p.FastReadField1(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+			offset += l
+			if err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		l, err = bthrift.Binary.ReadFieldEnd(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	l, err = bthrift.Binary.ReadStructEnd(buf[offset:])
+	offset += l
+	if err != nil {
+		goto ReadStructEndError
+	}
+
+	return offset, nil
+ReadStructBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListClbListenersResult[fieldId]), err)
+SkipFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+ReadFieldEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListClbListenersResult) FastReadField0(buf []byte) (int, error) {
+	offset := 0
+	p.Success = clb.NewListClbListenersResponse()
+	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+	}
+	return offset, nil
+}
+
+func (p *ResourceServiceListClbListenersResult) FastReadField1(buf []byte) (int, error) {
+	offset := 0
+	p.Err = common.NewError()
+	if l, err := p.Err.FastRead(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+	}
+	return offset, nil
+}
+
+// for compatibility
+func (p *ResourceServiceListClbListenersResult) FastWrite(buf []byte) int {
+	return 0
+}
+
+func (p *ResourceServiceListClbListenersResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListClbListeners_result")
+	if p != nil {
+		offset += p.fastWriteField0(buf[offset:], binaryWriter)
+		offset += p.fastWriteField1(buf[offset:], binaryWriter)
+	}
+	offset += bthrift.Binary.WriteFieldStop(buf[offset:])
+	offset += bthrift.Binary.WriteStructEnd(buf[offset:])
+	return offset
+}
+
+func (p *ResourceServiceListClbListenersResult) BLength() int {
+	l := 0
+	l += bthrift.Binary.StructBeginLength("ListClbListeners_result")
+	if p != nil {
+		l += p.field0Length()
+		l += p.field1Length()
+	}
+	l += bthrift.Binary.FieldStopLength()
+	l += bthrift.Binary.StructEndLength()
+	return l
+}
+
+func (p *ResourceServiceListClbListenersResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	if p.IsSetSuccess() {
+		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "success", thrift.STRUCT, 0)
+		offset += p.Success.FastWriteNocopy(buf[offset:], binaryWriter)
+		offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	}
+	return offset
+}
+
+func (p *ResourceServiceListClbListenersResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	if p.IsSetErr() {
+		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "err", thrift.STRUCT, 1)
+		offset += p.Err.FastWriteNocopy(buf[offset:], binaryWriter)
+		offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	}
+	return offset
+}
+
+func (p *ResourceServiceListClbListenersResult) field0Length() int {
+	l := 0
+	if p.IsSetSuccess() {
+		l += bthrift.Binary.FieldBeginLength("success", thrift.STRUCT, 0)
+		l += p.Success.BLength()
+		l += bthrift.Binary.FieldEndLength()
+	}
+	return l
+}
+
+func (p *ResourceServiceListClbListenersResult) field1Length() int {
 	l := 0
 	if p.IsSetErr() {
 		l += bthrift.Binary.FieldBeginLength("err", thrift.STRUCT, 1)
@@ -28646,6 +29856,1511 @@ func (p *ResourceServiceRecommendCidrResult) field1Length() int {
 	return l
 }
 
+func (p *ResourceServiceAddVciSubnetsArgs) FastRead(buf []byte) (int, error) {
+	var err error
+	var offset int
+	var l int
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	_, l, err = bthrift.Binary.ReadStructBegin(buf)
+	offset += l
+	if err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, l, err = bthrift.Binary.ReadFieldBegin(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				l, err = p.FastReadField1(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+			offset += l
+			if err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		l, err = bthrift.Binary.ReadFieldEnd(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	l, err = bthrift.Binary.ReadStructEnd(buf[offset:])
+	offset += l
+	if err != nil {
+		goto ReadStructEndError
+	}
+
+	return offset, nil
+ReadStructBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceAddVciSubnetsArgs[fieldId]), err)
+SkipFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+ReadFieldEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceAddVciSubnetsArgs) FastReadField1(buf []byte) (int, error) {
+	offset := 0
+	p.Req = cluster.NewAddVciSubnetsRequest()
+	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+	}
+	return offset, nil
+}
+
+// for compatibility
+func (p *ResourceServiceAddVciSubnetsArgs) FastWrite(buf []byte) int {
+	return 0
+}
+
+func (p *ResourceServiceAddVciSubnetsArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "AddVciSubnets_args")
+	if p != nil {
+		offset += p.fastWriteField1(buf[offset:], binaryWriter)
+	}
+	offset += bthrift.Binary.WriteFieldStop(buf[offset:])
+	offset += bthrift.Binary.WriteStructEnd(buf[offset:])
+	return offset
+}
+
+func (p *ResourceServiceAddVciSubnetsArgs) BLength() int {
+	l := 0
+	l += bthrift.Binary.StructBeginLength("AddVciSubnets_args")
+	if p != nil {
+		l += p.field1Length()
+	}
+	l += bthrift.Binary.FieldStopLength()
+	l += bthrift.Binary.StructEndLength()
+	return l
+}
+
+func (p *ResourceServiceAddVciSubnetsArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req", thrift.STRUCT, 1)
+	offset += p.Req.FastWriteNocopy(buf[offset:], binaryWriter)
+	offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	return offset
+}
+
+func (p *ResourceServiceAddVciSubnetsArgs) field1Length() int {
+	l := 0
+	l += bthrift.Binary.FieldBeginLength("req", thrift.STRUCT, 1)
+	l += p.Req.BLength()
+	l += bthrift.Binary.FieldEndLength()
+	return l
+}
+
+func (p *ResourceServiceAddVciSubnetsResult) FastRead(buf []byte) (int, error) {
+	var err error
+	var offset int
+	var l int
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	_, l, err = bthrift.Binary.ReadStructBegin(buf)
+	offset += l
+	if err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, l, err = bthrift.Binary.ReadFieldBegin(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				l, err = p.FastReadField0(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				l, err = p.FastReadField1(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+			offset += l
+			if err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		l, err = bthrift.Binary.ReadFieldEnd(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	l, err = bthrift.Binary.ReadStructEnd(buf[offset:])
+	offset += l
+	if err != nil {
+		goto ReadStructEndError
+	}
+
+	return offset, nil
+ReadStructBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceAddVciSubnetsResult[fieldId]), err)
+SkipFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+ReadFieldEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceAddVciSubnetsResult) FastReadField0(buf []byte) (int, error) {
+	offset := 0
+	p.Success = cluster.NewAddVciSubnetsResponse()
+	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+	}
+	return offset, nil
+}
+
+func (p *ResourceServiceAddVciSubnetsResult) FastReadField1(buf []byte) (int, error) {
+	offset := 0
+	p.Err = common.NewError()
+	if l, err := p.Err.FastRead(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+	}
+	return offset, nil
+}
+
+// for compatibility
+func (p *ResourceServiceAddVciSubnetsResult) FastWrite(buf []byte) int {
+	return 0
+}
+
+func (p *ResourceServiceAddVciSubnetsResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "AddVciSubnets_result")
+	if p != nil {
+		offset += p.fastWriteField0(buf[offset:], binaryWriter)
+		offset += p.fastWriteField1(buf[offset:], binaryWriter)
+	}
+	offset += bthrift.Binary.WriteFieldStop(buf[offset:])
+	offset += bthrift.Binary.WriteStructEnd(buf[offset:])
+	return offset
+}
+
+func (p *ResourceServiceAddVciSubnetsResult) BLength() int {
+	l := 0
+	l += bthrift.Binary.StructBeginLength("AddVciSubnets_result")
+	if p != nil {
+		l += p.field0Length()
+		l += p.field1Length()
+	}
+	l += bthrift.Binary.FieldStopLength()
+	l += bthrift.Binary.StructEndLength()
+	return l
+}
+
+func (p *ResourceServiceAddVciSubnetsResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	if p.IsSetSuccess() {
+		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "success", thrift.STRUCT, 0)
+		offset += p.Success.FastWriteNocopy(buf[offset:], binaryWriter)
+		offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	}
+	return offset
+}
+
+func (p *ResourceServiceAddVciSubnetsResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	if p.IsSetErr() {
+		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "err", thrift.STRUCT, 1)
+		offset += p.Err.FastWriteNocopy(buf[offset:], binaryWriter)
+		offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	}
+	return offset
+}
+
+func (p *ResourceServiceAddVciSubnetsResult) field0Length() int {
+	l := 0
+	if p.IsSetSuccess() {
+		l += bthrift.Binary.FieldBeginLength("success", thrift.STRUCT, 0)
+		l += p.Success.BLength()
+		l += bthrift.Binary.FieldEndLength()
+	}
+	return l
+}
+
+func (p *ResourceServiceAddVciSubnetsResult) field1Length() int {
+	l := 0
+	if p.IsSetErr() {
+		l += bthrift.Binary.FieldBeginLength("err", thrift.STRUCT, 1)
+		l += p.Err.BLength()
+		l += bthrift.Binary.FieldEndLength()
+	}
+	return l
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListArgs) FastRead(buf []byte) (int, error) {
+	var err error
+	var offset int
+	var l int
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	_, l, err = bthrift.Binary.ReadStructBegin(buf)
+	offset += l
+	if err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, l, err = bthrift.Binary.ReadFieldBegin(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				l, err = p.FastReadField1(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+			offset += l
+			if err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		l, err = bthrift.Binary.ReadFieldEnd(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	l, err = bthrift.Binary.ReadStructEnd(buf[offset:])
+	offset += l
+	if err != nil {
+		goto ReadStructEndError
+	}
+
+	return offset, nil
+ReadStructBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceIsInShortTermWhiteListArgs[fieldId]), err)
+SkipFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+ReadFieldEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListArgs) FastReadField1(buf []byte) (int, error) {
+	offset := 0
+	p.Req = trade.NewIsInShortTermWhiteListRequest()
+	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+	}
+	return offset, nil
+}
+
+// for compatibility
+func (p *ResourceServiceIsInShortTermWhiteListArgs) FastWrite(buf []byte) int {
+	return 0
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "IsInShortTermWhiteList_args")
+	if p != nil {
+		offset += p.fastWriteField1(buf[offset:], binaryWriter)
+	}
+	offset += bthrift.Binary.WriteFieldStop(buf[offset:])
+	offset += bthrift.Binary.WriteStructEnd(buf[offset:])
+	return offset
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListArgs) BLength() int {
+	l := 0
+	l += bthrift.Binary.StructBeginLength("IsInShortTermWhiteList_args")
+	if p != nil {
+		l += p.field1Length()
+	}
+	l += bthrift.Binary.FieldStopLength()
+	l += bthrift.Binary.StructEndLength()
+	return l
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req", thrift.STRUCT, 1)
+	offset += p.Req.FastWriteNocopy(buf[offset:], binaryWriter)
+	offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	return offset
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListArgs) field1Length() int {
+	l := 0
+	l += bthrift.Binary.FieldBeginLength("req", thrift.STRUCT, 1)
+	l += p.Req.BLength()
+	l += bthrift.Binary.FieldEndLength()
+	return l
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListResult) FastRead(buf []byte) (int, error) {
+	var err error
+	var offset int
+	var l int
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	_, l, err = bthrift.Binary.ReadStructBegin(buf)
+	offset += l
+	if err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, l, err = bthrift.Binary.ReadFieldBegin(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				l, err = p.FastReadField0(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				l, err = p.FastReadField1(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+			offset += l
+			if err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		l, err = bthrift.Binary.ReadFieldEnd(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	l, err = bthrift.Binary.ReadStructEnd(buf[offset:])
+	offset += l
+	if err != nil {
+		goto ReadStructEndError
+	}
+
+	return offset, nil
+ReadStructBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceIsInShortTermWhiteListResult[fieldId]), err)
+SkipFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+ReadFieldEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListResult) FastReadField0(buf []byte) (int, error) {
+	offset := 0
+	p.Success = trade.NewIsInShortTermWhiteListResponse()
+	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+	}
+	return offset, nil
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListResult) FastReadField1(buf []byte) (int, error) {
+	offset := 0
+	p.Err = common.NewError()
+	if l, err := p.Err.FastRead(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+	}
+	return offset, nil
+}
+
+// for compatibility
+func (p *ResourceServiceIsInShortTermWhiteListResult) FastWrite(buf []byte) int {
+	return 0
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "IsInShortTermWhiteList_result")
+	if p != nil {
+		offset += p.fastWriteField0(buf[offset:], binaryWriter)
+		offset += p.fastWriteField1(buf[offset:], binaryWriter)
+	}
+	offset += bthrift.Binary.WriteFieldStop(buf[offset:])
+	offset += bthrift.Binary.WriteStructEnd(buf[offset:])
+	return offset
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListResult) BLength() int {
+	l := 0
+	l += bthrift.Binary.StructBeginLength("IsInShortTermWhiteList_result")
+	if p != nil {
+		l += p.field0Length()
+		l += p.field1Length()
+	}
+	l += bthrift.Binary.FieldStopLength()
+	l += bthrift.Binary.StructEndLength()
+	return l
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	if p.IsSetSuccess() {
+		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "success", thrift.STRUCT, 0)
+		offset += p.Success.FastWriteNocopy(buf[offset:], binaryWriter)
+		offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	}
+	return offset
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	if p.IsSetErr() {
+		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "err", thrift.STRUCT, 1)
+		offset += p.Err.FastWriteNocopy(buf[offset:], binaryWriter)
+		offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	}
+	return offset
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListResult) field0Length() int {
+	l := 0
+	if p.IsSetSuccess() {
+		l += bthrift.Binary.FieldBeginLength("success", thrift.STRUCT, 0)
+		l += p.Success.BLength()
+		l += bthrift.Binary.FieldEndLength()
+	}
+	return l
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListResult) field1Length() int {
+	l := 0
+	if p.IsSetErr() {
+		l += bthrift.Binary.FieldBeginLength("err", thrift.STRUCT, 1)
+		l += p.Err.BLength()
+		l += bthrift.Binary.FieldEndLength()
+	}
+	return l
+}
+
+func (p *ResourceServiceAllowUserPublicTestArgs) FastRead(buf []byte) (int, error) {
+	var err error
+	var offset int
+	var l int
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	_, l, err = bthrift.Binary.ReadStructBegin(buf)
+	offset += l
+	if err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, l, err = bthrift.Binary.ReadFieldBegin(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				l, err = p.FastReadField1(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+			offset += l
+			if err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		l, err = bthrift.Binary.ReadFieldEnd(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	l, err = bthrift.Binary.ReadStructEnd(buf[offset:])
+	offset += l
+	if err != nil {
+		goto ReadStructEndError
+	}
+
+	return offset, nil
+ReadStructBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceAllowUserPublicTestArgs[fieldId]), err)
+SkipFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+ReadFieldEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceAllowUserPublicTestArgs) FastReadField1(buf []byte) (int, error) {
+	offset := 0
+	p.Req = publicverify.NewPublicTestAllowedReq()
+	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+	}
+	return offset, nil
+}
+
+// for compatibility
+func (p *ResourceServiceAllowUserPublicTestArgs) FastWrite(buf []byte) int {
+	return 0
+}
+
+func (p *ResourceServiceAllowUserPublicTestArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "AllowUserPublicTest_args")
+	if p != nil {
+		offset += p.fastWriteField1(buf[offset:], binaryWriter)
+	}
+	offset += bthrift.Binary.WriteFieldStop(buf[offset:])
+	offset += bthrift.Binary.WriteStructEnd(buf[offset:])
+	return offset
+}
+
+func (p *ResourceServiceAllowUserPublicTestArgs) BLength() int {
+	l := 0
+	l += bthrift.Binary.StructBeginLength("AllowUserPublicTest_args")
+	if p != nil {
+		l += p.field1Length()
+	}
+	l += bthrift.Binary.FieldStopLength()
+	l += bthrift.Binary.StructEndLength()
+	return l
+}
+
+func (p *ResourceServiceAllowUserPublicTestArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req", thrift.STRUCT, 1)
+	offset += p.Req.FastWriteNocopy(buf[offset:], binaryWriter)
+	offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	return offset
+}
+
+func (p *ResourceServiceAllowUserPublicTestArgs) field1Length() int {
+	l := 0
+	l += bthrift.Binary.FieldBeginLength("req", thrift.STRUCT, 1)
+	l += p.Req.BLength()
+	l += bthrift.Binary.FieldEndLength()
+	return l
+}
+
+func (p *ResourceServiceAllowUserPublicTestResult) FastRead(buf []byte) (int, error) {
+	var err error
+	var offset int
+	var l int
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	_, l, err = bthrift.Binary.ReadStructBegin(buf)
+	offset += l
+	if err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, l, err = bthrift.Binary.ReadFieldBegin(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				l, err = p.FastReadField0(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				l, err = p.FastReadField1(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+			offset += l
+			if err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		l, err = bthrift.Binary.ReadFieldEnd(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	l, err = bthrift.Binary.ReadStructEnd(buf[offset:])
+	offset += l
+	if err != nil {
+		goto ReadStructEndError
+	}
+
+	return offset, nil
+ReadStructBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceAllowUserPublicTestResult[fieldId]), err)
+SkipFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+ReadFieldEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceAllowUserPublicTestResult) FastReadField0(buf []byte) (int, error) {
+	offset := 0
+	p.Success = publicverify.NewPublicTestAllowedResp()
+	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+	}
+	return offset, nil
+}
+
+func (p *ResourceServiceAllowUserPublicTestResult) FastReadField1(buf []byte) (int, error) {
+	offset := 0
+	p.Err = common.NewError()
+	if l, err := p.Err.FastRead(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+	}
+	return offset, nil
+}
+
+// for compatibility
+func (p *ResourceServiceAllowUserPublicTestResult) FastWrite(buf []byte) int {
+	return 0
+}
+
+func (p *ResourceServiceAllowUserPublicTestResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "AllowUserPublicTest_result")
+	if p != nil {
+		offset += p.fastWriteField0(buf[offset:], binaryWriter)
+		offset += p.fastWriteField1(buf[offset:], binaryWriter)
+	}
+	offset += bthrift.Binary.WriteFieldStop(buf[offset:])
+	offset += bthrift.Binary.WriteStructEnd(buf[offset:])
+	return offset
+}
+
+func (p *ResourceServiceAllowUserPublicTestResult) BLength() int {
+	l := 0
+	l += bthrift.Binary.StructBeginLength("AllowUserPublicTest_result")
+	if p != nil {
+		l += p.field0Length()
+		l += p.field1Length()
+	}
+	l += bthrift.Binary.FieldStopLength()
+	l += bthrift.Binary.StructEndLength()
+	return l
+}
+
+func (p *ResourceServiceAllowUserPublicTestResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	if p.IsSetSuccess() {
+		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "success", thrift.STRUCT, 0)
+		offset += p.Success.FastWriteNocopy(buf[offset:], binaryWriter)
+		offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	}
+	return offset
+}
+
+func (p *ResourceServiceAllowUserPublicTestResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	if p.IsSetErr() {
+		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "err", thrift.STRUCT, 1)
+		offset += p.Err.FastWriteNocopy(buf[offset:], binaryWriter)
+		offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	}
+	return offset
+}
+
+func (p *ResourceServiceAllowUserPublicTestResult) field0Length() int {
+	l := 0
+	if p.IsSetSuccess() {
+		l += bthrift.Binary.FieldBeginLength("success", thrift.STRUCT, 0)
+		l += p.Success.BLength()
+		l += bthrift.Binary.FieldEndLength()
+	}
+	return l
+}
+
+func (p *ResourceServiceAllowUserPublicTestResult) field1Length() int {
+	l := 0
+	if p.IsSetErr() {
+		l += bthrift.Binary.FieldBeginLength("err", thrift.STRUCT, 1)
+		l += p.Err.BLength()
+		l += bthrift.Binary.FieldEndLength()
+	}
+	return l
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesArgs) FastRead(buf []byte) (int, error) {
+	var err error
+	var offset int
+	var l int
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	_, l, err = bthrift.Binary.ReadStructBegin(buf)
+	offset += l
+	if err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, l, err = bthrift.Binary.ReadFieldBegin(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				l, err = p.FastReadField1(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+			offset += l
+			if err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		l, err = bthrift.Binary.ReadFieldEnd(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	l, err = bthrift.Binary.ReadStructEnd(buf[offset:])
+	offset += l
+	if err != nil {
+		goto ReadStructEndError
+	}
+
+	return offset, nil
+ReadStructBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListVciAvailabilityZonesArgs[fieldId]), err)
+SkipFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+ReadFieldEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesArgs) FastReadField1(buf []byte) (int, error) {
+	offset := 0
+	p.Req = vci.NewListVciAvailabilityZonesRequest()
+	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+	}
+	return offset, nil
+}
+
+// for compatibility
+func (p *ResourceServiceListVciAvailabilityZonesArgs) FastWrite(buf []byte) int {
+	return 0
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListVciAvailabilityZones_args")
+	if p != nil {
+		offset += p.fastWriteField1(buf[offset:], binaryWriter)
+	}
+	offset += bthrift.Binary.WriteFieldStop(buf[offset:])
+	offset += bthrift.Binary.WriteStructEnd(buf[offset:])
+	return offset
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesArgs) BLength() int {
+	l := 0
+	l += bthrift.Binary.StructBeginLength("ListVciAvailabilityZones_args")
+	if p != nil {
+		l += p.field1Length()
+	}
+	l += bthrift.Binary.FieldStopLength()
+	l += bthrift.Binary.StructEndLength()
+	return l
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req", thrift.STRUCT, 1)
+	offset += p.Req.FastWriteNocopy(buf[offset:], binaryWriter)
+	offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	return offset
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesArgs) field1Length() int {
+	l := 0
+	l += bthrift.Binary.FieldBeginLength("req", thrift.STRUCT, 1)
+	l += p.Req.BLength()
+	l += bthrift.Binary.FieldEndLength()
+	return l
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesResult) FastRead(buf []byte) (int, error) {
+	var err error
+	var offset int
+	var l int
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	_, l, err = bthrift.Binary.ReadStructBegin(buf)
+	offset += l
+	if err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, l, err = bthrift.Binary.ReadFieldBegin(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				l, err = p.FastReadField0(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				l, err = p.FastReadField1(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+			offset += l
+			if err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		l, err = bthrift.Binary.ReadFieldEnd(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	l, err = bthrift.Binary.ReadStructEnd(buf[offset:])
+	offset += l
+	if err != nil {
+		goto ReadStructEndError
+	}
+
+	return offset, nil
+ReadStructBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListVciAvailabilityZonesResult[fieldId]), err)
+SkipFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+ReadFieldEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesResult) FastReadField0(buf []byte) (int, error) {
+	offset := 0
+	p.Success = vci.NewListVciAvailabilityZonesResponse()
+	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+	}
+	return offset, nil
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesResult) FastReadField1(buf []byte) (int, error) {
+	offset := 0
+	p.Err = common.NewError()
+	if l, err := p.Err.FastRead(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+	}
+	return offset, nil
+}
+
+// for compatibility
+func (p *ResourceServiceListVciAvailabilityZonesResult) FastWrite(buf []byte) int {
+	return 0
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListVciAvailabilityZones_result")
+	if p != nil {
+		offset += p.fastWriteField0(buf[offset:], binaryWriter)
+		offset += p.fastWriteField1(buf[offset:], binaryWriter)
+	}
+	offset += bthrift.Binary.WriteFieldStop(buf[offset:])
+	offset += bthrift.Binary.WriteStructEnd(buf[offset:])
+	return offset
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesResult) BLength() int {
+	l := 0
+	l += bthrift.Binary.StructBeginLength("ListVciAvailabilityZones_result")
+	if p != nil {
+		l += p.field0Length()
+		l += p.field1Length()
+	}
+	l += bthrift.Binary.FieldStopLength()
+	l += bthrift.Binary.StructEndLength()
+	return l
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	if p.IsSetSuccess() {
+		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "success", thrift.STRUCT, 0)
+		offset += p.Success.FastWriteNocopy(buf[offset:], binaryWriter)
+		offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	}
+	return offset
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	if p.IsSetErr() {
+		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "err", thrift.STRUCT, 1)
+		offset += p.Err.FastWriteNocopy(buf[offset:], binaryWriter)
+		offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	}
+	return offset
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesResult) field0Length() int {
+	l := 0
+	if p.IsSetSuccess() {
+		l += bthrift.Binary.FieldBeginLength("success", thrift.STRUCT, 0)
+		l += p.Success.BLength()
+		l += bthrift.Binary.FieldEndLength()
+	}
+	return l
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesResult) field1Length() int {
+	l := 0
+	if p.IsSetErr() {
+		l += bthrift.Binary.FieldBeginLength("err", thrift.STRUCT, 1)
+		l += p.Err.BLength()
+		l += bthrift.Binary.FieldEndLength()
+	}
+	return l
+}
+
+func (p *ResourceServiceListNodeZonesArgs) FastRead(buf []byte) (int, error) {
+	var err error
+	var offset int
+	var l int
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	_, l, err = bthrift.Binary.ReadStructBegin(buf)
+	offset += l
+	if err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, l, err = bthrift.Binary.ReadFieldBegin(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				l, err = p.FastReadField1(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+			offset += l
+			if err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		l, err = bthrift.Binary.ReadFieldEnd(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	l, err = bthrift.Binary.ReadStructEnd(buf[offset:])
+	offset += l
+	if err != nil {
+		goto ReadStructEndError
+	}
+
+	return offset, nil
+ReadStructBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListNodeZonesArgs[fieldId]), err)
+SkipFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+ReadFieldEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListNodeZonesArgs) FastReadField1(buf []byte) (int, error) {
+	offset := 0
+	p.Req = cluster.NewListNodeZonesRequest()
+	if l, err := p.Req.FastRead(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+	}
+	return offset, nil
+}
+
+// for compatibility
+func (p *ResourceServiceListNodeZonesArgs) FastWrite(buf []byte) int {
+	return 0
+}
+
+func (p *ResourceServiceListNodeZonesArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListNodeZones_args")
+	if p != nil {
+		offset += p.fastWriteField1(buf[offset:], binaryWriter)
+	}
+	offset += bthrift.Binary.WriteFieldStop(buf[offset:])
+	offset += bthrift.Binary.WriteStructEnd(buf[offset:])
+	return offset
+}
+
+func (p *ResourceServiceListNodeZonesArgs) BLength() int {
+	l := 0
+	l += bthrift.Binary.StructBeginLength("ListNodeZones_args")
+	if p != nil {
+		l += p.field1Length()
+	}
+	l += bthrift.Binary.FieldStopLength()
+	l += bthrift.Binary.StructEndLength()
+	return l
+}
+
+func (p *ResourceServiceListNodeZonesArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req", thrift.STRUCT, 1)
+	offset += p.Req.FastWriteNocopy(buf[offset:], binaryWriter)
+	offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	return offset
+}
+
+func (p *ResourceServiceListNodeZonesArgs) field1Length() int {
+	l := 0
+	l += bthrift.Binary.FieldBeginLength("req", thrift.STRUCT, 1)
+	l += p.Req.BLength()
+	l += bthrift.Binary.FieldEndLength()
+	return l
+}
+
+func (p *ResourceServiceListNodeZonesResult) FastRead(buf []byte) (int, error) {
+	var err error
+	var offset int
+	var l int
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	_, l, err = bthrift.Binary.ReadStructBegin(buf)
+	offset += l
+	if err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, l, err = bthrift.Binary.ReadFieldBegin(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				l, err = p.FastReadField0(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				l, err = p.FastReadField1(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+			offset += l
+			if err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		l, err = bthrift.Binary.ReadFieldEnd(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	l, err = bthrift.Binary.ReadStructEnd(buf[offset:])
+	offset += l
+	if err != nil {
+		goto ReadStructEndError
+	}
+
+	return offset, nil
+ReadStructBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListNodeZonesResult[fieldId]), err)
+SkipFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+ReadFieldEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListNodeZonesResult) FastReadField0(buf []byte) (int, error) {
+	offset := 0
+	p.Success = cluster.NewListNodeZonesResponse()
+	if l, err := p.Success.FastRead(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+	}
+	return offset, nil
+}
+
+func (p *ResourceServiceListNodeZonesResult) FastReadField1(buf []byte) (int, error) {
+	offset := 0
+	p.Err = common.NewError()
+	if l, err := p.Err.FastRead(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+	}
+	return offset, nil
+}
+
+// for compatibility
+func (p *ResourceServiceListNodeZonesResult) FastWrite(buf []byte) int {
+	return 0
+}
+
+func (p *ResourceServiceListNodeZonesResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ListNodeZones_result")
+	if p != nil {
+		offset += p.fastWriteField0(buf[offset:], binaryWriter)
+		offset += p.fastWriteField1(buf[offset:], binaryWriter)
+	}
+	offset += bthrift.Binary.WriteFieldStop(buf[offset:])
+	offset += bthrift.Binary.WriteStructEnd(buf[offset:])
+	return offset
+}
+
+func (p *ResourceServiceListNodeZonesResult) BLength() int {
+	l := 0
+	l += bthrift.Binary.StructBeginLength("ListNodeZones_result")
+	if p != nil {
+		l += p.field0Length()
+		l += p.field1Length()
+	}
+	l += bthrift.Binary.FieldStopLength()
+	l += bthrift.Binary.StructEndLength()
+	return l
+}
+
+func (p *ResourceServiceListNodeZonesResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	if p.IsSetSuccess() {
+		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "success", thrift.STRUCT, 0)
+		offset += p.Success.FastWriteNocopy(buf[offset:], binaryWriter)
+		offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	}
+	return offset
+}
+
+func (p *ResourceServiceListNodeZonesResult) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	if p.IsSetErr() {
+		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "err", thrift.STRUCT, 1)
+		offset += p.Err.FastWriteNocopy(buf[offset:], binaryWriter)
+		offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	}
+	return offset
+}
+
+func (p *ResourceServiceListNodeZonesResult) field0Length() int {
+	l := 0
+	if p.IsSetSuccess() {
+		l += bthrift.Binary.FieldBeginLength("success", thrift.STRUCT, 0)
+		l += p.Success.BLength()
+		l += bthrift.Binary.FieldEndLength()
+	}
+	return l
+}
+
+func (p *ResourceServiceListNodeZonesResult) field1Length() int {
+	l := 0
+	if p.IsSetErr() {
+		l += bthrift.Binary.FieldBeginLength("err", thrift.STRUCT, 1)
+		l += p.Err.BLength()
+		l += bthrift.Binary.FieldEndLength()
+	}
+	return l
+}
+
 func (p *ResourceServiceGetClusterOverviewArgs) GetFirstArgument() interface{} {
 	return p.Req
 }
@@ -28662,19 +31377,27 @@ func (p *ResourceServiceGetKubeConfigResult) GetResult() interface{} {
 	return p.Success
 }
 
-func (p *ResourceServiceRevokeKubeConfigArgs) GetFirstArgument() interface{} {
+func (p *ResourceServiceGetKubeconfigArgs) GetFirstArgument() interface{} {
 	return p.Req
 }
 
-func (p *ResourceServiceRevokeKubeConfigResult) GetResult() interface{} {
+func (p *ResourceServiceGetKubeconfigResult) GetResult() interface{} {
 	return p.Success
 }
 
-func (p *ResourceServiceListKubeConfigArgs) GetFirstArgument() interface{} {
+func (p *ResourceServiceRevokeKubeconfigArgs) GetFirstArgument() interface{} {
 	return p.Req
 }
 
-func (p *ResourceServiceListKubeConfigResult) GetResult() interface{} {
+func (p *ResourceServiceRevokeKubeconfigResult) GetResult() interface{} {
+	return p.Success
+}
+
+func (p *ResourceServiceListKubeconfigUsersArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+func (p *ResourceServiceListKubeconfigUsersResult) GetResult() interface{} {
 	return p.Success
 }
 
@@ -28726,11 +31449,11 @@ func (p *ResourceServiceGetClusterResult) GetResult() interface{} {
 	return p.Success
 }
 
-func (p *ResourceServiceListClusterArgs) GetFirstArgument() interface{} {
+func (p *ResourceServiceListClustersArgs) GetFirstArgument() interface{} {
 	return p.Req
 }
 
-func (p *ResourceServiceListClusterResult) GetResult() interface{} {
+func (p *ResourceServiceListClustersResult) GetResult() interface{} {
 	return p.Success
 }
 
@@ -28742,115 +31465,115 @@ func (p *ResourceServiceGetClusterDeployProgressResult) GetResult() interface{} 
 	return p.Success
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionArgs) GetFirstArgument() interface{} {
+func (p *ResourceServiceListSupportedKubernetesVersionsArgs) GetFirstArgument() interface{} {
 	return p.Req
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionResult) GetResult() interface{} {
+func (p *ResourceServiceListSupportedKubernetesVersionsResult) GetResult() interface{} {
 	return p.Success
 }
 
-func (p *ResourceServiceListClusterNetworkCidrArgs) GetFirstArgument() interface{} {
+func (p *ResourceServiceListClusterNetworkCidrsArgs) GetFirstArgument() interface{} {
 	return p.Req
 }
 
-func (p *ResourceServiceListClusterNetworkCidrResult) GetResult() interface{} {
+func (p *ResourceServiceListClusterNetworkCidrsResult) GetResult() interface{} {
 	return p.Success
 }
 
-func (p *ResourceServiceListSupportGpuModelArgs) GetFirstArgument() interface{} {
+func (p *ResourceServiceListSupportedGpuModelsArgs) GetFirstArgument() interface{} {
 	return p.Req
 }
 
-func (p *ResourceServiceListSupportGpuModelResult) GetResult() interface{} {
+func (p *ResourceServiceListSupportedGpuModelsResult) GetResult() interface{} {
 	return p.Success
 }
 
-func (p *ResourceServiceListClusterNodeArgs) GetFirstArgument() interface{} {
+func (p *ResourceServiceListNodesArgs) GetFirstArgument() interface{} {
 	return p.Req
 }
 
-func (p *ResourceServiceListClusterNodeResult) GetResult() interface{} {
+func (p *ResourceServiceListNodesResult) GetResult() interface{} {
 	return p.Success
 }
 
-func (p *ResourceServiceAddClusterNodeArgs) GetFirstArgument() interface{} {
+func (p *ResourceServiceAddNodesArgs) GetFirstArgument() interface{} {
 	return p.Req
 }
 
-func (p *ResourceServiceAddClusterNodeResult) GetResult() interface{} {
+func (p *ResourceServiceAddNodesResult) GetResult() interface{} {
 	return p.Success
 }
 
-func (p *ResourceServiceGetClusterNodeArgs) GetFirstArgument() interface{} {
+func (p *ResourceServiceGetNodeArgs) GetFirstArgument() interface{} {
 	return p.Req
 }
 
-func (p *ResourceServiceGetClusterNodeResult) GetResult() interface{} {
+func (p *ResourceServiceGetNodeResult) GetResult() interface{} {
 	return p.Success
 }
 
-func (p *ResourceServiceDeleteClusterNodeArgs) GetFirstArgument() interface{} {
+func (p *ResourceServiceDeleteNodesArgs) GetFirstArgument() interface{} {
 	return p.Req
 }
 
-func (p *ResourceServiceDeleteClusterNodeResult) GetResult() interface{} {
+func (p *ResourceServiceDeleteNodesResult) GetResult() interface{} {
 	return p.Success
 }
 
-func (p *ResourceServiceListClusterNodeLabelArgs) GetFirstArgument() interface{} {
+func (p *ResourceServiceListNodeLabelsArgs) GetFirstArgument() interface{} {
 	return p.Req
 }
 
-func (p *ResourceServiceListClusterNodeLabelResult) GetResult() interface{} {
+func (p *ResourceServiceListNodeLabelsResult) GetResult() interface{} {
 	return p.Success
 }
 
-func (p *ResourceServiceUpdateClusterNodeArgs) GetFirstArgument() interface{} {
+func (p *ResourceServiceUpdateNodeArgs) GetFirstArgument() interface{} {
 	return p.Req
 }
 
-func (p *ResourceServiceUpdateClusterNodeResult) GetResult() interface{} {
+func (p *ResourceServiceUpdateNodeResult) GetResult() interface{} {
 	return p.Success
 }
 
-func (p *ResourceServiceGetAutoScalingRuleArgs) GetFirstArgument() interface{} {
+func (p *ResourceServiceGetClusterAutoScalingRuleArgs) GetFirstArgument() interface{} {
 	return p.Req
 }
 
-func (p *ResourceServiceGetAutoScalingRuleResult) GetResult() interface{} {
+func (p *ResourceServiceGetClusterAutoScalingRuleResult) GetResult() interface{} {
 	return p.Success
 }
 
-func (p *ResourceServiceUpdateAutoScalingRuleArgs) GetFirstArgument() interface{} {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleArgs) GetFirstArgument() interface{} {
 	return p.Req
 }
 
-func (p *ResourceServiceUpdateAutoScalingRuleResult) GetResult() interface{} {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleResult) GetResult() interface{} {
 	return p.Success
 }
 
-func (p *ResourceServiceNodePoolScaleUpArgs) GetFirstArgument() interface{} {
+func (p *ResourceServiceScaleUpNodePoolArgs) GetFirstArgument() interface{} {
 	return p.Req
 }
 
-func (p *ResourceServiceNodePoolScaleUpResult) GetResult() interface{} {
+func (p *ResourceServiceScaleUpNodePoolResult) GetResult() interface{} {
 	return p.Success
 }
 
-func (p *ResourceServiceNodePoolScaleDownArgs) GetFirstArgument() interface{} {
+func (p *ResourceServiceScaleDownNodePoolArgs) GetFirstArgument() interface{} {
 	return p.Req
 }
 
-func (p *ResourceServiceNodePoolScaleDownResult) GetResult() interface{} {
+func (p *ResourceServiceScaleDownNodePoolResult) GetResult() interface{} {
 	return p.Success
 }
 
-func (p *ResourceServiceListNodePoolArgs) GetFirstArgument() interface{} {
+func (p *ResourceServiceListNodePoolsArgs) GetFirstArgument() interface{} {
 	return p.Req
 }
 
-func (p *ResourceServiceListNodePoolResult) GetResult() interface{} {
+func (p *ResourceServiceListNodePoolsResult) GetResult() interface{} {
 	return p.Success
 }
 
@@ -28894,11 +31617,11 @@ func (p *ResourceServiceListNodePoolScalingRecordsResult) GetResult() interface{
 	return p.Success
 }
 
-func (p *ResourceServiceListNodePoolNodeArgs) GetFirstArgument() interface{} {
+func (p *ResourceServiceListNodePoolNodesArgs) GetFirstArgument() interface{} {
 	return p.Req
 }
 
-func (p *ResourceServiceListNodePoolNodeResult) GetResult() interface{} {
+func (p *ResourceServiceListNodePoolNodesResult) GetResult() interface{} {
 	return p.Success
 }
 
@@ -29190,19 +31913,27 @@ func (p *ResourceServiceListAddonsResult) GetResult() interface{} {
 	return p.Success
 }
 
-func (p *ResourceServiceInstallAddonArgs) GetFirstArgument() interface{} {
+func (p *ResourceServiceInstallAddonsArgs) GetFirstArgument() interface{} {
 	return p.Req
 }
 
-func (p *ResourceServiceInstallAddonResult) GetResult() interface{} {
+func (p *ResourceServiceInstallAddonsResult) GetResult() interface{} {
 	return p.Success
 }
 
-func (p *ResourceServiceUninstallAddonArgs) GetFirstArgument() interface{} {
+func (p *ResourceServiceReinstallAddonArgs) GetFirstArgument() interface{} {
 	return p.Req
 }
 
-func (p *ResourceServiceUninstallAddonResult) GetResult() interface{} {
+func (p *ResourceServiceReinstallAddonResult) GetResult() interface{} {
+	return p.Success
+}
+
+func (p *ResourceServiceUninstallAddonsArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+func (p *ResourceServiceUninstallAddonsResult) GetResult() interface{} {
 	return p.Success
 }
 
@@ -29270,6 +32001,14 @@ func (p *ResourceServiceListVolumesResult) GetResult() interface{} {
 	return p.Success
 }
 
+func (p *ResourceServiceListKeyPairsArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+func (p *ResourceServiceListKeyPairsResult) GetResult() interface{} {
+	return p.Success
+}
+
 func (p *ResourceServiceListSubnetsArgs) GetFirstArgument() interface{} {
 	return p.Req
 }
@@ -29278,11 +32017,11 @@ func (p *ResourceServiceListSubnetsResult) GetResult() interface{} {
 	return p.Success
 }
 
-func (p *ResourceServiceListElasticIPPoolsArgs) GetFirstArgument() interface{} {
+func (p *ResourceServiceListElasticIpPoolsArgs) GetFirstArgument() interface{} {
 	return p.Req
 }
 
-func (p *ResourceServiceListElasticIPPoolsResult) GetResult() interface{} {
+func (p *ResourceServiceListElasticIpPoolsResult) GetResult() interface{} {
 	return p.Success
 }
 
@@ -29307,6 +32046,14 @@ func (p *ResourceServiceListClbsArgs) GetFirstArgument() interface{} {
 }
 
 func (p *ResourceServiceListClbsResult) GetResult() interface{} {
+	return p.Success
+}
+
+func (p *ResourceServiceListClbListenersArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+func (p *ResourceServiceListClbListenersResult) GetResult() interface{} {
 	return p.Success
 }
 
@@ -29403,5 +32150,45 @@ func (p *ResourceServiceRecommendCidrArgs) GetFirstArgument() interface{} {
 }
 
 func (p *ResourceServiceRecommendCidrResult) GetResult() interface{} {
+	return p.Success
+}
+
+func (p *ResourceServiceAddVciSubnetsArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+func (p *ResourceServiceAddVciSubnetsResult) GetResult() interface{} {
+	return p.Success
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListResult) GetResult() interface{} {
+	return p.Success
+}
+
+func (p *ResourceServiceAllowUserPublicTestArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+func (p *ResourceServiceAllowUserPublicTestResult) GetResult() interface{} {
+	return p.Success
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesResult) GetResult() interface{} {
+	return p.Success
+}
+
+func (p *ResourceServiceListNodeZonesArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+func (p *ResourceServiceListNodeZonesResult) GetResult() interface{} {
 	return p.Success
 }

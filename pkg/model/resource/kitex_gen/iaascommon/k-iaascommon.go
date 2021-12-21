@@ -758,6 +758,7 @@ func (p *InstanceType) FastRead(buf []byte) (int, error) {
 	var issetGpu bool = false
 	var issetType bool = false
 	var issetRdma bool = false
+	var issetStatus bool = false
 	_, l, err = bthrift.Binary.ReadStructBegin(buf)
 	offset += l
 	if err != nil {
@@ -969,6 +970,21 @@ func (p *InstanceType) FastRead(buf []byte) (int, error) {
 					goto SkipFieldError
 				}
 			}
+		case 101:
+			if fieldTypeId == thrift.STRING {
+				l, err = p.FastReadField101(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+				issetStatus = true
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
 		default:
 			l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
 			offset += l
@@ -1051,6 +1067,11 @@ func (p *InstanceType) FastRead(buf []byte) (int, error) {
 
 	if !issetRdma {
 		fieldId = 13
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetStatus {
+		fieldId = 101
 		goto RequiredFieldNotSetError
 	}
 	return offset, nil
@@ -1262,6 +1283,20 @@ func (p *InstanceType) FastReadField13(buf []byte) (int, error) {
 	return offset, nil
 }
 
+func (p *InstanceType) FastReadField101(buf []byte) (int, error) {
+	offset := 0
+
+	if v, l, err := bthrift.Binary.ReadString(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+
+		p.Status = v
+
+	}
+	return offset, nil
+}
+
 // for compatibility
 func (p *InstanceType) FastWrite(buf []byte) int {
 	return 0
@@ -1284,6 +1319,7 @@ func (p *InstanceType) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWr
 		offset += p.fastWriteField11(buf[offset:], binaryWriter)
 		offset += p.fastWriteField12(buf[offset:], binaryWriter)
 		offset += p.fastWriteField13(buf[offset:], binaryWriter)
+		offset += p.fastWriteField101(buf[offset:], binaryWriter)
 	}
 	offset += bthrift.Binary.WriteFieldStop(buf[offset:])
 	offset += bthrift.Binary.WriteStructEnd(buf[offset:])
@@ -1307,6 +1343,7 @@ func (p *InstanceType) BLength() int {
 		l += p.field11Length()
 		l += p.field12Length()
 		l += p.field13Length()
+		l += p.field101Length()
 	}
 	l += bthrift.Binary.FieldStopLength()
 	l += bthrift.Binary.StructEndLength()
@@ -1436,6 +1473,15 @@ func (p *InstanceType) fastWriteField13(buf []byte, binaryWriter bthrift.BinaryW
 	return offset
 }
 
+func (p *InstanceType) fastWriteField101(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "Status", thrift.STRING, 101)
+	offset += bthrift.Binary.WriteStringNocopy(buf[offset:], binaryWriter, p.Status)
+
+	offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	return offset
+}
+
 func (p *InstanceType) field1Length() int {
 	l := 0
 	l += bthrift.Binary.FieldBeginLength("Id", thrift.STRING, 1)
@@ -1551,6 +1597,15 @@ func (p *InstanceType) field13Length() int {
 	l := 0
 	l += bthrift.Binary.FieldBeginLength("Rdma", thrift.STRUCT, 13)
 	l += p.Rdma.BLength()
+	l += bthrift.Binary.FieldEndLength()
+	return l
+}
+
+func (p *InstanceType) field101Length() int {
+	l := 0
+	l += bthrift.Binary.FieldBeginLength("Status", thrift.STRING, 101)
+	l += bthrift.Binary.StringLengthNocopy(p.Status)
+
 	l += bthrift.Binary.FieldEndLength()
 	return l
 }

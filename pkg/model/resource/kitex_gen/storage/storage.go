@@ -28,6 +28,8 @@ const (
 
 	CreateTypeByPersistentVolume = "ByPersistentVolume"
 
+	FSTypeExtreme = "Extreme"
+
 	StatusPersistentVolumeAvailable = "Available"
 
 	StatusPersistentVolumeBound = "Bound"
@@ -2820,6 +2822,8 @@ type ParameterNAS struct {
 	NFSServer  string `thrift:"NFSServer,1,required" json:"NFSServer"`
 	NFSShare   string `thrift:"NFSShare,2" json:"NFSShare,omitempty"`
 	NFSVersion string `thrift:"NFSVersion,3" validate:"required,oneof=3 4 4.1"`
+	FsId       string `thrift:"FsId,4" json:"FsId,omitempty"`
+	FSType     string `thrift:"FSType,5" json:"FSType,omitempty"`
 }
 
 func NewParameterNAS() *ParameterNAS {
@@ -2827,6 +2831,8 @@ func NewParameterNAS() *ParameterNAS {
 
 		NFSShare:   "/",
 		NFSVersion: "4.1",
+		FsId:       "",
+		FSType:     FSTypeExtreme,
 	}
 }
 
@@ -2851,6 +2857,24 @@ func (p *ParameterNAS) GetNFSVersion() (v string) {
 	}
 	return p.NFSVersion
 }
+
+var ParameterNAS_FsId_DEFAULT string = ""
+
+func (p *ParameterNAS) GetFsId() (v string) {
+	if !p.IsSetFsId() {
+		return ParameterNAS_FsId_DEFAULT
+	}
+	return p.FsId
+}
+
+var ParameterNAS_FSType_DEFAULT string = FSTypeExtreme
+
+func (p *ParameterNAS) GetFSType() (v string) {
+	if !p.IsSetFSType() {
+		return ParameterNAS_FSType_DEFAULT
+	}
+	return p.FSType
+}
 func (p *ParameterNAS) SetNFSServer(val string) {
 	p.NFSServer = val
 }
@@ -2860,11 +2884,19 @@ func (p *ParameterNAS) SetNFSShare(val string) {
 func (p *ParameterNAS) SetNFSVersion(val string) {
 	p.NFSVersion = val
 }
+func (p *ParameterNAS) SetFsId(val string) {
+	p.FsId = val
+}
+func (p *ParameterNAS) SetFSType(val string) {
+	p.FSType = val
+}
 
 var fieldIDToName_ParameterNAS = map[int16]string{
 	1: "NFSServer",
 	2: "NFSShare",
 	3: "NFSVersion",
+	4: "FsId",
+	5: "FSType",
 }
 
 func (p *ParameterNAS) IsSetNFSShare() bool {
@@ -2873,6 +2905,14 @@ func (p *ParameterNAS) IsSetNFSShare() bool {
 
 func (p *ParameterNAS) IsSetNFSVersion() bool {
 	return p.NFSVersion != ParameterNAS_NFSVersion_DEFAULT
+}
+
+func (p *ParameterNAS) IsSetFsId() bool {
+	return p.FsId != ParameterNAS_FsId_DEFAULT
+}
+
+func (p *ParameterNAS) IsSetFSType() bool {
+	return p.FSType != ParameterNAS_FSType_DEFAULT
 }
 
 func (p *ParameterNAS) Read(iprot thrift.TProtocol) (err error) {
@@ -2919,6 +2959,26 @@ func (p *ParameterNAS) Read(iprot thrift.TProtocol) (err error) {
 		case 3:
 			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 4:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField4(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 5:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField5(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else {
@@ -2989,6 +3049,24 @@ func (p *ParameterNAS) ReadField3(iprot thrift.TProtocol) error {
 	return nil
 }
 
+func (p *ParameterNAS) ReadField4(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.FsId = v
+	}
+	return nil
+}
+
+func (p *ParameterNAS) ReadField5(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.FSType = v
+	}
+	return nil
+}
+
 func (p *ParameterNAS) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
 	if err = oprot.WriteStructBegin("ParameterNAS"); err != nil {
@@ -3005,6 +3083,14 @@ func (p *ParameterNAS) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField3(oprot); err != nil {
 			fieldId = 3
+			goto WriteFieldError
+		}
+		if err = p.writeField4(oprot); err != nil {
+			fieldId = 4
+			goto WriteFieldError
+		}
+		if err = p.writeField5(oprot); err != nil {
+			fieldId = 5
 			goto WriteFieldError
 		}
 
@@ -3081,6 +3167,44 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
+func (p *ParameterNAS) writeField4(oprot thrift.TProtocol) (err error) {
+	if p.IsSetFsId() {
+		if err = oprot.WriteFieldBegin("FsId", thrift.STRING, 4); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(p.FsId); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
+}
+
+func (p *ParameterNAS) writeField5(oprot thrift.TProtocol) (err error) {
+	if p.IsSetFSType() {
+		if err = oprot.WriteFieldBegin("FSType", thrift.STRING, 5); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(p.FSType); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 5 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
+}
+
 func (p *ParameterNAS) String() string {
 	if p == nil {
 		return "<nil>"
@@ -3103,6 +3227,12 @@ func (p *ParameterNAS) DeepEqual(ano *ParameterNAS) bool {
 	if !p.Field3DeepEqual(ano.NFSVersion) {
 		return false
 	}
+	if !p.Field4DeepEqual(ano.FsId) {
+		return false
+	}
+	if !p.Field5DeepEqual(ano.FSType) {
+		return false
+	}
 	return true
 }
 
@@ -3123,6 +3253,20 @@ func (p *ParameterNAS) Field2DeepEqual(src string) bool {
 func (p *ParameterNAS) Field3DeepEqual(src string) bool {
 
 	if strings.Compare(p.NFSVersion, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *ParameterNAS) Field4DeepEqual(src string) bool {
+
+	if strings.Compare(p.FsId, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *ParameterNAS) Field5DeepEqual(src string) bool {
+
+	if strings.Compare(p.FSType, src) != 0 {
 		return false
 	}
 	return true
@@ -3445,6 +3589,7 @@ type CreateStorageClassRequest struct {
 	ReclaimPolicy     string         `thrift:"ReclaimPolicy,6,required" validate:"required,oneof=Retain Delete"`
 	VolumeBindingMode string         `thrift:"VolumeBindingMode,7,required" validate:"required,oneof=Immediate WaitForFirstConsumer"`
 	Parameter         *Parameter     `thrift:"Parameter,8" json:"Parameter,omitempty"`
+	ZoneId            *string        `thrift:"ZoneId,9" json:"ZoneId,omitempty"`
 	Top               *base.TopParam `thrift:"Top,254,required" json:"Top"`
 	Base              *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
 }
@@ -3500,6 +3645,15 @@ func (p *CreateStorageClassRequest) GetParameter() (v *Parameter) {
 	return p.Parameter
 }
 
+var CreateStorageClassRequest_ZoneId_DEFAULT string
+
+func (p *CreateStorageClassRequest) GetZoneId() (v string) {
+	if !p.IsSetZoneId() {
+		return CreateStorageClassRequest_ZoneId_DEFAULT
+	}
+	return *p.ZoneId
+}
+
 var CreateStorageClassRequest_Top_DEFAULT *base.TopParam
 
 func (p *CreateStorageClassRequest) GetTop() (v *base.TopParam) {
@@ -3541,6 +3695,9 @@ func (p *CreateStorageClassRequest) SetVolumeBindingMode(val string) {
 func (p *CreateStorageClassRequest) SetParameter(val *Parameter) {
 	p.Parameter = val
 }
+func (p *CreateStorageClassRequest) SetZoneId(val *string) {
+	p.ZoneId = val
+}
 func (p *CreateStorageClassRequest) SetTop(val *base.TopParam) {
 	p.Top = val
 }
@@ -3557,6 +3714,7 @@ var fieldIDToName_CreateStorageClassRequest = map[int16]string{
 	6:   "ReclaimPolicy",
 	7:   "VolumeBindingMode",
 	8:   "Parameter",
+	9:   "ZoneId",
 	254: "Top",
 	255: "Base",
 }
@@ -3571,6 +3729,10 @@ func (p *CreateStorageClassRequest) IsSetChargeType() bool {
 
 func (p *CreateStorageClassRequest) IsSetParameter() bool {
 	return p.Parameter != nil
+}
+
+func (p *CreateStorageClassRequest) IsSetZoneId() bool {
+	return p.ZoneId != nil
 }
 
 func (p *CreateStorageClassRequest) IsSetTop() bool {
@@ -3684,6 +3846,16 @@ func (p *CreateStorageClassRequest) Read(iprot thrift.TProtocol) (err error) {
 		case 8:
 			if fieldTypeId == thrift.STRUCT {
 				if err = p.ReadField8(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 9:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField9(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else {
@@ -3844,6 +4016,15 @@ func (p *CreateStorageClassRequest) ReadField8(iprot thrift.TProtocol) error {
 	return nil
 }
 
+func (p *CreateStorageClassRequest) ReadField9(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.ZoneId = &v
+	}
+	return nil
+}
+
 func (p *CreateStorageClassRequest) ReadField254(iprot thrift.TProtocol) error {
 	p.Top = base.NewTopParam()
 	if err := p.Top.Read(iprot); err != nil {
@@ -3896,6 +4077,10 @@ func (p *CreateStorageClassRequest) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField8(oprot); err != nil {
 			fieldId = 8
+			goto WriteFieldError
+		}
+		if err = p.writeField9(oprot); err != nil {
+			fieldId = 9
 			goto WriteFieldError
 		}
 		if err = p.writeField254(oprot); err != nil {
@@ -4067,6 +4252,25 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 8 end error: ", p), err)
 }
 
+func (p *CreateStorageClassRequest) writeField9(oprot thrift.TProtocol) (err error) {
+	if p.IsSetZoneId() {
+		if err = oprot.WriteFieldBegin("ZoneId", thrift.STRING, 9); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.ZoneId); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 9 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 9 end error: ", p), err)
+}
+
 func (p *CreateStorageClassRequest) writeField254(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Top", thrift.STRUCT, 254); err != nil {
 		goto WriteFieldBeginError
@@ -4140,6 +4344,9 @@ func (p *CreateStorageClassRequest) DeepEqual(ano *CreateStorageClassRequest) bo
 	if !p.Field8DeepEqual(ano.Parameter) {
 		return false
 	}
+	if !p.Field9DeepEqual(ano.ZoneId) {
+		return false
+	}
 	if !p.Field254DeepEqual(ano.Top) {
 		return false
 	}
@@ -4211,6 +4418,18 @@ func (p *CreateStorageClassRequest) Field7DeepEqual(src string) bool {
 func (p *CreateStorageClassRequest) Field8DeepEqual(src *Parameter) bool {
 
 	if !p.Parameter.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+func (p *CreateStorageClassRequest) Field9DeepEqual(src *string) bool {
+
+	if p.ZoneId == src {
+		return true
+	} else if p.ZoneId == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.ZoneId, *src) != 0 {
 		return false
 	}
 	return true
@@ -4853,6 +5072,7 @@ type GetStorageClassResponse struct {
 	ReclaimPolicy     string     `thrift:"ReclaimPolicy,6,required" json:"ReclaimPolicy"`
 	VolumeBindingMode string     `thrift:"VolumeBindingMode,7,required" json:"VolumeBindingMode"`
 	Parameter         *Parameter `thrift:"Parameter,8" json:"Parameter,omitempty"`
+	ZoneId            string     `thrift:"ZoneId,9,required" json:"ZoneId"`
 	Base              *base.Base `thrift:"Base,255" json:"Base,omitempty"`
 }
 
@@ -4907,6 +5127,10 @@ func (p *GetStorageClassResponse) GetParameter() (v *Parameter) {
 	return p.Parameter
 }
 
+func (p *GetStorageClassResponse) GetZoneId() (v string) {
+	return p.ZoneId
+}
+
 var GetStorageClassResponse_Base_DEFAULT *base.Base
 
 func (p *GetStorageClassResponse) GetBase() (v *base.Base) {
@@ -4939,6 +5163,9 @@ func (p *GetStorageClassResponse) SetVolumeBindingMode(val string) {
 func (p *GetStorageClassResponse) SetParameter(val *Parameter) {
 	p.Parameter = val
 }
+func (p *GetStorageClassResponse) SetZoneId(val string) {
+	p.ZoneId = val
+}
 func (p *GetStorageClassResponse) SetBase(val *base.Base) {
 	p.Base = val
 }
@@ -4952,6 +5179,7 @@ var fieldIDToName_GetStorageClassResponse = map[int16]string{
 	6:   "ReclaimPolicy",
 	7:   "VolumeBindingMode",
 	8:   "Parameter",
+	9:   "ZoneId",
 	255: "Base",
 }
 
@@ -4980,6 +5208,7 @@ func (p *GetStorageClassResponse) Read(iprot thrift.TProtocol) (err error) {
 	var issetVolumeType bool = false
 	var issetReclaimPolicy bool = false
 	var issetVolumeBindingMode bool = false
+	var issetZoneId bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -5080,6 +5309,17 @@ func (p *GetStorageClassResponse) Read(iprot thrift.TProtocol) (err error) {
 					goto SkipFieldError
 				}
 			}
+		case 9:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField9(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetZoneId = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
 		case 255:
 			if fieldTypeId == thrift.STRUCT {
 				if err = p.ReadField255(iprot); err != nil {
@@ -5126,6 +5366,11 @@ func (p *GetStorageClassResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetVolumeBindingMode {
 		fieldId = 7
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetZoneId {
+		fieldId = 9
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -5217,6 +5462,15 @@ func (p *GetStorageClassResponse) ReadField8(iprot thrift.TProtocol) error {
 	return nil
 }
 
+func (p *GetStorageClassResponse) ReadField9(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.ZoneId = v
+	}
+	return nil
+}
+
 func (p *GetStorageClassResponse) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
@@ -5261,6 +5515,10 @@ func (p *GetStorageClassResponse) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField8(oprot); err != nil {
 			fieldId = 8
+			goto WriteFieldError
+		}
+		if err = p.writeField9(oprot); err != nil {
+			fieldId = 9
 			goto WriteFieldError
 		}
 		if err = p.writeField255(oprot); err != nil {
@@ -5428,6 +5686,23 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 8 end error: ", p), err)
 }
 
+func (p *GetStorageClassResponse) writeField9(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("ZoneId", thrift.STRING, 9); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.ZoneId); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 9 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 9 end error: ", p), err)
+}
+
 func (p *GetStorageClassResponse) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
@@ -5482,6 +5757,9 @@ func (p *GetStorageClassResponse) DeepEqual(ano *GetStorageClassResponse) bool {
 		return false
 	}
 	if !p.Field8DeepEqual(ano.Parameter) {
+		return false
+	}
+	if !p.Field9DeepEqual(ano.ZoneId) {
 		return false
 	}
 	if !p.Field255DeepEqual(ano.Base) {
@@ -5552,6 +5830,13 @@ func (p *GetStorageClassResponse) Field7DeepEqual(src string) bool {
 func (p *GetStorageClassResponse) Field8DeepEqual(src *Parameter) bool {
 
 	if !p.Parameter.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+func (p *GetStorageClassResponse) Field9DeepEqual(src string) bool {
+
+	if strings.Compare(p.ZoneId, src) != 0 {
 		return false
 	}
 	return true
@@ -7655,6 +7940,7 @@ type CreatePersistentVolumeRequest struct {
 	Capacity    string         `thrift:"Capacity,7,required" validate:"required"`
 	FileSystem  *string        `thrift:"FileSystem,8" json:"FileSystem,omitempty"`
 	Parameter   *Parameter     `thrift:"Parameter,9" json:"Parameter,omitempty"`
+	ZoneId      *string        `thrift:"ZoneId,10" json:"ZoneId,omitempty"`
 	Top         *base.TopParam `thrift:"Top,254,required" json:"Top"`
 	Base        *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
 }
@@ -7714,6 +8000,15 @@ func (p *CreatePersistentVolumeRequest) GetParameter() (v *Parameter) {
 	return p.Parameter
 }
 
+var CreatePersistentVolumeRequest_ZoneId_DEFAULT string
+
+func (p *CreatePersistentVolumeRequest) GetZoneId() (v string) {
+	if !p.IsSetZoneId() {
+		return CreatePersistentVolumeRequest_ZoneId_DEFAULT
+	}
+	return *p.ZoneId
+}
+
 var CreatePersistentVolumeRequest_Top_DEFAULT *base.TopParam
 
 func (p *CreatePersistentVolumeRequest) GetTop() (v *base.TopParam) {
@@ -7758,6 +8053,9 @@ func (p *CreatePersistentVolumeRequest) SetFileSystem(val *string) {
 func (p *CreatePersistentVolumeRequest) SetParameter(val *Parameter) {
 	p.Parameter = val
 }
+func (p *CreatePersistentVolumeRequest) SetZoneId(val *string) {
+	p.ZoneId = val
+}
 func (p *CreatePersistentVolumeRequest) SetTop(val *base.TopParam) {
 	p.Top = val
 }
@@ -7775,6 +8073,7 @@ var fieldIDToName_CreatePersistentVolumeRequest = map[int16]string{
 	7:   "Capacity",
 	8:   "FileSystem",
 	9:   "Parameter",
+	10:  "ZoneId",
 	254: "Top",
 	255: "Base",
 }
@@ -7789,6 +8088,10 @@ func (p *CreatePersistentVolumeRequest) IsSetFileSystem() bool {
 
 func (p *CreatePersistentVolumeRequest) IsSetParameter() bool {
 	return p.Parameter != nil
+}
+
+func (p *CreatePersistentVolumeRequest) IsSetZoneId() bool {
+	return p.ZoneId != nil
 }
 
 func (p *CreatePersistentVolumeRequest) IsSetTop() bool {
@@ -7914,6 +8217,16 @@ func (p *CreatePersistentVolumeRequest) Read(iprot thrift.TProtocol) (err error)
 		case 9:
 			if fieldTypeId == thrift.STRUCT {
 				if err = p.ReadField9(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 10:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField10(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else {
@@ -8088,6 +8401,15 @@ func (p *CreatePersistentVolumeRequest) ReadField9(iprot thrift.TProtocol) error
 	return nil
 }
 
+func (p *CreatePersistentVolumeRequest) ReadField10(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.ZoneId = &v
+	}
+	return nil
+}
+
 func (p *CreatePersistentVolumeRequest) ReadField254(iprot thrift.TProtocol) error {
 	p.Top = base.NewTopParam()
 	if err := p.Top.Read(iprot); err != nil {
@@ -8144,6 +8466,10 @@ func (p *CreatePersistentVolumeRequest) Write(oprot thrift.TProtocol) (err error
 		}
 		if err = p.writeField9(oprot); err != nil {
 			fieldId = 9
+			goto WriteFieldError
+		}
+		if err = p.writeField10(oprot); err != nil {
+			fieldId = 10
 			goto WriteFieldError
 		}
 		if err = p.writeField254(oprot); err != nil {
@@ -8332,6 +8658,25 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 9 end error: ", p), err)
 }
 
+func (p *CreatePersistentVolumeRequest) writeField10(oprot thrift.TProtocol) (err error) {
+	if p.IsSetZoneId() {
+		if err = oprot.WriteFieldBegin("ZoneId", thrift.STRING, 10); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.ZoneId); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 10 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 10 end error: ", p), err)
+}
+
 func (p *CreatePersistentVolumeRequest) writeField254(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Top", thrift.STRUCT, 254); err != nil {
 		goto WriteFieldBeginError
@@ -8406,6 +8751,9 @@ func (p *CreatePersistentVolumeRequest) DeepEqual(ano *CreatePersistentVolumeReq
 		return false
 	}
 	if !p.Field9DeepEqual(ano.Parameter) {
+		return false
+	}
+	if !p.Field10DeepEqual(ano.ZoneId) {
 		return false
 	}
 	if !p.Field254DeepEqual(ano.Top) {
@@ -8486,6 +8834,18 @@ func (p *CreatePersistentVolumeRequest) Field8DeepEqual(src *string) bool {
 func (p *CreatePersistentVolumeRequest) Field9DeepEqual(src *Parameter) bool {
 
 	if !p.Parameter.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+func (p *CreatePersistentVolumeRequest) Field10DeepEqual(src *string) bool {
+
+	if p.ZoneId == src {
+		return true
+	} else if p.ZoneId == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.ZoneId, *src) != 0 {
 		return false
 	}
 	return true
@@ -13884,11 +14244,15 @@ type GetPersistentVolumeClaimResponse struct {
 	ResourceBound []string   `thrift:"ResourceBound,7,required" json:"ResourceBound"`
 	Status        string     `thrift:"Status,8,required" json:"Status"`
 	VolumeType    string     `thrift:"VolumeType,9,required" json:"VolumeType"`
+	FSType        string     `thrift:"FSType,10" json:"FSType,omitempty"`
 	Base          *base.Base `thrift:"Base,255" json:"Base,omitempty"`
 }
 
 func NewGetPersistentVolumeClaimResponse() *GetPersistentVolumeClaimResponse {
-	return &GetPersistentVolumeClaimResponse{}
+	return &GetPersistentVolumeClaimResponse{
+
+		FSType: FSTypeExtreme,
+	}
 }
 
 func (p *GetPersistentVolumeClaimResponse) GetNamespace() (v string) {
@@ -13932,6 +14296,15 @@ func (p *GetPersistentVolumeClaimResponse) GetVolumeType() (v string) {
 	return p.VolumeType
 }
 
+var GetPersistentVolumeClaimResponse_FSType_DEFAULT string = FSTypeExtreme
+
+func (p *GetPersistentVolumeClaimResponse) GetFSType() (v string) {
+	if !p.IsSetFSType() {
+		return GetPersistentVolumeClaimResponse_FSType_DEFAULT
+	}
+	return p.FSType
+}
+
 var GetPersistentVolumeClaimResponse_Base_DEFAULT *base.Base
 
 func (p *GetPersistentVolumeClaimResponse) GetBase() (v *base.Base) {
@@ -13967,6 +14340,9 @@ func (p *GetPersistentVolumeClaimResponse) SetStatus(val string) {
 func (p *GetPersistentVolumeClaimResponse) SetVolumeType(val string) {
 	p.VolumeType = val
 }
+func (p *GetPersistentVolumeClaimResponse) SetFSType(val string) {
+	p.FSType = val
+}
 func (p *GetPersistentVolumeClaimResponse) SetBase(val *base.Base) {
 	p.Base = val
 }
@@ -13981,11 +14357,16 @@ var fieldIDToName_GetPersistentVolumeClaimResponse = map[int16]string{
 	7:   "ResourceBound",
 	8:   "Status",
 	9:   "VolumeType",
+	10:  "FSType",
 	255: "Base",
 }
 
 func (p *GetPersistentVolumeClaimResponse) IsSetDiskType() bool {
 	return p.DiskType != nil
+}
+
+func (p *GetPersistentVolumeClaimResponse) IsSetFSType() bool {
+	return p.FSType != GetPersistentVolumeClaimResponse_FSType_DEFAULT
 }
 
 func (p *GetPersistentVolumeClaimResponse) IsSetBase() bool {
@@ -14112,6 +14493,16 @@ func (p *GetPersistentVolumeClaimResponse) Read(iprot thrift.TProtocol) (err err
 					goto ReadFieldError
 				}
 				issetVolumeType = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 10:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField10(iprot); err != nil {
+					goto ReadFieldError
+				}
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -14292,6 +14683,15 @@ func (p *GetPersistentVolumeClaimResponse) ReadField9(iprot thrift.TProtocol) er
 	return nil
 }
 
+func (p *GetPersistentVolumeClaimResponse) ReadField10(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.FSType = v
+	}
+	return nil
+}
+
 func (p *GetPersistentVolumeClaimResponse) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
@@ -14340,6 +14740,10 @@ func (p *GetPersistentVolumeClaimResponse) Write(oprot thrift.TProtocol) (err er
 		}
 		if err = p.writeField9(oprot); err != nil {
 			fieldId = 9
+			goto WriteFieldError
+		}
+		if err = p.writeField10(oprot); err != nil {
+			fieldId = 10
 			goto WriteFieldError
 		}
 		if err = p.writeField255(oprot); err != nil {
@@ -14528,6 +14932,25 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 9 end error: ", p), err)
 }
 
+func (p *GetPersistentVolumeClaimResponse) writeField10(oprot thrift.TProtocol) (err error) {
+	if p.IsSetFSType() {
+		if err = oprot.WriteFieldBegin("FSType", thrift.STRING, 10); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(p.FSType); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 10 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 10 end error: ", p), err)
+}
+
 func (p *GetPersistentVolumeClaimResponse) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
@@ -14585,6 +15008,9 @@ func (p *GetPersistentVolumeClaimResponse) DeepEqual(ano *GetPersistentVolumeCla
 		return false
 	}
 	if !p.Field9DeepEqual(ano.VolumeType) {
+		return false
+	}
+	if !p.Field10DeepEqual(ano.FSType) {
 		return false
 	}
 	if !p.Field255DeepEqual(ano.Base) {
@@ -14663,6 +15089,13 @@ func (p *GetPersistentVolumeClaimResponse) Field8DeepEqual(src string) bool {
 func (p *GetPersistentVolumeClaimResponse) Field9DeepEqual(src string) bool {
 
 	if strings.Compare(p.VolumeType, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *GetPersistentVolumeClaimResponse) Field10DeepEqual(src string) bool {
+
+	if strings.Compare(p.FSType, src) != 0 {
 		return false
 	}
 	return true

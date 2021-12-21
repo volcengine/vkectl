@@ -1756,7 +1756,7 @@ func (p *GetClusterOverviewResponse) FastRead(buf []byte) (int, error) {
 	var issetClusterStatistics bool = false
 	var issetNodeStatistics bool = false
 	var issetWorkloadStatistics bool = false
-	var issetClusterDetais bool = false
+	var issetClusterDetails bool = false
 	_, l, err = bthrift.Binary.ReadStructBegin(buf)
 	offset += l
 	if err != nil {
@@ -1825,7 +1825,7 @@ func (p *GetClusterOverviewResponse) FastRead(buf []byte) (int, error) {
 				if err != nil {
 					goto ReadFieldError
 				}
-				issetClusterDetais = true
+				issetClusterDetails = true
 			} else {
 				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
 				offset += l
@@ -1882,7 +1882,7 @@ func (p *GetClusterOverviewResponse) FastRead(buf []byte) (int, error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetClusterDetais {
+	if !issetClusterDetails {
 		fieldId = 4
 		goto RequiredFieldNotSetError
 	}
@@ -1944,7 +1944,7 @@ func (p *GetClusterOverviewResponse) FastReadField4(buf []byte) (int, error) {
 	if err != nil {
 		return offset, err
 	}
-	p.ClusterDetais = make([]*ClusterDetailItem, 0, size)
+	p.ClusterDetails = make([]*ClusterDetailItem, 0, size)
 	for i := 0; i < size; i++ {
 		_elem := NewClusterDetailItem()
 		if l, err := _elem.FastRead(buf[offset:]); err != nil {
@@ -1953,7 +1953,7 @@ func (p *GetClusterOverviewResponse) FastReadField4(buf []byte) (int, error) {
 			offset += l
 		}
 
-		p.ClusterDetais = append(p.ClusterDetais, _elem)
+		p.ClusterDetails = append(p.ClusterDetails, _elem)
 	}
 	if l, err := bthrift.Binary.ReadListEnd(buf[offset:]); err != nil {
 		return offset, err
@@ -2035,11 +2035,11 @@ func (p *GetClusterOverviewResponse) fastWriteField3(buf []byte, binaryWriter bt
 
 func (p *GetClusterOverviewResponse) fastWriteField4(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "ClusterDetais", thrift.LIST, 4)
+	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "ClusterDetails", thrift.LIST, 4)
 	listBeginOffset := offset
 	offset += bthrift.Binary.ListBeginLength(thrift.STRUCT, 0)
 	var length int
-	for _, v := range p.ClusterDetais {
+	for _, v := range p.ClusterDetails {
 		length++
 		offset += v.FastWriteNocopy(buf[offset:], binaryWriter)
 	}
@@ -2085,9 +2085,9 @@ func (p *GetClusterOverviewResponse) field3Length() int {
 
 func (p *GetClusterOverviewResponse) field4Length() int {
 	l := 0
-	l += bthrift.Binary.FieldBeginLength("ClusterDetais", thrift.LIST, 4)
-	l += bthrift.Binary.ListBeginLength(thrift.STRUCT, len(p.ClusterDetais))
-	for _, v := range p.ClusterDetais {
+	l += bthrift.Binary.FieldBeginLength("ClusterDetails", thrift.LIST, 4)
+	l += bthrift.Binary.ListBeginLength(thrift.STRUCT, len(p.ClusterDetails))
+	for _, v := range p.ClusterDetails {
 		l += v.BLength()
 	}
 	l += bthrift.Binary.ListEndLength()

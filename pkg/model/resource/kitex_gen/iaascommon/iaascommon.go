@@ -877,6 +877,7 @@ type InstanceType struct {
 	Gpu                      *GpuInfo      `thrift:"Gpu,11,required" json:"Gpu"`
 	Type                     string        `thrift:"Type,12,required" json:"Type"`
 	Rdma                     *RdmaMetadata `thrift:"Rdma,13,required" json:"Rdma"`
+	Status                   string        `thrift:"Status,101,required" json:"Status"`
 }
 
 func NewInstanceType() *InstanceType {
@@ -944,6 +945,10 @@ func (p *InstanceType) GetRdma() (v *RdmaMetadata) {
 	}
 	return p.Rdma
 }
+
+func (p *InstanceType) GetStatus() (v string) {
+	return p.Status
+}
 func (p *InstanceType) SetId(val string) {
 	p.Id = val
 }
@@ -983,21 +988,25 @@ func (p *InstanceType) SetType(val string) {
 func (p *InstanceType) SetRdma(val *RdmaMetadata) {
 	p.Rdma = val
 }
+func (p *InstanceType) SetStatus(val string) {
+	p.Status = val
+}
 
 var fieldIDToName_InstanceType = map[int16]string{
-	1:  "Id",
-	2:  "InstanceTypeFamily",
-	3:  "Cpu",
-	4:  "Mem",
-	5:  "NetMbpsQuota",
-	6:  "NetKppsQuota",
-	7:  "NetSessionQuota",
-	8:  "NetworkInterfaceNumQuota",
-	9:  "Architecture",
-	10: "VolumeTypes",
-	11: "Gpu",
-	12: "Type",
-	13: "Rdma",
+	1:   "Id",
+	2:   "InstanceTypeFamily",
+	3:   "Cpu",
+	4:   "Mem",
+	5:   "NetMbpsQuota",
+	6:   "NetKppsQuota",
+	7:   "NetSessionQuota",
+	8:   "NetworkInterfaceNumQuota",
+	9:   "Architecture",
+	10:  "VolumeTypes",
+	11:  "Gpu",
+	12:  "Type",
+	13:  "Rdma",
+	101: "Status",
 }
 
 func (p *InstanceType) IsSetGpu() bool {
@@ -1025,6 +1034,7 @@ func (p *InstanceType) Read(iprot thrift.TProtocol) (err error) {
 	var issetGpu bool = false
 	var issetType bool = false
 	var issetRdma bool = false
+	var issetStatus bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -1183,6 +1193,17 @@ func (p *InstanceType) Read(iprot thrift.TProtocol) (err error) {
 					goto SkipFieldError
 				}
 			}
+		case 101:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField101(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetStatus = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
 		default:
 			if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
@@ -1259,6 +1280,11 @@ func (p *InstanceType) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetRdma {
 		fieldId = 13
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetStatus {
+		fieldId = 101
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -1407,6 +1433,15 @@ func (p *InstanceType) ReadField13(iprot thrift.TProtocol) error {
 	return nil
 }
 
+func (p *InstanceType) ReadField101(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.Status = v
+	}
+	return nil
+}
+
 func (p *InstanceType) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
 	if err = oprot.WriteStructBegin("InstanceType"); err != nil {
@@ -1463,6 +1498,10 @@ func (p *InstanceType) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField13(oprot); err != nil {
 			fieldId = 13
+			goto WriteFieldError
+		}
+		if err = p.writeField101(oprot); err != nil {
+			fieldId = 101
 			goto WriteFieldError
 		}
 
@@ -1713,6 +1752,23 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 13 end error: ", p), err)
 }
 
+func (p *InstanceType) writeField101(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("Status", thrift.STRING, 101); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Status); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 101 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 101 end error: ", p), err)
+}
+
 func (p *InstanceType) String() string {
 	if p == nil {
 		return "<nil>"
@@ -1763,6 +1819,9 @@ func (p *InstanceType) DeepEqual(ano *InstanceType) bool {
 		return false
 	}
 	if !p.Field13DeepEqual(ano.Rdma) {
+		return false
+	}
+	if !p.Field101DeepEqual(ano.Status) {
 		return false
 	}
 	return true
@@ -1861,6 +1920,13 @@ func (p *InstanceType) Field12DeepEqual(src string) bool {
 func (p *InstanceType) Field13DeepEqual(src *RdmaMetadata) bool {
 
 	if !p.Rdma.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+func (p *InstanceType) Field101DeepEqual(src string) bool {
+
+	if strings.Compare(p.Status, src) != 0 {
 		return false
 	}
 	return true
