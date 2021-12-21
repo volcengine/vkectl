@@ -22,14 +22,13 @@ func main() {
 
 		// 生成 OpenAPI client 文件
 		dir, file := filepath.Split(path)
-		apiPath := filepath.Join(dir, "raw"+file)
-		apiService := service + "RawApi"
-		err = template.ProduceBaseFile(apiPath, c.Group, apiService, imports)
+		apiPath := filepath.Join(dir, file)
+		err = template.ProduceBaseFile(apiPath, c.Group, service, imports)
 		if err != nil {
 			fmt.Printf("[error] template base file failed, api client info %v, err %v\n", c, err)
 			continue
 		}
-		functions := template.FunctionJointForOpenAPI(apiService, funcparts)
+		functions := template.FunctionJointForOpenAPI(service, funcparts)
 		err = template.WriteFuncs(apiPath, functions)
 		if err != nil {
 			fmt.Printf("[error] write functions failed, api client info %v, err %v\n", c, err)

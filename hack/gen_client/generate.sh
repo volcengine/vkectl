@@ -46,8 +46,7 @@ branch=$2;
 
 if [ -z "$GITURL" ];then
   # for example: git@github.com:volcengine
-  echo "Error: please set env GITURL"
-  exit
+  read -r -p "please input GITURL (eg. git@github.com:volcengine): " GITURL
 fi
 
 if [ -z "$group" ];then
