@@ -20,7 +20,7 @@ export REGION=YOUR REGION
 ``` 
 vkectl [OPTIONS] MODULE ACTION
 ```
-The supported modules are app, resource and security.
+The supported modules are resource and security.
 
 You can use the following commands to get the supported actions.
 
@@ -30,5 +30,5 @@ vkectl MODULE --help
 
 Examples:
 ```
-vkectl -d '{}' resource ListClusters
+vkectl resource ListClusters
 ```
