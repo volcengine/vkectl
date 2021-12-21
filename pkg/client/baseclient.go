@@ -24,7 +24,7 @@ const (
 	DefaultSdkVersion = "2021-03-03"
 )
 
-// Client 基础客户端
+// Client defines base client struct
 type Client struct {
 	Client      http.Client
 	SdkVersion  string
@@ -35,7 +35,7 @@ type Client struct {
 // NewServiceInfo return base ServiceInfo.
 func NewServiceInfo() *base.ServiceInfo {
 	return &base.ServiceInfo{
-		Timeout:     120 * time.Second, // TOP网关的超时时间为120秒
+		Timeout:     120 * time.Second, // TOP gateway timeout
 		Scheme:      DefaultScheme,
 		Credentials: base.Credentials{Service: "iam", Region: DefaultRegion},
 	}
@@ -97,7 +97,7 @@ func (client *Client) CommonHandler(action string, query url.Values, body string
 	return statusCode, nil
 }
 
-// JSON 发起Json的post请求
+// JSON send a post json request
 func (client *Client) JSON(action string, query url.Values, body string) ([]byte, int, error) {
 	timeout := client.ServiceInfo.Timeout
 

@@ -8,7 +8,7 @@ import (
 
 // DealtWitQuery return the http query.
 func DealtWitQuery(req interface{}) url.Values {
-	query := url.Values{} // query从req中通过reflect解析出来
+	query := url.Values{}
 	reqType := reflect.TypeOf(req)
 	reqValue := reflect.ValueOf(req)
 	for i := 0; i < reqType.NumField(); i++ {
@@ -54,7 +54,6 @@ func DealtWitQuery(req interface{}) url.Values {
 					}
 				}
 			}
-			// 按照镜像仓库后端的处理逻辑，如果query字段只有key没有value，则不用发该query。
 			if value != "" {
 				query.Add(key, value)
 			}
