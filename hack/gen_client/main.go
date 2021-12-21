@@ -20,7 +20,7 @@ func main() {
 		}
 		path := template.ProducePath(root, c, service)
 
-		// 生成 OpenAPI client 文件
+		// generate OpenAPI client
 		dir, file := filepath.Split(path)
 		apiPath := filepath.Join(dir, file)
 		err = template.ProduceBaseFile(apiPath, c.Group, service, imports)
