@@ -36,7 +36,7 @@ generate:
 	go run hack/gen_client/main.go
 
 clean:
-	rm -f $(OUTPUT)/$(NAME)*
+	rm -f $(OUTPUT_DIR)/$(NAME)*
 
 install: build
 	cp $(OUTPUT_DIR)/$(NAME) /usr/local/bin
