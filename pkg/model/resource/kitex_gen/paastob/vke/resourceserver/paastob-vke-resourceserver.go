@@ -18,20 +18,24 @@ import (
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/network"
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/overview"
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/paastob/productivity/common"
+	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/publicverify"
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/quota"
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/rbac"
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/storage"
+	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/trade"
+	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/vci"
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/vpc"
 )
 
 type ErrCode int64
 
 const (
-	ErrCode_ParamErr    ErrCode = 1
-	ErrCode_NetworkErr  ErrCode = 2
-	ErrCode_NotFoundErr ErrCode = 3
-	ErrCode_InternalErr ErrCode = 4
-	ErrCode_ConflictErr ErrCode = 5
+	ErrCode_ParamErr           ErrCode = 1
+	ErrCode_NetworkErr         ErrCode = 2
+	ErrCode_NotFoundErr        ErrCode = 3
+	ErrCode_InternalErr        ErrCode = 4
+	ErrCode_ConflictErr        ErrCode = 5
+	ErrCode_PaymentRequiredErr ErrCode = 6
 )
 
 func (p ErrCode) String() string {
@@ -46,6 +50,8 @@ func (p ErrCode) String() string {
 		return "InternalErr"
 	case ErrCode_ConflictErr:
 		return "ConflictErr"
+	case ErrCode_PaymentRequiredErr:
+		return "PaymentRequiredErr"
 	}
 	return "<UNSET>"
 }
@@ -62,6 +68,8 @@ func ErrCodeFromString(s string) (ErrCode, error) {
 		return ErrCode_InternalErr, nil
 	case "ConflictErr":
 		return ErrCode_ConflictErr, nil
+	case "PaymentRequiredErr":
+		return ErrCode_PaymentRequiredErr, nil
 	}
 	return ErrCode(0), fmt.Errorf("not a valid ErrCode string")
 }
@@ -87,9 +95,11 @@ type ResourceService interface {
 
 	GetKubeConfig(ctx context.Context, req *cluster.GetKubeConfigRequest) (r *cluster.GetKubeConfigResponse, err error)
 
-	RevokeKubeConfig(ctx context.Context, req *cluster.RevokeKubeConfigRequest) (r *cluster.RevokeKubeConfigResponse, err error)
+	GetKubeconfig(ctx context.Context, req *cluster.GetKubeconfigRequest) (r *cluster.GetKubeconfigResponse, err error)
 
-	ListKubeConfig(ctx context.Context, req *cluster.ListKubeConfigRequest) (r *cluster.ListKubeConfigResponse, err error)
+	RevokeKubeconfig(ctx context.Context, req *cluster.RevokeKubeconfigRequest) (r *cluster.RevokeKubeconfigResponse, err error)
+
+	ListKubeconfigUsers(ctx context.Context, req *cluster.ListKubeconfigUsersRequest) (r *cluster.ListKubeconfigUsersResponse, err error)
 
 	CreateCluster(ctx context.Context, req *cluster.CreateClusterRequest) (r *cluster.CreateClusterResponse, err error)
 
@@ -103,37 +113,37 @@ type ResourceService interface {
 
 	GetCluster(ctx context.Context, req *cluster.GetClusterRequest) (r *cluster.GetClusterResponse, err error)
 
-	ListCluster(ctx context.Context, req *cluster.ListClusterRequest) (r *cluster.ListClusterResponse, err error)
+	ListClusters(ctx context.Context, req *cluster.ListClustersRequest) (r *cluster.ListClustersResponse, err error)
 
 	GetClusterDeployProgress(ctx context.Context, req *cluster.GetClusterDeployProgressRequest) (r *cluster.GetClusterDeployProgressResponse, err error)
 
-	ListClusterKubernetesVersion(ctx context.Context, req *cluster.ListClusterKubernetesVersionRequest) (r *cluster.ListClusterKubernetesVersionResponse, err error)
+	ListSupportedKubernetesVersions(ctx context.Context, req *cluster.ListSupportedKubernetesVersionsRequest) (r *cluster.ListSupportedKubernetesVersionsResponse, err error)
 
-	ListClusterNetworkCidr(ctx context.Context, req *cluster.ListClusterNetworkCidrRequest) (r *cluster.ListClusterNetworkCidrResponse, err error)
+	ListClusterNetworkCidrs(ctx context.Context, req *cluster.ListClusterNetworkCidrsRequest) (r *cluster.ListClusterNetworkCidrsResponse, err error)
 
-	ListSupportGpuModel(ctx context.Context, req *cluster.ListSupportGpuModelRequest) (r *cluster.ListSupportGpuModelResponse, err error)
+	ListSupportedGpuModels(ctx context.Context, req *cluster.ListSupportedGpuModelsRequest) (r *cluster.ListSupportedGpuModelsResponse, err error)
 
-	ListClusterNode(ctx context.Context, req *cluster.ListClusterNodeRequest) (r *cluster.ListClusterNodeResponse, err error)
+	ListNodes(ctx context.Context, req *cluster.ListNodesRequest) (r *cluster.ListNodesResponse, err error)
 
-	AddClusterNode(ctx context.Context, req *cluster.AddClusterNodeRequest) (r *cluster.AddClusterNodeResponse, err error)
+	AddNodes(ctx context.Context, req *cluster.AddNodesRequest) (r *cluster.AddNodesResponse, err error)
 
-	GetClusterNode(ctx context.Context, req *cluster.GetClusterNodeRequest) (r *cluster.GetClusterNodeResponse, err error)
+	GetNode(ctx context.Context, req *cluster.GetNodeRequest) (r *cluster.GetNodeResponse, err error)
 
-	DeleteClusterNode(ctx context.Context, req *cluster.DeleteClusterNodeRequest) (r *cluster.DeleteClusterNodeResponse, err error)
+	DeleteNodes(ctx context.Context, req *cluster.DeleteNodesRequest) (r *cluster.DeleteNodesResponse, err error)
 
-	ListClusterNodeLabel(ctx context.Context, req *cluster.ListClusterNodeLabelRequest) (r *cluster.ListClusterNodeLabelResponse, err error)
+	ListNodeLabels(ctx context.Context, req *cluster.ListNodeLabelsRequest) (r *cluster.ListNodeLabelsResponse, err error)
 
-	UpdateClusterNode(ctx context.Context, req *cluster.UpdateClusterNodeRequest) (r *cluster.UpdateClusterNodeResponse, err error)
+	UpdateNode(ctx context.Context, req *cluster.UpdateNodeRequest) (r *cluster.UpdateNodeResponse, err error)
 
-	GetAutoScalingRule(ctx context.Context, req *cluster.GetAutoScalingRuleRequest) (r *cluster.GetAutoScalingRuleResponse, err error)
+	GetClusterAutoScalingRule(ctx context.Context, req *cluster.GetClusterAutoScalingRuleRequest) (r *cluster.GetClusterAutoScalingRuleResponse, err error)
 
-	UpdateAutoScalingRule(ctx context.Context, req *cluster.UpdateAutoScalingRuleRequest) (r *cluster.UpdateAutoScalingRuleResponse, err error)
+	UpdateClusterAutoScalingRule(ctx context.Context, req *cluster.UpdateClusterAutoScalingRuleRequest) (r *cluster.UpdateClusterAutoScalingRuleResponse, err error)
 
-	NodePoolScaleUp(ctx context.Context, req *cluster.NodePoolScaleUpRequest) (r *cluster.NodePoolScaleUpResponse, err error)
+	ScaleUpNodePool(ctx context.Context, req *cluster.ScaleUpNodePoolRequest) (r *cluster.ScaleUpNodePoolResponse, err error)
 
-	NodePoolScaleDown(ctx context.Context, req *cluster.NodePoolScaleDownRequest) (r *cluster.NodePoolScaleDownResponse, err error)
+	ScaleDownNodePool(ctx context.Context, req *cluster.ScaleDownNodePoolRequest) (r *cluster.ScaleDownNodePoolResponse, err error)
 
-	ListNodePool(ctx context.Context, req *cluster.ListNodePoolRequest) (r *cluster.ListNodePoolResponse, err error)
+	ListNodePools(ctx context.Context, req *cluster.ListNodePoolsRequest) (r *cluster.ListNodePoolsResponse, err error)
 
 	CreateNodePool(ctx context.Context, req *cluster.CreateNodePoolRequest) (r *cluster.CreateNodePoolResponse, err error)
 
@@ -143,9 +153,9 @@ type ResourceService interface {
 
 	DeleteNodePool(ctx context.Context, req *cluster.DeleteNodePoolRequest) (r *cluster.DeleteNodePoolResponse, err error)
 
-	ListNodePoolScalingRecords(ctx context.Context, req *cluster.ListNodePoolScalingRecordRequest) (r *cluster.ListNodePoolScalingRecordResponse, err error)
+	ListNodePoolScalingRecords(ctx context.Context, req *cluster.ListNodePoolScalingRecordsRequest) (r *cluster.ListNodePoolScalingRecordsResponse, err error)
 
-	ListNodePoolNode(ctx context.Context, req *cluster.ListNodePoolNodeRequest) (r *cluster.ListNodePoolNodeResponse, err error)
+	ListNodePoolNodes(ctx context.Context, req *cluster.ListNodePoolNodesRequest) (r *cluster.ListNodePoolNodesResponse, err error)
 
 	ListNamespace(ctx context.Context, req *cluster.ListNamespaceRequest) (r *cluster.ListNamespaceResponse, err error)
 
@@ -215,13 +225,15 @@ type ResourceService interface {
 
 	ListCustomRoles(ctx context.Context, req *rbac.ListCustomRolesRequest) (r *rbac.ListCustomRolesResponse, err error)
 
-	ListSupportedAddons(ctx context.Context, req *addon.ListSupportedAddonRequest) (r *addon.ListSupportedAddonResponse, err error)
+	ListSupportedAddons(ctx context.Context, req *addon.ListSupportedAddonsRequest) (r *addon.ListSupportedAddonsResponse, err error)
 
-	ListAddons(ctx context.Context, req *addon.ListAddonRequest) (r *addon.ListAddonResponse, err error)
+	ListAddons(ctx context.Context, req *addon.ListAddonsRequest) (r *addon.ListAddonsResponse, err error)
 
-	InstallAddon(ctx context.Context, req *addon.InstallAddonRequest) (r *addon.InstallAddonResponse, err error)
+	InstallAddons(ctx context.Context, req *addon.InstallAddonsRequest) (r *addon.InstallAddonsResponse, err error)
 
-	UninstallAddon(ctx context.Context, req *addon.UninstallAddonRequest) (r *addon.UninstallAddonResponse, err error)
+	ReinstallAddon(ctx context.Context, req *addon.ReinstallAddonRequest) (r *addon.ReinstallAddonResponse, err error)
+
+	UninstallAddons(ctx context.Context, req *addon.UninstallAddonsRequest) (r *addon.UninstallAddonsResponse, err error)
 
 	UpgradeAddon(ctx context.Context, req *addon.UpgradeAddonRequest) (r *addon.UpgradeAddonResponse, err error)
 
@@ -239,15 +251,19 @@ type ResourceService interface {
 
 	ListVolumes(ctx context.Context, req *instance.ListVolumesRequest) (r *instance.ListVolumesResponse, err error)
 
+	ListKeyPairs(ctx context.Context, req *instance.ListKeyPairsRequest) (r *instance.ListKeyPairsResponse, err error)
+
 	ListSubnets(ctx context.Context, req *vpc.ListSubnetsRequest) (r *vpc.ListSubnetsResponse, err error)
 
-	ListElasticIPPools(ctx context.Context, req *vpc.ListElasticIPPoolsRequest) (r *vpc.ListElasticIPPoolsResponse, err error)
+	ListElasticIpPools(ctx context.Context, req *vpc.ListElasticIpPoolsRequest) (r *vpc.ListElasticIpPoolsResponse, err error)
 
 	ListVpcs(ctx context.Context, req *vpc.ListVpcsRequest) (r *vpc.ListVpcsResponse, err error)
 
 	ListSecurityGroups(ctx context.Context, req *vpc.ListSecurityGroupsRequest) (r *vpc.ListSecurityGroupsResponse, err error)
 
-	ListClbs(ctx context.Context, req *clb.ListClbRequest) (r *clb.ListClbResponse, err error)
+	ListClbs(ctx context.Context, req *clb.ListClbsRequest) (r *clb.ListClbsResponse, err error)
+
+	ListClbListeners(ctx context.Context, req *clb.ListClbListenersRequest) (r *clb.ListClbListenersResponse, err error)
 
 	ListQuotas(ctx context.Context, req *quota.ListQuotasRequest) (r *quota.ListQuotasResponse, err error)
 
@@ -272,6 +288,16 @@ type ResourceService interface {
 	CheckCidrConflict(ctx context.Context, req *cluster.CheckCidrConflictRequest) (r *cluster.CheckCidrConflictResponse, err error)
 
 	RecommendCidr(ctx context.Context, req *cluster.RecommendCidrRequest) (r *cluster.RecommendCidrResponse, err error)
+
+	AddVciSubnets(ctx context.Context, req *cluster.AddVciSubnetsRequest) (r *cluster.AddVciSubnetsResponse, err error)
+
+	IsInShortTermWhiteList(ctx context.Context, req *trade.IsInShortTermWhiteListRequest) (r *trade.IsInShortTermWhiteListResponse, err error)
+
+	AllowUserPublicTest(ctx context.Context, req *publicverify.PublicTestAllowedReq) (r *publicverify.PublicTestAllowedResp, err error)
+
+	ListVciAvailabilityZones(ctx context.Context, req *vci.ListVciAvailabilityZonesRequest) (r *vci.ListVciAvailabilityZonesResponse, err error)
+
+	ListNodeZones(ctx context.Context, req *cluster.ListNodeZonesRequest) (r *cluster.ListNodeZonesResponse, err error)
 }
 
 type ResourceServiceClient struct {
@@ -328,11 +354,11 @@ func (p *ResourceServiceClient) GetKubeConfig(ctx context.Context, req *cluster.
 	return _result.GetSuccess(), nil
 }
 
-func (p *ResourceServiceClient) RevokeKubeConfig(ctx context.Context, req *cluster.RevokeKubeConfigRequest) (r *cluster.RevokeKubeConfigResponse, err error) {
-	var _args ResourceServiceRevokeKubeConfigArgs
+func (p *ResourceServiceClient) GetKubeconfig(ctx context.Context, req *cluster.GetKubeconfigRequest) (r *cluster.GetKubeconfigResponse, err error) {
+	var _args ResourceServiceGetKubeconfigArgs
 	_args.Req = req
-	var _result ResourceServiceRevokeKubeConfigResult
-	if err = p.Client_().Call(ctx, "RevokeKubeConfig", &_args, &_result); err != nil {
+	var _result ResourceServiceGetKubeconfigResult
+	if err = p.Client_().Call(ctx, "GetKubeconfig", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -342,11 +368,25 @@ func (p *ResourceServiceClient) RevokeKubeConfig(ctx context.Context, req *clust
 	return _result.GetSuccess(), nil
 }
 
-func (p *ResourceServiceClient) ListKubeConfig(ctx context.Context, req *cluster.ListKubeConfigRequest) (r *cluster.ListKubeConfigResponse, err error) {
-	var _args ResourceServiceListKubeConfigArgs
+func (p *ResourceServiceClient) RevokeKubeconfig(ctx context.Context, req *cluster.RevokeKubeconfigRequest) (r *cluster.RevokeKubeconfigResponse, err error) {
+	var _args ResourceServiceRevokeKubeconfigArgs
 	_args.Req = req
-	var _result ResourceServiceListKubeConfigResult
-	if err = p.Client_().Call(ctx, "ListKubeConfig", &_args, &_result); err != nil {
+	var _result ResourceServiceRevokeKubeconfigResult
+	if err = p.Client_().Call(ctx, "RevokeKubeconfig", &_args, &_result); err != nil {
+		return
+	}
+	switch {
+	case _result.Err != nil:
+		return r, _result.Err
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *ResourceServiceClient) ListKubeconfigUsers(ctx context.Context, req *cluster.ListKubeconfigUsersRequest) (r *cluster.ListKubeconfigUsersResponse, err error) {
+	var _args ResourceServiceListKubeconfigUsersArgs
+	_args.Req = req
+	var _result ResourceServiceListKubeconfigUsersResult
+	if err = p.Client_().Call(ctx, "ListKubeconfigUsers", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -440,11 +480,11 @@ func (p *ResourceServiceClient) GetCluster(ctx context.Context, req *cluster.Get
 	return _result.GetSuccess(), nil
 }
 
-func (p *ResourceServiceClient) ListCluster(ctx context.Context, req *cluster.ListClusterRequest) (r *cluster.ListClusterResponse, err error) {
-	var _args ResourceServiceListClusterArgs
+func (p *ResourceServiceClient) ListClusters(ctx context.Context, req *cluster.ListClustersRequest) (r *cluster.ListClustersResponse, err error) {
+	var _args ResourceServiceListClustersArgs
 	_args.Req = req
-	var _result ResourceServiceListClusterResult
-	if err = p.Client_().Call(ctx, "ListCluster", &_args, &_result); err != nil {
+	var _result ResourceServiceListClustersResult
+	if err = p.Client_().Call(ctx, "ListClusters", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -468,11 +508,11 @@ func (p *ResourceServiceClient) GetClusterDeployProgress(ctx context.Context, re
 	return _result.GetSuccess(), nil
 }
 
-func (p *ResourceServiceClient) ListClusterKubernetesVersion(ctx context.Context, req *cluster.ListClusterKubernetesVersionRequest) (r *cluster.ListClusterKubernetesVersionResponse, err error) {
-	var _args ResourceServiceListClusterKubernetesVersionArgs
+func (p *ResourceServiceClient) ListSupportedKubernetesVersions(ctx context.Context, req *cluster.ListSupportedKubernetesVersionsRequest) (r *cluster.ListSupportedKubernetesVersionsResponse, err error) {
+	var _args ResourceServiceListSupportedKubernetesVersionsArgs
 	_args.Req = req
-	var _result ResourceServiceListClusterKubernetesVersionResult
-	if err = p.Client_().Call(ctx, "ListClusterKubernetesVersion", &_args, &_result); err != nil {
+	var _result ResourceServiceListSupportedKubernetesVersionsResult
+	if err = p.Client_().Call(ctx, "ListSupportedKubernetesVersions", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -482,11 +522,11 @@ func (p *ResourceServiceClient) ListClusterKubernetesVersion(ctx context.Context
 	return _result.GetSuccess(), nil
 }
 
-func (p *ResourceServiceClient) ListClusterNetworkCidr(ctx context.Context, req *cluster.ListClusterNetworkCidrRequest) (r *cluster.ListClusterNetworkCidrResponse, err error) {
-	var _args ResourceServiceListClusterNetworkCidrArgs
+func (p *ResourceServiceClient) ListClusterNetworkCidrs(ctx context.Context, req *cluster.ListClusterNetworkCidrsRequest) (r *cluster.ListClusterNetworkCidrsResponse, err error) {
+	var _args ResourceServiceListClusterNetworkCidrsArgs
 	_args.Req = req
-	var _result ResourceServiceListClusterNetworkCidrResult
-	if err = p.Client_().Call(ctx, "ListClusterNetworkCidr", &_args, &_result); err != nil {
+	var _result ResourceServiceListClusterNetworkCidrsResult
+	if err = p.Client_().Call(ctx, "ListClusterNetworkCidrs", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -496,11 +536,11 @@ func (p *ResourceServiceClient) ListClusterNetworkCidr(ctx context.Context, req 
 	return _result.GetSuccess(), nil
 }
 
-func (p *ResourceServiceClient) ListSupportGpuModel(ctx context.Context, req *cluster.ListSupportGpuModelRequest) (r *cluster.ListSupportGpuModelResponse, err error) {
-	var _args ResourceServiceListSupportGpuModelArgs
+func (p *ResourceServiceClient) ListSupportedGpuModels(ctx context.Context, req *cluster.ListSupportedGpuModelsRequest) (r *cluster.ListSupportedGpuModelsResponse, err error) {
+	var _args ResourceServiceListSupportedGpuModelsArgs
 	_args.Req = req
-	var _result ResourceServiceListSupportGpuModelResult
-	if err = p.Client_().Call(ctx, "ListSupportGpuModel", &_args, &_result); err != nil {
+	var _result ResourceServiceListSupportedGpuModelsResult
+	if err = p.Client_().Call(ctx, "ListSupportedGpuModels", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -510,11 +550,11 @@ func (p *ResourceServiceClient) ListSupportGpuModel(ctx context.Context, req *cl
 	return _result.GetSuccess(), nil
 }
 
-func (p *ResourceServiceClient) ListClusterNode(ctx context.Context, req *cluster.ListClusterNodeRequest) (r *cluster.ListClusterNodeResponse, err error) {
-	var _args ResourceServiceListClusterNodeArgs
+func (p *ResourceServiceClient) ListNodes(ctx context.Context, req *cluster.ListNodesRequest) (r *cluster.ListNodesResponse, err error) {
+	var _args ResourceServiceListNodesArgs
 	_args.Req = req
-	var _result ResourceServiceListClusterNodeResult
-	if err = p.Client_().Call(ctx, "ListClusterNode", &_args, &_result); err != nil {
+	var _result ResourceServiceListNodesResult
+	if err = p.Client_().Call(ctx, "ListNodes", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -524,11 +564,11 @@ func (p *ResourceServiceClient) ListClusterNode(ctx context.Context, req *cluste
 	return _result.GetSuccess(), nil
 }
 
-func (p *ResourceServiceClient) AddClusterNode(ctx context.Context, req *cluster.AddClusterNodeRequest) (r *cluster.AddClusterNodeResponse, err error) {
-	var _args ResourceServiceAddClusterNodeArgs
+func (p *ResourceServiceClient) AddNodes(ctx context.Context, req *cluster.AddNodesRequest) (r *cluster.AddNodesResponse, err error) {
+	var _args ResourceServiceAddNodesArgs
 	_args.Req = req
-	var _result ResourceServiceAddClusterNodeResult
-	if err = p.Client_().Call(ctx, "AddClusterNode", &_args, &_result); err != nil {
+	var _result ResourceServiceAddNodesResult
+	if err = p.Client_().Call(ctx, "AddNodes", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -538,11 +578,11 @@ func (p *ResourceServiceClient) AddClusterNode(ctx context.Context, req *cluster
 	return _result.GetSuccess(), nil
 }
 
-func (p *ResourceServiceClient) GetClusterNode(ctx context.Context, req *cluster.GetClusterNodeRequest) (r *cluster.GetClusterNodeResponse, err error) {
-	var _args ResourceServiceGetClusterNodeArgs
+func (p *ResourceServiceClient) GetNode(ctx context.Context, req *cluster.GetNodeRequest) (r *cluster.GetNodeResponse, err error) {
+	var _args ResourceServiceGetNodeArgs
 	_args.Req = req
-	var _result ResourceServiceGetClusterNodeResult
-	if err = p.Client_().Call(ctx, "GetClusterNode", &_args, &_result); err != nil {
+	var _result ResourceServiceGetNodeResult
+	if err = p.Client_().Call(ctx, "GetNode", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -552,11 +592,11 @@ func (p *ResourceServiceClient) GetClusterNode(ctx context.Context, req *cluster
 	return _result.GetSuccess(), nil
 }
 
-func (p *ResourceServiceClient) DeleteClusterNode(ctx context.Context, req *cluster.DeleteClusterNodeRequest) (r *cluster.DeleteClusterNodeResponse, err error) {
-	var _args ResourceServiceDeleteClusterNodeArgs
+func (p *ResourceServiceClient) DeleteNodes(ctx context.Context, req *cluster.DeleteNodesRequest) (r *cluster.DeleteNodesResponse, err error) {
+	var _args ResourceServiceDeleteNodesArgs
 	_args.Req = req
-	var _result ResourceServiceDeleteClusterNodeResult
-	if err = p.Client_().Call(ctx, "DeleteClusterNode", &_args, &_result); err != nil {
+	var _result ResourceServiceDeleteNodesResult
+	if err = p.Client_().Call(ctx, "DeleteNodes", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -566,11 +606,11 @@ func (p *ResourceServiceClient) DeleteClusterNode(ctx context.Context, req *clus
 	return _result.GetSuccess(), nil
 }
 
-func (p *ResourceServiceClient) ListClusterNodeLabel(ctx context.Context, req *cluster.ListClusterNodeLabelRequest) (r *cluster.ListClusterNodeLabelResponse, err error) {
-	var _args ResourceServiceListClusterNodeLabelArgs
+func (p *ResourceServiceClient) ListNodeLabels(ctx context.Context, req *cluster.ListNodeLabelsRequest) (r *cluster.ListNodeLabelsResponse, err error) {
+	var _args ResourceServiceListNodeLabelsArgs
 	_args.Req = req
-	var _result ResourceServiceListClusterNodeLabelResult
-	if err = p.Client_().Call(ctx, "ListClusterNodeLabel", &_args, &_result); err != nil {
+	var _result ResourceServiceListNodeLabelsResult
+	if err = p.Client_().Call(ctx, "ListNodeLabels", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -580,11 +620,11 @@ func (p *ResourceServiceClient) ListClusterNodeLabel(ctx context.Context, req *c
 	return _result.GetSuccess(), nil
 }
 
-func (p *ResourceServiceClient) UpdateClusterNode(ctx context.Context, req *cluster.UpdateClusterNodeRequest) (r *cluster.UpdateClusterNodeResponse, err error) {
-	var _args ResourceServiceUpdateClusterNodeArgs
+func (p *ResourceServiceClient) UpdateNode(ctx context.Context, req *cluster.UpdateNodeRequest) (r *cluster.UpdateNodeResponse, err error) {
+	var _args ResourceServiceUpdateNodeArgs
 	_args.Req = req
-	var _result ResourceServiceUpdateClusterNodeResult
-	if err = p.Client_().Call(ctx, "UpdateClusterNode", &_args, &_result); err != nil {
+	var _result ResourceServiceUpdateNodeResult
+	if err = p.Client_().Call(ctx, "UpdateNode", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -594,11 +634,11 @@ func (p *ResourceServiceClient) UpdateClusterNode(ctx context.Context, req *clus
 	return _result.GetSuccess(), nil
 }
 
-func (p *ResourceServiceClient) GetAutoScalingRule(ctx context.Context, req *cluster.GetAutoScalingRuleRequest) (r *cluster.GetAutoScalingRuleResponse, err error) {
-	var _args ResourceServiceGetAutoScalingRuleArgs
+func (p *ResourceServiceClient) GetClusterAutoScalingRule(ctx context.Context, req *cluster.GetClusterAutoScalingRuleRequest) (r *cluster.GetClusterAutoScalingRuleResponse, err error) {
+	var _args ResourceServiceGetClusterAutoScalingRuleArgs
 	_args.Req = req
-	var _result ResourceServiceGetAutoScalingRuleResult
-	if err = p.Client_().Call(ctx, "GetAutoScalingRule", &_args, &_result); err != nil {
+	var _result ResourceServiceGetClusterAutoScalingRuleResult
+	if err = p.Client_().Call(ctx, "GetClusterAutoScalingRule", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -608,11 +648,11 @@ func (p *ResourceServiceClient) GetAutoScalingRule(ctx context.Context, req *clu
 	return _result.GetSuccess(), nil
 }
 
-func (p *ResourceServiceClient) UpdateAutoScalingRule(ctx context.Context, req *cluster.UpdateAutoScalingRuleRequest) (r *cluster.UpdateAutoScalingRuleResponse, err error) {
-	var _args ResourceServiceUpdateAutoScalingRuleArgs
+func (p *ResourceServiceClient) UpdateClusterAutoScalingRule(ctx context.Context, req *cluster.UpdateClusterAutoScalingRuleRequest) (r *cluster.UpdateClusterAutoScalingRuleResponse, err error) {
+	var _args ResourceServiceUpdateClusterAutoScalingRuleArgs
 	_args.Req = req
-	var _result ResourceServiceUpdateAutoScalingRuleResult
-	if err = p.Client_().Call(ctx, "UpdateAutoScalingRule", &_args, &_result); err != nil {
+	var _result ResourceServiceUpdateClusterAutoScalingRuleResult
+	if err = p.Client_().Call(ctx, "UpdateClusterAutoScalingRule", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -622,11 +662,11 @@ func (p *ResourceServiceClient) UpdateAutoScalingRule(ctx context.Context, req *
 	return _result.GetSuccess(), nil
 }
 
-func (p *ResourceServiceClient) NodePoolScaleUp(ctx context.Context, req *cluster.NodePoolScaleUpRequest) (r *cluster.NodePoolScaleUpResponse, err error) {
-	var _args ResourceServiceNodePoolScaleUpArgs
+func (p *ResourceServiceClient) ScaleUpNodePool(ctx context.Context, req *cluster.ScaleUpNodePoolRequest) (r *cluster.ScaleUpNodePoolResponse, err error) {
+	var _args ResourceServiceScaleUpNodePoolArgs
 	_args.Req = req
-	var _result ResourceServiceNodePoolScaleUpResult
-	if err = p.Client_().Call(ctx, "NodePoolScaleUp", &_args, &_result); err != nil {
+	var _result ResourceServiceScaleUpNodePoolResult
+	if err = p.Client_().Call(ctx, "ScaleUpNodePool", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -636,11 +676,11 @@ func (p *ResourceServiceClient) NodePoolScaleUp(ctx context.Context, req *cluste
 	return _result.GetSuccess(), nil
 }
 
-func (p *ResourceServiceClient) NodePoolScaleDown(ctx context.Context, req *cluster.NodePoolScaleDownRequest) (r *cluster.NodePoolScaleDownResponse, err error) {
-	var _args ResourceServiceNodePoolScaleDownArgs
+func (p *ResourceServiceClient) ScaleDownNodePool(ctx context.Context, req *cluster.ScaleDownNodePoolRequest) (r *cluster.ScaleDownNodePoolResponse, err error) {
+	var _args ResourceServiceScaleDownNodePoolArgs
 	_args.Req = req
-	var _result ResourceServiceNodePoolScaleDownResult
-	if err = p.Client_().Call(ctx, "NodePoolScaleDown", &_args, &_result); err != nil {
+	var _result ResourceServiceScaleDownNodePoolResult
+	if err = p.Client_().Call(ctx, "ScaleDownNodePool", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -650,11 +690,11 @@ func (p *ResourceServiceClient) NodePoolScaleDown(ctx context.Context, req *clus
 	return _result.GetSuccess(), nil
 }
 
-func (p *ResourceServiceClient) ListNodePool(ctx context.Context, req *cluster.ListNodePoolRequest) (r *cluster.ListNodePoolResponse, err error) {
-	var _args ResourceServiceListNodePoolArgs
+func (p *ResourceServiceClient) ListNodePools(ctx context.Context, req *cluster.ListNodePoolsRequest) (r *cluster.ListNodePoolsResponse, err error) {
+	var _args ResourceServiceListNodePoolsArgs
 	_args.Req = req
-	var _result ResourceServiceListNodePoolResult
-	if err = p.Client_().Call(ctx, "ListNodePool", &_args, &_result); err != nil {
+	var _result ResourceServiceListNodePoolsResult
+	if err = p.Client_().Call(ctx, "ListNodePools", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -720,7 +760,7 @@ func (p *ResourceServiceClient) DeleteNodePool(ctx context.Context, req *cluster
 	return _result.GetSuccess(), nil
 }
 
-func (p *ResourceServiceClient) ListNodePoolScalingRecords(ctx context.Context, req *cluster.ListNodePoolScalingRecordRequest) (r *cluster.ListNodePoolScalingRecordResponse, err error) {
+func (p *ResourceServiceClient) ListNodePoolScalingRecords(ctx context.Context, req *cluster.ListNodePoolScalingRecordsRequest) (r *cluster.ListNodePoolScalingRecordsResponse, err error) {
 	var _args ResourceServiceListNodePoolScalingRecordsArgs
 	_args.Req = req
 	var _result ResourceServiceListNodePoolScalingRecordsResult
@@ -734,11 +774,11 @@ func (p *ResourceServiceClient) ListNodePoolScalingRecords(ctx context.Context, 
 	return _result.GetSuccess(), nil
 }
 
-func (p *ResourceServiceClient) ListNodePoolNode(ctx context.Context, req *cluster.ListNodePoolNodeRequest) (r *cluster.ListNodePoolNodeResponse, err error) {
-	var _args ResourceServiceListNodePoolNodeArgs
+func (p *ResourceServiceClient) ListNodePoolNodes(ctx context.Context, req *cluster.ListNodePoolNodesRequest) (r *cluster.ListNodePoolNodesResponse, err error) {
+	var _args ResourceServiceListNodePoolNodesArgs
 	_args.Req = req
-	var _result ResourceServiceListNodePoolNodeResult
-	if err = p.Client_().Call(ctx, "ListNodePoolNode", &_args, &_result); err != nil {
+	var _result ResourceServiceListNodePoolNodesResult
+	if err = p.Client_().Call(ctx, "ListNodePoolNodes", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -1224,7 +1264,7 @@ func (p *ResourceServiceClient) ListCustomRoles(ctx context.Context, req *rbac.L
 	return _result.GetSuccess(), nil
 }
 
-func (p *ResourceServiceClient) ListSupportedAddons(ctx context.Context, req *addon.ListSupportedAddonRequest) (r *addon.ListSupportedAddonResponse, err error) {
+func (p *ResourceServiceClient) ListSupportedAddons(ctx context.Context, req *addon.ListSupportedAddonsRequest) (r *addon.ListSupportedAddonsResponse, err error) {
 	var _args ResourceServiceListSupportedAddonsArgs
 	_args.Req = req
 	var _result ResourceServiceListSupportedAddonsResult
@@ -1238,7 +1278,7 @@ func (p *ResourceServiceClient) ListSupportedAddons(ctx context.Context, req *ad
 	return _result.GetSuccess(), nil
 }
 
-func (p *ResourceServiceClient) ListAddons(ctx context.Context, req *addon.ListAddonRequest) (r *addon.ListAddonResponse, err error) {
+func (p *ResourceServiceClient) ListAddons(ctx context.Context, req *addon.ListAddonsRequest) (r *addon.ListAddonsResponse, err error) {
 	var _args ResourceServiceListAddonsArgs
 	_args.Req = req
 	var _result ResourceServiceListAddonsResult
@@ -1252,11 +1292,11 @@ func (p *ResourceServiceClient) ListAddons(ctx context.Context, req *addon.ListA
 	return _result.GetSuccess(), nil
 }
 
-func (p *ResourceServiceClient) InstallAddon(ctx context.Context, req *addon.InstallAddonRequest) (r *addon.InstallAddonResponse, err error) {
-	var _args ResourceServiceInstallAddonArgs
+func (p *ResourceServiceClient) InstallAddons(ctx context.Context, req *addon.InstallAddonsRequest) (r *addon.InstallAddonsResponse, err error) {
+	var _args ResourceServiceInstallAddonsArgs
 	_args.Req = req
-	var _result ResourceServiceInstallAddonResult
-	if err = p.Client_().Call(ctx, "InstallAddon", &_args, &_result); err != nil {
+	var _result ResourceServiceInstallAddonsResult
+	if err = p.Client_().Call(ctx, "InstallAddons", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -1266,11 +1306,25 @@ func (p *ResourceServiceClient) InstallAddon(ctx context.Context, req *addon.Ins
 	return _result.GetSuccess(), nil
 }
 
-func (p *ResourceServiceClient) UninstallAddon(ctx context.Context, req *addon.UninstallAddonRequest) (r *addon.UninstallAddonResponse, err error) {
-	var _args ResourceServiceUninstallAddonArgs
+func (p *ResourceServiceClient) ReinstallAddon(ctx context.Context, req *addon.ReinstallAddonRequest) (r *addon.ReinstallAddonResponse, err error) {
+	var _args ResourceServiceReinstallAddonArgs
 	_args.Req = req
-	var _result ResourceServiceUninstallAddonResult
-	if err = p.Client_().Call(ctx, "UninstallAddon", &_args, &_result); err != nil {
+	var _result ResourceServiceReinstallAddonResult
+	if err = p.Client_().Call(ctx, "ReinstallAddon", &_args, &_result); err != nil {
+		return
+	}
+	switch {
+	case _result.Err != nil:
+		return r, _result.Err
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *ResourceServiceClient) UninstallAddons(ctx context.Context, req *addon.UninstallAddonsRequest) (r *addon.UninstallAddonsResponse, err error) {
+	var _args ResourceServiceUninstallAddonsArgs
+	_args.Req = req
+	var _result ResourceServiceUninstallAddonsResult
+	if err = p.Client_().Call(ctx, "UninstallAddons", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -1392,6 +1446,20 @@ func (p *ResourceServiceClient) ListVolumes(ctx context.Context, req *instance.L
 	return _result.GetSuccess(), nil
 }
 
+func (p *ResourceServiceClient) ListKeyPairs(ctx context.Context, req *instance.ListKeyPairsRequest) (r *instance.ListKeyPairsResponse, err error) {
+	var _args ResourceServiceListKeyPairsArgs
+	_args.Req = req
+	var _result ResourceServiceListKeyPairsResult
+	if err = p.Client_().Call(ctx, "ListKeyPairs", &_args, &_result); err != nil {
+		return
+	}
+	switch {
+	case _result.Err != nil:
+		return r, _result.Err
+	}
+	return _result.GetSuccess(), nil
+}
+
 func (p *ResourceServiceClient) ListSubnets(ctx context.Context, req *vpc.ListSubnetsRequest) (r *vpc.ListSubnetsResponse, err error) {
 	var _args ResourceServiceListSubnetsArgs
 	_args.Req = req
@@ -1406,11 +1474,11 @@ func (p *ResourceServiceClient) ListSubnets(ctx context.Context, req *vpc.ListSu
 	return _result.GetSuccess(), nil
 }
 
-func (p *ResourceServiceClient) ListElasticIPPools(ctx context.Context, req *vpc.ListElasticIPPoolsRequest) (r *vpc.ListElasticIPPoolsResponse, err error) {
-	var _args ResourceServiceListElasticIPPoolsArgs
+func (p *ResourceServiceClient) ListElasticIpPools(ctx context.Context, req *vpc.ListElasticIpPoolsRequest) (r *vpc.ListElasticIpPoolsResponse, err error) {
+	var _args ResourceServiceListElasticIpPoolsArgs
 	_args.Req = req
-	var _result ResourceServiceListElasticIPPoolsResult
-	if err = p.Client_().Call(ctx, "ListElasticIPPools", &_args, &_result); err != nil {
+	var _result ResourceServiceListElasticIpPoolsResult
+	if err = p.Client_().Call(ctx, "ListElasticIpPools", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -1448,11 +1516,25 @@ func (p *ResourceServiceClient) ListSecurityGroups(ctx context.Context, req *vpc
 	return _result.GetSuccess(), nil
 }
 
-func (p *ResourceServiceClient) ListClbs(ctx context.Context, req *clb.ListClbRequest) (r *clb.ListClbResponse, err error) {
+func (p *ResourceServiceClient) ListClbs(ctx context.Context, req *clb.ListClbsRequest) (r *clb.ListClbsResponse, err error) {
 	var _args ResourceServiceListClbsArgs
 	_args.Req = req
 	var _result ResourceServiceListClbsResult
 	if err = p.Client_().Call(ctx, "ListClbs", &_args, &_result); err != nil {
+		return
+	}
+	switch {
+	case _result.Err != nil:
+		return r, _result.Err
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *ResourceServiceClient) ListClbListeners(ctx context.Context, req *clb.ListClbListenersRequest) (r *clb.ListClbListenersResponse, err error) {
+	var _args ResourceServiceListClbListenersArgs
+	_args.Req = req
+	var _result ResourceServiceListClbListenersResult
+	if err = p.Client_().Call(ctx, "ListClbListeners", &_args, &_result); err != nil {
 		return
 	}
 	switch {
@@ -1630,6 +1712,76 @@ func (p *ResourceServiceClient) RecommendCidr(ctx context.Context, req *cluster.
 	return _result.GetSuccess(), nil
 }
 
+func (p *ResourceServiceClient) AddVciSubnets(ctx context.Context, req *cluster.AddVciSubnetsRequest) (r *cluster.AddVciSubnetsResponse, err error) {
+	var _args ResourceServiceAddVciSubnetsArgs
+	_args.Req = req
+	var _result ResourceServiceAddVciSubnetsResult
+	if err = p.Client_().Call(ctx, "AddVciSubnets", &_args, &_result); err != nil {
+		return
+	}
+	switch {
+	case _result.Err != nil:
+		return r, _result.Err
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *ResourceServiceClient) IsInShortTermWhiteList(ctx context.Context, req *trade.IsInShortTermWhiteListRequest) (r *trade.IsInShortTermWhiteListResponse, err error) {
+	var _args ResourceServiceIsInShortTermWhiteListArgs
+	_args.Req = req
+	var _result ResourceServiceIsInShortTermWhiteListResult
+	if err = p.Client_().Call(ctx, "IsInShortTermWhiteList", &_args, &_result); err != nil {
+		return
+	}
+	switch {
+	case _result.Err != nil:
+		return r, _result.Err
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *ResourceServiceClient) AllowUserPublicTest(ctx context.Context, req *publicverify.PublicTestAllowedReq) (r *publicverify.PublicTestAllowedResp, err error) {
+	var _args ResourceServiceAllowUserPublicTestArgs
+	_args.Req = req
+	var _result ResourceServiceAllowUserPublicTestResult
+	if err = p.Client_().Call(ctx, "AllowUserPublicTest", &_args, &_result); err != nil {
+		return
+	}
+	switch {
+	case _result.Err != nil:
+		return r, _result.Err
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *ResourceServiceClient) ListVciAvailabilityZones(ctx context.Context, req *vci.ListVciAvailabilityZonesRequest) (r *vci.ListVciAvailabilityZonesResponse, err error) {
+	var _args ResourceServiceListVciAvailabilityZonesArgs
+	_args.Req = req
+	var _result ResourceServiceListVciAvailabilityZonesResult
+	if err = p.Client_().Call(ctx, "ListVciAvailabilityZones", &_args, &_result); err != nil {
+		return
+	}
+	switch {
+	case _result.Err != nil:
+		return r, _result.Err
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *ResourceServiceClient) ListNodeZones(ctx context.Context, req *cluster.ListNodeZonesRequest) (r *cluster.ListNodeZonesResponse, err error) {
+	var _args ResourceServiceListNodeZonesArgs
+	_args.Req = req
+	var _result ResourceServiceListNodeZonesResult
+	if err = p.Client_().Call(ctx, "ListNodeZones", &_args, &_result); err != nil {
+		return
+	}
+	switch {
+	case _result.Err != nil:
+		return r, _result.Err
+	}
+	return _result.GetSuccess(), nil
+}
+
 type ResourceServiceProcessor struct {
 	processorMap map[string]thrift.TProcessorFunction
 	handler      ResourceService
@@ -1652,36 +1804,37 @@ func NewResourceServiceProcessor(handler ResourceService) *ResourceServiceProces
 	self := &ResourceServiceProcessor{handler: handler, processorMap: make(map[string]thrift.TProcessorFunction)}
 	self.AddToProcessorMap("GetClusterOverview", &resourceServiceProcessorGetClusterOverview{handler: handler})
 	self.AddToProcessorMap("GetKubeConfig", &resourceServiceProcessorGetKubeConfig{handler: handler})
-	self.AddToProcessorMap("RevokeKubeConfig", &resourceServiceProcessorRevokeKubeConfig{handler: handler})
-	self.AddToProcessorMap("ListKubeConfig", &resourceServiceProcessorListKubeConfig{handler: handler})
+	self.AddToProcessorMap("GetKubeconfig", &resourceServiceProcessorGetKubeconfig{handler: handler})
+	self.AddToProcessorMap("RevokeKubeconfig", &resourceServiceProcessorRevokeKubeconfig{handler: handler})
+	self.AddToProcessorMap("ListKubeconfigUsers", &resourceServiceProcessorListKubeconfigUsers{handler: handler})
 	self.AddToProcessorMap("CreateCluster", &resourceServiceProcessorCreateCluster{handler: handler})
 	self.AddToProcessorMap("RegisterCluster", &resourceServiceProcessorRegisterCluster{handler: handler})
 	self.AddToProcessorMap("UpdateCluster", &resourceServiceProcessorUpdateCluster{handler: handler})
 	self.AddToProcessorMap("UpgradeCluster", &resourceServiceProcessorUpgradeCluster{handler: handler})
 	self.AddToProcessorMap("DeleteCluster", &resourceServiceProcessorDeleteCluster{handler: handler})
 	self.AddToProcessorMap("GetCluster", &resourceServiceProcessorGetCluster{handler: handler})
-	self.AddToProcessorMap("ListCluster", &resourceServiceProcessorListCluster{handler: handler})
+	self.AddToProcessorMap("ListClusters", &resourceServiceProcessorListClusters{handler: handler})
 	self.AddToProcessorMap("GetClusterDeployProgress", &resourceServiceProcessorGetClusterDeployProgress{handler: handler})
-	self.AddToProcessorMap("ListClusterKubernetesVersion", &resourceServiceProcessorListClusterKubernetesVersion{handler: handler})
-	self.AddToProcessorMap("ListClusterNetworkCidr", &resourceServiceProcessorListClusterNetworkCidr{handler: handler})
-	self.AddToProcessorMap("ListSupportGpuModel", &resourceServiceProcessorListSupportGpuModel{handler: handler})
-	self.AddToProcessorMap("ListClusterNode", &resourceServiceProcessorListClusterNode{handler: handler})
-	self.AddToProcessorMap("AddClusterNode", &resourceServiceProcessorAddClusterNode{handler: handler})
-	self.AddToProcessorMap("GetClusterNode", &resourceServiceProcessorGetClusterNode{handler: handler})
-	self.AddToProcessorMap("DeleteClusterNode", &resourceServiceProcessorDeleteClusterNode{handler: handler})
-	self.AddToProcessorMap("ListClusterNodeLabel", &resourceServiceProcessorListClusterNodeLabel{handler: handler})
-	self.AddToProcessorMap("UpdateClusterNode", &resourceServiceProcessorUpdateClusterNode{handler: handler})
-	self.AddToProcessorMap("GetAutoScalingRule", &resourceServiceProcessorGetAutoScalingRule{handler: handler})
-	self.AddToProcessorMap("UpdateAutoScalingRule", &resourceServiceProcessorUpdateAutoScalingRule{handler: handler})
-	self.AddToProcessorMap("NodePoolScaleUp", &resourceServiceProcessorNodePoolScaleUp{handler: handler})
-	self.AddToProcessorMap("NodePoolScaleDown", &resourceServiceProcessorNodePoolScaleDown{handler: handler})
-	self.AddToProcessorMap("ListNodePool", &resourceServiceProcessorListNodePool{handler: handler})
+	self.AddToProcessorMap("ListSupportedKubernetesVersions", &resourceServiceProcessorListSupportedKubernetesVersions{handler: handler})
+	self.AddToProcessorMap("ListClusterNetworkCidrs", &resourceServiceProcessorListClusterNetworkCidrs{handler: handler})
+	self.AddToProcessorMap("ListSupportedGpuModels", &resourceServiceProcessorListSupportedGpuModels{handler: handler})
+	self.AddToProcessorMap("ListNodes", &resourceServiceProcessorListNodes{handler: handler})
+	self.AddToProcessorMap("AddNodes", &resourceServiceProcessorAddNodes{handler: handler})
+	self.AddToProcessorMap("GetNode", &resourceServiceProcessorGetNode{handler: handler})
+	self.AddToProcessorMap("DeleteNodes", &resourceServiceProcessorDeleteNodes{handler: handler})
+	self.AddToProcessorMap("ListNodeLabels", &resourceServiceProcessorListNodeLabels{handler: handler})
+	self.AddToProcessorMap("UpdateNode", &resourceServiceProcessorUpdateNode{handler: handler})
+	self.AddToProcessorMap("GetClusterAutoScalingRule", &resourceServiceProcessorGetClusterAutoScalingRule{handler: handler})
+	self.AddToProcessorMap("UpdateClusterAutoScalingRule", &resourceServiceProcessorUpdateClusterAutoScalingRule{handler: handler})
+	self.AddToProcessorMap("ScaleUpNodePool", &resourceServiceProcessorScaleUpNodePool{handler: handler})
+	self.AddToProcessorMap("ScaleDownNodePool", &resourceServiceProcessorScaleDownNodePool{handler: handler})
+	self.AddToProcessorMap("ListNodePools", &resourceServiceProcessorListNodePools{handler: handler})
 	self.AddToProcessorMap("CreateNodePool", &resourceServiceProcessorCreateNodePool{handler: handler})
 	self.AddToProcessorMap("GetNodePool", &resourceServiceProcessorGetNodePool{handler: handler})
 	self.AddToProcessorMap("UpdateNodePool", &resourceServiceProcessorUpdateNodePool{handler: handler})
 	self.AddToProcessorMap("DeleteNodePool", &resourceServiceProcessorDeleteNodePool{handler: handler})
 	self.AddToProcessorMap("ListNodePoolScalingRecords", &resourceServiceProcessorListNodePoolScalingRecords{handler: handler})
-	self.AddToProcessorMap("ListNodePoolNode", &resourceServiceProcessorListNodePoolNode{handler: handler})
+	self.AddToProcessorMap("ListNodePoolNodes", &resourceServiceProcessorListNodePoolNodes{handler: handler})
 	self.AddToProcessorMap("ListNamespace", &resourceServiceProcessorListNamespace{handler: handler})
 	self.AddToProcessorMap("CreateNamespace", &resourceServiceProcessorCreateNamespace{handler: handler})
 	self.AddToProcessorMap("GetNamespace", &resourceServiceProcessorGetNamespace{handler: handler})
@@ -1718,8 +1871,9 @@ func NewResourceServiceProcessor(handler ResourceService) *ResourceServiceProces
 	self.AddToProcessorMap("ListCustomRoles", &resourceServiceProcessorListCustomRoles{handler: handler})
 	self.AddToProcessorMap("ListSupportedAddons", &resourceServiceProcessorListSupportedAddons{handler: handler})
 	self.AddToProcessorMap("ListAddons", &resourceServiceProcessorListAddons{handler: handler})
-	self.AddToProcessorMap("InstallAddon", &resourceServiceProcessorInstallAddon{handler: handler})
-	self.AddToProcessorMap("UninstallAddon", &resourceServiceProcessorUninstallAddon{handler: handler})
+	self.AddToProcessorMap("InstallAddons", &resourceServiceProcessorInstallAddons{handler: handler})
+	self.AddToProcessorMap("ReinstallAddon", &resourceServiceProcessorReinstallAddon{handler: handler})
+	self.AddToProcessorMap("UninstallAddons", &resourceServiceProcessorUninstallAddons{handler: handler})
 	self.AddToProcessorMap("UpgradeAddon", &resourceServiceProcessorUpgradeAddon{handler: handler})
 	self.AddToProcessorMap("GetAddon", &resourceServiceProcessorGetAddon{handler: handler})
 	self.AddToProcessorMap("CheckResourceExist", &resourceServiceProcessorCheckResourceExist{handler: handler})
@@ -1728,11 +1882,13 @@ func NewResourceServiceProcessor(handler ResourceService) *ResourceServiceProces
 	self.AddToProcessorMap("GetInstanceConsole", &resourceServiceProcessorGetInstanceConsole{handler: handler})
 	self.AddToProcessorMap("ListZones", &resourceServiceProcessorListZones{handler: handler})
 	self.AddToProcessorMap("ListVolumes", &resourceServiceProcessorListVolumes{handler: handler})
+	self.AddToProcessorMap("ListKeyPairs", &resourceServiceProcessorListKeyPairs{handler: handler})
 	self.AddToProcessorMap("ListSubnets", &resourceServiceProcessorListSubnets{handler: handler})
-	self.AddToProcessorMap("ListElasticIPPools", &resourceServiceProcessorListElasticIPPools{handler: handler})
+	self.AddToProcessorMap("ListElasticIpPools", &resourceServiceProcessorListElasticIpPools{handler: handler})
 	self.AddToProcessorMap("ListVpcs", &resourceServiceProcessorListVpcs{handler: handler})
 	self.AddToProcessorMap("ListSecurityGroups", &resourceServiceProcessorListSecurityGroups{handler: handler})
 	self.AddToProcessorMap("ListClbs", &resourceServiceProcessorListClbs{handler: handler})
+	self.AddToProcessorMap("ListClbListeners", &resourceServiceProcessorListClbListeners{handler: handler})
 	self.AddToProcessorMap("ListQuotas", &resourceServiceProcessorListQuotas{handler: handler})
 	self.AddToProcessorMap("GetQuota", &resourceServiceProcessorGetQuota{handler: handler})
 	self.AddToProcessorMap("CreateBareMachine", &resourceServiceProcessorCreateBareMachine{handler: handler})
@@ -1745,6 +1901,11 @@ func NewResourceServiceProcessor(handler ResourceService) *ResourceServiceProces
 	self.AddToProcessorMap("GetBareMachineImportExcelTemplate", &resourceServiceProcessorGetBareMachineImportExcelTemplate{handler: handler})
 	self.AddToProcessorMap("CheckCidrConflict", &resourceServiceProcessorCheckCidrConflict{handler: handler})
 	self.AddToProcessorMap("RecommendCidr", &resourceServiceProcessorRecommendCidr{handler: handler})
+	self.AddToProcessorMap("AddVciSubnets", &resourceServiceProcessorAddVciSubnets{handler: handler})
+	self.AddToProcessorMap("IsInShortTermWhiteList", &resourceServiceProcessorIsInShortTermWhiteList{handler: handler})
+	self.AddToProcessorMap("AllowUserPublicTest", &resourceServiceProcessorAllowUserPublicTest{handler: handler})
+	self.AddToProcessorMap("ListVciAvailabilityZones", &resourceServiceProcessorListVciAvailabilityZones{handler: handler})
+	self.AddToProcessorMap("ListNodeZones", &resourceServiceProcessorListNodeZones{handler: handler})
 	return self
 }
 func (p *ResourceServiceProcessor) Process(ctx context.Context, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
@@ -1871,16 +2032,16 @@ func (p *resourceServiceProcessorGetKubeConfig) Process(ctx context.Context, seq
 	return true, err
 }
 
-type resourceServiceProcessorRevokeKubeConfig struct {
+type resourceServiceProcessorGetKubeconfig struct {
 	handler ResourceService
 }
 
-func (p *resourceServiceProcessorRevokeKubeConfig) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := ResourceServiceRevokeKubeConfigArgs{}
+func (p *resourceServiceProcessorGetKubeconfig) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ResourceServiceGetKubeconfigArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("RevokeKubeConfig", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("GetKubeconfig", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -1889,15 +2050,15 @@ func (p *resourceServiceProcessorRevokeKubeConfig) Process(ctx context.Context, 
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := ResourceServiceRevokeKubeConfigResult{}
-	var retval *cluster.RevokeKubeConfigResponse
-	if retval, err2 = p.handler.RevokeKubeConfig(ctx, args.Req); err2 != nil {
+	result := ResourceServiceGetKubeconfigResult{}
+	var retval *cluster.GetKubeconfigResponse
+	if retval, err2 = p.handler.GetKubeconfig(ctx, args.Req); err2 != nil {
 		switch v := err2.(type) {
 		case *common.Error:
 			result.Err = v
 		default:
-			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing RevokeKubeConfig: "+err2.Error())
-			oprot.WriteMessageBegin("RevokeKubeConfig", thrift.EXCEPTION, seqId)
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing GetKubeconfig: "+err2.Error())
+			oprot.WriteMessageBegin("GetKubeconfig", thrift.EXCEPTION, seqId)
 			x.Write(oprot)
 			oprot.WriteMessageEnd()
 			oprot.Flush(ctx)
@@ -1906,7 +2067,7 @@ func (p *resourceServiceProcessorRevokeKubeConfig) Process(ctx context.Context, 
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("RevokeKubeConfig", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("GetKubeconfig", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -1924,16 +2085,16 @@ func (p *resourceServiceProcessorRevokeKubeConfig) Process(ctx context.Context, 
 	return true, err
 }
 
-type resourceServiceProcessorListKubeConfig struct {
+type resourceServiceProcessorRevokeKubeconfig struct {
 	handler ResourceService
 }
 
-func (p *resourceServiceProcessorListKubeConfig) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := ResourceServiceListKubeConfigArgs{}
+func (p *resourceServiceProcessorRevokeKubeconfig) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ResourceServiceRevokeKubeconfigArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("ListKubeConfig", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("RevokeKubeconfig", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -1942,15 +2103,15 @@ func (p *resourceServiceProcessorListKubeConfig) Process(ctx context.Context, se
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := ResourceServiceListKubeConfigResult{}
-	var retval *cluster.ListKubeConfigResponse
-	if retval, err2 = p.handler.ListKubeConfig(ctx, args.Req); err2 != nil {
+	result := ResourceServiceRevokeKubeconfigResult{}
+	var retval *cluster.RevokeKubeconfigResponse
+	if retval, err2 = p.handler.RevokeKubeconfig(ctx, args.Req); err2 != nil {
 		switch v := err2.(type) {
 		case *common.Error:
 			result.Err = v
 		default:
-			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ListKubeConfig: "+err2.Error())
-			oprot.WriteMessageBegin("ListKubeConfig", thrift.EXCEPTION, seqId)
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing RevokeKubeconfig: "+err2.Error())
+			oprot.WriteMessageBegin("RevokeKubeconfig", thrift.EXCEPTION, seqId)
 			x.Write(oprot)
 			oprot.WriteMessageEnd()
 			oprot.Flush(ctx)
@@ -1959,7 +2120,60 @@ func (p *resourceServiceProcessorListKubeConfig) Process(ctx context.Context, se
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("ListKubeConfig", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("RevokeKubeconfig", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
+type resourceServiceProcessorListKubeconfigUsers struct {
+	handler ResourceService
+}
+
+func (p *resourceServiceProcessorListKubeconfigUsers) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ResourceServiceListKubeconfigUsersArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("ListKubeconfigUsers", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	var err2 error
+	result := ResourceServiceListKubeconfigUsersResult{}
+	var retval *cluster.ListKubeconfigUsersResponse
+	if retval, err2 = p.handler.ListKubeconfigUsers(ctx, args.Req); err2 != nil {
+		switch v := err2.(type) {
+		case *common.Error:
+			result.Err = v
+		default:
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ListKubeconfigUsers: "+err2.Error())
+			oprot.WriteMessageBegin("ListKubeconfigUsers", thrift.EXCEPTION, seqId)
+			x.Write(oprot)
+			oprot.WriteMessageEnd()
+			oprot.Flush(ctx)
+			return true, err2
+		}
+	} else {
+		result.Success = retval
+	}
+	if err2 = oprot.WriteMessageBegin("ListKubeconfigUsers", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -2295,16 +2509,16 @@ func (p *resourceServiceProcessorGetCluster) Process(ctx context.Context, seqId 
 	return true, err
 }
 
-type resourceServiceProcessorListCluster struct {
+type resourceServiceProcessorListClusters struct {
 	handler ResourceService
 }
 
-func (p *resourceServiceProcessorListCluster) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := ResourceServiceListClusterArgs{}
+func (p *resourceServiceProcessorListClusters) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ResourceServiceListClustersArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("ListCluster", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("ListClusters", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -2313,15 +2527,15 @@ func (p *resourceServiceProcessorListCluster) Process(ctx context.Context, seqId
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := ResourceServiceListClusterResult{}
-	var retval *cluster.ListClusterResponse
-	if retval, err2 = p.handler.ListCluster(ctx, args.Req); err2 != nil {
+	result := ResourceServiceListClustersResult{}
+	var retval *cluster.ListClustersResponse
+	if retval, err2 = p.handler.ListClusters(ctx, args.Req); err2 != nil {
 		switch v := err2.(type) {
 		case *common.Error:
 			result.Err = v
 		default:
-			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ListCluster: "+err2.Error())
-			oprot.WriteMessageBegin("ListCluster", thrift.EXCEPTION, seqId)
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ListClusters: "+err2.Error())
+			oprot.WriteMessageBegin("ListClusters", thrift.EXCEPTION, seqId)
 			x.Write(oprot)
 			oprot.WriteMessageEnd()
 			oprot.Flush(ctx)
@@ -2330,7 +2544,7 @@ func (p *resourceServiceProcessorListCluster) Process(ctx context.Context, seqId
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("ListCluster", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("ListClusters", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -2401,16 +2615,16 @@ func (p *resourceServiceProcessorGetClusterDeployProgress) Process(ctx context.C
 	return true, err
 }
 
-type resourceServiceProcessorListClusterKubernetesVersion struct {
+type resourceServiceProcessorListSupportedKubernetesVersions struct {
 	handler ResourceService
 }
 
-func (p *resourceServiceProcessorListClusterKubernetesVersion) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := ResourceServiceListClusterKubernetesVersionArgs{}
+func (p *resourceServiceProcessorListSupportedKubernetesVersions) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ResourceServiceListSupportedKubernetesVersionsArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("ListClusterKubernetesVersion", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("ListSupportedKubernetesVersions", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -2419,15 +2633,15 @@ func (p *resourceServiceProcessorListClusterKubernetesVersion) Process(ctx conte
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := ResourceServiceListClusterKubernetesVersionResult{}
-	var retval *cluster.ListClusterKubernetesVersionResponse
-	if retval, err2 = p.handler.ListClusterKubernetesVersion(ctx, args.Req); err2 != nil {
+	result := ResourceServiceListSupportedKubernetesVersionsResult{}
+	var retval *cluster.ListSupportedKubernetesVersionsResponse
+	if retval, err2 = p.handler.ListSupportedKubernetesVersions(ctx, args.Req); err2 != nil {
 		switch v := err2.(type) {
 		case *common.Error:
 			result.Err = v
 		default:
-			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ListClusterKubernetesVersion: "+err2.Error())
-			oprot.WriteMessageBegin("ListClusterKubernetesVersion", thrift.EXCEPTION, seqId)
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ListSupportedKubernetesVersions: "+err2.Error())
+			oprot.WriteMessageBegin("ListSupportedKubernetesVersions", thrift.EXCEPTION, seqId)
 			x.Write(oprot)
 			oprot.WriteMessageEnd()
 			oprot.Flush(ctx)
@@ -2436,7 +2650,7 @@ func (p *resourceServiceProcessorListClusterKubernetesVersion) Process(ctx conte
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("ListClusterKubernetesVersion", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("ListSupportedKubernetesVersions", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -2454,16 +2668,16 @@ func (p *resourceServiceProcessorListClusterKubernetesVersion) Process(ctx conte
 	return true, err
 }
 
-type resourceServiceProcessorListClusterNetworkCidr struct {
+type resourceServiceProcessorListClusterNetworkCidrs struct {
 	handler ResourceService
 }
 
-func (p *resourceServiceProcessorListClusterNetworkCidr) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := ResourceServiceListClusterNetworkCidrArgs{}
+func (p *resourceServiceProcessorListClusterNetworkCidrs) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ResourceServiceListClusterNetworkCidrsArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("ListClusterNetworkCidr", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("ListClusterNetworkCidrs", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -2472,15 +2686,15 @@ func (p *resourceServiceProcessorListClusterNetworkCidr) Process(ctx context.Con
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := ResourceServiceListClusterNetworkCidrResult{}
-	var retval *cluster.ListClusterNetworkCidrResponse
-	if retval, err2 = p.handler.ListClusterNetworkCidr(ctx, args.Req); err2 != nil {
+	result := ResourceServiceListClusterNetworkCidrsResult{}
+	var retval *cluster.ListClusterNetworkCidrsResponse
+	if retval, err2 = p.handler.ListClusterNetworkCidrs(ctx, args.Req); err2 != nil {
 		switch v := err2.(type) {
 		case *common.Error:
 			result.Err = v
 		default:
-			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ListClusterNetworkCidr: "+err2.Error())
-			oprot.WriteMessageBegin("ListClusterNetworkCidr", thrift.EXCEPTION, seqId)
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ListClusterNetworkCidrs: "+err2.Error())
+			oprot.WriteMessageBegin("ListClusterNetworkCidrs", thrift.EXCEPTION, seqId)
 			x.Write(oprot)
 			oprot.WriteMessageEnd()
 			oprot.Flush(ctx)
@@ -2489,7 +2703,7 @@ func (p *resourceServiceProcessorListClusterNetworkCidr) Process(ctx context.Con
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("ListClusterNetworkCidr", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("ListClusterNetworkCidrs", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -2507,16 +2721,16 @@ func (p *resourceServiceProcessorListClusterNetworkCidr) Process(ctx context.Con
 	return true, err
 }
 
-type resourceServiceProcessorListSupportGpuModel struct {
+type resourceServiceProcessorListSupportedGpuModels struct {
 	handler ResourceService
 }
 
-func (p *resourceServiceProcessorListSupportGpuModel) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := ResourceServiceListSupportGpuModelArgs{}
+func (p *resourceServiceProcessorListSupportedGpuModels) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ResourceServiceListSupportedGpuModelsArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("ListSupportGpuModel", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("ListSupportedGpuModels", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -2525,15 +2739,15 @@ func (p *resourceServiceProcessorListSupportGpuModel) Process(ctx context.Contex
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := ResourceServiceListSupportGpuModelResult{}
-	var retval *cluster.ListSupportGpuModelResponse
-	if retval, err2 = p.handler.ListSupportGpuModel(ctx, args.Req); err2 != nil {
+	result := ResourceServiceListSupportedGpuModelsResult{}
+	var retval *cluster.ListSupportedGpuModelsResponse
+	if retval, err2 = p.handler.ListSupportedGpuModels(ctx, args.Req); err2 != nil {
 		switch v := err2.(type) {
 		case *common.Error:
 			result.Err = v
 		default:
-			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ListSupportGpuModel: "+err2.Error())
-			oprot.WriteMessageBegin("ListSupportGpuModel", thrift.EXCEPTION, seqId)
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ListSupportedGpuModels: "+err2.Error())
+			oprot.WriteMessageBegin("ListSupportedGpuModels", thrift.EXCEPTION, seqId)
 			x.Write(oprot)
 			oprot.WriteMessageEnd()
 			oprot.Flush(ctx)
@@ -2542,7 +2756,7 @@ func (p *resourceServiceProcessorListSupportGpuModel) Process(ctx context.Contex
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("ListSupportGpuModel", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("ListSupportedGpuModels", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -2560,16 +2774,16 @@ func (p *resourceServiceProcessorListSupportGpuModel) Process(ctx context.Contex
 	return true, err
 }
 
-type resourceServiceProcessorListClusterNode struct {
+type resourceServiceProcessorListNodes struct {
 	handler ResourceService
 }
 
-func (p *resourceServiceProcessorListClusterNode) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := ResourceServiceListClusterNodeArgs{}
+func (p *resourceServiceProcessorListNodes) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ResourceServiceListNodesArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("ListClusterNode", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("ListNodes", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -2578,15 +2792,15 @@ func (p *resourceServiceProcessorListClusterNode) Process(ctx context.Context, s
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := ResourceServiceListClusterNodeResult{}
-	var retval *cluster.ListClusterNodeResponse
-	if retval, err2 = p.handler.ListClusterNode(ctx, args.Req); err2 != nil {
+	result := ResourceServiceListNodesResult{}
+	var retval *cluster.ListNodesResponse
+	if retval, err2 = p.handler.ListNodes(ctx, args.Req); err2 != nil {
 		switch v := err2.(type) {
 		case *common.Error:
 			result.Err = v
 		default:
-			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ListClusterNode: "+err2.Error())
-			oprot.WriteMessageBegin("ListClusterNode", thrift.EXCEPTION, seqId)
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ListNodes: "+err2.Error())
+			oprot.WriteMessageBegin("ListNodes", thrift.EXCEPTION, seqId)
 			x.Write(oprot)
 			oprot.WriteMessageEnd()
 			oprot.Flush(ctx)
@@ -2595,7 +2809,7 @@ func (p *resourceServiceProcessorListClusterNode) Process(ctx context.Context, s
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("ListClusterNode", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("ListNodes", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -2613,16 +2827,16 @@ func (p *resourceServiceProcessorListClusterNode) Process(ctx context.Context, s
 	return true, err
 }
 
-type resourceServiceProcessorAddClusterNode struct {
+type resourceServiceProcessorAddNodes struct {
 	handler ResourceService
 }
 
-func (p *resourceServiceProcessorAddClusterNode) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := ResourceServiceAddClusterNodeArgs{}
+func (p *resourceServiceProcessorAddNodes) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ResourceServiceAddNodesArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("AddClusterNode", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("AddNodes", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -2631,15 +2845,15 @@ func (p *resourceServiceProcessorAddClusterNode) Process(ctx context.Context, se
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := ResourceServiceAddClusterNodeResult{}
-	var retval *cluster.AddClusterNodeResponse
-	if retval, err2 = p.handler.AddClusterNode(ctx, args.Req); err2 != nil {
+	result := ResourceServiceAddNodesResult{}
+	var retval *cluster.AddNodesResponse
+	if retval, err2 = p.handler.AddNodes(ctx, args.Req); err2 != nil {
 		switch v := err2.(type) {
 		case *common.Error:
 			result.Err = v
 		default:
-			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing AddClusterNode: "+err2.Error())
-			oprot.WriteMessageBegin("AddClusterNode", thrift.EXCEPTION, seqId)
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing AddNodes: "+err2.Error())
+			oprot.WriteMessageBegin("AddNodes", thrift.EXCEPTION, seqId)
 			x.Write(oprot)
 			oprot.WriteMessageEnd()
 			oprot.Flush(ctx)
@@ -2648,7 +2862,7 @@ func (p *resourceServiceProcessorAddClusterNode) Process(ctx context.Context, se
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("AddClusterNode", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("AddNodes", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -2666,16 +2880,16 @@ func (p *resourceServiceProcessorAddClusterNode) Process(ctx context.Context, se
 	return true, err
 }
 
-type resourceServiceProcessorGetClusterNode struct {
+type resourceServiceProcessorGetNode struct {
 	handler ResourceService
 }
 
-func (p *resourceServiceProcessorGetClusterNode) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := ResourceServiceGetClusterNodeArgs{}
+func (p *resourceServiceProcessorGetNode) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ResourceServiceGetNodeArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("GetClusterNode", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("GetNode", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -2684,15 +2898,15 @@ func (p *resourceServiceProcessorGetClusterNode) Process(ctx context.Context, se
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := ResourceServiceGetClusterNodeResult{}
-	var retval *cluster.GetClusterNodeResponse
-	if retval, err2 = p.handler.GetClusterNode(ctx, args.Req); err2 != nil {
+	result := ResourceServiceGetNodeResult{}
+	var retval *cluster.GetNodeResponse
+	if retval, err2 = p.handler.GetNode(ctx, args.Req); err2 != nil {
 		switch v := err2.(type) {
 		case *common.Error:
 			result.Err = v
 		default:
-			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing GetClusterNode: "+err2.Error())
-			oprot.WriteMessageBegin("GetClusterNode", thrift.EXCEPTION, seqId)
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing GetNode: "+err2.Error())
+			oprot.WriteMessageBegin("GetNode", thrift.EXCEPTION, seqId)
 			x.Write(oprot)
 			oprot.WriteMessageEnd()
 			oprot.Flush(ctx)
@@ -2701,7 +2915,7 @@ func (p *resourceServiceProcessorGetClusterNode) Process(ctx context.Context, se
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("GetClusterNode", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("GetNode", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -2719,16 +2933,16 @@ func (p *resourceServiceProcessorGetClusterNode) Process(ctx context.Context, se
 	return true, err
 }
 
-type resourceServiceProcessorDeleteClusterNode struct {
+type resourceServiceProcessorDeleteNodes struct {
 	handler ResourceService
 }
 
-func (p *resourceServiceProcessorDeleteClusterNode) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := ResourceServiceDeleteClusterNodeArgs{}
+func (p *resourceServiceProcessorDeleteNodes) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ResourceServiceDeleteNodesArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("DeleteClusterNode", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("DeleteNodes", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -2737,15 +2951,15 @@ func (p *resourceServiceProcessorDeleteClusterNode) Process(ctx context.Context,
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := ResourceServiceDeleteClusterNodeResult{}
-	var retval *cluster.DeleteClusterNodeResponse
-	if retval, err2 = p.handler.DeleteClusterNode(ctx, args.Req); err2 != nil {
+	result := ResourceServiceDeleteNodesResult{}
+	var retval *cluster.DeleteNodesResponse
+	if retval, err2 = p.handler.DeleteNodes(ctx, args.Req); err2 != nil {
 		switch v := err2.(type) {
 		case *common.Error:
 			result.Err = v
 		default:
-			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing DeleteClusterNode: "+err2.Error())
-			oprot.WriteMessageBegin("DeleteClusterNode", thrift.EXCEPTION, seqId)
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing DeleteNodes: "+err2.Error())
+			oprot.WriteMessageBegin("DeleteNodes", thrift.EXCEPTION, seqId)
 			x.Write(oprot)
 			oprot.WriteMessageEnd()
 			oprot.Flush(ctx)
@@ -2754,7 +2968,7 @@ func (p *resourceServiceProcessorDeleteClusterNode) Process(ctx context.Context,
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("DeleteClusterNode", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("DeleteNodes", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -2772,16 +2986,16 @@ func (p *resourceServiceProcessorDeleteClusterNode) Process(ctx context.Context,
 	return true, err
 }
 
-type resourceServiceProcessorListClusterNodeLabel struct {
+type resourceServiceProcessorListNodeLabels struct {
 	handler ResourceService
 }
 
-func (p *resourceServiceProcessorListClusterNodeLabel) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := ResourceServiceListClusterNodeLabelArgs{}
+func (p *resourceServiceProcessorListNodeLabels) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ResourceServiceListNodeLabelsArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("ListClusterNodeLabel", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("ListNodeLabels", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -2790,15 +3004,15 @@ func (p *resourceServiceProcessorListClusterNodeLabel) Process(ctx context.Conte
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := ResourceServiceListClusterNodeLabelResult{}
-	var retval *cluster.ListClusterNodeLabelResponse
-	if retval, err2 = p.handler.ListClusterNodeLabel(ctx, args.Req); err2 != nil {
+	result := ResourceServiceListNodeLabelsResult{}
+	var retval *cluster.ListNodeLabelsResponse
+	if retval, err2 = p.handler.ListNodeLabels(ctx, args.Req); err2 != nil {
 		switch v := err2.(type) {
 		case *common.Error:
 			result.Err = v
 		default:
-			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ListClusterNodeLabel: "+err2.Error())
-			oprot.WriteMessageBegin("ListClusterNodeLabel", thrift.EXCEPTION, seqId)
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ListNodeLabels: "+err2.Error())
+			oprot.WriteMessageBegin("ListNodeLabels", thrift.EXCEPTION, seqId)
 			x.Write(oprot)
 			oprot.WriteMessageEnd()
 			oprot.Flush(ctx)
@@ -2807,7 +3021,7 @@ func (p *resourceServiceProcessorListClusterNodeLabel) Process(ctx context.Conte
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("ListClusterNodeLabel", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("ListNodeLabels", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -2825,16 +3039,16 @@ func (p *resourceServiceProcessorListClusterNodeLabel) Process(ctx context.Conte
 	return true, err
 }
 
-type resourceServiceProcessorUpdateClusterNode struct {
+type resourceServiceProcessorUpdateNode struct {
 	handler ResourceService
 }
 
-func (p *resourceServiceProcessorUpdateClusterNode) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := ResourceServiceUpdateClusterNodeArgs{}
+func (p *resourceServiceProcessorUpdateNode) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ResourceServiceUpdateNodeArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("UpdateClusterNode", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("UpdateNode", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -2843,15 +3057,15 @@ func (p *resourceServiceProcessorUpdateClusterNode) Process(ctx context.Context,
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := ResourceServiceUpdateClusterNodeResult{}
-	var retval *cluster.UpdateClusterNodeResponse
-	if retval, err2 = p.handler.UpdateClusterNode(ctx, args.Req); err2 != nil {
+	result := ResourceServiceUpdateNodeResult{}
+	var retval *cluster.UpdateNodeResponse
+	if retval, err2 = p.handler.UpdateNode(ctx, args.Req); err2 != nil {
 		switch v := err2.(type) {
 		case *common.Error:
 			result.Err = v
 		default:
-			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing UpdateClusterNode: "+err2.Error())
-			oprot.WriteMessageBegin("UpdateClusterNode", thrift.EXCEPTION, seqId)
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing UpdateNode: "+err2.Error())
+			oprot.WriteMessageBegin("UpdateNode", thrift.EXCEPTION, seqId)
 			x.Write(oprot)
 			oprot.WriteMessageEnd()
 			oprot.Flush(ctx)
@@ -2860,7 +3074,7 @@ func (p *resourceServiceProcessorUpdateClusterNode) Process(ctx context.Context,
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("UpdateClusterNode", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("UpdateNode", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -2878,16 +3092,16 @@ func (p *resourceServiceProcessorUpdateClusterNode) Process(ctx context.Context,
 	return true, err
 }
 
-type resourceServiceProcessorGetAutoScalingRule struct {
+type resourceServiceProcessorGetClusterAutoScalingRule struct {
 	handler ResourceService
 }
 
-func (p *resourceServiceProcessorGetAutoScalingRule) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := ResourceServiceGetAutoScalingRuleArgs{}
+func (p *resourceServiceProcessorGetClusterAutoScalingRule) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ResourceServiceGetClusterAutoScalingRuleArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("GetAutoScalingRule", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("GetClusterAutoScalingRule", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -2896,15 +3110,15 @@ func (p *resourceServiceProcessorGetAutoScalingRule) Process(ctx context.Context
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := ResourceServiceGetAutoScalingRuleResult{}
-	var retval *cluster.GetAutoScalingRuleResponse
-	if retval, err2 = p.handler.GetAutoScalingRule(ctx, args.Req); err2 != nil {
+	result := ResourceServiceGetClusterAutoScalingRuleResult{}
+	var retval *cluster.GetClusterAutoScalingRuleResponse
+	if retval, err2 = p.handler.GetClusterAutoScalingRule(ctx, args.Req); err2 != nil {
 		switch v := err2.(type) {
 		case *common.Error:
 			result.Err = v
 		default:
-			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing GetAutoScalingRule: "+err2.Error())
-			oprot.WriteMessageBegin("GetAutoScalingRule", thrift.EXCEPTION, seqId)
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing GetClusterAutoScalingRule: "+err2.Error())
+			oprot.WriteMessageBegin("GetClusterAutoScalingRule", thrift.EXCEPTION, seqId)
 			x.Write(oprot)
 			oprot.WriteMessageEnd()
 			oprot.Flush(ctx)
@@ -2913,7 +3127,7 @@ func (p *resourceServiceProcessorGetAutoScalingRule) Process(ctx context.Context
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("GetAutoScalingRule", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("GetClusterAutoScalingRule", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -2931,16 +3145,16 @@ func (p *resourceServiceProcessorGetAutoScalingRule) Process(ctx context.Context
 	return true, err
 }
 
-type resourceServiceProcessorUpdateAutoScalingRule struct {
+type resourceServiceProcessorUpdateClusterAutoScalingRule struct {
 	handler ResourceService
 }
 
-func (p *resourceServiceProcessorUpdateAutoScalingRule) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := ResourceServiceUpdateAutoScalingRuleArgs{}
+func (p *resourceServiceProcessorUpdateClusterAutoScalingRule) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ResourceServiceUpdateClusterAutoScalingRuleArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("UpdateAutoScalingRule", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("UpdateClusterAutoScalingRule", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -2949,15 +3163,15 @@ func (p *resourceServiceProcessorUpdateAutoScalingRule) Process(ctx context.Cont
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := ResourceServiceUpdateAutoScalingRuleResult{}
-	var retval *cluster.UpdateAutoScalingRuleResponse
-	if retval, err2 = p.handler.UpdateAutoScalingRule(ctx, args.Req); err2 != nil {
+	result := ResourceServiceUpdateClusterAutoScalingRuleResult{}
+	var retval *cluster.UpdateClusterAutoScalingRuleResponse
+	if retval, err2 = p.handler.UpdateClusterAutoScalingRule(ctx, args.Req); err2 != nil {
 		switch v := err2.(type) {
 		case *common.Error:
 			result.Err = v
 		default:
-			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing UpdateAutoScalingRule: "+err2.Error())
-			oprot.WriteMessageBegin("UpdateAutoScalingRule", thrift.EXCEPTION, seqId)
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing UpdateClusterAutoScalingRule: "+err2.Error())
+			oprot.WriteMessageBegin("UpdateClusterAutoScalingRule", thrift.EXCEPTION, seqId)
 			x.Write(oprot)
 			oprot.WriteMessageEnd()
 			oprot.Flush(ctx)
@@ -2966,7 +3180,7 @@ func (p *resourceServiceProcessorUpdateAutoScalingRule) Process(ctx context.Cont
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("UpdateAutoScalingRule", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("UpdateClusterAutoScalingRule", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -2984,16 +3198,16 @@ func (p *resourceServiceProcessorUpdateAutoScalingRule) Process(ctx context.Cont
 	return true, err
 }
 
-type resourceServiceProcessorNodePoolScaleUp struct {
+type resourceServiceProcessorScaleUpNodePool struct {
 	handler ResourceService
 }
 
-func (p *resourceServiceProcessorNodePoolScaleUp) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := ResourceServiceNodePoolScaleUpArgs{}
+func (p *resourceServiceProcessorScaleUpNodePool) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ResourceServiceScaleUpNodePoolArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("NodePoolScaleUp", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("ScaleUpNodePool", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -3002,15 +3216,15 @@ func (p *resourceServiceProcessorNodePoolScaleUp) Process(ctx context.Context, s
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := ResourceServiceNodePoolScaleUpResult{}
-	var retval *cluster.NodePoolScaleUpResponse
-	if retval, err2 = p.handler.NodePoolScaleUp(ctx, args.Req); err2 != nil {
+	result := ResourceServiceScaleUpNodePoolResult{}
+	var retval *cluster.ScaleUpNodePoolResponse
+	if retval, err2 = p.handler.ScaleUpNodePool(ctx, args.Req); err2 != nil {
 		switch v := err2.(type) {
 		case *common.Error:
 			result.Err = v
 		default:
-			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing NodePoolScaleUp: "+err2.Error())
-			oprot.WriteMessageBegin("NodePoolScaleUp", thrift.EXCEPTION, seqId)
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ScaleUpNodePool: "+err2.Error())
+			oprot.WriteMessageBegin("ScaleUpNodePool", thrift.EXCEPTION, seqId)
 			x.Write(oprot)
 			oprot.WriteMessageEnd()
 			oprot.Flush(ctx)
@@ -3019,7 +3233,7 @@ func (p *resourceServiceProcessorNodePoolScaleUp) Process(ctx context.Context, s
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("NodePoolScaleUp", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("ScaleUpNodePool", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -3037,16 +3251,16 @@ func (p *resourceServiceProcessorNodePoolScaleUp) Process(ctx context.Context, s
 	return true, err
 }
 
-type resourceServiceProcessorNodePoolScaleDown struct {
+type resourceServiceProcessorScaleDownNodePool struct {
 	handler ResourceService
 }
 
-func (p *resourceServiceProcessorNodePoolScaleDown) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := ResourceServiceNodePoolScaleDownArgs{}
+func (p *resourceServiceProcessorScaleDownNodePool) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ResourceServiceScaleDownNodePoolArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("NodePoolScaleDown", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("ScaleDownNodePool", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -3055,15 +3269,15 @@ func (p *resourceServiceProcessorNodePoolScaleDown) Process(ctx context.Context,
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := ResourceServiceNodePoolScaleDownResult{}
-	var retval *cluster.NodePoolScaleDownResponse
-	if retval, err2 = p.handler.NodePoolScaleDown(ctx, args.Req); err2 != nil {
+	result := ResourceServiceScaleDownNodePoolResult{}
+	var retval *cluster.ScaleDownNodePoolResponse
+	if retval, err2 = p.handler.ScaleDownNodePool(ctx, args.Req); err2 != nil {
 		switch v := err2.(type) {
 		case *common.Error:
 			result.Err = v
 		default:
-			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing NodePoolScaleDown: "+err2.Error())
-			oprot.WriteMessageBegin("NodePoolScaleDown", thrift.EXCEPTION, seqId)
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ScaleDownNodePool: "+err2.Error())
+			oprot.WriteMessageBegin("ScaleDownNodePool", thrift.EXCEPTION, seqId)
 			x.Write(oprot)
 			oprot.WriteMessageEnd()
 			oprot.Flush(ctx)
@@ -3072,7 +3286,7 @@ func (p *resourceServiceProcessorNodePoolScaleDown) Process(ctx context.Context,
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("NodePoolScaleDown", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("ScaleDownNodePool", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -3090,16 +3304,16 @@ func (p *resourceServiceProcessorNodePoolScaleDown) Process(ctx context.Context,
 	return true, err
 }
 
-type resourceServiceProcessorListNodePool struct {
+type resourceServiceProcessorListNodePools struct {
 	handler ResourceService
 }
 
-func (p *resourceServiceProcessorListNodePool) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := ResourceServiceListNodePoolArgs{}
+func (p *resourceServiceProcessorListNodePools) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ResourceServiceListNodePoolsArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("ListNodePool", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("ListNodePools", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -3108,15 +3322,15 @@ func (p *resourceServiceProcessorListNodePool) Process(ctx context.Context, seqI
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := ResourceServiceListNodePoolResult{}
-	var retval *cluster.ListNodePoolResponse
-	if retval, err2 = p.handler.ListNodePool(ctx, args.Req); err2 != nil {
+	result := ResourceServiceListNodePoolsResult{}
+	var retval *cluster.ListNodePoolsResponse
+	if retval, err2 = p.handler.ListNodePools(ctx, args.Req); err2 != nil {
 		switch v := err2.(type) {
 		case *common.Error:
 			result.Err = v
 		default:
-			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ListNodePool: "+err2.Error())
-			oprot.WriteMessageBegin("ListNodePool", thrift.EXCEPTION, seqId)
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ListNodePools: "+err2.Error())
+			oprot.WriteMessageBegin("ListNodePools", thrift.EXCEPTION, seqId)
 			x.Write(oprot)
 			oprot.WriteMessageEnd()
 			oprot.Flush(ctx)
@@ -3125,7 +3339,7 @@ func (p *resourceServiceProcessorListNodePool) Process(ctx context.Context, seqI
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("ListNodePool", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("ListNodePools", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -3374,7 +3588,7 @@ func (p *resourceServiceProcessorListNodePoolScalingRecords) Process(ctx context
 	iprot.ReadMessageEnd()
 	var err2 error
 	result := ResourceServiceListNodePoolScalingRecordsResult{}
-	var retval *cluster.ListNodePoolScalingRecordResponse
+	var retval *cluster.ListNodePoolScalingRecordsResponse
 	if retval, err2 = p.handler.ListNodePoolScalingRecords(ctx, args.Req); err2 != nil {
 		switch v := err2.(type) {
 		case *common.Error:
@@ -3408,16 +3622,16 @@ func (p *resourceServiceProcessorListNodePoolScalingRecords) Process(ctx context
 	return true, err
 }
 
-type resourceServiceProcessorListNodePoolNode struct {
+type resourceServiceProcessorListNodePoolNodes struct {
 	handler ResourceService
 }
 
-func (p *resourceServiceProcessorListNodePoolNode) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := ResourceServiceListNodePoolNodeArgs{}
+func (p *resourceServiceProcessorListNodePoolNodes) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ResourceServiceListNodePoolNodesArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("ListNodePoolNode", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("ListNodePoolNodes", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -3426,15 +3640,15 @@ func (p *resourceServiceProcessorListNodePoolNode) Process(ctx context.Context, 
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := ResourceServiceListNodePoolNodeResult{}
-	var retval *cluster.ListNodePoolNodeResponse
-	if retval, err2 = p.handler.ListNodePoolNode(ctx, args.Req); err2 != nil {
+	result := ResourceServiceListNodePoolNodesResult{}
+	var retval *cluster.ListNodePoolNodesResponse
+	if retval, err2 = p.handler.ListNodePoolNodes(ctx, args.Req); err2 != nil {
 		switch v := err2.(type) {
 		case *common.Error:
 			result.Err = v
 		default:
-			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ListNodePoolNode: "+err2.Error())
-			oprot.WriteMessageBegin("ListNodePoolNode", thrift.EXCEPTION, seqId)
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ListNodePoolNodes: "+err2.Error())
+			oprot.WriteMessageBegin("ListNodePoolNodes", thrift.EXCEPTION, seqId)
 			x.Write(oprot)
 			oprot.WriteMessageEnd()
 			oprot.Flush(ctx)
@@ -3443,7 +3657,7 @@ func (p *resourceServiceProcessorListNodePoolNode) Process(ctx context.Context, 
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("ListNodePoolNode", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("ListNodePoolNodes", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -5282,7 +5496,7 @@ func (p *resourceServiceProcessorListSupportedAddons) Process(ctx context.Contex
 	iprot.ReadMessageEnd()
 	var err2 error
 	result := ResourceServiceListSupportedAddonsResult{}
-	var retval *addon.ListSupportedAddonResponse
+	var retval *addon.ListSupportedAddonsResponse
 	if retval, err2 = p.handler.ListSupportedAddons(ctx, args.Req); err2 != nil {
 		switch v := err2.(type) {
 		case *common.Error:
@@ -5335,7 +5549,7 @@ func (p *resourceServiceProcessorListAddons) Process(ctx context.Context, seqId 
 	iprot.ReadMessageEnd()
 	var err2 error
 	result := ResourceServiceListAddonsResult{}
-	var retval *addon.ListAddonResponse
+	var retval *addon.ListAddonsResponse
 	if retval, err2 = p.handler.ListAddons(ctx, args.Req); err2 != nil {
 		switch v := err2.(type) {
 		case *common.Error:
@@ -5369,16 +5583,16 @@ func (p *resourceServiceProcessorListAddons) Process(ctx context.Context, seqId 
 	return true, err
 }
 
-type resourceServiceProcessorInstallAddon struct {
+type resourceServiceProcessorInstallAddons struct {
 	handler ResourceService
 }
 
-func (p *resourceServiceProcessorInstallAddon) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := ResourceServiceInstallAddonArgs{}
+func (p *resourceServiceProcessorInstallAddons) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ResourceServiceInstallAddonsArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("InstallAddon", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("InstallAddons", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -5387,15 +5601,15 @@ func (p *resourceServiceProcessorInstallAddon) Process(ctx context.Context, seqI
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := ResourceServiceInstallAddonResult{}
-	var retval *addon.InstallAddonResponse
-	if retval, err2 = p.handler.InstallAddon(ctx, args.Req); err2 != nil {
+	result := ResourceServiceInstallAddonsResult{}
+	var retval *addon.InstallAddonsResponse
+	if retval, err2 = p.handler.InstallAddons(ctx, args.Req); err2 != nil {
 		switch v := err2.(type) {
 		case *common.Error:
 			result.Err = v
 		default:
-			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing InstallAddon: "+err2.Error())
-			oprot.WriteMessageBegin("InstallAddon", thrift.EXCEPTION, seqId)
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing InstallAddons: "+err2.Error())
+			oprot.WriteMessageBegin("InstallAddons", thrift.EXCEPTION, seqId)
 			x.Write(oprot)
 			oprot.WriteMessageEnd()
 			oprot.Flush(ctx)
@@ -5404,7 +5618,7 @@ func (p *resourceServiceProcessorInstallAddon) Process(ctx context.Context, seqI
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("InstallAddon", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("InstallAddons", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -5422,16 +5636,16 @@ func (p *resourceServiceProcessorInstallAddon) Process(ctx context.Context, seqI
 	return true, err
 }
 
-type resourceServiceProcessorUninstallAddon struct {
+type resourceServiceProcessorReinstallAddon struct {
 	handler ResourceService
 }
 
-func (p *resourceServiceProcessorUninstallAddon) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := ResourceServiceUninstallAddonArgs{}
+func (p *resourceServiceProcessorReinstallAddon) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ResourceServiceReinstallAddonArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("UninstallAddon", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("ReinstallAddon", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -5440,15 +5654,15 @@ func (p *resourceServiceProcessorUninstallAddon) Process(ctx context.Context, se
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := ResourceServiceUninstallAddonResult{}
-	var retval *addon.UninstallAddonResponse
-	if retval, err2 = p.handler.UninstallAddon(ctx, args.Req); err2 != nil {
+	result := ResourceServiceReinstallAddonResult{}
+	var retval *addon.ReinstallAddonResponse
+	if retval, err2 = p.handler.ReinstallAddon(ctx, args.Req); err2 != nil {
 		switch v := err2.(type) {
 		case *common.Error:
 			result.Err = v
 		default:
-			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing UninstallAddon: "+err2.Error())
-			oprot.WriteMessageBegin("UninstallAddon", thrift.EXCEPTION, seqId)
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ReinstallAddon: "+err2.Error())
+			oprot.WriteMessageBegin("ReinstallAddon", thrift.EXCEPTION, seqId)
 			x.Write(oprot)
 			oprot.WriteMessageEnd()
 			oprot.Flush(ctx)
@@ -5457,7 +5671,60 @@ func (p *resourceServiceProcessorUninstallAddon) Process(ctx context.Context, se
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("UninstallAddon", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("ReinstallAddon", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
+type resourceServiceProcessorUninstallAddons struct {
+	handler ResourceService
+}
+
+func (p *resourceServiceProcessorUninstallAddons) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ResourceServiceUninstallAddonsArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("UninstallAddons", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	var err2 error
+	result := ResourceServiceUninstallAddonsResult{}
+	var retval *addon.UninstallAddonsResponse
+	if retval, err2 = p.handler.UninstallAddons(ctx, args.Req); err2 != nil {
+		switch v := err2.(type) {
+		case *common.Error:
+			result.Err = v
+		default:
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing UninstallAddons: "+err2.Error())
+			oprot.WriteMessageBegin("UninstallAddons", thrift.EXCEPTION, seqId)
+			x.Write(oprot)
+			oprot.WriteMessageEnd()
+			oprot.Flush(ctx)
+			return true, err2
+		}
+	} else {
+		result.Success = retval
+	}
+	if err2 = oprot.WriteMessageBegin("UninstallAddons", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -5899,6 +6166,59 @@ func (p *resourceServiceProcessorListVolumes) Process(ctx context.Context, seqId
 	return true, err
 }
 
+type resourceServiceProcessorListKeyPairs struct {
+	handler ResourceService
+}
+
+func (p *resourceServiceProcessorListKeyPairs) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ResourceServiceListKeyPairsArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("ListKeyPairs", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	var err2 error
+	result := ResourceServiceListKeyPairsResult{}
+	var retval *instance.ListKeyPairsResponse
+	if retval, err2 = p.handler.ListKeyPairs(ctx, args.Req); err2 != nil {
+		switch v := err2.(type) {
+		case *common.Error:
+			result.Err = v
+		default:
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ListKeyPairs: "+err2.Error())
+			oprot.WriteMessageBegin("ListKeyPairs", thrift.EXCEPTION, seqId)
+			x.Write(oprot)
+			oprot.WriteMessageEnd()
+			oprot.Flush(ctx)
+			return true, err2
+		}
+	} else {
+		result.Success = retval
+	}
+	if err2 = oprot.WriteMessageBegin("ListKeyPairs", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
 type resourceServiceProcessorListSubnets struct {
 	handler ResourceService
 }
@@ -5952,16 +6272,16 @@ func (p *resourceServiceProcessorListSubnets) Process(ctx context.Context, seqId
 	return true, err
 }
 
-type resourceServiceProcessorListElasticIPPools struct {
+type resourceServiceProcessorListElasticIpPools struct {
 	handler ResourceService
 }
 
-func (p *resourceServiceProcessorListElasticIPPools) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := ResourceServiceListElasticIPPoolsArgs{}
+func (p *resourceServiceProcessorListElasticIpPools) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ResourceServiceListElasticIpPoolsArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("ListElasticIPPools", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("ListElasticIpPools", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -5970,15 +6290,15 @@ func (p *resourceServiceProcessorListElasticIPPools) Process(ctx context.Context
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := ResourceServiceListElasticIPPoolsResult{}
-	var retval *vpc.ListElasticIPPoolsResponse
-	if retval, err2 = p.handler.ListElasticIPPools(ctx, args.Req); err2 != nil {
+	result := ResourceServiceListElasticIpPoolsResult{}
+	var retval *vpc.ListElasticIpPoolsResponse
+	if retval, err2 = p.handler.ListElasticIpPools(ctx, args.Req); err2 != nil {
 		switch v := err2.(type) {
 		case *common.Error:
 			result.Err = v
 		default:
-			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ListElasticIPPools: "+err2.Error())
-			oprot.WriteMessageBegin("ListElasticIPPools", thrift.EXCEPTION, seqId)
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ListElasticIpPools: "+err2.Error())
+			oprot.WriteMessageBegin("ListElasticIpPools", thrift.EXCEPTION, seqId)
 			x.Write(oprot)
 			oprot.WriteMessageEnd()
 			oprot.Flush(ctx)
@@ -5987,7 +6307,7 @@ func (p *resourceServiceProcessorListElasticIPPools) Process(ctx context.Context
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("ListElasticIPPools", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("ListElasticIpPools", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -6130,7 +6450,7 @@ func (p *resourceServiceProcessorListClbs) Process(ctx context.Context, seqId in
 	iprot.ReadMessageEnd()
 	var err2 error
 	result := ResourceServiceListClbsResult{}
-	var retval *clb.ListClbResponse
+	var retval *clb.ListClbsResponse
 	if retval, err2 = p.handler.ListClbs(ctx, args.Req); err2 != nil {
 		switch v := err2.(type) {
 		case *common.Error:
@@ -6147,6 +6467,59 @@ func (p *resourceServiceProcessorListClbs) Process(ctx context.Context, seqId in
 		result.Success = retval
 	}
 	if err2 = oprot.WriteMessageBegin("ListClbs", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
+type resourceServiceProcessorListClbListeners struct {
+	handler ResourceService
+}
+
+func (p *resourceServiceProcessorListClbListeners) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ResourceServiceListClbListenersArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("ListClbListeners", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	var err2 error
+	result := ResourceServiceListClbListenersResult{}
+	var retval *clb.ListClbListenersResponse
+	if retval, err2 = p.handler.ListClbListeners(ctx, args.Req); err2 != nil {
+		switch v := err2.(type) {
+		case *common.Error:
+			result.Err = v
+		default:
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ListClbListeners: "+err2.Error())
+			oprot.WriteMessageBegin("ListClbListeners", thrift.EXCEPTION, seqId)
+			x.Write(oprot)
+			oprot.WriteMessageEnd()
+			oprot.Flush(ctx)
+			return true, err2
+		}
+	} else {
+		result.Success = retval
+	}
+	if err2 = oprot.WriteMessageBegin("ListClbListeners", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -6783,6 +7156,271 @@ func (p *resourceServiceProcessorRecommendCidr) Process(ctx context.Context, seq
 		result.Success = retval
 	}
 	if err2 = oprot.WriteMessageBegin("RecommendCidr", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
+type resourceServiceProcessorAddVciSubnets struct {
+	handler ResourceService
+}
+
+func (p *resourceServiceProcessorAddVciSubnets) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ResourceServiceAddVciSubnetsArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("AddVciSubnets", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	var err2 error
+	result := ResourceServiceAddVciSubnetsResult{}
+	var retval *cluster.AddVciSubnetsResponse
+	if retval, err2 = p.handler.AddVciSubnets(ctx, args.Req); err2 != nil {
+		switch v := err2.(type) {
+		case *common.Error:
+			result.Err = v
+		default:
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing AddVciSubnets: "+err2.Error())
+			oprot.WriteMessageBegin("AddVciSubnets", thrift.EXCEPTION, seqId)
+			x.Write(oprot)
+			oprot.WriteMessageEnd()
+			oprot.Flush(ctx)
+			return true, err2
+		}
+	} else {
+		result.Success = retval
+	}
+	if err2 = oprot.WriteMessageBegin("AddVciSubnets", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
+type resourceServiceProcessorIsInShortTermWhiteList struct {
+	handler ResourceService
+}
+
+func (p *resourceServiceProcessorIsInShortTermWhiteList) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ResourceServiceIsInShortTermWhiteListArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("IsInShortTermWhiteList", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	var err2 error
+	result := ResourceServiceIsInShortTermWhiteListResult{}
+	var retval *trade.IsInShortTermWhiteListResponse
+	if retval, err2 = p.handler.IsInShortTermWhiteList(ctx, args.Req); err2 != nil {
+		switch v := err2.(type) {
+		case *common.Error:
+			result.Err = v
+		default:
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing IsInShortTermWhiteList: "+err2.Error())
+			oprot.WriteMessageBegin("IsInShortTermWhiteList", thrift.EXCEPTION, seqId)
+			x.Write(oprot)
+			oprot.WriteMessageEnd()
+			oprot.Flush(ctx)
+			return true, err2
+		}
+	} else {
+		result.Success = retval
+	}
+	if err2 = oprot.WriteMessageBegin("IsInShortTermWhiteList", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
+type resourceServiceProcessorAllowUserPublicTest struct {
+	handler ResourceService
+}
+
+func (p *resourceServiceProcessorAllowUserPublicTest) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ResourceServiceAllowUserPublicTestArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("AllowUserPublicTest", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	var err2 error
+	result := ResourceServiceAllowUserPublicTestResult{}
+	var retval *publicverify.PublicTestAllowedResp
+	if retval, err2 = p.handler.AllowUserPublicTest(ctx, args.Req); err2 != nil {
+		switch v := err2.(type) {
+		case *common.Error:
+			result.Err = v
+		default:
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing AllowUserPublicTest: "+err2.Error())
+			oprot.WriteMessageBegin("AllowUserPublicTest", thrift.EXCEPTION, seqId)
+			x.Write(oprot)
+			oprot.WriteMessageEnd()
+			oprot.Flush(ctx)
+			return true, err2
+		}
+	} else {
+		result.Success = retval
+	}
+	if err2 = oprot.WriteMessageBegin("AllowUserPublicTest", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
+type resourceServiceProcessorListVciAvailabilityZones struct {
+	handler ResourceService
+}
+
+func (p *resourceServiceProcessorListVciAvailabilityZones) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ResourceServiceListVciAvailabilityZonesArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("ListVciAvailabilityZones", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	var err2 error
+	result := ResourceServiceListVciAvailabilityZonesResult{}
+	var retval *vci.ListVciAvailabilityZonesResponse
+	if retval, err2 = p.handler.ListVciAvailabilityZones(ctx, args.Req); err2 != nil {
+		switch v := err2.(type) {
+		case *common.Error:
+			result.Err = v
+		default:
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ListVciAvailabilityZones: "+err2.Error())
+			oprot.WriteMessageBegin("ListVciAvailabilityZones", thrift.EXCEPTION, seqId)
+			x.Write(oprot)
+			oprot.WriteMessageEnd()
+			oprot.Flush(ctx)
+			return true, err2
+		}
+	} else {
+		result.Success = retval
+	}
+	if err2 = oprot.WriteMessageBegin("ListVciAvailabilityZones", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
+type resourceServiceProcessorListNodeZones struct {
+	handler ResourceService
+}
+
+func (p *resourceServiceProcessorListNodeZones) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ResourceServiceListNodeZonesArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("ListNodeZones", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	var err2 error
+	result := ResourceServiceListNodeZonesResult{}
+	var retval *cluster.ListNodeZonesResponse
+	if retval, err2 = p.handler.ListNodeZones(ctx, args.Req); err2 != nil {
+		switch v := err2.(type) {
+		case *common.Error:
+			result.Err = v
+		default:
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ListNodeZones: "+err2.Error())
+			oprot.WriteMessageBegin("ListNodeZones", thrift.EXCEPTION, seqId)
+			x.Write(oprot)
+			oprot.WriteMessageEnd()
+			oprot.Flush(ctx)
+			return true, err2
+		}
+	} else {
+		result.Success = retval
+	}
+	if err2 = oprot.WriteMessageBegin("ListNodeZones", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -7614,35 +8252,35 @@ func (p *ResourceServiceGetKubeConfigResult) Field1DeepEqual(src *common.Error) 
 	return true
 }
 
-type ResourceServiceRevokeKubeConfigArgs struct {
-	Req *cluster.RevokeKubeConfigRequest `thrift:"req,1" json:"req"`
+type ResourceServiceGetKubeconfigArgs struct {
+	Req *cluster.GetKubeconfigRequest `thrift:"req,1" json:"req"`
 }
 
-func NewResourceServiceRevokeKubeConfigArgs() *ResourceServiceRevokeKubeConfigArgs {
-	return &ResourceServiceRevokeKubeConfigArgs{}
+func NewResourceServiceGetKubeconfigArgs() *ResourceServiceGetKubeconfigArgs {
+	return &ResourceServiceGetKubeconfigArgs{}
 }
 
-var ResourceServiceRevokeKubeConfigArgs_Req_DEFAULT *cluster.RevokeKubeConfigRequest
+var ResourceServiceGetKubeconfigArgs_Req_DEFAULT *cluster.GetKubeconfigRequest
 
-func (p *ResourceServiceRevokeKubeConfigArgs) GetReq() (v *cluster.RevokeKubeConfigRequest) {
+func (p *ResourceServiceGetKubeconfigArgs) GetReq() (v *cluster.GetKubeconfigRequest) {
 	if !p.IsSetReq() {
-		return ResourceServiceRevokeKubeConfigArgs_Req_DEFAULT
+		return ResourceServiceGetKubeconfigArgs_Req_DEFAULT
 	}
 	return p.Req
 }
-func (p *ResourceServiceRevokeKubeConfigArgs) SetReq(val *cluster.RevokeKubeConfigRequest) {
+func (p *ResourceServiceGetKubeconfigArgs) SetReq(val *cluster.GetKubeconfigRequest) {
 	p.Req = val
 }
 
-var fieldIDToName_ResourceServiceRevokeKubeConfigArgs = map[int16]string{
+var fieldIDToName_ResourceServiceGetKubeconfigArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *ResourceServiceRevokeKubeConfigArgs) IsSetReq() bool {
+func (p *ResourceServiceGetKubeconfigArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *ResourceServiceRevokeKubeConfigArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceGetKubeconfigArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -7691,7 +8329,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceRevokeKubeConfigArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceGetKubeconfigArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -7701,17 +8339,17 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceRevokeKubeConfigArgs) ReadField1(iprot thrift.TProtocol) error {
-	p.Req = cluster.NewRevokeKubeConfigRequest()
+func (p *ResourceServiceGetKubeconfigArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = cluster.NewGetKubeconfigRequest()
 	if err := p.Req.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceRevokeKubeConfigArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceGetKubeconfigArgs) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("RevokeKubeConfig_args"); err != nil {
+	if err = oprot.WriteStructBegin("GetKubeconfig_args"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -7738,7 +8376,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceRevokeKubeConfigArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceGetKubeconfigArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -7755,14 +8393,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceRevokeKubeConfigArgs) String() string {
+func (p *ResourceServiceGetKubeconfigArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceRevokeKubeConfigArgs(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceGetKubeconfigArgs(%+v)", *p)
 }
 
-func (p *ResourceServiceRevokeKubeConfigArgs) DeepEqual(ano *ResourceServiceRevokeKubeConfigArgs) bool {
+func (p *ResourceServiceGetKubeconfigArgs) DeepEqual(ano *ResourceServiceGetKubeconfigArgs) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -7774,7 +8412,7 @@ func (p *ResourceServiceRevokeKubeConfigArgs) DeepEqual(ano *ResourceServiceRevo
 	return true
 }
 
-func (p *ResourceServiceRevokeKubeConfigArgs) Field1DeepEqual(src *cluster.RevokeKubeConfigRequest) bool {
+func (p *ResourceServiceGetKubeconfigArgs) Field1DeepEqual(src *cluster.GetKubeconfigRequest) bool {
 
 	if !p.Req.DeepEqual(src) {
 		return false
@@ -7782,53 +8420,53 @@ func (p *ResourceServiceRevokeKubeConfigArgs) Field1DeepEqual(src *cluster.Revok
 	return true
 }
 
-type ResourceServiceRevokeKubeConfigResult struct {
-	Success *cluster.RevokeKubeConfigResponse `thrift:"success,0" json:"success,omitempty"`
-	Err     *common.Error                     `thrift:"err,1" json:"err,omitempty"`
+type ResourceServiceGetKubeconfigResult struct {
+	Success *cluster.GetKubeconfigResponse `thrift:"success,0" json:"success,omitempty"`
+	Err     *common.Error                  `thrift:"err,1" json:"err,omitempty"`
 }
 
-func NewResourceServiceRevokeKubeConfigResult() *ResourceServiceRevokeKubeConfigResult {
-	return &ResourceServiceRevokeKubeConfigResult{}
+func NewResourceServiceGetKubeconfigResult() *ResourceServiceGetKubeconfigResult {
+	return &ResourceServiceGetKubeconfigResult{}
 }
 
-var ResourceServiceRevokeKubeConfigResult_Success_DEFAULT *cluster.RevokeKubeConfigResponse
+var ResourceServiceGetKubeconfigResult_Success_DEFAULT *cluster.GetKubeconfigResponse
 
-func (p *ResourceServiceRevokeKubeConfigResult) GetSuccess() (v *cluster.RevokeKubeConfigResponse) {
+func (p *ResourceServiceGetKubeconfigResult) GetSuccess() (v *cluster.GetKubeconfigResponse) {
 	if !p.IsSetSuccess() {
-		return ResourceServiceRevokeKubeConfigResult_Success_DEFAULT
+		return ResourceServiceGetKubeconfigResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-var ResourceServiceRevokeKubeConfigResult_Err_DEFAULT *common.Error
+var ResourceServiceGetKubeconfigResult_Err_DEFAULT *common.Error
 
-func (p *ResourceServiceRevokeKubeConfigResult) GetErr() (v *common.Error) {
+func (p *ResourceServiceGetKubeconfigResult) GetErr() (v *common.Error) {
 	if !p.IsSetErr() {
-		return ResourceServiceRevokeKubeConfigResult_Err_DEFAULT
+		return ResourceServiceGetKubeconfigResult_Err_DEFAULT
 	}
 	return p.Err
 }
-func (p *ResourceServiceRevokeKubeConfigResult) SetSuccess(x interface{}) {
-	p.Success = x.(*cluster.RevokeKubeConfigResponse)
+func (p *ResourceServiceGetKubeconfigResult) SetSuccess(x interface{}) {
+	p.Success = x.(*cluster.GetKubeconfigResponse)
 }
-func (p *ResourceServiceRevokeKubeConfigResult) SetErr(val *common.Error) {
+func (p *ResourceServiceGetKubeconfigResult) SetErr(val *common.Error) {
 	p.Err = val
 }
 
-var fieldIDToName_ResourceServiceRevokeKubeConfigResult = map[int16]string{
+var fieldIDToName_ResourceServiceGetKubeconfigResult = map[int16]string{
 	0: "success",
 	1: "err",
 }
 
-func (p *ResourceServiceRevokeKubeConfigResult) IsSetSuccess() bool {
+func (p *ResourceServiceGetKubeconfigResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *ResourceServiceRevokeKubeConfigResult) IsSetErr() bool {
+func (p *ResourceServiceGetKubeconfigResult) IsSetErr() bool {
 	return p.Err != nil
 }
 
-func (p *ResourceServiceRevokeKubeConfigResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceGetKubeconfigResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -7887,7 +8525,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceRevokeKubeConfigResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceGetKubeconfigResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -7897,15 +8535,15 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceRevokeKubeConfigResult) ReadField0(iprot thrift.TProtocol) error {
-	p.Success = cluster.NewRevokeKubeConfigResponse()
+func (p *ResourceServiceGetKubeconfigResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = cluster.NewGetKubeconfigResponse()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceRevokeKubeConfigResult) ReadField1(iprot thrift.TProtocol) error {
+func (p *ResourceServiceGetKubeconfigResult) ReadField1(iprot thrift.TProtocol) error {
 	p.Err = common.NewError()
 	if err := p.Err.Read(iprot); err != nil {
 		return err
@@ -7913,9 +8551,9 @@ func (p *ResourceServiceRevokeKubeConfigResult) ReadField1(iprot thrift.TProtoco
 	return nil
 }
 
-func (p *ResourceServiceRevokeKubeConfigResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceGetKubeconfigResult) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("RevokeKubeConfig_result"); err != nil {
+	if err = oprot.WriteStructBegin("GetKubeconfig_result"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -7946,7 +8584,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceRevokeKubeConfigResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceGetKubeconfigResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -7965,7 +8603,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *ResourceServiceRevokeKubeConfigResult) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceGetKubeconfigResult) writeField1(oprot thrift.TProtocol) (err error) {
 	if p.IsSetErr() {
 		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
 			goto WriteFieldBeginError
@@ -7984,14 +8622,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceRevokeKubeConfigResult) String() string {
+func (p *ResourceServiceGetKubeconfigResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceRevokeKubeConfigResult(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceGetKubeconfigResult(%+v)", *p)
 }
 
-func (p *ResourceServiceRevokeKubeConfigResult) DeepEqual(ano *ResourceServiceRevokeKubeConfigResult) bool {
+func (p *ResourceServiceGetKubeconfigResult) DeepEqual(ano *ResourceServiceGetKubeconfigResult) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -8006,14 +8644,14 @@ func (p *ResourceServiceRevokeKubeConfigResult) DeepEqual(ano *ResourceServiceRe
 	return true
 }
 
-func (p *ResourceServiceRevokeKubeConfigResult) Field0DeepEqual(src *cluster.RevokeKubeConfigResponse) bool {
+func (p *ResourceServiceGetKubeconfigResult) Field0DeepEqual(src *cluster.GetKubeconfigResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ResourceServiceRevokeKubeConfigResult) Field1DeepEqual(src *common.Error) bool {
+func (p *ResourceServiceGetKubeconfigResult) Field1DeepEqual(src *common.Error) bool {
 
 	if !p.Err.DeepEqual(src) {
 		return false
@@ -8021,35 +8659,35 @@ func (p *ResourceServiceRevokeKubeConfigResult) Field1DeepEqual(src *common.Erro
 	return true
 }
 
-type ResourceServiceListKubeConfigArgs struct {
-	Req *cluster.ListKubeConfigRequest `thrift:"req,1" json:"req"`
+type ResourceServiceRevokeKubeconfigArgs struct {
+	Req *cluster.RevokeKubeconfigRequest `thrift:"req,1" json:"req"`
 }
 
-func NewResourceServiceListKubeConfigArgs() *ResourceServiceListKubeConfigArgs {
-	return &ResourceServiceListKubeConfigArgs{}
+func NewResourceServiceRevokeKubeconfigArgs() *ResourceServiceRevokeKubeconfigArgs {
+	return &ResourceServiceRevokeKubeconfigArgs{}
 }
 
-var ResourceServiceListKubeConfigArgs_Req_DEFAULT *cluster.ListKubeConfigRequest
+var ResourceServiceRevokeKubeconfigArgs_Req_DEFAULT *cluster.RevokeKubeconfigRequest
 
-func (p *ResourceServiceListKubeConfigArgs) GetReq() (v *cluster.ListKubeConfigRequest) {
+func (p *ResourceServiceRevokeKubeconfigArgs) GetReq() (v *cluster.RevokeKubeconfigRequest) {
 	if !p.IsSetReq() {
-		return ResourceServiceListKubeConfigArgs_Req_DEFAULT
+		return ResourceServiceRevokeKubeconfigArgs_Req_DEFAULT
 	}
 	return p.Req
 }
-func (p *ResourceServiceListKubeConfigArgs) SetReq(val *cluster.ListKubeConfigRequest) {
+func (p *ResourceServiceRevokeKubeconfigArgs) SetReq(val *cluster.RevokeKubeconfigRequest) {
 	p.Req = val
 }
 
-var fieldIDToName_ResourceServiceListKubeConfigArgs = map[int16]string{
+var fieldIDToName_ResourceServiceRevokeKubeconfigArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *ResourceServiceListKubeConfigArgs) IsSetReq() bool {
+func (p *ResourceServiceRevokeKubeconfigArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *ResourceServiceListKubeConfigArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceRevokeKubeconfigArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -8098,7 +8736,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListKubeConfigArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceRevokeKubeconfigArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -8108,17 +8746,17 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListKubeConfigArgs) ReadField1(iprot thrift.TProtocol) error {
-	p.Req = cluster.NewListKubeConfigRequest()
+func (p *ResourceServiceRevokeKubeconfigArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = cluster.NewRevokeKubeconfigRequest()
 	if err := p.Req.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceListKubeConfigArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceRevokeKubeconfigArgs) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListKubeConfig_args"); err != nil {
+	if err = oprot.WriteStructBegin("RevokeKubeconfig_args"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -8145,7 +8783,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListKubeConfigArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceRevokeKubeconfigArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -8162,14 +8800,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceListKubeConfigArgs) String() string {
+func (p *ResourceServiceRevokeKubeconfigArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceListKubeConfigArgs(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceRevokeKubeconfigArgs(%+v)", *p)
 }
 
-func (p *ResourceServiceListKubeConfigArgs) DeepEqual(ano *ResourceServiceListKubeConfigArgs) bool {
+func (p *ResourceServiceRevokeKubeconfigArgs) DeepEqual(ano *ResourceServiceRevokeKubeconfigArgs) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -8181,7 +8819,7 @@ func (p *ResourceServiceListKubeConfigArgs) DeepEqual(ano *ResourceServiceListKu
 	return true
 }
 
-func (p *ResourceServiceListKubeConfigArgs) Field1DeepEqual(src *cluster.ListKubeConfigRequest) bool {
+func (p *ResourceServiceRevokeKubeconfigArgs) Field1DeepEqual(src *cluster.RevokeKubeconfigRequest) bool {
 
 	if !p.Req.DeepEqual(src) {
 		return false
@@ -8189,53 +8827,53 @@ func (p *ResourceServiceListKubeConfigArgs) Field1DeepEqual(src *cluster.ListKub
 	return true
 }
 
-type ResourceServiceListKubeConfigResult struct {
-	Success *cluster.ListKubeConfigResponse `thrift:"success,0" json:"success,omitempty"`
-	Err     *common.Error                   `thrift:"err,1" json:"err,omitempty"`
+type ResourceServiceRevokeKubeconfigResult struct {
+	Success *cluster.RevokeKubeconfigResponse `thrift:"success,0" json:"success,omitempty"`
+	Err     *common.Error                     `thrift:"err,1" json:"err,omitempty"`
 }
 
-func NewResourceServiceListKubeConfigResult() *ResourceServiceListKubeConfigResult {
-	return &ResourceServiceListKubeConfigResult{}
+func NewResourceServiceRevokeKubeconfigResult() *ResourceServiceRevokeKubeconfigResult {
+	return &ResourceServiceRevokeKubeconfigResult{}
 }
 
-var ResourceServiceListKubeConfigResult_Success_DEFAULT *cluster.ListKubeConfigResponse
+var ResourceServiceRevokeKubeconfigResult_Success_DEFAULT *cluster.RevokeKubeconfigResponse
 
-func (p *ResourceServiceListKubeConfigResult) GetSuccess() (v *cluster.ListKubeConfigResponse) {
+func (p *ResourceServiceRevokeKubeconfigResult) GetSuccess() (v *cluster.RevokeKubeconfigResponse) {
 	if !p.IsSetSuccess() {
-		return ResourceServiceListKubeConfigResult_Success_DEFAULT
+		return ResourceServiceRevokeKubeconfigResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-var ResourceServiceListKubeConfigResult_Err_DEFAULT *common.Error
+var ResourceServiceRevokeKubeconfigResult_Err_DEFAULT *common.Error
 
-func (p *ResourceServiceListKubeConfigResult) GetErr() (v *common.Error) {
+func (p *ResourceServiceRevokeKubeconfigResult) GetErr() (v *common.Error) {
 	if !p.IsSetErr() {
-		return ResourceServiceListKubeConfigResult_Err_DEFAULT
+		return ResourceServiceRevokeKubeconfigResult_Err_DEFAULT
 	}
 	return p.Err
 }
-func (p *ResourceServiceListKubeConfigResult) SetSuccess(x interface{}) {
-	p.Success = x.(*cluster.ListKubeConfigResponse)
+func (p *ResourceServiceRevokeKubeconfigResult) SetSuccess(x interface{}) {
+	p.Success = x.(*cluster.RevokeKubeconfigResponse)
 }
-func (p *ResourceServiceListKubeConfigResult) SetErr(val *common.Error) {
+func (p *ResourceServiceRevokeKubeconfigResult) SetErr(val *common.Error) {
 	p.Err = val
 }
 
-var fieldIDToName_ResourceServiceListKubeConfigResult = map[int16]string{
+var fieldIDToName_ResourceServiceRevokeKubeconfigResult = map[int16]string{
 	0: "success",
 	1: "err",
 }
 
-func (p *ResourceServiceListKubeConfigResult) IsSetSuccess() bool {
+func (p *ResourceServiceRevokeKubeconfigResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *ResourceServiceListKubeConfigResult) IsSetErr() bool {
+func (p *ResourceServiceRevokeKubeconfigResult) IsSetErr() bool {
 	return p.Err != nil
 }
 
-func (p *ResourceServiceListKubeConfigResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceRevokeKubeconfigResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -8294,7 +8932,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListKubeConfigResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceRevokeKubeconfigResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -8304,15 +8942,15 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListKubeConfigResult) ReadField0(iprot thrift.TProtocol) error {
-	p.Success = cluster.NewListKubeConfigResponse()
+func (p *ResourceServiceRevokeKubeconfigResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = cluster.NewRevokeKubeconfigResponse()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceListKubeConfigResult) ReadField1(iprot thrift.TProtocol) error {
+func (p *ResourceServiceRevokeKubeconfigResult) ReadField1(iprot thrift.TProtocol) error {
 	p.Err = common.NewError()
 	if err := p.Err.Read(iprot); err != nil {
 		return err
@@ -8320,9 +8958,9 @@ func (p *ResourceServiceListKubeConfigResult) ReadField1(iprot thrift.TProtocol)
 	return nil
 }
 
-func (p *ResourceServiceListKubeConfigResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceRevokeKubeconfigResult) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListKubeConfig_result"); err != nil {
+	if err = oprot.WriteStructBegin("RevokeKubeconfig_result"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -8353,7 +8991,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListKubeConfigResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceRevokeKubeconfigResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -8372,7 +9010,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *ResourceServiceListKubeConfigResult) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceRevokeKubeconfigResult) writeField1(oprot thrift.TProtocol) (err error) {
 	if p.IsSetErr() {
 		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
 			goto WriteFieldBeginError
@@ -8391,14 +9029,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceListKubeConfigResult) String() string {
+func (p *ResourceServiceRevokeKubeconfigResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceListKubeConfigResult(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceRevokeKubeconfigResult(%+v)", *p)
 }
 
-func (p *ResourceServiceListKubeConfigResult) DeepEqual(ano *ResourceServiceListKubeConfigResult) bool {
+func (p *ResourceServiceRevokeKubeconfigResult) DeepEqual(ano *ResourceServiceRevokeKubeconfigResult) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -8413,14 +9051,421 @@ func (p *ResourceServiceListKubeConfigResult) DeepEqual(ano *ResourceServiceList
 	return true
 }
 
-func (p *ResourceServiceListKubeConfigResult) Field0DeepEqual(src *cluster.ListKubeConfigResponse) bool {
+func (p *ResourceServiceRevokeKubeconfigResult) Field0DeepEqual(src *cluster.RevokeKubeconfigResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ResourceServiceListKubeConfigResult) Field1DeepEqual(src *common.Error) bool {
+func (p *ResourceServiceRevokeKubeconfigResult) Field1DeepEqual(src *common.Error) bool {
+
+	if !p.Err.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type ResourceServiceListKubeconfigUsersArgs struct {
+	Req *cluster.ListKubeconfigUsersRequest `thrift:"req,1" json:"req"`
+}
+
+func NewResourceServiceListKubeconfigUsersArgs() *ResourceServiceListKubeconfigUsersArgs {
+	return &ResourceServiceListKubeconfigUsersArgs{}
+}
+
+var ResourceServiceListKubeconfigUsersArgs_Req_DEFAULT *cluster.ListKubeconfigUsersRequest
+
+func (p *ResourceServiceListKubeconfigUsersArgs) GetReq() (v *cluster.ListKubeconfigUsersRequest) {
+	if !p.IsSetReq() {
+		return ResourceServiceListKubeconfigUsersArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *ResourceServiceListKubeconfigUsersArgs) SetReq(val *cluster.ListKubeconfigUsersRequest) {
+	p.Req = val
+}
+
+var fieldIDToName_ResourceServiceListKubeconfigUsersArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *ResourceServiceListKubeconfigUsersArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *ResourceServiceListKubeconfigUsersArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListKubeconfigUsersArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListKubeconfigUsersArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = cluster.NewListKubeconfigUsersRequest()
+	if err := p.Req.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceListKubeconfigUsersArgs) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ListKubeconfigUsers_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListKubeconfigUsersArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ResourceServiceListKubeconfigUsersArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ResourceServiceListKubeconfigUsersArgs(%+v)", *p)
+}
+
+func (p *ResourceServiceListKubeconfigUsersArgs) DeepEqual(ano *ResourceServiceListKubeconfigUsersArgs) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Req) {
+		return false
+	}
+	return true
+}
+
+func (p *ResourceServiceListKubeconfigUsersArgs) Field1DeepEqual(src *cluster.ListKubeconfigUsersRequest) bool {
+
+	if !p.Req.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type ResourceServiceListKubeconfigUsersResult struct {
+	Success *cluster.ListKubeconfigUsersResponse `thrift:"success,0" json:"success,omitempty"`
+	Err     *common.Error                        `thrift:"err,1" json:"err,omitempty"`
+}
+
+func NewResourceServiceListKubeconfigUsersResult() *ResourceServiceListKubeconfigUsersResult {
+	return &ResourceServiceListKubeconfigUsersResult{}
+}
+
+var ResourceServiceListKubeconfigUsersResult_Success_DEFAULT *cluster.ListKubeconfigUsersResponse
+
+func (p *ResourceServiceListKubeconfigUsersResult) GetSuccess() (v *cluster.ListKubeconfigUsersResponse) {
+	if !p.IsSetSuccess() {
+		return ResourceServiceListKubeconfigUsersResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+var ResourceServiceListKubeconfigUsersResult_Err_DEFAULT *common.Error
+
+func (p *ResourceServiceListKubeconfigUsersResult) GetErr() (v *common.Error) {
+	if !p.IsSetErr() {
+		return ResourceServiceListKubeconfigUsersResult_Err_DEFAULT
+	}
+	return p.Err
+}
+func (p *ResourceServiceListKubeconfigUsersResult) SetSuccess(x interface{}) {
+	p.Success = x.(*cluster.ListKubeconfigUsersResponse)
+}
+func (p *ResourceServiceListKubeconfigUsersResult) SetErr(val *common.Error) {
+	p.Err = val
+}
+
+var fieldIDToName_ResourceServiceListKubeconfigUsersResult = map[int16]string{
+	0: "success",
+	1: "err",
+}
+
+func (p *ResourceServiceListKubeconfigUsersResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *ResourceServiceListKubeconfigUsersResult) IsSetErr() bool {
+	return p.Err != nil
+}
+
+func (p *ResourceServiceListKubeconfigUsersResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListKubeconfigUsersResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListKubeconfigUsersResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = cluster.NewListKubeconfigUsersResponse()
+	if err := p.Success.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceListKubeconfigUsersResult) ReadField1(iprot thrift.TProtocol) error {
+	p.Err = common.NewError()
+	if err := p.Err.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceListKubeconfigUsersResult) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ListKubeconfigUsers_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListKubeconfigUsersResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *ResourceServiceListKubeconfigUsersResult) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetErr() {
+		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Err.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ResourceServiceListKubeconfigUsersResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ResourceServiceListKubeconfigUsersResult(%+v)", *p)
+}
+
+func (p *ResourceServiceListKubeconfigUsersResult) DeepEqual(ano *ResourceServiceListKubeconfigUsersResult) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field0DeepEqual(ano.Success) {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Err) {
+		return false
+	}
+	return true
+}
+
+func (p *ResourceServiceListKubeconfigUsersResult) Field0DeepEqual(src *cluster.ListKubeconfigUsersResponse) bool {
+
+	if !p.Success.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+func (p *ResourceServiceListKubeconfigUsersResult) Field1DeepEqual(src *common.Error) bool {
 
 	if !p.Err.DeepEqual(src) {
 		return false
@@ -10870,35 +11915,35 @@ func (p *ResourceServiceGetClusterResult) Field1DeepEqual(src *common.Error) boo
 	return true
 }
 
-type ResourceServiceListClusterArgs struct {
-	Req *cluster.ListClusterRequest `thrift:"req,1" json:"req"`
+type ResourceServiceListClustersArgs struct {
+	Req *cluster.ListClustersRequest `thrift:"req,1" json:"req"`
 }
 
-func NewResourceServiceListClusterArgs() *ResourceServiceListClusterArgs {
-	return &ResourceServiceListClusterArgs{}
+func NewResourceServiceListClustersArgs() *ResourceServiceListClustersArgs {
+	return &ResourceServiceListClustersArgs{}
 }
 
-var ResourceServiceListClusterArgs_Req_DEFAULT *cluster.ListClusterRequest
+var ResourceServiceListClustersArgs_Req_DEFAULT *cluster.ListClustersRequest
 
-func (p *ResourceServiceListClusterArgs) GetReq() (v *cluster.ListClusterRequest) {
+func (p *ResourceServiceListClustersArgs) GetReq() (v *cluster.ListClustersRequest) {
 	if !p.IsSetReq() {
-		return ResourceServiceListClusterArgs_Req_DEFAULT
+		return ResourceServiceListClustersArgs_Req_DEFAULT
 	}
 	return p.Req
 }
-func (p *ResourceServiceListClusterArgs) SetReq(val *cluster.ListClusterRequest) {
+func (p *ResourceServiceListClustersArgs) SetReq(val *cluster.ListClustersRequest) {
 	p.Req = val
 }
 
-var fieldIDToName_ResourceServiceListClusterArgs = map[int16]string{
+var fieldIDToName_ResourceServiceListClustersArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *ResourceServiceListClusterArgs) IsSetReq() bool {
+func (p *ResourceServiceListClustersArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *ResourceServiceListClusterArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListClustersArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -10947,7 +11992,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListClusterArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListClustersArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -10957,17 +12002,17 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterArgs) ReadField1(iprot thrift.TProtocol) error {
-	p.Req = cluster.NewListClusterRequest()
+func (p *ResourceServiceListClustersArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = cluster.NewListClustersRequest()
 	if err := p.Req.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceListClusterArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListClustersArgs) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListCluster_args"); err != nil {
+	if err = oprot.WriteStructBegin("ListClusters_args"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -10994,7 +12039,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListClustersArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -11011,14 +12056,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterArgs) String() string {
+func (p *ResourceServiceListClustersArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceListClusterArgs(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceListClustersArgs(%+v)", *p)
 }
 
-func (p *ResourceServiceListClusterArgs) DeepEqual(ano *ResourceServiceListClusterArgs) bool {
+func (p *ResourceServiceListClustersArgs) DeepEqual(ano *ResourceServiceListClustersArgs) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -11030,7 +12075,7 @@ func (p *ResourceServiceListClusterArgs) DeepEqual(ano *ResourceServiceListClust
 	return true
 }
 
-func (p *ResourceServiceListClusterArgs) Field1DeepEqual(src *cluster.ListClusterRequest) bool {
+func (p *ResourceServiceListClustersArgs) Field1DeepEqual(src *cluster.ListClustersRequest) bool {
 
 	if !p.Req.DeepEqual(src) {
 		return false
@@ -11038,53 +12083,53 @@ func (p *ResourceServiceListClusterArgs) Field1DeepEqual(src *cluster.ListCluste
 	return true
 }
 
-type ResourceServiceListClusterResult struct {
-	Success *cluster.ListClusterResponse `thrift:"success,0" json:"success,omitempty"`
-	Err     *common.Error                `thrift:"err,1" json:"err,omitempty"`
+type ResourceServiceListClustersResult struct {
+	Success *cluster.ListClustersResponse `thrift:"success,0" json:"success,omitempty"`
+	Err     *common.Error                 `thrift:"err,1" json:"err,omitempty"`
 }
 
-func NewResourceServiceListClusterResult() *ResourceServiceListClusterResult {
-	return &ResourceServiceListClusterResult{}
+func NewResourceServiceListClustersResult() *ResourceServiceListClustersResult {
+	return &ResourceServiceListClustersResult{}
 }
 
-var ResourceServiceListClusterResult_Success_DEFAULT *cluster.ListClusterResponse
+var ResourceServiceListClustersResult_Success_DEFAULT *cluster.ListClustersResponse
 
-func (p *ResourceServiceListClusterResult) GetSuccess() (v *cluster.ListClusterResponse) {
+func (p *ResourceServiceListClustersResult) GetSuccess() (v *cluster.ListClustersResponse) {
 	if !p.IsSetSuccess() {
-		return ResourceServiceListClusterResult_Success_DEFAULT
+		return ResourceServiceListClustersResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-var ResourceServiceListClusterResult_Err_DEFAULT *common.Error
+var ResourceServiceListClustersResult_Err_DEFAULT *common.Error
 
-func (p *ResourceServiceListClusterResult) GetErr() (v *common.Error) {
+func (p *ResourceServiceListClustersResult) GetErr() (v *common.Error) {
 	if !p.IsSetErr() {
-		return ResourceServiceListClusterResult_Err_DEFAULT
+		return ResourceServiceListClustersResult_Err_DEFAULT
 	}
 	return p.Err
 }
-func (p *ResourceServiceListClusterResult) SetSuccess(x interface{}) {
-	p.Success = x.(*cluster.ListClusterResponse)
+func (p *ResourceServiceListClustersResult) SetSuccess(x interface{}) {
+	p.Success = x.(*cluster.ListClustersResponse)
 }
-func (p *ResourceServiceListClusterResult) SetErr(val *common.Error) {
+func (p *ResourceServiceListClustersResult) SetErr(val *common.Error) {
 	p.Err = val
 }
 
-var fieldIDToName_ResourceServiceListClusterResult = map[int16]string{
+var fieldIDToName_ResourceServiceListClustersResult = map[int16]string{
 	0: "success",
 	1: "err",
 }
 
-func (p *ResourceServiceListClusterResult) IsSetSuccess() bool {
+func (p *ResourceServiceListClustersResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *ResourceServiceListClusterResult) IsSetErr() bool {
+func (p *ResourceServiceListClustersResult) IsSetErr() bool {
 	return p.Err != nil
 }
 
-func (p *ResourceServiceListClusterResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListClustersResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -11143,7 +12188,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListClusterResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListClustersResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -11153,15 +12198,15 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterResult) ReadField0(iprot thrift.TProtocol) error {
-	p.Success = cluster.NewListClusterResponse()
+func (p *ResourceServiceListClustersResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = cluster.NewListClustersResponse()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceListClusterResult) ReadField1(iprot thrift.TProtocol) error {
+func (p *ResourceServiceListClustersResult) ReadField1(iprot thrift.TProtocol) error {
 	p.Err = common.NewError()
 	if err := p.Err.Read(iprot); err != nil {
 		return err
@@ -11169,9 +12214,9 @@ func (p *ResourceServiceListClusterResult) ReadField1(iprot thrift.TProtocol) er
 	return nil
 }
 
-func (p *ResourceServiceListClusterResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListClustersResult) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListCluster_result"); err != nil {
+	if err = oprot.WriteStructBegin("ListClusters_result"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -11202,7 +12247,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListClustersResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -11221,7 +12266,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterResult) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListClustersResult) writeField1(oprot thrift.TProtocol) (err error) {
 	if p.IsSetErr() {
 		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
 			goto WriteFieldBeginError
@@ -11240,14 +12285,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterResult) String() string {
+func (p *ResourceServiceListClustersResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceListClusterResult(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceListClustersResult(%+v)", *p)
 }
 
-func (p *ResourceServiceListClusterResult) DeepEqual(ano *ResourceServiceListClusterResult) bool {
+func (p *ResourceServiceListClustersResult) DeepEqual(ano *ResourceServiceListClustersResult) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -11262,14 +12307,14 @@ func (p *ResourceServiceListClusterResult) DeepEqual(ano *ResourceServiceListClu
 	return true
 }
 
-func (p *ResourceServiceListClusterResult) Field0DeepEqual(src *cluster.ListClusterResponse) bool {
+func (p *ResourceServiceListClustersResult) Field0DeepEqual(src *cluster.ListClustersResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ResourceServiceListClusterResult) Field1DeepEqual(src *common.Error) bool {
+func (p *ResourceServiceListClustersResult) Field1DeepEqual(src *common.Error) bool {
 
 	if !p.Err.DeepEqual(src) {
 		return false
@@ -11684,35 +12729,35 @@ func (p *ResourceServiceGetClusterDeployProgressResult) Field1DeepEqual(src *com
 	return true
 }
 
-type ResourceServiceListClusterKubernetesVersionArgs struct {
-	Req *cluster.ListClusterKubernetesVersionRequest `thrift:"req,1" json:"req"`
+type ResourceServiceListSupportedKubernetesVersionsArgs struct {
+	Req *cluster.ListSupportedKubernetesVersionsRequest `thrift:"req,1" json:"req"`
 }
 
-func NewResourceServiceListClusterKubernetesVersionArgs() *ResourceServiceListClusterKubernetesVersionArgs {
-	return &ResourceServiceListClusterKubernetesVersionArgs{}
+func NewResourceServiceListSupportedKubernetesVersionsArgs() *ResourceServiceListSupportedKubernetesVersionsArgs {
+	return &ResourceServiceListSupportedKubernetesVersionsArgs{}
 }
 
-var ResourceServiceListClusterKubernetesVersionArgs_Req_DEFAULT *cluster.ListClusterKubernetesVersionRequest
+var ResourceServiceListSupportedKubernetesVersionsArgs_Req_DEFAULT *cluster.ListSupportedKubernetesVersionsRequest
 
-func (p *ResourceServiceListClusterKubernetesVersionArgs) GetReq() (v *cluster.ListClusterKubernetesVersionRequest) {
+func (p *ResourceServiceListSupportedKubernetesVersionsArgs) GetReq() (v *cluster.ListSupportedKubernetesVersionsRequest) {
 	if !p.IsSetReq() {
-		return ResourceServiceListClusterKubernetesVersionArgs_Req_DEFAULT
+		return ResourceServiceListSupportedKubernetesVersionsArgs_Req_DEFAULT
 	}
 	return p.Req
 }
-func (p *ResourceServiceListClusterKubernetesVersionArgs) SetReq(val *cluster.ListClusterKubernetesVersionRequest) {
+func (p *ResourceServiceListSupportedKubernetesVersionsArgs) SetReq(val *cluster.ListSupportedKubernetesVersionsRequest) {
 	p.Req = val
 }
 
-var fieldIDToName_ResourceServiceListClusterKubernetesVersionArgs = map[int16]string{
+var fieldIDToName_ResourceServiceListSupportedKubernetesVersionsArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionArgs) IsSetReq() bool {
+func (p *ResourceServiceListSupportedKubernetesVersionsArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListSupportedKubernetesVersionsArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -11761,7 +12806,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListClusterKubernetesVersionArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListSupportedKubernetesVersionsArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -11771,17 +12816,17 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionArgs) ReadField1(iprot thrift.TProtocol) error {
-	p.Req = cluster.NewListClusterKubernetesVersionRequest()
+func (p *ResourceServiceListSupportedKubernetesVersionsArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = cluster.NewListSupportedKubernetesVersionsRequest()
 	if err := p.Req.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListSupportedKubernetesVersionsArgs) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListClusterKubernetesVersion_args"); err != nil {
+	if err = oprot.WriteStructBegin("ListSupportedKubernetesVersions_args"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -11808,7 +12853,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListSupportedKubernetesVersionsArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -11825,14 +12870,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionArgs) String() string {
+func (p *ResourceServiceListSupportedKubernetesVersionsArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceListClusterKubernetesVersionArgs(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceListSupportedKubernetesVersionsArgs(%+v)", *p)
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionArgs) DeepEqual(ano *ResourceServiceListClusterKubernetesVersionArgs) bool {
+func (p *ResourceServiceListSupportedKubernetesVersionsArgs) DeepEqual(ano *ResourceServiceListSupportedKubernetesVersionsArgs) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -11844,7 +12889,7 @@ func (p *ResourceServiceListClusterKubernetesVersionArgs) DeepEqual(ano *Resourc
 	return true
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionArgs) Field1DeepEqual(src *cluster.ListClusterKubernetesVersionRequest) bool {
+func (p *ResourceServiceListSupportedKubernetesVersionsArgs) Field1DeepEqual(src *cluster.ListSupportedKubernetesVersionsRequest) bool {
 
 	if !p.Req.DeepEqual(src) {
 		return false
@@ -11852,53 +12897,53 @@ func (p *ResourceServiceListClusterKubernetesVersionArgs) Field1DeepEqual(src *c
 	return true
 }
 
-type ResourceServiceListClusterKubernetesVersionResult struct {
-	Success *cluster.ListClusterKubernetesVersionResponse `thrift:"success,0" json:"success,omitempty"`
-	Err     *common.Error                                 `thrift:"err,1" json:"err,omitempty"`
+type ResourceServiceListSupportedKubernetesVersionsResult struct {
+	Success *cluster.ListSupportedKubernetesVersionsResponse `thrift:"success,0" json:"success,omitempty"`
+	Err     *common.Error                                    `thrift:"err,1" json:"err,omitempty"`
 }
 
-func NewResourceServiceListClusterKubernetesVersionResult() *ResourceServiceListClusterKubernetesVersionResult {
-	return &ResourceServiceListClusterKubernetesVersionResult{}
+func NewResourceServiceListSupportedKubernetesVersionsResult() *ResourceServiceListSupportedKubernetesVersionsResult {
+	return &ResourceServiceListSupportedKubernetesVersionsResult{}
 }
 
-var ResourceServiceListClusterKubernetesVersionResult_Success_DEFAULT *cluster.ListClusterKubernetesVersionResponse
+var ResourceServiceListSupportedKubernetesVersionsResult_Success_DEFAULT *cluster.ListSupportedKubernetesVersionsResponse
 
-func (p *ResourceServiceListClusterKubernetesVersionResult) GetSuccess() (v *cluster.ListClusterKubernetesVersionResponse) {
+func (p *ResourceServiceListSupportedKubernetesVersionsResult) GetSuccess() (v *cluster.ListSupportedKubernetesVersionsResponse) {
 	if !p.IsSetSuccess() {
-		return ResourceServiceListClusterKubernetesVersionResult_Success_DEFAULT
+		return ResourceServiceListSupportedKubernetesVersionsResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-var ResourceServiceListClusterKubernetesVersionResult_Err_DEFAULT *common.Error
+var ResourceServiceListSupportedKubernetesVersionsResult_Err_DEFAULT *common.Error
 
-func (p *ResourceServiceListClusterKubernetesVersionResult) GetErr() (v *common.Error) {
+func (p *ResourceServiceListSupportedKubernetesVersionsResult) GetErr() (v *common.Error) {
 	if !p.IsSetErr() {
-		return ResourceServiceListClusterKubernetesVersionResult_Err_DEFAULT
+		return ResourceServiceListSupportedKubernetesVersionsResult_Err_DEFAULT
 	}
 	return p.Err
 }
-func (p *ResourceServiceListClusterKubernetesVersionResult) SetSuccess(x interface{}) {
-	p.Success = x.(*cluster.ListClusterKubernetesVersionResponse)
+func (p *ResourceServiceListSupportedKubernetesVersionsResult) SetSuccess(x interface{}) {
+	p.Success = x.(*cluster.ListSupportedKubernetesVersionsResponse)
 }
-func (p *ResourceServiceListClusterKubernetesVersionResult) SetErr(val *common.Error) {
+func (p *ResourceServiceListSupportedKubernetesVersionsResult) SetErr(val *common.Error) {
 	p.Err = val
 }
 
-var fieldIDToName_ResourceServiceListClusterKubernetesVersionResult = map[int16]string{
+var fieldIDToName_ResourceServiceListSupportedKubernetesVersionsResult = map[int16]string{
 	0: "success",
 	1: "err",
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionResult) IsSetSuccess() bool {
+func (p *ResourceServiceListSupportedKubernetesVersionsResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionResult) IsSetErr() bool {
+func (p *ResourceServiceListSupportedKubernetesVersionsResult) IsSetErr() bool {
 	return p.Err != nil
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListSupportedKubernetesVersionsResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -11957,7 +13002,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListClusterKubernetesVersionResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListSupportedKubernetesVersionsResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -11967,15 +13012,15 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionResult) ReadField0(iprot thrift.TProtocol) error {
-	p.Success = cluster.NewListClusterKubernetesVersionResponse()
+func (p *ResourceServiceListSupportedKubernetesVersionsResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = cluster.NewListSupportedKubernetesVersionsResponse()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionResult) ReadField1(iprot thrift.TProtocol) error {
+func (p *ResourceServiceListSupportedKubernetesVersionsResult) ReadField1(iprot thrift.TProtocol) error {
 	p.Err = common.NewError()
 	if err := p.Err.Read(iprot); err != nil {
 		return err
@@ -11983,9 +13028,9 @@ func (p *ResourceServiceListClusterKubernetesVersionResult) ReadField1(iprot thr
 	return nil
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListSupportedKubernetesVersionsResult) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListClusterKubernetesVersion_result"); err != nil {
+	if err = oprot.WriteStructBegin("ListSupportedKubernetesVersions_result"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -12016,7 +13061,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListSupportedKubernetesVersionsResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -12035,7 +13080,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionResult) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListSupportedKubernetesVersionsResult) writeField1(oprot thrift.TProtocol) (err error) {
 	if p.IsSetErr() {
 		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
 			goto WriteFieldBeginError
@@ -12054,14 +13099,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionResult) String() string {
+func (p *ResourceServiceListSupportedKubernetesVersionsResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceListClusterKubernetesVersionResult(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceListSupportedKubernetesVersionsResult(%+v)", *p)
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionResult) DeepEqual(ano *ResourceServiceListClusterKubernetesVersionResult) bool {
+func (p *ResourceServiceListSupportedKubernetesVersionsResult) DeepEqual(ano *ResourceServiceListSupportedKubernetesVersionsResult) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -12076,14 +13121,14 @@ func (p *ResourceServiceListClusterKubernetesVersionResult) DeepEqual(ano *Resou
 	return true
 }
 
-func (p *ResourceServiceListClusterKubernetesVersionResult) Field0DeepEqual(src *cluster.ListClusterKubernetesVersionResponse) bool {
+func (p *ResourceServiceListSupportedKubernetesVersionsResult) Field0DeepEqual(src *cluster.ListSupportedKubernetesVersionsResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ResourceServiceListClusterKubernetesVersionResult) Field1DeepEqual(src *common.Error) bool {
+func (p *ResourceServiceListSupportedKubernetesVersionsResult) Field1DeepEqual(src *common.Error) bool {
 
 	if !p.Err.DeepEqual(src) {
 		return false
@@ -12091,35 +13136,35 @@ func (p *ResourceServiceListClusterKubernetesVersionResult) Field1DeepEqual(src 
 	return true
 }
 
-type ResourceServiceListClusterNetworkCidrArgs struct {
-	Req *cluster.ListClusterNetworkCidrRequest `thrift:"req,1" json:"req"`
+type ResourceServiceListClusterNetworkCidrsArgs struct {
+	Req *cluster.ListClusterNetworkCidrsRequest `thrift:"req,1" json:"req"`
 }
 
-func NewResourceServiceListClusterNetworkCidrArgs() *ResourceServiceListClusterNetworkCidrArgs {
-	return &ResourceServiceListClusterNetworkCidrArgs{}
+func NewResourceServiceListClusterNetworkCidrsArgs() *ResourceServiceListClusterNetworkCidrsArgs {
+	return &ResourceServiceListClusterNetworkCidrsArgs{}
 }
 
-var ResourceServiceListClusterNetworkCidrArgs_Req_DEFAULT *cluster.ListClusterNetworkCidrRequest
+var ResourceServiceListClusterNetworkCidrsArgs_Req_DEFAULT *cluster.ListClusterNetworkCidrsRequest
 
-func (p *ResourceServiceListClusterNetworkCidrArgs) GetReq() (v *cluster.ListClusterNetworkCidrRequest) {
+func (p *ResourceServiceListClusterNetworkCidrsArgs) GetReq() (v *cluster.ListClusterNetworkCidrsRequest) {
 	if !p.IsSetReq() {
-		return ResourceServiceListClusterNetworkCidrArgs_Req_DEFAULT
+		return ResourceServiceListClusterNetworkCidrsArgs_Req_DEFAULT
 	}
 	return p.Req
 }
-func (p *ResourceServiceListClusterNetworkCidrArgs) SetReq(val *cluster.ListClusterNetworkCidrRequest) {
+func (p *ResourceServiceListClusterNetworkCidrsArgs) SetReq(val *cluster.ListClusterNetworkCidrsRequest) {
 	p.Req = val
 }
 
-var fieldIDToName_ResourceServiceListClusterNetworkCidrArgs = map[int16]string{
+var fieldIDToName_ResourceServiceListClusterNetworkCidrsArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *ResourceServiceListClusterNetworkCidrArgs) IsSetReq() bool {
+func (p *ResourceServiceListClusterNetworkCidrsArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *ResourceServiceListClusterNetworkCidrArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListClusterNetworkCidrsArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -12168,7 +13213,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListClusterNetworkCidrArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListClusterNetworkCidrsArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -12178,17 +13223,17 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterNetworkCidrArgs) ReadField1(iprot thrift.TProtocol) error {
-	p.Req = cluster.NewListClusterNetworkCidrRequest()
+func (p *ResourceServiceListClusterNetworkCidrsArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = cluster.NewListClusterNetworkCidrsRequest()
 	if err := p.Req.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceListClusterNetworkCidrArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListClusterNetworkCidrsArgs) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListClusterNetworkCidr_args"); err != nil {
+	if err = oprot.WriteStructBegin("ListClusterNetworkCidrs_args"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -12215,7 +13260,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterNetworkCidrArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListClusterNetworkCidrsArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -12232,14 +13277,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterNetworkCidrArgs) String() string {
+func (p *ResourceServiceListClusterNetworkCidrsArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceListClusterNetworkCidrArgs(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceListClusterNetworkCidrsArgs(%+v)", *p)
 }
 
-func (p *ResourceServiceListClusterNetworkCidrArgs) DeepEqual(ano *ResourceServiceListClusterNetworkCidrArgs) bool {
+func (p *ResourceServiceListClusterNetworkCidrsArgs) DeepEqual(ano *ResourceServiceListClusterNetworkCidrsArgs) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -12251,7 +13296,7 @@ func (p *ResourceServiceListClusterNetworkCidrArgs) DeepEqual(ano *ResourceServi
 	return true
 }
 
-func (p *ResourceServiceListClusterNetworkCidrArgs) Field1DeepEqual(src *cluster.ListClusterNetworkCidrRequest) bool {
+func (p *ResourceServiceListClusterNetworkCidrsArgs) Field1DeepEqual(src *cluster.ListClusterNetworkCidrsRequest) bool {
 
 	if !p.Req.DeepEqual(src) {
 		return false
@@ -12259,53 +13304,460 @@ func (p *ResourceServiceListClusterNetworkCidrArgs) Field1DeepEqual(src *cluster
 	return true
 }
 
-type ResourceServiceListClusterNetworkCidrResult struct {
-	Success *cluster.ListClusterNetworkCidrResponse `thrift:"success,0" json:"success,omitempty"`
+type ResourceServiceListClusterNetworkCidrsResult struct {
+	Success *cluster.ListClusterNetworkCidrsResponse `thrift:"success,0" json:"success,omitempty"`
+	Err     *common.Error                            `thrift:"err,1" json:"err,omitempty"`
+}
+
+func NewResourceServiceListClusterNetworkCidrsResult() *ResourceServiceListClusterNetworkCidrsResult {
+	return &ResourceServiceListClusterNetworkCidrsResult{}
+}
+
+var ResourceServiceListClusterNetworkCidrsResult_Success_DEFAULT *cluster.ListClusterNetworkCidrsResponse
+
+func (p *ResourceServiceListClusterNetworkCidrsResult) GetSuccess() (v *cluster.ListClusterNetworkCidrsResponse) {
+	if !p.IsSetSuccess() {
+		return ResourceServiceListClusterNetworkCidrsResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+var ResourceServiceListClusterNetworkCidrsResult_Err_DEFAULT *common.Error
+
+func (p *ResourceServiceListClusterNetworkCidrsResult) GetErr() (v *common.Error) {
+	if !p.IsSetErr() {
+		return ResourceServiceListClusterNetworkCidrsResult_Err_DEFAULT
+	}
+	return p.Err
+}
+func (p *ResourceServiceListClusterNetworkCidrsResult) SetSuccess(x interface{}) {
+	p.Success = x.(*cluster.ListClusterNetworkCidrsResponse)
+}
+func (p *ResourceServiceListClusterNetworkCidrsResult) SetErr(val *common.Error) {
+	p.Err = val
+}
+
+var fieldIDToName_ResourceServiceListClusterNetworkCidrsResult = map[int16]string{
+	0: "success",
+	1: "err",
+}
+
+func (p *ResourceServiceListClusterNetworkCidrsResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *ResourceServiceListClusterNetworkCidrsResult) IsSetErr() bool {
+	return p.Err != nil
+}
+
+func (p *ResourceServiceListClusterNetworkCidrsResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListClusterNetworkCidrsResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListClusterNetworkCidrsResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = cluster.NewListClusterNetworkCidrsResponse()
+	if err := p.Success.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceListClusterNetworkCidrsResult) ReadField1(iprot thrift.TProtocol) error {
+	p.Err = common.NewError()
+	if err := p.Err.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceListClusterNetworkCidrsResult) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ListClusterNetworkCidrs_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListClusterNetworkCidrsResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *ResourceServiceListClusterNetworkCidrsResult) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetErr() {
+		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Err.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ResourceServiceListClusterNetworkCidrsResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ResourceServiceListClusterNetworkCidrsResult(%+v)", *p)
+}
+
+func (p *ResourceServiceListClusterNetworkCidrsResult) DeepEqual(ano *ResourceServiceListClusterNetworkCidrsResult) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field0DeepEqual(ano.Success) {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Err) {
+		return false
+	}
+	return true
+}
+
+func (p *ResourceServiceListClusterNetworkCidrsResult) Field0DeepEqual(src *cluster.ListClusterNetworkCidrsResponse) bool {
+
+	if !p.Success.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+func (p *ResourceServiceListClusterNetworkCidrsResult) Field1DeepEqual(src *common.Error) bool {
+
+	if !p.Err.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type ResourceServiceListSupportedGpuModelsArgs struct {
+	Req *cluster.ListSupportedGpuModelsRequest `thrift:"req,1" json:"req"`
+}
+
+func NewResourceServiceListSupportedGpuModelsArgs() *ResourceServiceListSupportedGpuModelsArgs {
+	return &ResourceServiceListSupportedGpuModelsArgs{}
+}
+
+var ResourceServiceListSupportedGpuModelsArgs_Req_DEFAULT *cluster.ListSupportedGpuModelsRequest
+
+func (p *ResourceServiceListSupportedGpuModelsArgs) GetReq() (v *cluster.ListSupportedGpuModelsRequest) {
+	if !p.IsSetReq() {
+		return ResourceServiceListSupportedGpuModelsArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *ResourceServiceListSupportedGpuModelsArgs) SetReq(val *cluster.ListSupportedGpuModelsRequest) {
+	p.Req = val
+}
+
+var fieldIDToName_ResourceServiceListSupportedGpuModelsArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *ResourceServiceListSupportedGpuModelsArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *ResourceServiceListSupportedGpuModelsArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListSupportedGpuModelsArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListSupportedGpuModelsArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = cluster.NewListSupportedGpuModelsRequest()
+	if err := p.Req.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceListSupportedGpuModelsArgs) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ListSupportedGpuModels_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListSupportedGpuModelsArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ResourceServiceListSupportedGpuModelsArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ResourceServiceListSupportedGpuModelsArgs(%+v)", *p)
+}
+
+func (p *ResourceServiceListSupportedGpuModelsArgs) DeepEqual(ano *ResourceServiceListSupportedGpuModelsArgs) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Req) {
+		return false
+	}
+	return true
+}
+
+func (p *ResourceServiceListSupportedGpuModelsArgs) Field1DeepEqual(src *cluster.ListSupportedGpuModelsRequest) bool {
+
+	if !p.Req.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type ResourceServiceListSupportedGpuModelsResult struct {
+	Success *cluster.ListSupportedGpuModelsResponse `thrift:"success,0" json:"success,omitempty"`
 	Err     *common.Error                           `thrift:"err,1" json:"err,omitempty"`
 }
 
-func NewResourceServiceListClusterNetworkCidrResult() *ResourceServiceListClusterNetworkCidrResult {
-	return &ResourceServiceListClusterNetworkCidrResult{}
+func NewResourceServiceListSupportedGpuModelsResult() *ResourceServiceListSupportedGpuModelsResult {
+	return &ResourceServiceListSupportedGpuModelsResult{}
 }
 
-var ResourceServiceListClusterNetworkCidrResult_Success_DEFAULT *cluster.ListClusterNetworkCidrResponse
+var ResourceServiceListSupportedGpuModelsResult_Success_DEFAULT *cluster.ListSupportedGpuModelsResponse
 
-func (p *ResourceServiceListClusterNetworkCidrResult) GetSuccess() (v *cluster.ListClusterNetworkCidrResponse) {
+func (p *ResourceServiceListSupportedGpuModelsResult) GetSuccess() (v *cluster.ListSupportedGpuModelsResponse) {
 	if !p.IsSetSuccess() {
-		return ResourceServiceListClusterNetworkCidrResult_Success_DEFAULT
+		return ResourceServiceListSupportedGpuModelsResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-var ResourceServiceListClusterNetworkCidrResult_Err_DEFAULT *common.Error
+var ResourceServiceListSupportedGpuModelsResult_Err_DEFAULT *common.Error
 
-func (p *ResourceServiceListClusterNetworkCidrResult) GetErr() (v *common.Error) {
+func (p *ResourceServiceListSupportedGpuModelsResult) GetErr() (v *common.Error) {
 	if !p.IsSetErr() {
-		return ResourceServiceListClusterNetworkCidrResult_Err_DEFAULT
+		return ResourceServiceListSupportedGpuModelsResult_Err_DEFAULT
 	}
 	return p.Err
 }
-func (p *ResourceServiceListClusterNetworkCidrResult) SetSuccess(x interface{}) {
-	p.Success = x.(*cluster.ListClusterNetworkCidrResponse)
+func (p *ResourceServiceListSupportedGpuModelsResult) SetSuccess(x interface{}) {
+	p.Success = x.(*cluster.ListSupportedGpuModelsResponse)
 }
-func (p *ResourceServiceListClusterNetworkCidrResult) SetErr(val *common.Error) {
+func (p *ResourceServiceListSupportedGpuModelsResult) SetErr(val *common.Error) {
 	p.Err = val
 }
 
-var fieldIDToName_ResourceServiceListClusterNetworkCidrResult = map[int16]string{
+var fieldIDToName_ResourceServiceListSupportedGpuModelsResult = map[int16]string{
 	0: "success",
 	1: "err",
 }
 
-func (p *ResourceServiceListClusterNetworkCidrResult) IsSetSuccess() bool {
+func (p *ResourceServiceListSupportedGpuModelsResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *ResourceServiceListClusterNetworkCidrResult) IsSetErr() bool {
+func (p *ResourceServiceListSupportedGpuModelsResult) IsSetErr() bool {
 	return p.Err != nil
 }
 
-func (p *ResourceServiceListClusterNetworkCidrResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListSupportedGpuModelsResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -12364,7 +13816,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListClusterNetworkCidrResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListSupportedGpuModelsResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -12374,15 +13826,15 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterNetworkCidrResult) ReadField0(iprot thrift.TProtocol) error {
-	p.Success = cluster.NewListClusterNetworkCidrResponse()
+func (p *ResourceServiceListSupportedGpuModelsResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = cluster.NewListSupportedGpuModelsResponse()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceListClusterNetworkCidrResult) ReadField1(iprot thrift.TProtocol) error {
+func (p *ResourceServiceListSupportedGpuModelsResult) ReadField1(iprot thrift.TProtocol) error {
 	p.Err = common.NewError()
 	if err := p.Err.Read(iprot); err != nil {
 		return err
@@ -12390,9 +13842,9 @@ func (p *ResourceServiceListClusterNetworkCidrResult) ReadField1(iprot thrift.TP
 	return nil
 }
 
-func (p *ResourceServiceListClusterNetworkCidrResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListSupportedGpuModelsResult) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListClusterNetworkCidr_result"); err != nil {
+	if err = oprot.WriteStructBegin("ListSupportedGpuModels_result"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -12423,7 +13875,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterNetworkCidrResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListSupportedGpuModelsResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -12442,7 +13894,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterNetworkCidrResult) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListSupportedGpuModelsResult) writeField1(oprot thrift.TProtocol) (err error) {
 	if p.IsSetErr() {
 		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
 			goto WriteFieldBeginError
@@ -12461,14 +13913,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterNetworkCidrResult) String() string {
+func (p *ResourceServiceListSupportedGpuModelsResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceListClusterNetworkCidrResult(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceListSupportedGpuModelsResult(%+v)", *p)
 }
 
-func (p *ResourceServiceListClusterNetworkCidrResult) DeepEqual(ano *ResourceServiceListClusterNetworkCidrResult) bool {
+func (p *ResourceServiceListSupportedGpuModelsResult) DeepEqual(ano *ResourceServiceListSupportedGpuModelsResult) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -12483,14 +13935,14 @@ func (p *ResourceServiceListClusterNetworkCidrResult) DeepEqual(ano *ResourceSer
 	return true
 }
 
-func (p *ResourceServiceListClusterNetworkCidrResult) Field0DeepEqual(src *cluster.ListClusterNetworkCidrResponse) bool {
+func (p *ResourceServiceListSupportedGpuModelsResult) Field0DeepEqual(src *cluster.ListSupportedGpuModelsResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ResourceServiceListClusterNetworkCidrResult) Field1DeepEqual(src *common.Error) bool {
+func (p *ResourceServiceListSupportedGpuModelsResult) Field1DeepEqual(src *common.Error) bool {
 
 	if !p.Err.DeepEqual(src) {
 		return false
@@ -12498,35 +13950,35 @@ func (p *ResourceServiceListClusterNetworkCidrResult) Field1DeepEqual(src *commo
 	return true
 }
 
-type ResourceServiceListSupportGpuModelArgs struct {
-	Req *cluster.ListSupportGpuModelRequest `thrift:"req,1" json:"req"`
+type ResourceServiceListNodesArgs struct {
+	Req *cluster.ListNodesRequest `thrift:"req,1" json:"req"`
 }
 
-func NewResourceServiceListSupportGpuModelArgs() *ResourceServiceListSupportGpuModelArgs {
-	return &ResourceServiceListSupportGpuModelArgs{}
+func NewResourceServiceListNodesArgs() *ResourceServiceListNodesArgs {
+	return &ResourceServiceListNodesArgs{}
 }
 
-var ResourceServiceListSupportGpuModelArgs_Req_DEFAULT *cluster.ListSupportGpuModelRequest
+var ResourceServiceListNodesArgs_Req_DEFAULT *cluster.ListNodesRequest
 
-func (p *ResourceServiceListSupportGpuModelArgs) GetReq() (v *cluster.ListSupportGpuModelRequest) {
+func (p *ResourceServiceListNodesArgs) GetReq() (v *cluster.ListNodesRequest) {
 	if !p.IsSetReq() {
-		return ResourceServiceListSupportGpuModelArgs_Req_DEFAULT
+		return ResourceServiceListNodesArgs_Req_DEFAULT
 	}
 	return p.Req
 }
-func (p *ResourceServiceListSupportGpuModelArgs) SetReq(val *cluster.ListSupportGpuModelRequest) {
+func (p *ResourceServiceListNodesArgs) SetReq(val *cluster.ListNodesRequest) {
 	p.Req = val
 }
 
-var fieldIDToName_ResourceServiceListSupportGpuModelArgs = map[int16]string{
+var fieldIDToName_ResourceServiceListNodesArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *ResourceServiceListSupportGpuModelArgs) IsSetReq() bool {
+func (p *ResourceServiceListNodesArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *ResourceServiceListSupportGpuModelArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListNodesArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -12575,7 +14027,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListSupportGpuModelArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListNodesArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -12585,17 +14037,17 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListSupportGpuModelArgs) ReadField1(iprot thrift.TProtocol) error {
-	p.Req = cluster.NewListSupportGpuModelRequest()
+func (p *ResourceServiceListNodesArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = cluster.NewListNodesRequest()
 	if err := p.Req.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceListSupportGpuModelArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListNodesArgs) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListSupportGpuModel_args"); err != nil {
+	if err = oprot.WriteStructBegin("ListNodes_args"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -12622,7 +14074,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListSupportGpuModelArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListNodesArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -12639,14 +14091,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceListSupportGpuModelArgs) String() string {
+func (p *ResourceServiceListNodesArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceListSupportGpuModelArgs(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceListNodesArgs(%+v)", *p)
 }
 
-func (p *ResourceServiceListSupportGpuModelArgs) DeepEqual(ano *ResourceServiceListSupportGpuModelArgs) bool {
+func (p *ResourceServiceListNodesArgs) DeepEqual(ano *ResourceServiceListNodesArgs) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -12658,7 +14110,7 @@ func (p *ResourceServiceListSupportGpuModelArgs) DeepEqual(ano *ResourceServiceL
 	return true
 }
 
-func (p *ResourceServiceListSupportGpuModelArgs) Field1DeepEqual(src *cluster.ListSupportGpuModelRequest) bool {
+func (p *ResourceServiceListNodesArgs) Field1DeepEqual(src *cluster.ListNodesRequest) bool {
 
 	if !p.Req.DeepEqual(src) {
 		return false
@@ -12666,53 +14118,53 @@ func (p *ResourceServiceListSupportGpuModelArgs) Field1DeepEqual(src *cluster.Li
 	return true
 }
 
-type ResourceServiceListSupportGpuModelResult struct {
-	Success *cluster.ListSupportGpuModelResponse `thrift:"success,0" json:"success,omitempty"`
-	Err     *common.Error                        `thrift:"err,1" json:"err,omitempty"`
+type ResourceServiceListNodesResult struct {
+	Success *cluster.ListNodesResponse `thrift:"success,0" json:"success,omitempty"`
+	Err     *common.Error              `thrift:"err,1" json:"err,omitempty"`
 }
 
-func NewResourceServiceListSupportGpuModelResult() *ResourceServiceListSupportGpuModelResult {
-	return &ResourceServiceListSupportGpuModelResult{}
+func NewResourceServiceListNodesResult() *ResourceServiceListNodesResult {
+	return &ResourceServiceListNodesResult{}
 }
 
-var ResourceServiceListSupportGpuModelResult_Success_DEFAULT *cluster.ListSupportGpuModelResponse
+var ResourceServiceListNodesResult_Success_DEFAULT *cluster.ListNodesResponse
 
-func (p *ResourceServiceListSupportGpuModelResult) GetSuccess() (v *cluster.ListSupportGpuModelResponse) {
+func (p *ResourceServiceListNodesResult) GetSuccess() (v *cluster.ListNodesResponse) {
 	if !p.IsSetSuccess() {
-		return ResourceServiceListSupportGpuModelResult_Success_DEFAULT
+		return ResourceServiceListNodesResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-var ResourceServiceListSupportGpuModelResult_Err_DEFAULT *common.Error
+var ResourceServiceListNodesResult_Err_DEFAULT *common.Error
 
-func (p *ResourceServiceListSupportGpuModelResult) GetErr() (v *common.Error) {
+func (p *ResourceServiceListNodesResult) GetErr() (v *common.Error) {
 	if !p.IsSetErr() {
-		return ResourceServiceListSupportGpuModelResult_Err_DEFAULT
+		return ResourceServiceListNodesResult_Err_DEFAULT
 	}
 	return p.Err
 }
-func (p *ResourceServiceListSupportGpuModelResult) SetSuccess(x interface{}) {
-	p.Success = x.(*cluster.ListSupportGpuModelResponse)
+func (p *ResourceServiceListNodesResult) SetSuccess(x interface{}) {
+	p.Success = x.(*cluster.ListNodesResponse)
 }
-func (p *ResourceServiceListSupportGpuModelResult) SetErr(val *common.Error) {
+func (p *ResourceServiceListNodesResult) SetErr(val *common.Error) {
 	p.Err = val
 }
 
-var fieldIDToName_ResourceServiceListSupportGpuModelResult = map[int16]string{
+var fieldIDToName_ResourceServiceListNodesResult = map[int16]string{
 	0: "success",
 	1: "err",
 }
 
-func (p *ResourceServiceListSupportGpuModelResult) IsSetSuccess() bool {
+func (p *ResourceServiceListNodesResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *ResourceServiceListSupportGpuModelResult) IsSetErr() bool {
+func (p *ResourceServiceListNodesResult) IsSetErr() bool {
 	return p.Err != nil
 }
 
-func (p *ResourceServiceListSupportGpuModelResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListNodesResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -12771,7 +14223,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListSupportGpuModelResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListNodesResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -12781,15 +14233,15 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListSupportGpuModelResult) ReadField0(iprot thrift.TProtocol) error {
-	p.Success = cluster.NewListSupportGpuModelResponse()
+func (p *ResourceServiceListNodesResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = cluster.NewListNodesResponse()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceListSupportGpuModelResult) ReadField1(iprot thrift.TProtocol) error {
+func (p *ResourceServiceListNodesResult) ReadField1(iprot thrift.TProtocol) error {
 	p.Err = common.NewError()
 	if err := p.Err.Read(iprot); err != nil {
 		return err
@@ -12797,9 +14249,9 @@ func (p *ResourceServiceListSupportGpuModelResult) ReadField1(iprot thrift.TProt
 	return nil
 }
 
-func (p *ResourceServiceListSupportGpuModelResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListNodesResult) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListSupportGpuModel_result"); err != nil {
+	if err = oprot.WriteStructBegin("ListNodes_result"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -12830,7 +14282,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListSupportGpuModelResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListNodesResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -12849,7 +14301,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *ResourceServiceListSupportGpuModelResult) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListNodesResult) writeField1(oprot thrift.TProtocol) (err error) {
 	if p.IsSetErr() {
 		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
 			goto WriteFieldBeginError
@@ -12868,14 +14320,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceListSupportGpuModelResult) String() string {
+func (p *ResourceServiceListNodesResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceListSupportGpuModelResult(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceListNodesResult(%+v)", *p)
 }
 
-func (p *ResourceServiceListSupportGpuModelResult) DeepEqual(ano *ResourceServiceListSupportGpuModelResult) bool {
+func (p *ResourceServiceListNodesResult) DeepEqual(ano *ResourceServiceListNodesResult) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -12890,14 +14342,14 @@ func (p *ResourceServiceListSupportGpuModelResult) DeepEqual(ano *ResourceServic
 	return true
 }
 
-func (p *ResourceServiceListSupportGpuModelResult) Field0DeepEqual(src *cluster.ListSupportGpuModelResponse) bool {
+func (p *ResourceServiceListNodesResult) Field0DeepEqual(src *cluster.ListNodesResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ResourceServiceListSupportGpuModelResult) Field1DeepEqual(src *common.Error) bool {
+func (p *ResourceServiceListNodesResult) Field1DeepEqual(src *common.Error) bool {
 
 	if !p.Err.DeepEqual(src) {
 		return false
@@ -12905,35 +14357,35 @@ func (p *ResourceServiceListSupportGpuModelResult) Field1DeepEqual(src *common.E
 	return true
 }
 
-type ResourceServiceListClusterNodeArgs struct {
-	Req *cluster.ListClusterNodeRequest `thrift:"req,1" json:"req"`
+type ResourceServiceAddNodesArgs struct {
+	Req *cluster.AddNodesRequest `thrift:"req,1" json:"req"`
 }
 
-func NewResourceServiceListClusterNodeArgs() *ResourceServiceListClusterNodeArgs {
-	return &ResourceServiceListClusterNodeArgs{}
+func NewResourceServiceAddNodesArgs() *ResourceServiceAddNodesArgs {
+	return &ResourceServiceAddNodesArgs{}
 }
 
-var ResourceServiceListClusterNodeArgs_Req_DEFAULT *cluster.ListClusterNodeRequest
+var ResourceServiceAddNodesArgs_Req_DEFAULT *cluster.AddNodesRequest
 
-func (p *ResourceServiceListClusterNodeArgs) GetReq() (v *cluster.ListClusterNodeRequest) {
+func (p *ResourceServiceAddNodesArgs) GetReq() (v *cluster.AddNodesRequest) {
 	if !p.IsSetReq() {
-		return ResourceServiceListClusterNodeArgs_Req_DEFAULT
+		return ResourceServiceAddNodesArgs_Req_DEFAULT
 	}
 	return p.Req
 }
-func (p *ResourceServiceListClusterNodeArgs) SetReq(val *cluster.ListClusterNodeRequest) {
+func (p *ResourceServiceAddNodesArgs) SetReq(val *cluster.AddNodesRequest) {
 	p.Req = val
 }
 
-var fieldIDToName_ResourceServiceListClusterNodeArgs = map[int16]string{
+var fieldIDToName_ResourceServiceAddNodesArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *ResourceServiceListClusterNodeArgs) IsSetReq() bool {
+func (p *ResourceServiceAddNodesArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *ResourceServiceListClusterNodeArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceAddNodesArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -12982,7 +14434,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListClusterNodeArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceAddNodesArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -12992,17 +14444,17 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterNodeArgs) ReadField1(iprot thrift.TProtocol) error {
-	p.Req = cluster.NewListClusterNodeRequest()
+func (p *ResourceServiceAddNodesArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = cluster.NewAddNodesRequest()
 	if err := p.Req.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceListClusterNodeArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceAddNodesArgs) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListClusterNode_args"); err != nil {
+	if err = oprot.WriteStructBegin("AddNodes_args"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -13029,7 +14481,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterNodeArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceAddNodesArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -13046,14 +14498,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterNodeArgs) String() string {
+func (p *ResourceServiceAddNodesArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceListClusterNodeArgs(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceAddNodesArgs(%+v)", *p)
 }
 
-func (p *ResourceServiceListClusterNodeArgs) DeepEqual(ano *ResourceServiceListClusterNodeArgs) bool {
+func (p *ResourceServiceAddNodesArgs) DeepEqual(ano *ResourceServiceAddNodesArgs) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -13065,7 +14517,7 @@ func (p *ResourceServiceListClusterNodeArgs) DeepEqual(ano *ResourceServiceListC
 	return true
 }
 
-func (p *ResourceServiceListClusterNodeArgs) Field1DeepEqual(src *cluster.ListClusterNodeRequest) bool {
+func (p *ResourceServiceAddNodesArgs) Field1DeepEqual(src *cluster.AddNodesRequest) bool {
 
 	if !p.Req.DeepEqual(src) {
 		return false
@@ -13073,53 +14525,53 @@ func (p *ResourceServiceListClusterNodeArgs) Field1DeepEqual(src *cluster.ListCl
 	return true
 }
 
-type ResourceServiceListClusterNodeResult struct {
-	Success *cluster.ListClusterNodeResponse `thrift:"success,0" json:"success,omitempty"`
-	Err     *common.Error                    `thrift:"err,1" json:"err,omitempty"`
+type ResourceServiceAddNodesResult struct {
+	Success *cluster.AddNodesResponse `thrift:"success,0" json:"success,omitempty"`
+	Err     *common.Error             `thrift:"err,1" json:"err,omitempty"`
 }
 
-func NewResourceServiceListClusterNodeResult() *ResourceServiceListClusterNodeResult {
-	return &ResourceServiceListClusterNodeResult{}
+func NewResourceServiceAddNodesResult() *ResourceServiceAddNodesResult {
+	return &ResourceServiceAddNodesResult{}
 }
 
-var ResourceServiceListClusterNodeResult_Success_DEFAULT *cluster.ListClusterNodeResponse
+var ResourceServiceAddNodesResult_Success_DEFAULT *cluster.AddNodesResponse
 
-func (p *ResourceServiceListClusterNodeResult) GetSuccess() (v *cluster.ListClusterNodeResponse) {
+func (p *ResourceServiceAddNodesResult) GetSuccess() (v *cluster.AddNodesResponse) {
 	if !p.IsSetSuccess() {
-		return ResourceServiceListClusterNodeResult_Success_DEFAULT
+		return ResourceServiceAddNodesResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-var ResourceServiceListClusterNodeResult_Err_DEFAULT *common.Error
+var ResourceServiceAddNodesResult_Err_DEFAULT *common.Error
 
-func (p *ResourceServiceListClusterNodeResult) GetErr() (v *common.Error) {
+func (p *ResourceServiceAddNodesResult) GetErr() (v *common.Error) {
 	if !p.IsSetErr() {
-		return ResourceServiceListClusterNodeResult_Err_DEFAULT
+		return ResourceServiceAddNodesResult_Err_DEFAULT
 	}
 	return p.Err
 }
-func (p *ResourceServiceListClusterNodeResult) SetSuccess(x interface{}) {
-	p.Success = x.(*cluster.ListClusterNodeResponse)
+func (p *ResourceServiceAddNodesResult) SetSuccess(x interface{}) {
+	p.Success = x.(*cluster.AddNodesResponse)
 }
-func (p *ResourceServiceListClusterNodeResult) SetErr(val *common.Error) {
+func (p *ResourceServiceAddNodesResult) SetErr(val *common.Error) {
 	p.Err = val
 }
 
-var fieldIDToName_ResourceServiceListClusterNodeResult = map[int16]string{
+var fieldIDToName_ResourceServiceAddNodesResult = map[int16]string{
 	0: "success",
 	1: "err",
 }
 
-func (p *ResourceServiceListClusterNodeResult) IsSetSuccess() bool {
+func (p *ResourceServiceAddNodesResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *ResourceServiceListClusterNodeResult) IsSetErr() bool {
+func (p *ResourceServiceAddNodesResult) IsSetErr() bool {
 	return p.Err != nil
 }
 
-func (p *ResourceServiceListClusterNodeResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceAddNodesResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -13178,7 +14630,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListClusterNodeResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceAddNodesResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -13188,15 +14640,15 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterNodeResult) ReadField0(iprot thrift.TProtocol) error {
-	p.Success = cluster.NewListClusterNodeResponse()
+func (p *ResourceServiceAddNodesResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = cluster.NewAddNodesResponse()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceListClusterNodeResult) ReadField1(iprot thrift.TProtocol) error {
+func (p *ResourceServiceAddNodesResult) ReadField1(iprot thrift.TProtocol) error {
 	p.Err = common.NewError()
 	if err := p.Err.Read(iprot); err != nil {
 		return err
@@ -13204,9 +14656,9 @@ func (p *ResourceServiceListClusterNodeResult) ReadField1(iprot thrift.TProtocol
 	return nil
 }
 
-func (p *ResourceServiceListClusterNodeResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceAddNodesResult) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListClusterNode_result"); err != nil {
+	if err = oprot.WriteStructBegin("AddNodes_result"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -13237,7 +14689,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterNodeResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceAddNodesResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -13256,7 +14708,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterNodeResult) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceAddNodesResult) writeField1(oprot thrift.TProtocol) (err error) {
 	if p.IsSetErr() {
 		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
 			goto WriteFieldBeginError
@@ -13275,14 +14727,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterNodeResult) String() string {
+func (p *ResourceServiceAddNodesResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceListClusterNodeResult(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceAddNodesResult(%+v)", *p)
 }
 
-func (p *ResourceServiceListClusterNodeResult) DeepEqual(ano *ResourceServiceListClusterNodeResult) bool {
+func (p *ResourceServiceAddNodesResult) DeepEqual(ano *ResourceServiceAddNodesResult) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -13297,14 +14749,14 @@ func (p *ResourceServiceListClusterNodeResult) DeepEqual(ano *ResourceServiceLis
 	return true
 }
 
-func (p *ResourceServiceListClusterNodeResult) Field0DeepEqual(src *cluster.ListClusterNodeResponse) bool {
+func (p *ResourceServiceAddNodesResult) Field0DeepEqual(src *cluster.AddNodesResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ResourceServiceListClusterNodeResult) Field1DeepEqual(src *common.Error) bool {
+func (p *ResourceServiceAddNodesResult) Field1DeepEqual(src *common.Error) bool {
 
 	if !p.Err.DeepEqual(src) {
 		return false
@@ -13312,35 +14764,35 @@ func (p *ResourceServiceListClusterNodeResult) Field1DeepEqual(src *common.Error
 	return true
 }
 
-type ResourceServiceAddClusterNodeArgs struct {
-	Req *cluster.AddClusterNodeRequest `thrift:"req,1" json:"req"`
+type ResourceServiceGetNodeArgs struct {
+	Req *cluster.GetNodeRequest `thrift:"req,1" json:"req"`
 }
 
-func NewResourceServiceAddClusterNodeArgs() *ResourceServiceAddClusterNodeArgs {
-	return &ResourceServiceAddClusterNodeArgs{}
+func NewResourceServiceGetNodeArgs() *ResourceServiceGetNodeArgs {
+	return &ResourceServiceGetNodeArgs{}
 }
 
-var ResourceServiceAddClusterNodeArgs_Req_DEFAULT *cluster.AddClusterNodeRequest
+var ResourceServiceGetNodeArgs_Req_DEFAULT *cluster.GetNodeRequest
 
-func (p *ResourceServiceAddClusterNodeArgs) GetReq() (v *cluster.AddClusterNodeRequest) {
+func (p *ResourceServiceGetNodeArgs) GetReq() (v *cluster.GetNodeRequest) {
 	if !p.IsSetReq() {
-		return ResourceServiceAddClusterNodeArgs_Req_DEFAULT
+		return ResourceServiceGetNodeArgs_Req_DEFAULT
 	}
 	return p.Req
 }
-func (p *ResourceServiceAddClusterNodeArgs) SetReq(val *cluster.AddClusterNodeRequest) {
+func (p *ResourceServiceGetNodeArgs) SetReq(val *cluster.GetNodeRequest) {
 	p.Req = val
 }
 
-var fieldIDToName_ResourceServiceAddClusterNodeArgs = map[int16]string{
+var fieldIDToName_ResourceServiceGetNodeArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *ResourceServiceAddClusterNodeArgs) IsSetReq() bool {
+func (p *ResourceServiceGetNodeArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *ResourceServiceAddClusterNodeArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceGetNodeArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -13389,7 +14841,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceAddClusterNodeArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceGetNodeArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -13399,17 +14851,17 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceAddClusterNodeArgs) ReadField1(iprot thrift.TProtocol) error {
-	p.Req = cluster.NewAddClusterNodeRequest()
+func (p *ResourceServiceGetNodeArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = cluster.NewGetNodeRequest()
 	if err := p.Req.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceAddClusterNodeArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceGetNodeArgs) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("AddClusterNode_args"); err != nil {
+	if err = oprot.WriteStructBegin("GetNode_args"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -13436,7 +14888,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceAddClusterNodeArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceGetNodeArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -13453,14 +14905,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceAddClusterNodeArgs) String() string {
+func (p *ResourceServiceGetNodeArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceAddClusterNodeArgs(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceGetNodeArgs(%+v)", *p)
 }
 
-func (p *ResourceServiceAddClusterNodeArgs) DeepEqual(ano *ResourceServiceAddClusterNodeArgs) bool {
+func (p *ResourceServiceGetNodeArgs) DeepEqual(ano *ResourceServiceGetNodeArgs) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -13472,7 +14924,7 @@ func (p *ResourceServiceAddClusterNodeArgs) DeepEqual(ano *ResourceServiceAddClu
 	return true
 }
 
-func (p *ResourceServiceAddClusterNodeArgs) Field1DeepEqual(src *cluster.AddClusterNodeRequest) bool {
+func (p *ResourceServiceGetNodeArgs) Field1DeepEqual(src *cluster.GetNodeRequest) bool {
 
 	if !p.Req.DeepEqual(src) {
 		return false
@@ -13480,53 +14932,867 @@ func (p *ResourceServiceAddClusterNodeArgs) Field1DeepEqual(src *cluster.AddClus
 	return true
 }
 
-type ResourceServiceAddClusterNodeResult struct {
-	Success *cluster.AddClusterNodeResponse `thrift:"success,0" json:"success,omitempty"`
+type ResourceServiceGetNodeResult struct {
+	Success *cluster.GetNodeResponse `thrift:"success,0" json:"success,omitempty"`
+	Err     *common.Error            `thrift:"err,1" json:"err,omitempty"`
+}
+
+func NewResourceServiceGetNodeResult() *ResourceServiceGetNodeResult {
+	return &ResourceServiceGetNodeResult{}
+}
+
+var ResourceServiceGetNodeResult_Success_DEFAULT *cluster.GetNodeResponse
+
+func (p *ResourceServiceGetNodeResult) GetSuccess() (v *cluster.GetNodeResponse) {
+	if !p.IsSetSuccess() {
+		return ResourceServiceGetNodeResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+var ResourceServiceGetNodeResult_Err_DEFAULT *common.Error
+
+func (p *ResourceServiceGetNodeResult) GetErr() (v *common.Error) {
+	if !p.IsSetErr() {
+		return ResourceServiceGetNodeResult_Err_DEFAULT
+	}
+	return p.Err
+}
+func (p *ResourceServiceGetNodeResult) SetSuccess(x interface{}) {
+	p.Success = x.(*cluster.GetNodeResponse)
+}
+func (p *ResourceServiceGetNodeResult) SetErr(val *common.Error) {
+	p.Err = val
+}
+
+var fieldIDToName_ResourceServiceGetNodeResult = map[int16]string{
+	0: "success",
+	1: "err",
+}
+
+func (p *ResourceServiceGetNodeResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *ResourceServiceGetNodeResult) IsSetErr() bool {
+	return p.Err != nil
+}
+
+func (p *ResourceServiceGetNodeResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceGetNodeResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceGetNodeResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = cluster.NewGetNodeResponse()
+	if err := p.Success.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceGetNodeResult) ReadField1(iprot thrift.TProtocol) error {
+	p.Err = common.NewError()
+	if err := p.Err.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceGetNodeResult) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("GetNode_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ResourceServiceGetNodeResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *ResourceServiceGetNodeResult) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetErr() {
+		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Err.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ResourceServiceGetNodeResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ResourceServiceGetNodeResult(%+v)", *p)
+}
+
+func (p *ResourceServiceGetNodeResult) DeepEqual(ano *ResourceServiceGetNodeResult) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field0DeepEqual(ano.Success) {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Err) {
+		return false
+	}
+	return true
+}
+
+func (p *ResourceServiceGetNodeResult) Field0DeepEqual(src *cluster.GetNodeResponse) bool {
+
+	if !p.Success.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+func (p *ResourceServiceGetNodeResult) Field1DeepEqual(src *common.Error) bool {
+
+	if !p.Err.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type ResourceServiceDeleteNodesArgs struct {
+	Req *cluster.DeleteNodesRequest `thrift:"req,1" json:"req"`
+}
+
+func NewResourceServiceDeleteNodesArgs() *ResourceServiceDeleteNodesArgs {
+	return &ResourceServiceDeleteNodesArgs{}
+}
+
+var ResourceServiceDeleteNodesArgs_Req_DEFAULT *cluster.DeleteNodesRequest
+
+func (p *ResourceServiceDeleteNodesArgs) GetReq() (v *cluster.DeleteNodesRequest) {
+	if !p.IsSetReq() {
+		return ResourceServiceDeleteNodesArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *ResourceServiceDeleteNodesArgs) SetReq(val *cluster.DeleteNodesRequest) {
+	p.Req = val
+}
+
+var fieldIDToName_ResourceServiceDeleteNodesArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *ResourceServiceDeleteNodesArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *ResourceServiceDeleteNodesArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceDeleteNodesArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceDeleteNodesArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = cluster.NewDeleteNodesRequest()
+	if err := p.Req.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceDeleteNodesArgs) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("DeleteNodes_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ResourceServiceDeleteNodesArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ResourceServiceDeleteNodesArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ResourceServiceDeleteNodesArgs(%+v)", *p)
+}
+
+func (p *ResourceServiceDeleteNodesArgs) DeepEqual(ano *ResourceServiceDeleteNodesArgs) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Req) {
+		return false
+	}
+	return true
+}
+
+func (p *ResourceServiceDeleteNodesArgs) Field1DeepEqual(src *cluster.DeleteNodesRequest) bool {
+
+	if !p.Req.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type ResourceServiceDeleteNodesResult struct {
+	Success *cluster.DeleteNodesResponse `thrift:"success,0" json:"success,omitempty"`
+	Err     *common.Error                `thrift:"err,1" json:"err,omitempty"`
+}
+
+func NewResourceServiceDeleteNodesResult() *ResourceServiceDeleteNodesResult {
+	return &ResourceServiceDeleteNodesResult{}
+}
+
+var ResourceServiceDeleteNodesResult_Success_DEFAULT *cluster.DeleteNodesResponse
+
+func (p *ResourceServiceDeleteNodesResult) GetSuccess() (v *cluster.DeleteNodesResponse) {
+	if !p.IsSetSuccess() {
+		return ResourceServiceDeleteNodesResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+var ResourceServiceDeleteNodesResult_Err_DEFAULT *common.Error
+
+func (p *ResourceServiceDeleteNodesResult) GetErr() (v *common.Error) {
+	if !p.IsSetErr() {
+		return ResourceServiceDeleteNodesResult_Err_DEFAULT
+	}
+	return p.Err
+}
+func (p *ResourceServiceDeleteNodesResult) SetSuccess(x interface{}) {
+	p.Success = x.(*cluster.DeleteNodesResponse)
+}
+func (p *ResourceServiceDeleteNodesResult) SetErr(val *common.Error) {
+	p.Err = val
+}
+
+var fieldIDToName_ResourceServiceDeleteNodesResult = map[int16]string{
+	0: "success",
+	1: "err",
+}
+
+func (p *ResourceServiceDeleteNodesResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *ResourceServiceDeleteNodesResult) IsSetErr() bool {
+	return p.Err != nil
+}
+
+func (p *ResourceServiceDeleteNodesResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceDeleteNodesResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceDeleteNodesResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = cluster.NewDeleteNodesResponse()
+	if err := p.Success.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceDeleteNodesResult) ReadField1(iprot thrift.TProtocol) error {
+	p.Err = common.NewError()
+	if err := p.Err.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceDeleteNodesResult) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("DeleteNodes_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ResourceServiceDeleteNodesResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *ResourceServiceDeleteNodesResult) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetErr() {
+		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Err.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ResourceServiceDeleteNodesResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ResourceServiceDeleteNodesResult(%+v)", *p)
+}
+
+func (p *ResourceServiceDeleteNodesResult) DeepEqual(ano *ResourceServiceDeleteNodesResult) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field0DeepEqual(ano.Success) {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Err) {
+		return false
+	}
+	return true
+}
+
+func (p *ResourceServiceDeleteNodesResult) Field0DeepEqual(src *cluster.DeleteNodesResponse) bool {
+
+	if !p.Success.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+func (p *ResourceServiceDeleteNodesResult) Field1DeepEqual(src *common.Error) bool {
+
+	if !p.Err.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type ResourceServiceListNodeLabelsArgs struct {
+	Req *cluster.ListNodeLabelsRequest `thrift:"req,1" json:"req"`
+}
+
+func NewResourceServiceListNodeLabelsArgs() *ResourceServiceListNodeLabelsArgs {
+	return &ResourceServiceListNodeLabelsArgs{}
+}
+
+var ResourceServiceListNodeLabelsArgs_Req_DEFAULT *cluster.ListNodeLabelsRequest
+
+func (p *ResourceServiceListNodeLabelsArgs) GetReq() (v *cluster.ListNodeLabelsRequest) {
+	if !p.IsSetReq() {
+		return ResourceServiceListNodeLabelsArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *ResourceServiceListNodeLabelsArgs) SetReq(val *cluster.ListNodeLabelsRequest) {
+	p.Req = val
+}
+
+var fieldIDToName_ResourceServiceListNodeLabelsArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *ResourceServiceListNodeLabelsArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *ResourceServiceListNodeLabelsArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListNodeLabelsArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListNodeLabelsArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = cluster.NewListNodeLabelsRequest()
+	if err := p.Req.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceListNodeLabelsArgs) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ListNodeLabels_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListNodeLabelsArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ResourceServiceListNodeLabelsArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ResourceServiceListNodeLabelsArgs(%+v)", *p)
+}
+
+func (p *ResourceServiceListNodeLabelsArgs) DeepEqual(ano *ResourceServiceListNodeLabelsArgs) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Req) {
+		return false
+	}
+	return true
+}
+
+func (p *ResourceServiceListNodeLabelsArgs) Field1DeepEqual(src *cluster.ListNodeLabelsRequest) bool {
+
+	if !p.Req.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type ResourceServiceListNodeLabelsResult struct {
+	Success *cluster.ListNodeLabelsResponse `thrift:"success,0" json:"success,omitempty"`
 	Err     *common.Error                   `thrift:"err,1" json:"err,omitempty"`
 }
 
-func NewResourceServiceAddClusterNodeResult() *ResourceServiceAddClusterNodeResult {
-	return &ResourceServiceAddClusterNodeResult{}
+func NewResourceServiceListNodeLabelsResult() *ResourceServiceListNodeLabelsResult {
+	return &ResourceServiceListNodeLabelsResult{}
 }
 
-var ResourceServiceAddClusterNodeResult_Success_DEFAULT *cluster.AddClusterNodeResponse
+var ResourceServiceListNodeLabelsResult_Success_DEFAULT *cluster.ListNodeLabelsResponse
 
-func (p *ResourceServiceAddClusterNodeResult) GetSuccess() (v *cluster.AddClusterNodeResponse) {
+func (p *ResourceServiceListNodeLabelsResult) GetSuccess() (v *cluster.ListNodeLabelsResponse) {
 	if !p.IsSetSuccess() {
-		return ResourceServiceAddClusterNodeResult_Success_DEFAULT
+		return ResourceServiceListNodeLabelsResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-var ResourceServiceAddClusterNodeResult_Err_DEFAULT *common.Error
+var ResourceServiceListNodeLabelsResult_Err_DEFAULT *common.Error
 
-func (p *ResourceServiceAddClusterNodeResult) GetErr() (v *common.Error) {
+func (p *ResourceServiceListNodeLabelsResult) GetErr() (v *common.Error) {
 	if !p.IsSetErr() {
-		return ResourceServiceAddClusterNodeResult_Err_DEFAULT
+		return ResourceServiceListNodeLabelsResult_Err_DEFAULT
 	}
 	return p.Err
 }
-func (p *ResourceServiceAddClusterNodeResult) SetSuccess(x interface{}) {
-	p.Success = x.(*cluster.AddClusterNodeResponse)
+func (p *ResourceServiceListNodeLabelsResult) SetSuccess(x interface{}) {
+	p.Success = x.(*cluster.ListNodeLabelsResponse)
 }
-func (p *ResourceServiceAddClusterNodeResult) SetErr(val *common.Error) {
+func (p *ResourceServiceListNodeLabelsResult) SetErr(val *common.Error) {
 	p.Err = val
 }
 
-var fieldIDToName_ResourceServiceAddClusterNodeResult = map[int16]string{
+var fieldIDToName_ResourceServiceListNodeLabelsResult = map[int16]string{
 	0: "success",
 	1: "err",
 }
 
-func (p *ResourceServiceAddClusterNodeResult) IsSetSuccess() bool {
+func (p *ResourceServiceListNodeLabelsResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *ResourceServiceAddClusterNodeResult) IsSetErr() bool {
+func (p *ResourceServiceListNodeLabelsResult) IsSetErr() bool {
 	return p.Err != nil
 }
 
-func (p *ResourceServiceAddClusterNodeResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListNodeLabelsResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -13585,7 +15851,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceAddClusterNodeResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListNodeLabelsResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -13595,15 +15861,15 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceAddClusterNodeResult) ReadField0(iprot thrift.TProtocol) error {
-	p.Success = cluster.NewAddClusterNodeResponse()
+func (p *ResourceServiceListNodeLabelsResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = cluster.NewListNodeLabelsResponse()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceAddClusterNodeResult) ReadField1(iprot thrift.TProtocol) error {
+func (p *ResourceServiceListNodeLabelsResult) ReadField1(iprot thrift.TProtocol) error {
 	p.Err = common.NewError()
 	if err := p.Err.Read(iprot); err != nil {
 		return err
@@ -13611,9 +15877,9 @@ func (p *ResourceServiceAddClusterNodeResult) ReadField1(iprot thrift.TProtocol)
 	return nil
 }
 
-func (p *ResourceServiceAddClusterNodeResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListNodeLabelsResult) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("AddClusterNode_result"); err != nil {
+	if err = oprot.WriteStructBegin("ListNodeLabels_result"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -13644,7 +15910,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceAddClusterNodeResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListNodeLabelsResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -13663,7 +15929,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *ResourceServiceAddClusterNodeResult) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListNodeLabelsResult) writeField1(oprot thrift.TProtocol) (err error) {
 	if p.IsSetErr() {
 		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
 			goto WriteFieldBeginError
@@ -13682,14 +15948,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceAddClusterNodeResult) String() string {
+func (p *ResourceServiceListNodeLabelsResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceAddClusterNodeResult(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceListNodeLabelsResult(%+v)", *p)
 }
 
-func (p *ResourceServiceAddClusterNodeResult) DeepEqual(ano *ResourceServiceAddClusterNodeResult) bool {
+func (p *ResourceServiceListNodeLabelsResult) DeepEqual(ano *ResourceServiceListNodeLabelsResult) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -13704,14 +15970,14 @@ func (p *ResourceServiceAddClusterNodeResult) DeepEqual(ano *ResourceServiceAddC
 	return true
 }
 
-func (p *ResourceServiceAddClusterNodeResult) Field0DeepEqual(src *cluster.AddClusterNodeResponse) bool {
+func (p *ResourceServiceListNodeLabelsResult) Field0DeepEqual(src *cluster.ListNodeLabelsResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ResourceServiceAddClusterNodeResult) Field1DeepEqual(src *common.Error) bool {
+func (p *ResourceServiceListNodeLabelsResult) Field1DeepEqual(src *common.Error) bool {
 
 	if !p.Err.DeepEqual(src) {
 		return false
@@ -13719,35 +15985,35 @@ func (p *ResourceServiceAddClusterNodeResult) Field1DeepEqual(src *common.Error)
 	return true
 }
 
-type ResourceServiceGetClusterNodeArgs struct {
-	Req *cluster.GetClusterNodeRequest `thrift:"req,1" json:"req"`
+type ResourceServiceUpdateNodeArgs struct {
+	Req *cluster.UpdateNodeRequest `thrift:"req,1" json:"req"`
 }
 
-func NewResourceServiceGetClusterNodeArgs() *ResourceServiceGetClusterNodeArgs {
-	return &ResourceServiceGetClusterNodeArgs{}
+func NewResourceServiceUpdateNodeArgs() *ResourceServiceUpdateNodeArgs {
+	return &ResourceServiceUpdateNodeArgs{}
 }
 
-var ResourceServiceGetClusterNodeArgs_Req_DEFAULT *cluster.GetClusterNodeRequest
+var ResourceServiceUpdateNodeArgs_Req_DEFAULT *cluster.UpdateNodeRequest
 
-func (p *ResourceServiceGetClusterNodeArgs) GetReq() (v *cluster.GetClusterNodeRequest) {
+func (p *ResourceServiceUpdateNodeArgs) GetReq() (v *cluster.UpdateNodeRequest) {
 	if !p.IsSetReq() {
-		return ResourceServiceGetClusterNodeArgs_Req_DEFAULT
+		return ResourceServiceUpdateNodeArgs_Req_DEFAULT
 	}
 	return p.Req
 }
-func (p *ResourceServiceGetClusterNodeArgs) SetReq(val *cluster.GetClusterNodeRequest) {
+func (p *ResourceServiceUpdateNodeArgs) SetReq(val *cluster.UpdateNodeRequest) {
 	p.Req = val
 }
 
-var fieldIDToName_ResourceServiceGetClusterNodeArgs = map[int16]string{
+var fieldIDToName_ResourceServiceUpdateNodeArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *ResourceServiceGetClusterNodeArgs) IsSetReq() bool {
+func (p *ResourceServiceUpdateNodeArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *ResourceServiceGetClusterNodeArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceUpdateNodeArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -13796,7 +16062,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceGetClusterNodeArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceUpdateNodeArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -13806,17 +16072,17 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceGetClusterNodeArgs) ReadField1(iprot thrift.TProtocol) error {
-	p.Req = cluster.NewGetClusterNodeRequest()
+func (p *ResourceServiceUpdateNodeArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = cluster.NewUpdateNodeRequest()
 	if err := p.Req.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceGetClusterNodeArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceUpdateNodeArgs) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("GetClusterNode_args"); err != nil {
+	if err = oprot.WriteStructBegin("UpdateNode_args"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -13843,7 +16109,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceGetClusterNodeArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceUpdateNodeArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -13860,14 +16126,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceGetClusterNodeArgs) String() string {
+func (p *ResourceServiceUpdateNodeArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceGetClusterNodeArgs(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceUpdateNodeArgs(%+v)", *p)
 }
 
-func (p *ResourceServiceGetClusterNodeArgs) DeepEqual(ano *ResourceServiceGetClusterNodeArgs) bool {
+func (p *ResourceServiceUpdateNodeArgs) DeepEqual(ano *ResourceServiceUpdateNodeArgs) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -13879,7 +16145,7 @@ func (p *ResourceServiceGetClusterNodeArgs) DeepEqual(ano *ResourceServiceGetClu
 	return true
 }
 
-func (p *ResourceServiceGetClusterNodeArgs) Field1DeepEqual(src *cluster.GetClusterNodeRequest) bool {
+func (p *ResourceServiceUpdateNodeArgs) Field1DeepEqual(src *cluster.UpdateNodeRequest) bool {
 
 	if !p.Req.DeepEqual(src) {
 		return false
@@ -13887,53 +16153,53 @@ func (p *ResourceServiceGetClusterNodeArgs) Field1DeepEqual(src *cluster.GetClus
 	return true
 }
 
-type ResourceServiceGetClusterNodeResult struct {
-	Success *cluster.GetClusterNodeResponse `thrift:"success,0" json:"success,omitempty"`
-	Err     *common.Error                   `thrift:"err,1" json:"err,omitempty"`
+type ResourceServiceUpdateNodeResult struct {
+	Success *cluster.UpdateNodeResponse `thrift:"success,0" json:"success,omitempty"`
+	Err     *common.Error               `thrift:"err,1" json:"err,omitempty"`
 }
 
-func NewResourceServiceGetClusterNodeResult() *ResourceServiceGetClusterNodeResult {
-	return &ResourceServiceGetClusterNodeResult{}
+func NewResourceServiceUpdateNodeResult() *ResourceServiceUpdateNodeResult {
+	return &ResourceServiceUpdateNodeResult{}
 }
 
-var ResourceServiceGetClusterNodeResult_Success_DEFAULT *cluster.GetClusterNodeResponse
+var ResourceServiceUpdateNodeResult_Success_DEFAULT *cluster.UpdateNodeResponse
 
-func (p *ResourceServiceGetClusterNodeResult) GetSuccess() (v *cluster.GetClusterNodeResponse) {
+func (p *ResourceServiceUpdateNodeResult) GetSuccess() (v *cluster.UpdateNodeResponse) {
 	if !p.IsSetSuccess() {
-		return ResourceServiceGetClusterNodeResult_Success_DEFAULT
+		return ResourceServiceUpdateNodeResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-var ResourceServiceGetClusterNodeResult_Err_DEFAULT *common.Error
+var ResourceServiceUpdateNodeResult_Err_DEFAULT *common.Error
 
-func (p *ResourceServiceGetClusterNodeResult) GetErr() (v *common.Error) {
+func (p *ResourceServiceUpdateNodeResult) GetErr() (v *common.Error) {
 	if !p.IsSetErr() {
-		return ResourceServiceGetClusterNodeResult_Err_DEFAULT
+		return ResourceServiceUpdateNodeResult_Err_DEFAULT
 	}
 	return p.Err
 }
-func (p *ResourceServiceGetClusterNodeResult) SetSuccess(x interface{}) {
-	p.Success = x.(*cluster.GetClusterNodeResponse)
+func (p *ResourceServiceUpdateNodeResult) SetSuccess(x interface{}) {
+	p.Success = x.(*cluster.UpdateNodeResponse)
 }
-func (p *ResourceServiceGetClusterNodeResult) SetErr(val *common.Error) {
+func (p *ResourceServiceUpdateNodeResult) SetErr(val *common.Error) {
 	p.Err = val
 }
 
-var fieldIDToName_ResourceServiceGetClusterNodeResult = map[int16]string{
+var fieldIDToName_ResourceServiceUpdateNodeResult = map[int16]string{
 	0: "success",
 	1: "err",
 }
 
-func (p *ResourceServiceGetClusterNodeResult) IsSetSuccess() bool {
+func (p *ResourceServiceUpdateNodeResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *ResourceServiceGetClusterNodeResult) IsSetErr() bool {
+func (p *ResourceServiceUpdateNodeResult) IsSetErr() bool {
 	return p.Err != nil
 }
 
-func (p *ResourceServiceGetClusterNodeResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceUpdateNodeResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -13992,7 +16258,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceGetClusterNodeResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceUpdateNodeResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -14002,15 +16268,15 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceGetClusterNodeResult) ReadField0(iprot thrift.TProtocol) error {
-	p.Success = cluster.NewGetClusterNodeResponse()
+func (p *ResourceServiceUpdateNodeResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = cluster.NewUpdateNodeResponse()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceGetClusterNodeResult) ReadField1(iprot thrift.TProtocol) error {
+func (p *ResourceServiceUpdateNodeResult) ReadField1(iprot thrift.TProtocol) error {
 	p.Err = common.NewError()
 	if err := p.Err.Read(iprot); err != nil {
 		return err
@@ -14018,9 +16284,9 @@ func (p *ResourceServiceGetClusterNodeResult) ReadField1(iprot thrift.TProtocol)
 	return nil
 }
 
-func (p *ResourceServiceGetClusterNodeResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceUpdateNodeResult) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("GetClusterNode_result"); err != nil {
+	if err = oprot.WriteStructBegin("UpdateNode_result"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -14051,7 +16317,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceGetClusterNodeResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceUpdateNodeResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -14070,7 +16336,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *ResourceServiceGetClusterNodeResult) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceUpdateNodeResult) writeField1(oprot thrift.TProtocol) (err error) {
 	if p.IsSetErr() {
 		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
 			goto WriteFieldBeginError
@@ -14089,14 +16355,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceGetClusterNodeResult) String() string {
+func (p *ResourceServiceUpdateNodeResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceGetClusterNodeResult(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceUpdateNodeResult(%+v)", *p)
 }
 
-func (p *ResourceServiceGetClusterNodeResult) DeepEqual(ano *ResourceServiceGetClusterNodeResult) bool {
+func (p *ResourceServiceUpdateNodeResult) DeepEqual(ano *ResourceServiceUpdateNodeResult) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -14111,14 +16377,14 @@ func (p *ResourceServiceGetClusterNodeResult) DeepEqual(ano *ResourceServiceGetC
 	return true
 }
 
-func (p *ResourceServiceGetClusterNodeResult) Field0DeepEqual(src *cluster.GetClusterNodeResponse) bool {
+func (p *ResourceServiceUpdateNodeResult) Field0DeepEqual(src *cluster.UpdateNodeResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ResourceServiceGetClusterNodeResult) Field1DeepEqual(src *common.Error) bool {
+func (p *ResourceServiceUpdateNodeResult) Field1DeepEqual(src *common.Error) bool {
 
 	if !p.Err.DeepEqual(src) {
 		return false
@@ -14126,35 +16392,35 @@ func (p *ResourceServiceGetClusterNodeResult) Field1DeepEqual(src *common.Error)
 	return true
 }
 
-type ResourceServiceDeleteClusterNodeArgs struct {
-	Req *cluster.DeleteClusterNodeRequest `thrift:"req,1" json:"req"`
+type ResourceServiceGetClusterAutoScalingRuleArgs struct {
+	Req *cluster.GetClusterAutoScalingRuleRequest `thrift:"req,1" json:"req"`
 }
 
-func NewResourceServiceDeleteClusterNodeArgs() *ResourceServiceDeleteClusterNodeArgs {
-	return &ResourceServiceDeleteClusterNodeArgs{}
+func NewResourceServiceGetClusterAutoScalingRuleArgs() *ResourceServiceGetClusterAutoScalingRuleArgs {
+	return &ResourceServiceGetClusterAutoScalingRuleArgs{}
 }
 
-var ResourceServiceDeleteClusterNodeArgs_Req_DEFAULT *cluster.DeleteClusterNodeRequest
+var ResourceServiceGetClusterAutoScalingRuleArgs_Req_DEFAULT *cluster.GetClusterAutoScalingRuleRequest
 
-func (p *ResourceServiceDeleteClusterNodeArgs) GetReq() (v *cluster.DeleteClusterNodeRequest) {
+func (p *ResourceServiceGetClusterAutoScalingRuleArgs) GetReq() (v *cluster.GetClusterAutoScalingRuleRequest) {
 	if !p.IsSetReq() {
-		return ResourceServiceDeleteClusterNodeArgs_Req_DEFAULT
+		return ResourceServiceGetClusterAutoScalingRuleArgs_Req_DEFAULT
 	}
 	return p.Req
 }
-func (p *ResourceServiceDeleteClusterNodeArgs) SetReq(val *cluster.DeleteClusterNodeRequest) {
+func (p *ResourceServiceGetClusterAutoScalingRuleArgs) SetReq(val *cluster.GetClusterAutoScalingRuleRequest) {
 	p.Req = val
 }
 
-var fieldIDToName_ResourceServiceDeleteClusterNodeArgs = map[int16]string{
+var fieldIDToName_ResourceServiceGetClusterAutoScalingRuleArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *ResourceServiceDeleteClusterNodeArgs) IsSetReq() bool {
+func (p *ResourceServiceGetClusterAutoScalingRuleArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *ResourceServiceDeleteClusterNodeArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceGetClusterAutoScalingRuleArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -14203,7 +16469,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceDeleteClusterNodeArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceGetClusterAutoScalingRuleArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -14213,17 +16479,17 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceDeleteClusterNodeArgs) ReadField1(iprot thrift.TProtocol) error {
-	p.Req = cluster.NewDeleteClusterNodeRequest()
+func (p *ResourceServiceGetClusterAutoScalingRuleArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = cluster.NewGetClusterAutoScalingRuleRequest()
 	if err := p.Req.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceDeleteClusterNodeArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceGetClusterAutoScalingRuleArgs) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("DeleteClusterNode_args"); err != nil {
+	if err = oprot.WriteStructBegin("GetClusterAutoScalingRule_args"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -14250,7 +16516,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceDeleteClusterNodeArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceGetClusterAutoScalingRuleArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -14267,14 +16533,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceDeleteClusterNodeArgs) String() string {
+func (p *ResourceServiceGetClusterAutoScalingRuleArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceDeleteClusterNodeArgs(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceGetClusterAutoScalingRuleArgs(%+v)", *p)
 }
 
-func (p *ResourceServiceDeleteClusterNodeArgs) DeepEqual(ano *ResourceServiceDeleteClusterNodeArgs) bool {
+func (p *ResourceServiceGetClusterAutoScalingRuleArgs) DeepEqual(ano *ResourceServiceGetClusterAutoScalingRuleArgs) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -14286,7 +16552,7 @@ func (p *ResourceServiceDeleteClusterNodeArgs) DeepEqual(ano *ResourceServiceDel
 	return true
 }
 
-func (p *ResourceServiceDeleteClusterNodeArgs) Field1DeepEqual(src *cluster.DeleteClusterNodeRequest) bool {
+func (p *ResourceServiceGetClusterAutoScalingRuleArgs) Field1DeepEqual(src *cluster.GetClusterAutoScalingRuleRequest) bool {
 
 	if !p.Req.DeepEqual(src) {
 		return false
@@ -14294,53 +16560,53 @@ func (p *ResourceServiceDeleteClusterNodeArgs) Field1DeepEqual(src *cluster.Dele
 	return true
 }
 
-type ResourceServiceDeleteClusterNodeResult struct {
-	Success *cluster.DeleteClusterNodeResponse `thrift:"success,0" json:"success,omitempty"`
-	Err     *common.Error                      `thrift:"err,1" json:"err,omitempty"`
+type ResourceServiceGetClusterAutoScalingRuleResult struct {
+	Success *cluster.GetClusterAutoScalingRuleResponse `thrift:"success,0" json:"success,omitempty"`
+	Err     *common.Error                              `thrift:"err,1" json:"err,omitempty"`
 }
 
-func NewResourceServiceDeleteClusterNodeResult() *ResourceServiceDeleteClusterNodeResult {
-	return &ResourceServiceDeleteClusterNodeResult{}
+func NewResourceServiceGetClusterAutoScalingRuleResult() *ResourceServiceGetClusterAutoScalingRuleResult {
+	return &ResourceServiceGetClusterAutoScalingRuleResult{}
 }
 
-var ResourceServiceDeleteClusterNodeResult_Success_DEFAULT *cluster.DeleteClusterNodeResponse
+var ResourceServiceGetClusterAutoScalingRuleResult_Success_DEFAULT *cluster.GetClusterAutoScalingRuleResponse
 
-func (p *ResourceServiceDeleteClusterNodeResult) GetSuccess() (v *cluster.DeleteClusterNodeResponse) {
+func (p *ResourceServiceGetClusterAutoScalingRuleResult) GetSuccess() (v *cluster.GetClusterAutoScalingRuleResponse) {
 	if !p.IsSetSuccess() {
-		return ResourceServiceDeleteClusterNodeResult_Success_DEFAULT
+		return ResourceServiceGetClusterAutoScalingRuleResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-var ResourceServiceDeleteClusterNodeResult_Err_DEFAULT *common.Error
+var ResourceServiceGetClusterAutoScalingRuleResult_Err_DEFAULT *common.Error
 
-func (p *ResourceServiceDeleteClusterNodeResult) GetErr() (v *common.Error) {
+func (p *ResourceServiceGetClusterAutoScalingRuleResult) GetErr() (v *common.Error) {
 	if !p.IsSetErr() {
-		return ResourceServiceDeleteClusterNodeResult_Err_DEFAULT
+		return ResourceServiceGetClusterAutoScalingRuleResult_Err_DEFAULT
 	}
 	return p.Err
 }
-func (p *ResourceServiceDeleteClusterNodeResult) SetSuccess(x interface{}) {
-	p.Success = x.(*cluster.DeleteClusterNodeResponse)
+func (p *ResourceServiceGetClusterAutoScalingRuleResult) SetSuccess(x interface{}) {
+	p.Success = x.(*cluster.GetClusterAutoScalingRuleResponse)
 }
-func (p *ResourceServiceDeleteClusterNodeResult) SetErr(val *common.Error) {
+func (p *ResourceServiceGetClusterAutoScalingRuleResult) SetErr(val *common.Error) {
 	p.Err = val
 }
 
-var fieldIDToName_ResourceServiceDeleteClusterNodeResult = map[int16]string{
+var fieldIDToName_ResourceServiceGetClusterAutoScalingRuleResult = map[int16]string{
 	0: "success",
 	1: "err",
 }
 
-func (p *ResourceServiceDeleteClusterNodeResult) IsSetSuccess() bool {
+func (p *ResourceServiceGetClusterAutoScalingRuleResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *ResourceServiceDeleteClusterNodeResult) IsSetErr() bool {
+func (p *ResourceServiceGetClusterAutoScalingRuleResult) IsSetErr() bool {
 	return p.Err != nil
 }
 
-func (p *ResourceServiceDeleteClusterNodeResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceGetClusterAutoScalingRuleResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -14399,7 +16665,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceDeleteClusterNodeResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceGetClusterAutoScalingRuleResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -14409,15 +16675,15 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceDeleteClusterNodeResult) ReadField0(iprot thrift.TProtocol) error {
-	p.Success = cluster.NewDeleteClusterNodeResponse()
+func (p *ResourceServiceGetClusterAutoScalingRuleResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = cluster.NewGetClusterAutoScalingRuleResponse()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceDeleteClusterNodeResult) ReadField1(iprot thrift.TProtocol) error {
+func (p *ResourceServiceGetClusterAutoScalingRuleResult) ReadField1(iprot thrift.TProtocol) error {
 	p.Err = common.NewError()
 	if err := p.Err.Read(iprot); err != nil {
 		return err
@@ -14425,9 +16691,9 @@ func (p *ResourceServiceDeleteClusterNodeResult) ReadField1(iprot thrift.TProtoc
 	return nil
 }
 
-func (p *ResourceServiceDeleteClusterNodeResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceGetClusterAutoScalingRuleResult) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("DeleteClusterNode_result"); err != nil {
+	if err = oprot.WriteStructBegin("GetClusterAutoScalingRule_result"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -14458,7 +16724,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceDeleteClusterNodeResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceGetClusterAutoScalingRuleResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -14477,7 +16743,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *ResourceServiceDeleteClusterNodeResult) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceGetClusterAutoScalingRuleResult) writeField1(oprot thrift.TProtocol) (err error) {
 	if p.IsSetErr() {
 		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
 			goto WriteFieldBeginError
@@ -14496,14 +16762,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceDeleteClusterNodeResult) String() string {
+func (p *ResourceServiceGetClusterAutoScalingRuleResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceDeleteClusterNodeResult(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceGetClusterAutoScalingRuleResult(%+v)", *p)
 }
 
-func (p *ResourceServiceDeleteClusterNodeResult) DeepEqual(ano *ResourceServiceDeleteClusterNodeResult) bool {
+func (p *ResourceServiceGetClusterAutoScalingRuleResult) DeepEqual(ano *ResourceServiceGetClusterAutoScalingRuleResult) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -14518,14 +16784,14 @@ func (p *ResourceServiceDeleteClusterNodeResult) DeepEqual(ano *ResourceServiceD
 	return true
 }
 
-func (p *ResourceServiceDeleteClusterNodeResult) Field0DeepEqual(src *cluster.DeleteClusterNodeResponse) bool {
+func (p *ResourceServiceGetClusterAutoScalingRuleResult) Field0DeepEqual(src *cluster.GetClusterAutoScalingRuleResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ResourceServiceDeleteClusterNodeResult) Field1DeepEqual(src *common.Error) bool {
+func (p *ResourceServiceGetClusterAutoScalingRuleResult) Field1DeepEqual(src *common.Error) bool {
 
 	if !p.Err.DeepEqual(src) {
 		return false
@@ -14533,35 +16799,35 @@ func (p *ResourceServiceDeleteClusterNodeResult) Field1DeepEqual(src *common.Err
 	return true
 }
 
-type ResourceServiceListClusterNodeLabelArgs struct {
-	Req *cluster.ListClusterNodeLabelRequest `thrift:"req,1" json:"req"`
+type ResourceServiceUpdateClusterAutoScalingRuleArgs struct {
+	Req *cluster.UpdateClusterAutoScalingRuleRequest `thrift:"req,1" json:"req"`
 }
 
-func NewResourceServiceListClusterNodeLabelArgs() *ResourceServiceListClusterNodeLabelArgs {
-	return &ResourceServiceListClusterNodeLabelArgs{}
+func NewResourceServiceUpdateClusterAutoScalingRuleArgs() *ResourceServiceUpdateClusterAutoScalingRuleArgs {
+	return &ResourceServiceUpdateClusterAutoScalingRuleArgs{}
 }
 
-var ResourceServiceListClusterNodeLabelArgs_Req_DEFAULT *cluster.ListClusterNodeLabelRequest
+var ResourceServiceUpdateClusterAutoScalingRuleArgs_Req_DEFAULT *cluster.UpdateClusterAutoScalingRuleRequest
 
-func (p *ResourceServiceListClusterNodeLabelArgs) GetReq() (v *cluster.ListClusterNodeLabelRequest) {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleArgs) GetReq() (v *cluster.UpdateClusterAutoScalingRuleRequest) {
 	if !p.IsSetReq() {
-		return ResourceServiceListClusterNodeLabelArgs_Req_DEFAULT
+		return ResourceServiceUpdateClusterAutoScalingRuleArgs_Req_DEFAULT
 	}
 	return p.Req
 }
-func (p *ResourceServiceListClusterNodeLabelArgs) SetReq(val *cluster.ListClusterNodeLabelRequest) {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleArgs) SetReq(val *cluster.UpdateClusterAutoScalingRuleRequest) {
 	p.Req = val
 }
 
-var fieldIDToName_ResourceServiceListClusterNodeLabelArgs = map[int16]string{
+var fieldIDToName_ResourceServiceUpdateClusterAutoScalingRuleArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *ResourceServiceListClusterNodeLabelArgs) IsSetReq() bool {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *ResourceServiceListClusterNodeLabelArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -14610,7 +16876,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListClusterNodeLabelArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceUpdateClusterAutoScalingRuleArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -14620,17 +16886,17 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterNodeLabelArgs) ReadField1(iprot thrift.TProtocol) error {
-	p.Req = cluster.NewListClusterNodeLabelRequest()
+func (p *ResourceServiceUpdateClusterAutoScalingRuleArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = cluster.NewUpdateClusterAutoScalingRuleRequest()
 	if err := p.Req.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceListClusterNodeLabelArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleArgs) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListClusterNodeLabel_args"); err != nil {
+	if err = oprot.WriteStructBegin("UpdateClusterAutoScalingRule_args"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -14657,7 +16923,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterNodeLabelArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -14674,14 +16940,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterNodeLabelArgs) String() string {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceListClusterNodeLabelArgs(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceUpdateClusterAutoScalingRuleArgs(%+v)", *p)
 }
 
-func (p *ResourceServiceListClusterNodeLabelArgs) DeepEqual(ano *ResourceServiceListClusterNodeLabelArgs) bool {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleArgs) DeepEqual(ano *ResourceServiceUpdateClusterAutoScalingRuleArgs) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -14693,7 +16959,7 @@ func (p *ResourceServiceListClusterNodeLabelArgs) DeepEqual(ano *ResourceService
 	return true
 }
 
-func (p *ResourceServiceListClusterNodeLabelArgs) Field1DeepEqual(src *cluster.ListClusterNodeLabelRequest) bool {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleArgs) Field1DeepEqual(src *cluster.UpdateClusterAutoScalingRuleRequest) bool {
 
 	if !p.Req.DeepEqual(src) {
 		return false
@@ -14701,53 +16967,53 @@ func (p *ResourceServiceListClusterNodeLabelArgs) Field1DeepEqual(src *cluster.L
 	return true
 }
 
-type ResourceServiceListClusterNodeLabelResult struct {
-	Success *cluster.ListClusterNodeLabelResponse `thrift:"success,0" json:"success,omitempty"`
-	Err     *common.Error                         `thrift:"err,1" json:"err,omitempty"`
+type ResourceServiceUpdateClusterAutoScalingRuleResult struct {
+	Success *cluster.UpdateClusterAutoScalingRuleResponse `thrift:"success,0" json:"success,omitempty"`
+	Err     *common.Error                                 `thrift:"err,1" json:"err,omitempty"`
 }
 
-func NewResourceServiceListClusterNodeLabelResult() *ResourceServiceListClusterNodeLabelResult {
-	return &ResourceServiceListClusterNodeLabelResult{}
+func NewResourceServiceUpdateClusterAutoScalingRuleResult() *ResourceServiceUpdateClusterAutoScalingRuleResult {
+	return &ResourceServiceUpdateClusterAutoScalingRuleResult{}
 }
 
-var ResourceServiceListClusterNodeLabelResult_Success_DEFAULT *cluster.ListClusterNodeLabelResponse
+var ResourceServiceUpdateClusterAutoScalingRuleResult_Success_DEFAULT *cluster.UpdateClusterAutoScalingRuleResponse
 
-func (p *ResourceServiceListClusterNodeLabelResult) GetSuccess() (v *cluster.ListClusterNodeLabelResponse) {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleResult) GetSuccess() (v *cluster.UpdateClusterAutoScalingRuleResponse) {
 	if !p.IsSetSuccess() {
-		return ResourceServiceListClusterNodeLabelResult_Success_DEFAULT
+		return ResourceServiceUpdateClusterAutoScalingRuleResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-var ResourceServiceListClusterNodeLabelResult_Err_DEFAULT *common.Error
+var ResourceServiceUpdateClusterAutoScalingRuleResult_Err_DEFAULT *common.Error
 
-func (p *ResourceServiceListClusterNodeLabelResult) GetErr() (v *common.Error) {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleResult) GetErr() (v *common.Error) {
 	if !p.IsSetErr() {
-		return ResourceServiceListClusterNodeLabelResult_Err_DEFAULT
+		return ResourceServiceUpdateClusterAutoScalingRuleResult_Err_DEFAULT
 	}
 	return p.Err
 }
-func (p *ResourceServiceListClusterNodeLabelResult) SetSuccess(x interface{}) {
-	p.Success = x.(*cluster.ListClusterNodeLabelResponse)
+func (p *ResourceServiceUpdateClusterAutoScalingRuleResult) SetSuccess(x interface{}) {
+	p.Success = x.(*cluster.UpdateClusterAutoScalingRuleResponse)
 }
-func (p *ResourceServiceListClusterNodeLabelResult) SetErr(val *common.Error) {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleResult) SetErr(val *common.Error) {
 	p.Err = val
 }
 
-var fieldIDToName_ResourceServiceListClusterNodeLabelResult = map[int16]string{
+var fieldIDToName_ResourceServiceUpdateClusterAutoScalingRuleResult = map[int16]string{
 	0: "success",
 	1: "err",
 }
 
-func (p *ResourceServiceListClusterNodeLabelResult) IsSetSuccess() bool {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *ResourceServiceListClusterNodeLabelResult) IsSetErr() bool {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleResult) IsSetErr() bool {
 	return p.Err != nil
 }
 
-func (p *ResourceServiceListClusterNodeLabelResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -14806,7 +17072,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListClusterNodeLabelResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceUpdateClusterAutoScalingRuleResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -14816,15 +17082,15 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterNodeLabelResult) ReadField0(iprot thrift.TProtocol) error {
-	p.Success = cluster.NewListClusterNodeLabelResponse()
+func (p *ResourceServiceUpdateClusterAutoScalingRuleResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = cluster.NewUpdateClusterAutoScalingRuleResponse()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceListClusterNodeLabelResult) ReadField1(iprot thrift.TProtocol) error {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleResult) ReadField1(iprot thrift.TProtocol) error {
 	p.Err = common.NewError()
 	if err := p.Err.Read(iprot); err != nil {
 		return err
@@ -14832,9 +17098,9 @@ func (p *ResourceServiceListClusterNodeLabelResult) ReadField1(iprot thrift.TPro
 	return nil
 }
 
-func (p *ResourceServiceListClusterNodeLabelResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleResult) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListClusterNodeLabel_result"); err != nil {
+	if err = oprot.WriteStructBegin("UpdateClusterAutoScalingRule_result"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -14865,7 +17131,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterNodeLabelResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -14884,7 +17150,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterNodeLabelResult) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleResult) writeField1(oprot thrift.TProtocol) (err error) {
 	if p.IsSetErr() {
 		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
 			goto WriteFieldBeginError
@@ -14903,14 +17169,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceListClusterNodeLabelResult) String() string {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceListClusterNodeLabelResult(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceUpdateClusterAutoScalingRuleResult(%+v)", *p)
 }
 
-func (p *ResourceServiceListClusterNodeLabelResult) DeepEqual(ano *ResourceServiceListClusterNodeLabelResult) bool {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleResult) DeepEqual(ano *ResourceServiceUpdateClusterAutoScalingRuleResult) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -14925,14 +17191,14 @@ func (p *ResourceServiceListClusterNodeLabelResult) DeepEqual(ano *ResourceServi
 	return true
 }
 
-func (p *ResourceServiceListClusterNodeLabelResult) Field0DeepEqual(src *cluster.ListClusterNodeLabelResponse) bool {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleResult) Field0DeepEqual(src *cluster.UpdateClusterAutoScalingRuleResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ResourceServiceListClusterNodeLabelResult) Field1DeepEqual(src *common.Error) bool {
+func (p *ResourceServiceUpdateClusterAutoScalingRuleResult) Field1DeepEqual(src *common.Error) bool {
 
 	if !p.Err.DeepEqual(src) {
 		return false
@@ -14940,35 +17206,35 @@ func (p *ResourceServiceListClusterNodeLabelResult) Field1DeepEqual(src *common.
 	return true
 }
 
-type ResourceServiceUpdateClusterNodeArgs struct {
-	Req *cluster.UpdateClusterNodeRequest `thrift:"req,1" json:"req"`
+type ResourceServiceScaleUpNodePoolArgs struct {
+	Req *cluster.ScaleUpNodePoolRequest `thrift:"req,1" json:"req"`
 }
 
-func NewResourceServiceUpdateClusterNodeArgs() *ResourceServiceUpdateClusterNodeArgs {
-	return &ResourceServiceUpdateClusterNodeArgs{}
+func NewResourceServiceScaleUpNodePoolArgs() *ResourceServiceScaleUpNodePoolArgs {
+	return &ResourceServiceScaleUpNodePoolArgs{}
 }
 
-var ResourceServiceUpdateClusterNodeArgs_Req_DEFAULT *cluster.UpdateClusterNodeRequest
+var ResourceServiceScaleUpNodePoolArgs_Req_DEFAULT *cluster.ScaleUpNodePoolRequest
 
-func (p *ResourceServiceUpdateClusterNodeArgs) GetReq() (v *cluster.UpdateClusterNodeRequest) {
+func (p *ResourceServiceScaleUpNodePoolArgs) GetReq() (v *cluster.ScaleUpNodePoolRequest) {
 	if !p.IsSetReq() {
-		return ResourceServiceUpdateClusterNodeArgs_Req_DEFAULT
+		return ResourceServiceScaleUpNodePoolArgs_Req_DEFAULT
 	}
 	return p.Req
 }
-func (p *ResourceServiceUpdateClusterNodeArgs) SetReq(val *cluster.UpdateClusterNodeRequest) {
+func (p *ResourceServiceScaleUpNodePoolArgs) SetReq(val *cluster.ScaleUpNodePoolRequest) {
 	p.Req = val
 }
 
-var fieldIDToName_ResourceServiceUpdateClusterNodeArgs = map[int16]string{
+var fieldIDToName_ResourceServiceScaleUpNodePoolArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *ResourceServiceUpdateClusterNodeArgs) IsSetReq() bool {
+func (p *ResourceServiceScaleUpNodePoolArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *ResourceServiceUpdateClusterNodeArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceScaleUpNodePoolArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -15017,7 +17283,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceUpdateClusterNodeArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceScaleUpNodePoolArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -15027,17 +17293,17 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceUpdateClusterNodeArgs) ReadField1(iprot thrift.TProtocol) error {
-	p.Req = cluster.NewUpdateClusterNodeRequest()
+func (p *ResourceServiceScaleUpNodePoolArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = cluster.NewScaleUpNodePoolRequest()
 	if err := p.Req.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceUpdateClusterNodeArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceScaleUpNodePoolArgs) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("UpdateClusterNode_args"); err != nil {
+	if err = oprot.WriteStructBegin("ScaleUpNodePool_args"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -15064,7 +17330,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceUpdateClusterNodeArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceScaleUpNodePoolArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -15081,14 +17347,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceUpdateClusterNodeArgs) String() string {
+func (p *ResourceServiceScaleUpNodePoolArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceUpdateClusterNodeArgs(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceScaleUpNodePoolArgs(%+v)", *p)
 }
 
-func (p *ResourceServiceUpdateClusterNodeArgs) DeepEqual(ano *ResourceServiceUpdateClusterNodeArgs) bool {
+func (p *ResourceServiceScaleUpNodePoolArgs) DeepEqual(ano *ResourceServiceScaleUpNodePoolArgs) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -15100,7 +17366,7 @@ func (p *ResourceServiceUpdateClusterNodeArgs) DeepEqual(ano *ResourceServiceUpd
 	return true
 }
 
-func (p *ResourceServiceUpdateClusterNodeArgs) Field1DeepEqual(src *cluster.UpdateClusterNodeRequest) bool {
+func (p *ResourceServiceScaleUpNodePoolArgs) Field1DeepEqual(src *cluster.ScaleUpNodePoolRequest) bool {
 
 	if !p.Req.DeepEqual(src) {
 		return false
@@ -15108,1274 +17374,53 @@ func (p *ResourceServiceUpdateClusterNodeArgs) Field1DeepEqual(src *cluster.Upda
 	return true
 }
 
-type ResourceServiceUpdateClusterNodeResult struct {
-	Success *cluster.UpdateClusterNodeResponse `thrift:"success,0" json:"success,omitempty"`
-	Err     *common.Error                      `thrift:"err,1" json:"err,omitempty"`
-}
-
-func NewResourceServiceUpdateClusterNodeResult() *ResourceServiceUpdateClusterNodeResult {
-	return &ResourceServiceUpdateClusterNodeResult{}
-}
-
-var ResourceServiceUpdateClusterNodeResult_Success_DEFAULT *cluster.UpdateClusterNodeResponse
-
-func (p *ResourceServiceUpdateClusterNodeResult) GetSuccess() (v *cluster.UpdateClusterNodeResponse) {
-	if !p.IsSetSuccess() {
-		return ResourceServiceUpdateClusterNodeResult_Success_DEFAULT
-	}
-	return p.Success
-}
-
-var ResourceServiceUpdateClusterNodeResult_Err_DEFAULT *common.Error
-
-func (p *ResourceServiceUpdateClusterNodeResult) GetErr() (v *common.Error) {
-	if !p.IsSetErr() {
-		return ResourceServiceUpdateClusterNodeResult_Err_DEFAULT
-	}
-	return p.Err
-}
-func (p *ResourceServiceUpdateClusterNodeResult) SetSuccess(x interface{}) {
-	p.Success = x.(*cluster.UpdateClusterNodeResponse)
-}
-func (p *ResourceServiceUpdateClusterNodeResult) SetErr(val *common.Error) {
-	p.Err = val
-}
-
-var fieldIDToName_ResourceServiceUpdateClusterNodeResult = map[int16]string{
-	0: "success",
-	1: "err",
-}
-
-func (p *ResourceServiceUpdateClusterNodeResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *ResourceServiceUpdateClusterNodeResult) IsSetErr() bool {
-	return p.Err != nil
-}
-
-func (p *ResourceServiceUpdateClusterNodeResult) Read(iprot thrift.TProtocol) (err error) {
-
-	var fieldTypeId thrift.TType
-	var fieldId int16
-
-	if _, err = iprot.ReadStructBegin(); err != nil {
-		goto ReadStructBeginError
-	}
-
-	for {
-		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
-		if err != nil {
-			goto ReadFieldBeginError
-		}
-		if fieldTypeId == thrift.STOP {
-			break
-		}
-
-		switch fieldId {
-		case 0:
-			if fieldTypeId == thrift.STRUCT {
-				if err = p.ReadField0(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else {
-				if err = iprot.Skip(fieldTypeId); err != nil {
-					goto SkipFieldError
-				}
-			}
-		case 1:
-			if fieldTypeId == thrift.STRUCT {
-				if err = p.ReadField1(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else {
-				if err = iprot.Skip(fieldTypeId); err != nil {
-					goto SkipFieldError
-				}
-			}
-		default:
-			if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		}
-
-		if err = iprot.ReadFieldEnd(); err != nil {
-			goto ReadFieldEndError
-		}
-	}
-	if err = iprot.ReadStructEnd(); err != nil {
-		goto ReadStructEndError
-	}
-
-	return nil
-ReadStructBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
-ReadFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
-ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceUpdateClusterNodeResult[fieldId]), err)
-SkipFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
-
-ReadFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
-ReadStructEndError:
-	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
-}
-
-func (p *ResourceServiceUpdateClusterNodeResult) ReadField0(iprot thrift.TProtocol) error {
-	p.Success = cluster.NewUpdateClusterNodeResponse()
-	if err := p.Success.Read(iprot); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (p *ResourceServiceUpdateClusterNodeResult) ReadField1(iprot thrift.TProtocol) error {
-	p.Err = common.NewError()
-	if err := p.Err.Read(iprot); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (p *ResourceServiceUpdateClusterNodeResult) Write(oprot thrift.TProtocol) (err error) {
-	var fieldId int16
-	if err = oprot.WriteStructBegin("UpdateClusterNode_result"); err != nil {
-		goto WriteStructBeginError
-	}
-	if p != nil {
-		if err = p.writeField0(oprot); err != nil {
-			fieldId = 0
-			goto WriteFieldError
-		}
-		if err = p.writeField1(oprot); err != nil {
-			fieldId = 1
-			goto WriteFieldError
-		}
-
-	}
-	if err = oprot.WriteFieldStop(); err != nil {
-		goto WriteFieldStopError
-	}
-	if err = oprot.WriteStructEnd(); err != nil {
-		goto WriteStructEndError
-	}
-	return nil
-WriteStructBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
-WriteFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
-WriteFieldStopError:
-	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
-WriteStructEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
-}
-
-func (p *ResourceServiceUpdateClusterNodeResult) writeField0(oprot thrift.TProtocol) (err error) {
-	if p.IsSetSuccess() {
-		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := p.Success.Write(oprot); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
-}
-
-func (p *ResourceServiceUpdateClusterNodeResult) writeField1(oprot thrift.TProtocol) (err error) {
-	if p.IsSetErr() {
-		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := p.Err.Write(oprot); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
-}
-
-func (p *ResourceServiceUpdateClusterNodeResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("ResourceServiceUpdateClusterNodeResult(%+v)", *p)
-}
-
-func (p *ResourceServiceUpdateClusterNodeResult) DeepEqual(ano *ResourceServiceUpdateClusterNodeResult) bool {
-	if p == ano {
-		return true
-	} else if p == nil || ano == nil {
-		return false
-	}
-	if !p.Field0DeepEqual(ano.Success) {
-		return false
-	}
-	if !p.Field1DeepEqual(ano.Err) {
-		return false
-	}
-	return true
-}
-
-func (p *ResourceServiceUpdateClusterNodeResult) Field0DeepEqual(src *cluster.UpdateClusterNodeResponse) bool {
-
-	if !p.Success.DeepEqual(src) {
-		return false
-	}
-	return true
-}
-func (p *ResourceServiceUpdateClusterNodeResult) Field1DeepEqual(src *common.Error) bool {
-
-	if !p.Err.DeepEqual(src) {
-		return false
-	}
-	return true
-}
-
-type ResourceServiceGetAutoScalingRuleArgs struct {
-	Req *cluster.GetAutoScalingRuleRequest `thrift:"req,1" json:"req"`
-}
-
-func NewResourceServiceGetAutoScalingRuleArgs() *ResourceServiceGetAutoScalingRuleArgs {
-	return &ResourceServiceGetAutoScalingRuleArgs{}
-}
-
-var ResourceServiceGetAutoScalingRuleArgs_Req_DEFAULT *cluster.GetAutoScalingRuleRequest
-
-func (p *ResourceServiceGetAutoScalingRuleArgs) GetReq() (v *cluster.GetAutoScalingRuleRequest) {
-	if !p.IsSetReq() {
-		return ResourceServiceGetAutoScalingRuleArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *ResourceServiceGetAutoScalingRuleArgs) SetReq(val *cluster.GetAutoScalingRuleRequest) {
-	p.Req = val
-}
-
-var fieldIDToName_ResourceServiceGetAutoScalingRuleArgs = map[int16]string{
-	1: "req",
-}
-
-func (p *ResourceServiceGetAutoScalingRuleArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *ResourceServiceGetAutoScalingRuleArgs) Read(iprot thrift.TProtocol) (err error) {
-
-	var fieldTypeId thrift.TType
-	var fieldId int16
-
-	if _, err = iprot.ReadStructBegin(); err != nil {
-		goto ReadStructBeginError
-	}
-
-	for {
-		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
-		if err != nil {
-			goto ReadFieldBeginError
-		}
-		if fieldTypeId == thrift.STOP {
-			break
-		}
-
-		switch fieldId {
-		case 1:
-			if fieldTypeId == thrift.STRUCT {
-				if err = p.ReadField1(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else {
-				if err = iprot.Skip(fieldTypeId); err != nil {
-					goto SkipFieldError
-				}
-			}
-		default:
-			if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		}
-
-		if err = iprot.ReadFieldEnd(); err != nil {
-			goto ReadFieldEndError
-		}
-	}
-	if err = iprot.ReadStructEnd(); err != nil {
-		goto ReadStructEndError
-	}
-
-	return nil
-ReadStructBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
-ReadFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
-ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceGetAutoScalingRuleArgs[fieldId]), err)
-SkipFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
-
-ReadFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
-ReadStructEndError:
-	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
-}
-
-func (p *ResourceServiceGetAutoScalingRuleArgs) ReadField1(iprot thrift.TProtocol) error {
-	p.Req = cluster.NewGetAutoScalingRuleRequest()
-	if err := p.Req.Read(iprot); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (p *ResourceServiceGetAutoScalingRuleArgs) Write(oprot thrift.TProtocol) (err error) {
-	var fieldId int16
-	if err = oprot.WriteStructBegin("GetAutoScalingRule_args"); err != nil {
-		goto WriteStructBeginError
-	}
-	if p != nil {
-		if err = p.writeField1(oprot); err != nil {
-			fieldId = 1
-			goto WriteFieldError
-		}
-
-	}
-	if err = oprot.WriteFieldStop(); err != nil {
-		goto WriteFieldStopError
-	}
-	if err = oprot.WriteStructEnd(); err != nil {
-		goto WriteStructEndError
-	}
-	return nil
-WriteStructBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
-WriteFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
-WriteFieldStopError:
-	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
-WriteStructEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
-}
-
-func (p *ResourceServiceGetAutoScalingRuleArgs) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := p.Req.Write(oprot); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
-}
-
-func (p *ResourceServiceGetAutoScalingRuleArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("ResourceServiceGetAutoScalingRuleArgs(%+v)", *p)
-}
-
-func (p *ResourceServiceGetAutoScalingRuleArgs) DeepEqual(ano *ResourceServiceGetAutoScalingRuleArgs) bool {
-	if p == ano {
-		return true
-	} else if p == nil || ano == nil {
-		return false
-	}
-	if !p.Field1DeepEqual(ano.Req) {
-		return false
-	}
-	return true
-}
-
-func (p *ResourceServiceGetAutoScalingRuleArgs) Field1DeepEqual(src *cluster.GetAutoScalingRuleRequest) bool {
-
-	if !p.Req.DeepEqual(src) {
-		return false
-	}
-	return true
-}
-
-type ResourceServiceGetAutoScalingRuleResult struct {
-	Success *cluster.GetAutoScalingRuleResponse `thrift:"success,0" json:"success,omitempty"`
-	Err     *common.Error                       `thrift:"err,1" json:"err,omitempty"`
-}
-
-func NewResourceServiceGetAutoScalingRuleResult() *ResourceServiceGetAutoScalingRuleResult {
-	return &ResourceServiceGetAutoScalingRuleResult{}
-}
-
-var ResourceServiceGetAutoScalingRuleResult_Success_DEFAULT *cluster.GetAutoScalingRuleResponse
-
-func (p *ResourceServiceGetAutoScalingRuleResult) GetSuccess() (v *cluster.GetAutoScalingRuleResponse) {
-	if !p.IsSetSuccess() {
-		return ResourceServiceGetAutoScalingRuleResult_Success_DEFAULT
-	}
-	return p.Success
-}
-
-var ResourceServiceGetAutoScalingRuleResult_Err_DEFAULT *common.Error
-
-func (p *ResourceServiceGetAutoScalingRuleResult) GetErr() (v *common.Error) {
-	if !p.IsSetErr() {
-		return ResourceServiceGetAutoScalingRuleResult_Err_DEFAULT
-	}
-	return p.Err
-}
-func (p *ResourceServiceGetAutoScalingRuleResult) SetSuccess(x interface{}) {
-	p.Success = x.(*cluster.GetAutoScalingRuleResponse)
-}
-func (p *ResourceServiceGetAutoScalingRuleResult) SetErr(val *common.Error) {
-	p.Err = val
-}
-
-var fieldIDToName_ResourceServiceGetAutoScalingRuleResult = map[int16]string{
-	0: "success",
-	1: "err",
-}
-
-func (p *ResourceServiceGetAutoScalingRuleResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *ResourceServiceGetAutoScalingRuleResult) IsSetErr() bool {
-	return p.Err != nil
-}
-
-func (p *ResourceServiceGetAutoScalingRuleResult) Read(iprot thrift.TProtocol) (err error) {
-
-	var fieldTypeId thrift.TType
-	var fieldId int16
-
-	if _, err = iprot.ReadStructBegin(); err != nil {
-		goto ReadStructBeginError
-	}
-
-	for {
-		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
-		if err != nil {
-			goto ReadFieldBeginError
-		}
-		if fieldTypeId == thrift.STOP {
-			break
-		}
-
-		switch fieldId {
-		case 0:
-			if fieldTypeId == thrift.STRUCT {
-				if err = p.ReadField0(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else {
-				if err = iprot.Skip(fieldTypeId); err != nil {
-					goto SkipFieldError
-				}
-			}
-		case 1:
-			if fieldTypeId == thrift.STRUCT {
-				if err = p.ReadField1(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else {
-				if err = iprot.Skip(fieldTypeId); err != nil {
-					goto SkipFieldError
-				}
-			}
-		default:
-			if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		}
-
-		if err = iprot.ReadFieldEnd(); err != nil {
-			goto ReadFieldEndError
-		}
-	}
-	if err = iprot.ReadStructEnd(); err != nil {
-		goto ReadStructEndError
-	}
-
-	return nil
-ReadStructBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
-ReadFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
-ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceGetAutoScalingRuleResult[fieldId]), err)
-SkipFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
-
-ReadFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
-ReadStructEndError:
-	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
-}
-
-func (p *ResourceServiceGetAutoScalingRuleResult) ReadField0(iprot thrift.TProtocol) error {
-	p.Success = cluster.NewGetAutoScalingRuleResponse()
-	if err := p.Success.Read(iprot); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (p *ResourceServiceGetAutoScalingRuleResult) ReadField1(iprot thrift.TProtocol) error {
-	p.Err = common.NewError()
-	if err := p.Err.Read(iprot); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (p *ResourceServiceGetAutoScalingRuleResult) Write(oprot thrift.TProtocol) (err error) {
-	var fieldId int16
-	if err = oprot.WriteStructBegin("GetAutoScalingRule_result"); err != nil {
-		goto WriteStructBeginError
-	}
-	if p != nil {
-		if err = p.writeField0(oprot); err != nil {
-			fieldId = 0
-			goto WriteFieldError
-		}
-		if err = p.writeField1(oprot); err != nil {
-			fieldId = 1
-			goto WriteFieldError
-		}
-
-	}
-	if err = oprot.WriteFieldStop(); err != nil {
-		goto WriteFieldStopError
-	}
-	if err = oprot.WriteStructEnd(); err != nil {
-		goto WriteStructEndError
-	}
-	return nil
-WriteStructBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
-WriteFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
-WriteFieldStopError:
-	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
-WriteStructEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
-}
-
-func (p *ResourceServiceGetAutoScalingRuleResult) writeField0(oprot thrift.TProtocol) (err error) {
-	if p.IsSetSuccess() {
-		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := p.Success.Write(oprot); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
-}
-
-func (p *ResourceServiceGetAutoScalingRuleResult) writeField1(oprot thrift.TProtocol) (err error) {
-	if p.IsSetErr() {
-		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := p.Err.Write(oprot); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
-}
-
-func (p *ResourceServiceGetAutoScalingRuleResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("ResourceServiceGetAutoScalingRuleResult(%+v)", *p)
-}
-
-func (p *ResourceServiceGetAutoScalingRuleResult) DeepEqual(ano *ResourceServiceGetAutoScalingRuleResult) bool {
-	if p == ano {
-		return true
-	} else if p == nil || ano == nil {
-		return false
-	}
-	if !p.Field0DeepEqual(ano.Success) {
-		return false
-	}
-	if !p.Field1DeepEqual(ano.Err) {
-		return false
-	}
-	return true
-}
-
-func (p *ResourceServiceGetAutoScalingRuleResult) Field0DeepEqual(src *cluster.GetAutoScalingRuleResponse) bool {
-
-	if !p.Success.DeepEqual(src) {
-		return false
-	}
-	return true
-}
-func (p *ResourceServiceGetAutoScalingRuleResult) Field1DeepEqual(src *common.Error) bool {
-
-	if !p.Err.DeepEqual(src) {
-		return false
-	}
-	return true
-}
-
-type ResourceServiceUpdateAutoScalingRuleArgs struct {
-	Req *cluster.UpdateAutoScalingRuleRequest `thrift:"req,1" json:"req"`
-}
-
-func NewResourceServiceUpdateAutoScalingRuleArgs() *ResourceServiceUpdateAutoScalingRuleArgs {
-	return &ResourceServiceUpdateAutoScalingRuleArgs{}
-}
-
-var ResourceServiceUpdateAutoScalingRuleArgs_Req_DEFAULT *cluster.UpdateAutoScalingRuleRequest
-
-func (p *ResourceServiceUpdateAutoScalingRuleArgs) GetReq() (v *cluster.UpdateAutoScalingRuleRequest) {
-	if !p.IsSetReq() {
-		return ResourceServiceUpdateAutoScalingRuleArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *ResourceServiceUpdateAutoScalingRuleArgs) SetReq(val *cluster.UpdateAutoScalingRuleRequest) {
-	p.Req = val
-}
-
-var fieldIDToName_ResourceServiceUpdateAutoScalingRuleArgs = map[int16]string{
-	1: "req",
-}
-
-func (p *ResourceServiceUpdateAutoScalingRuleArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *ResourceServiceUpdateAutoScalingRuleArgs) Read(iprot thrift.TProtocol) (err error) {
-
-	var fieldTypeId thrift.TType
-	var fieldId int16
-
-	if _, err = iprot.ReadStructBegin(); err != nil {
-		goto ReadStructBeginError
-	}
-
-	for {
-		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
-		if err != nil {
-			goto ReadFieldBeginError
-		}
-		if fieldTypeId == thrift.STOP {
-			break
-		}
-
-		switch fieldId {
-		case 1:
-			if fieldTypeId == thrift.STRUCT {
-				if err = p.ReadField1(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else {
-				if err = iprot.Skip(fieldTypeId); err != nil {
-					goto SkipFieldError
-				}
-			}
-		default:
-			if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		}
-
-		if err = iprot.ReadFieldEnd(); err != nil {
-			goto ReadFieldEndError
-		}
-	}
-	if err = iprot.ReadStructEnd(); err != nil {
-		goto ReadStructEndError
-	}
-
-	return nil
-ReadStructBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
-ReadFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
-ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceUpdateAutoScalingRuleArgs[fieldId]), err)
-SkipFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
-
-ReadFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
-ReadStructEndError:
-	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
-}
-
-func (p *ResourceServiceUpdateAutoScalingRuleArgs) ReadField1(iprot thrift.TProtocol) error {
-	p.Req = cluster.NewUpdateAutoScalingRuleRequest()
-	if err := p.Req.Read(iprot); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (p *ResourceServiceUpdateAutoScalingRuleArgs) Write(oprot thrift.TProtocol) (err error) {
-	var fieldId int16
-	if err = oprot.WriteStructBegin("UpdateAutoScalingRule_args"); err != nil {
-		goto WriteStructBeginError
-	}
-	if p != nil {
-		if err = p.writeField1(oprot); err != nil {
-			fieldId = 1
-			goto WriteFieldError
-		}
-
-	}
-	if err = oprot.WriteFieldStop(); err != nil {
-		goto WriteFieldStopError
-	}
-	if err = oprot.WriteStructEnd(); err != nil {
-		goto WriteStructEndError
-	}
-	return nil
-WriteStructBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
-WriteFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
-WriteFieldStopError:
-	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
-WriteStructEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
-}
-
-func (p *ResourceServiceUpdateAutoScalingRuleArgs) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := p.Req.Write(oprot); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
-}
-
-func (p *ResourceServiceUpdateAutoScalingRuleArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("ResourceServiceUpdateAutoScalingRuleArgs(%+v)", *p)
-}
-
-func (p *ResourceServiceUpdateAutoScalingRuleArgs) DeepEqual(ano *ResourceServiceUpdateAutoScalingRuleArgs) bool {
-	if p == ano {
-		return true
-	} else if p == nil || ano == nil {
-		return false
-	}
-	if !p.Field1DeepEqual(ano.Req) {
-		return false
-	}
-	return true
-}
-
-func (p *ResourceServiceUpdateAutoScalingRuleArgs) Field1DeepEqual(src *cluster.UpdateAutoScalingRuleRequest) bool {
-
-	if !p.Req.DeepEqual(src) {
-		return false
-	}
-	return true
-}
-
-type ResourceServiceUpdateAutoScalingRuleResult struct {
-	Success *cluster.UpdateAutoScalingRuleResponse `thrift:"success,0" json:"success,omitempty"`
-	Err     *common.Error                          `thrift:"err,1" json:"err,omitempty"`
-}
-
-func NewResourceServiceUpdateAutoScalingRuleResult() *ResourceServiceUpdateAutoScalingRuleResult {
-	return &ResourceServiceUpdateAutoScalingRuleResult{}
-}
-
-var ResourceServiceUpdateAutoScalingRuleResult_Success_DEFAULT *cluster.UpdateAutoScalingRuleResponse
-
-func (p *ResourceServiceUpdateAutoScalingRuleResult) GetSuccess() (v *cluster.UpdateAutoScalingRuleResponse) {
-	if !p.IsSetSuccess() {
-		return ResourceServiceUpdateAutoScalingRuleResult_Success_DEFAULT
-	}
-	return p.Success
-}
-
-var ResourceServiceUpdateAutoScalingRuleResult_Err_DEFAULT *common.Error
-
-func (p *ResourceServiceUpdateAutoScalingRuleResult) GetErr() (v *common.Error) {
-	if !p.IsSetErr() {
-		return ResourceServiceUpdateAutoScalingRuleResult_Err_DEFAULT
-	}
-	return p.Err
-}
-func (p *ResourceServiceUpdateAutoScalingRuleResult) SetSuccess(x interface{}) {
-	p.Success = x.(*cluster.UpdateAutoScalingRuleResponse)
-}
-func (p *ResourceServiceUpdateAutoScalingRuleResult) SetErr(val *common.Error) {
-	p.Err = val
-}
-
-var fieldIDToName_ResourceServiceUpdateAutoScalingRuleResult = map[int16]string{
-	0: "success",
-	1: "err",
-}
-
-func (p *ResourceServiceUpdateAutoScalingRuleResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *ResourceServiceUpdateAutoScalingRuleResult) IsSetErr() bool {
-	return p.Err != nil
-}
-
-func (p *ResourceServiceUpdateAutoScalingRuleResult) Read(iprot thrift.TProtocol) (err error) {
-
-	var fieldTypeId thrift.TType
-	var fieldId int16
-
-	if _, err = iprot.ReadStructBegin(); err != nil {
-		goto ReadStructBeginError
-	}
-
-	for {
-		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
-		if err != nil {
-			goto ReadFieldBeginError
-		}
-		if fieldTypeId == thrift.STOP {
-			break
-		}
-
-		switch fieldId {
-		case 0:
-			if fieldTypeId == thrift.STRUCT {
-				if err = p.ReadField0(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else {
-				if err = iprot.Skip(fieldTypeId); err != nil {
-					goto SkipFieldError
-				}
-			}
-		case 1:
-			if fieldTypeId == thrift.STRUCT {
-				if err = p.ReadField1(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else {
-				if err = iprot.Skip(fieldTypeId); err != nil {
-					goto SkipFieldError
-				}
-			}
-		default:
-			if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		}
-
-		if err = iprot.ReadFieldEnd(); err != nil {
-			goto ReadFieldEndError
-		}
-	}
-	if err = iprot.ReadStructEnd(); err != nil {
-		goto ReadStructEndError
-	}
-
-	return nil
-ReadStructBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
-ReadFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
-ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceUpdateAutoScalingRuleResult[fieldId]), err)
-SkipFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
-
-ReadFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
-ReadStructEndError:
-	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
-}
-
-func (p *ResourceServiceUpdateAutoScalingRuleResult) ReadField0(iprot thrift.TProtocol) error {
-	p.Success = cluster.NewUpdateAutoScalingRuleResponse()
-	if err := p.Success.Read(iprot); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (p *ResourceServiceUpdateAutoScalingRuleResult) ReadField1(iprot thrift.TProtocol) error {
-	p.Err = common.NewError()
-	if err := p.Err.Read(iprot); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (p *ResourceServiceUpdateAutoScalingRuleResult) Write(oprot thrift.TProtocol) (err error) {
-	var fieldId int16
-	if err = oprot.WriteStructBegin("UpdateAutoScalingRule_result"); err != nil {
-		goto WriteStructBeginError
-	}
-	if p != nil {
-		if err = p.writeField0(oprot); err != nil {
-			fieldId = 0
-			goto WriteFieldError
-		}
-		if err = p.writeField1(oprot); err != nil {
-			fieldId = 1
-			goto WriteFieldError
-		}
-
-	}
-	if err = oprot.WriteFieldStop(); err != nil {
-		goto WriteFieldStopError
-	}
-	if err = oprot.WriteStructEnd(); err != nil {
-		goto WriteStructEndError
-	}
-	return nil
-WriteStructBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
-WriteFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
-WriteFieldStopError:
-	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
-WriteStructEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
-}
-
-func (p *ResourceServiceUpdateAutoScalingRuleResult) writeField0(oprot thrift.TProtocol) (err error) {
-	if p.IsSetSuccess() {
-		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := p.Success.Write(oprot); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
-}
-
-func (p *ResourceServiceUpdateAutoScalingRuleResult) writeField1(oprot thrift.TProtocol) (err error) {
-	if p.IsSetErr() {
-		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := p.Err.Write(oprot); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
-}
-
-func (p *ResourceServiceUpdateAutoScalingRuleResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("ResourceServiceUpdateAutoScalingRuleResult(%+v)", *p)
-}
-
-func (p *ResourceServiceUpdateAutoScalingRuleResult) DeepEqual(ano *ResourceServiceUpdateAutoScalingRuleResult) bool {
-	if p == ano {
-		return true
-	} else if p == nil || ano == nil {
-		return false
-	}
-	if !p.Field0DeepEqual(ano.Success) {
-		return false
-	}
-	if !p.Field1DeepEqual(ano.Err) {
-		return false
-	}
-	return true
-}
-
-func (p *ResourceServiceUpdateAutoScalingRuleResult) Field0DeepEqual(src *cluster.UpdateAutoScalingRuleResponse) bool {
-
-	if !p.Success.DeepEqual(src) {
-		return false
-	}
-	return true
-}
-func (p *ResourceServiceUpdateAutoScalingRuleResult) Field1DeepEqual(src *common.Error) bool {
-
-	if !p.Err.DeepEqual(src) {
-		return false
-	}
-	return true
-}
-
-type ResourceServiceNodePoolScaleUpArgs struct {
-	Req *cluster.NodePoolScaleUpRequest `thrift:"req,1" json:"req"`
-}
-
-func NewResourceServiceNodePoolScaleUpArgs() *ResourceServiceNodePoolScaleUpArgs {
-	return &ResourceServiceNodePoolScaleUpArgs{}
-}
-
-var ResourceServiceNodePoolScaleUpArgs_Req_DEFAULT *cluster.NodePoolScaleUpRequest
-
-func (p *ResourceServiceNodePoolScaleUpArgs) GetReq() (v *cluster.NodePoolScaleUpRequest) {
-	if !p.IsSetReq() {
-		return ResourceServiceNodePoolScaleUpArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *ResourceServiceNodePoolScaleUpArgs) SetReq(val *cluster.NodePoolScaleUpRequest) {
-	p.Req = val
-}
-
-var fieldIDToName_ResourceServiceNodePoolScaleUpArgs = map[int16]string{
-	1: "req",
-}
-
-func (p *ResourceServiceNodePoolScaleUpArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *ResourceServiceNodePoolScaleUpArgs) Read(iprot thrift.TProtocol) (err error) {
-
-	var fieldTypeId thrift.TType
-	var fieldId int16
-
-	if _, err = iprot.ReadStructBegin(); err != nil {
-		goto ReadStructBeginError
-	}
-
-	for {
-		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
-		if err != nil {
-			goto ReadFieldBeginError
-		}
-		if fieldTypeId == thrift.STOP {
-			break
-		}
-
-		switch fieldId {
-		case 1:
-			if fieldTypeId == thrift.STRUCT {
-				if err = p.ReadField1(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else {
-				if err = iprot.Skip(fieldTypeId); err != nil {
-					goto SkipFieldError
-				}
-			}
-		default:
-			if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		}
-
-		if err = iprot.ReadFieldEnd(); err != nil {
-			goto ReadFieldEndError
-		}
-	}
-	if err = iprot.ReadStructEnd(); err != nil {
-		goto ReadStructEndError
-	}
-
-	return nil
-ReadStructBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
-ReadFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
-ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceNodePoolScaleUpArgs[fieldId]), err)
-SkipFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
-
-ReadFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
-ReadStructEndError:
-	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
-}
-
-func (p *ResourceServiceNodePoolScaleUpArgs) ReadField1(iprot thrift.TProtocol) error {
-	p.Req = cluster.NewNodePoolScaleUpRequest()
-	if err := p.Req.Read(iprot); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (p *ResourceServiceNodePoolScaleUpArgs) Write(oprot thrift.TProtocol) (err error) {
-	var fieldId int16
-	if err = oprot.WriteStructBegin("NodePoolScaleUp_args"); err != nil {
-		goto WriteStructBeginError
-	}
-	if p != nil {
-		if err = p.writeField1(oprot); err != nil {
-			fieldId = 1
-			goto WriteFieldError
-		}
-
-	}
-	if err = oprot.WriteFieldStop(); err != nil {
-		goto WriteFieldStopError
-	}
-	if err = oprot.WriteStructEnd(); err != nil {
-		goto WriteStructEndError
-	}
-	return nil
-WriteStructBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
-WriteFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
-WriteFieldStopError:
-	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
-WriteStructEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
-}
-
-func (p *ResourceServiceNodePoolScaleUpArgs) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := p.Req.Write(oprot); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
-}
-
-func (p *ResourceServiceNodePoolScaleUpArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("ResourceServiceNodePoolScaleUpArgs(%+v)", *p)
-}
-
-func (p *ResourceServiceNodePoolScaleUpArgs) DeepEqual(ano *ResourceServiceNodePoolScaleUpArgs) bool {
-	if p == ano {
-		return true
-	} else if p == nil || ano == nil {
-		return false
-	}
-	if !p.Field1DeepEqual(ano.Req) {
-		return false
-	}
-	return true
-}
-
-func (p *ResourceServiceNodePoolScaleUpArgs) Field1DeepEqual(src *cluster.NodePoolScaleUpRequest) bool {
-
-	if !p.Req.DeepEqual(src) {
-		return false
-	}
-	return true
-}
-
-type ResourceServiceNodePoolScaleUpResult struct {
-	Success *cluster.NodePoolScaleUpResponse `thrift:"success,0" json:"success,omitempty"`
+type ResourceServiceScaleUpNodePoolResult struct {
+	Success *cluster.ScaleUpNodePoolResponse `thrift:"success,0" json:"success,omitempty"`
 	Err     *common.Error                    `thrift:"err,1" json:"err,omitempty"`
 }
 
-func NewResourceServiceNodePoolScaleUpResult() *ResourceServiceNodePoolScaleUpResult {
-	return &ResourceServiceNodePoolScaleUpResult{}
+func NewResourceServiceScaleUpNodePoolResult() *ResourceServiceScaleUpNodePoolResult {
+	return &ResourceServiceScaleUpNodePoolResult{}
 }
 
-var ResourceServiceNodePoolScaleUpResult_Success_DEFAULT *cluster.NodePoolScaleUpResponse
+var ResourceServiceScaleUpNodePoolResult_Success_DEFAULT *cluster.ScaleUpNodePoolResponse
 
-func (p *ResourceServiceNodePoolScaleUpResult) GetSuccess() (v *cluster.NodePoolScaleUpResponse) {
+func (p *ResourceServiceScaleUpNodePoolResult) GetSuccess() (v *cluster.ScaleUpNodePoolResponse) {
 	if !p.IsSetSuccess() {
-		return ResourceServiceNodePoolScaleUpResult_Success_DEFAULT
+		return ResourceServiceScaleUpNodePoolResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-var ResourceServiceNodePoolScaleUpResult_Err_DEFAULT *common.Error
+var ResourceServiceScaleUpNodePoolResult_Err_DEFAULT *common.Error
 
-func (p *ResourceServiceNodePoolScaleUpResult) GetErr() (v *common.Error) {
+func (p *ResourceServiceScaleUpNodePoolResult) GetErr() (v *common.Error) {
 	if !p.IsSetErr() {
-		return ResourceServiceNodePoolScaleUpResult_Err_DEFAULT
+		return ResourceServiceScaleUpNodePoolResult_Err_DEFAULT
 	}
 	return p.Err
 }
-func (p *ResourceServiceNodePoolScaleUpResult) SetSuccess(x interface{}) {
-	p.Success = x.(*cluster.NodePoolScaleUpResponse)
+func (p *ResourceServiceScaleUpNodePoolResult) SetSuccess(x interface{}) {
+	p.Success = x.(*cluster.ScaleUpNodePoolResponse)
 }
-func (p *ResourceServiceNodePoolScaleUpResult) SetErr(val *common.Error) {
+func (p *ResourceServiceScaleUpNodePoolResult) SetErr(val *common.Error) {
 	p.Err = val
 }
 
-var fieldIDToName_ResourceServiceNodePoolScaleUpResult = map[int16]string{
+var fieldIDToName_ResourceServiceScaleUpNodePoolResult = map[int16]string{
 	0: "success",
 	1: "err",
 }
 
-func (p *ResourceServiceNodePoolScaleUpResult) IsSetSuccess() bool {
+func (p *ResourceServiceScaleUpNodePoolResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *ResourceServiceNodePoolScaleUpResult) IsSetErr() bool {
+func (p *ResourceServiceScaleUpNodePoolResult) IsSetErr() bool {
 	return p.Err != nil
 }
 
-func (p *ResourceServiceNodePoolScaleUpResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceScaleUpNodePoolResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -16434,7 +17479,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceNodePoolScaleUpResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceScaleUpNodePoolResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -16444,15 +17489,15 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceNodePoolScaleUpResult) ReadField0(iprot thrift.TProtocol) error {
-	p.Success = cluster.NewNodePoolScaleUpResponse()
+func (p *ResourceServiceScaleUpNodePoolResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = cluster.NewScaleUpNodePoolResponse()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceNodePoolScaleUpResult) ReadField1(iprot thrift.TProtocol) error {
+func (p *ResourceServiceScaleUpNodePoolResult) ReadField1(iprot thrift.TProtocol) error {
 	p.Err = common.NewError()
 	if err := p.Err.Read(iprot); err != nil {
 		return err
@@ -16460,9 +17505,9 @@ func (p *ResourceServiceNodePoolScaleUpResult) ReadField1(iprot thrift.TProtocol
 	return nil
 }
 
-func (p *ResourceServiceNodePoolScaleUpResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceScaleUpNodePoolResult) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("NodePoolScaleUp_result"); err != nil {
+	if err = oprot.WriteStructBegin("ScaleUpNodePool_result"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -16493,7 +17538,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceNodePoolScaleUpResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceScaleUpNodePoolResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -16512,7 +17557,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *ResourceServiceNodePoolScaleUpResult) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceScaleUpNodePoolResult) writeField1(oprot thrift.TProtocol) (err error) {
 	if p.IsSetErr() {
 		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
 			goto WriteFieldBeginError
@@ -16531,14 +17576,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceNodePoolScaleUpResult) String() string {
+func (p *ResourceServiceScaleUpNodePoolResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceNodePoolScaleUpResult(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceScaleUpNodePoolResult(%+v)", *p)
 }
 
-func (p *ResourceServiceNodePoolScaleUpResult) DeepEqual(ano *ResourceServiceNodePoolScaleUpResult) bool {
+func (p *ResourceServiceScaleUpNodePoolResult) DeepEqual(ano *ResourceServiceScaleUpNodePoolResult) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -16553,14 +17598,14 @@ func (p *ResourceServiceNodePoolScaleUpResult) DeepEqual(ano *ResourceServiceNod
 	return true
 }
 
-func (p *ResourceServiceNodePoolScaleUpResult) Field0DeepEqual(src *cluster.NodePoolScaleUpResponse) bool {
+func (p *ResourceServiceScaleUpNodePoolResult) Field0DeepEqual(src *cluster.ScaleUpNodePoolResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ResourceServiceNodePoolScaleUpResult) Field1DeepEqual(src *common.Error) bool {
+func (p *ResourceServiceScaleUpNodePoolResult) Field1DeepEqual(src *common.Error) bool {
 
 	if !p.Err.DeepEqual(src) {
 		return false
@@ -16568,35 +17613,35 @@ func (p *ResourceServiceNodePoolScaleUpResult) Field1DeepEqual(src *common.Error
 	return true
 }
 
-type ResourceServiceNodePoolScaleDownArgs struct {
-	Req *cluster.NodePoolScaleDownRequest `thrift:"req,1" json:"req"`
+type ResourceServiceScaleDownNodePoolArgs struct {
+	Req *cluster.ScaleDownNodePoolRequest `thrift:"req,1" json:"req"`
 }
 
-func NewResourceServiceNodePoolScaleDownArgs() *ResourceServiceNodePoolScaleDownArgs {
-	return &ResourceServiceNodePoolScaleDownArgs{}
+func NewResourceServiceScaleDownNodePoolArgs() *ResourceServiceScaleDownNodePoolArgs {
+	return &ResourceServiceScaleDownNodePoolArgs{}
 }
 
-var ResourceServiceNodePoolScaleDownArgs_Req_DEFAULT *cluster.NodePoolScaleDownRequest
+var ResourceServiceScaleDownNodePoolArgs_Req_DEFAULT *cluster.ScaleDownNodePoolRequest
 
-func (p *ResourceServiceNodePoolScaleDownArgs) GetReq() (v *cluster.NodePoolScaleDownRequest) {
+func (p *ResourceServiceScaleDownNodePoolArgs) GetReq() (v *cluster.ScaleDownNodePoolRequest) {
 	if !p.IsSetReq() {
-		return ResourceServiceNodePoolScaleDownArgs_Req_DEFAULT
+		return ResourceServiceScaleDownNodePoolArgs_Req_DEFAULT
 	}
 	return p.Req
 }
-func (p *ResourceServiceNodePoolScaleDownArgs) SetReq(val *cluster.NodePoolScaleDownRequest) {
+func (p *ResourceServiceScaleDownNodePoolArgs) SetReq(val *cluster.ScaleDownNodePoolRequest) {
 	p.Req = val
 }
 
-var fieldIDToName_ResourceServiceNodePoolScaleDownArgs = map[int16]string{
+var fieldIDToName_ResourceServiceScaleDownNodePoolArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *ResourceServiceNodePoolScaleDownArgs) IsSetReq() bool {
+func (p *ResourceServiceScaleDownNodePoolArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *ResourceServiceNodePoolScaleDownArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceScaleDownNodePoolArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -16645,7 +17690,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceNodePoolScaleDownArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceScaleDownNodePoolArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -16655,17 +17700,17 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceNodePoolScaleDownArgs) ReadField1(iprot thrift.TProtocol) error {
-	p.Req = cluster.NewNodePoolScaleDownRequest()
+func (p *ResourceServiceScaleDownNodePoolArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = cluster.NewScaleDownNodePoolRequest()
 	if err := p.Req.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceNodePoolScaleDownArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceScaleDownNodePoolArgs) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("NodePoolScaleDown_args"); err != nil {
+	if err = oprot.WriteStructBegin("ScaleDownNodePool_args"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -16692,7 +17737,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceNodePoolScaleDownArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceScaleDownNodePoolArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -16709,14 +17754,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceNodePoolScaleDownArgs) String() string {
+func (p *ResourceServiceScaleDownNodePoolArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceNodePoolScaleDownArgs(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceScaleDownNodePoolArgs(%+v)", *p)
 }
 
-func (p *ResourceServiceNodePoolScaleDownArgs) DeepEqual(ano *ResourceServiceNodePoolScaleDownArgs) bool {
+func (p *ResourceServiceScaleDownNodePoolArgs) DeepEqual(ano *ResourceServiceScaleDownNodePoolArgs) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -16728,7 +17773,7 @@ func (p *ResourceServiceNodePoolScaleDownArgs) DeepEqual(ano *ResourceServiceNod
 	return true
 }
 
-func (p *ResourceServiceNodePoolScaleDownArgs) Field1DeepEqual(src *cluster.NodePoolScaleDownRequest) bool {
+func (p *ResourceServiceScaleDownNodePoolArgs) Field1DeepEqual(src *cluster.ScaleDownNodePoolRequest) bool {
 
 	if !p.Req.DeepEqual(src) {
 		return false
@@ -16736,53 +17781,53 @@ func (p *ResourceServiceNodePoolScaleDownArgs) Field1DeepEqual(src *cluster.Node
 	return true
 }
 
-type ResourceServiceNodePoolScaleDownResult struct {
-	Success *cluster.NodePoolScaleDownResponse `thrift:"success,0" json:"success,omitempty"`
+type ResourceServiceScaleDownNodePoolResult struct {
+	Success *cluster.ScaleDownNodePoolResponse `thrift:"success,0" json:"success,omitempty"`
 	Err     *common.Error                      `thrift:"err,1" json:"err,omitempty"`
 }
 
-func NewResourceServiceNodePoolScaleDownResult() *ResourceServiceNodePoolScaleDownResult {
-	return &ResourceServiceNodePoolScaleDownResult{}
+func NewResourceServiceScaleDownNodePoolResult() *ResourceServiceScaleDownNodePoolResult {
+	return &ResourceServiceScaleDownNodePoolResult{}
 }
 
-var ResourceServiceNodePoolScaleDownResult_Success_DEFAULT *cluster.NodePoolScaleDownResponse
+var ResourceServiceScaleDownNodePoolResult_Success_DEFAULT *cluster.ScaleDownNodePoolResponse
 
-func (p *ResourceServiceNodePoolScaleDownResult) GetSuccess() (v *cluster.NodePoolScaleDownResponse) {
+func (p *ResourceServiceScaleDownNodePoolResult) GetSuccess() (v *cluster.ScaleDownNodePoolResponse) {
 	if !p.IsSetSuccess() {
-		return ResourceServiceNodePoolScaleDownResult_Success_DEFAULT
+		return ResourceServiceScaleDownNodePoolResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-var ResourceServiceNodePoolScaleDownResult_Err_DEFAULT *common.Error
+var ResourceServiceScaleDownNodePoolResult_Err_DEFAULT *common.Error
 
-func (p *ResourceServiceNodePoolScaleDownResult) GetErr() (v *common.Error) {
+func (p *ResourceServiceScaleDownNodePoolResult) GetErr() (v *common.Error) {
 	if !p.IsSetErr() {
-		return ResourceServiceNodePoolScaleDownResult_Err_DEFAULT
+		return ResourceServiceScaleDownNodePoolResult_Err_DEFAULT
 	}
 	return p.Err
 }
-func (p *ResourceServiceNodePoolScaleDownResult) SetSuccess(x interface{}) {
-	p.Success = x.(*cluster.NodePoolScaleDownResponse)
+func (p *ResourceServiceScaleDownNodePoolResult) SetSuccess(x interface{}) {
+	p.Success = x.(*cluster.ScaleDownNodePoolResponse)
 }
-func (p *ResourceServiceNodePoolScaleDownResult) SetErr(val *common.Error) {
+func (p *ResourceServiceScaleDownNodePoolResult) SetErr(val *common.Error) {
 	p.Err = val
 }
 
-var fieldIDToName_ResourceServiceNodePoolScaleDownResult = map[int16]string{
+var fieldIDToName_ResourceServiceScaleDownNodePoolResult = map[int16]string{
 	0: "success",
 	1: "err",
 }
 
-func (p *ResourceServiceNodePoolScaleDownResult) IsSetSuccess() bool {
+func (p *ResourceServiceScaleDownNodePoolResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *ResourceServiceNodePoolScaleDownResult) IsSetErr() bool {
+func (p *ResourceServiceScaleDownNodePoolResult) IsSetErr() bool {
 	return p.Err != nil
 }
 
-func (p *ResourceServiceNodePoolScaleDownResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceScaleDownNodePoolResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -16841,7 +17886,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceNodePoolScaleDownResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceScaleDownNodePoolResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -16851,15 +17896,15 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceNodePoolScaleDownResult) ReadField0(iprot thrift.TProtocol) error {
-	p.Success = cluster.NewNodePoolScaleDownResponse()
+func (p *ResourceServiceScaleDownNodePoolResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = cluster.NewScaleDownNodePoolResponse()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceNodePoolScaleDownResult) ReadField1(iprot thrift.TProtocol) error {
+func (p *ResourceServiceScaleDownNodePoolResult) ReadField1(iprot thrift.TProtocol) error {
 	p.Err = common.NewError()
 	if err := p.Err.Read(iprot); err != nil {
 		return err
@@ -16867,9 +17912,9 @@ func (p *ResourceServiceNodePoolScaleDownResult) ReadField1(iprot thrift.TProtoc
 	return nil
 }
 
-func (p *ResourceServiceNodePoolScaleDownResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceScaleDownNodePoolResult) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("NodePoolScaleDown_result"); err != nil {
+	if err = oprot.WriteStructBegin("ScaleDownNodePool_result"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -16900,7 +17945,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceNodePoolScaleDownResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceScaleDownNodePoolResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -16919,7 +17964,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *ResourceServiceNodePoolScaleDownResult) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceScaleDownNodePoolResult) writeField1(oprot thrift.TProtocol) (err error) {
 	if p.IsSetErr() {
 		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
 			goto WriteFieldBeginError
@@ -16938,14 +17983,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceNodePoolScaleDownResult) String() string {
+func (p *ResourceServiceScaleDownNodePoolResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceNodePoolScaleDownResult(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceScaleDownNodePoolResult(%+v)", *p)
 }
 
-func (p *ResourceServiceNodePoolScaleDownResult) DeepEqual(ano *ResourceServiceNodePoolScaleDownResult) bool {
+func (p *ResourceServiceScaleDownNodePoolResult) DeepEqual(ano *ResourceServiceScaleDownNodePoolResult) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -16960,14 +18005,14 @@ func (p *ResourceServiceNodePoolScaleDownResult) DeepEqual(ano *ResourceServiceN
 	return true
 }
 
-func (p *ResourceServiceNodePoolScaleDownResult) Field0DeepEqual(src *cluster.NodePoolScaleDownResponse) bool {
+func (p *ResourceServiceScaleDownNodePoolResult) Field0DeepEqual(src *cluster.ScaleDownNodePoolResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ResourceServiceNodePoolScaleDownResult) Field1DeepEqual(src *common.Error) bool {
+func (p *ResourceServiceScaleDownNodePoolResult) Field1DeepEqual(src *common.Error) bool {
 
 	if !p.Err.DeepEqual(src) {
 		return false
@@ -16975,35 +18020,35 @@ func (p *ResourceServiceNodePoolScaleDownResult) Field1DeepEqual(src *common.Err
 	return true
 }
 
-type ResourceServiceListNodePoolArgs struct {
-	Req *cluster.ListNodePoolRequest `thrift:"req,1" json:"req"`
+type ResourceServiceListNodePoolsArgs struct {
+	Req *cluster.ListNodePoolsRequest `thrift:"req,1" json:"req"`
 }
 
-func NewResourceServiceListNodePoolArgs() *ResourceServiceListNodePoolArgs {
-	return &ResourceServiceListNodePoolArgs{}
+func NewResourceServiceListNodePoolsArgs() *ResourceServiceListNodePoolsArgs {
+	return &ResourceServiceListNodePoolsArgs{}
 }
 
-var ResourceServiceListNodePoolArgs_Req_DEFAULT *cluster.ListNodePoolRequest
+var ResourceServiceListNodePoolsArgs_Req_DEFAULT *cluster.ListNodePoolsRequest
 
-func (p *ResourceServiceListNodePoolArgs) GetReq() (v *cluster.ListNodePoolRequest) {
+func (p *ResourceServiceListNodePoolsArgs) GetReq() (v *cluster.ListNodePoolsRequest) {
 	if !p.IsSetReq() {
-		return ResourceServiceListNodePoolArgs_Req_DEFAULT
+		return ResourceServiceListNodePoolsArgs_Req_DEFAULT
 	}
 	return p.Req
 }
-func (p *ResourceServiceListNodePoolArgs) SetReq(val *cluster.ListNodePoolRequest) {
+func (p *ResourceServiceListNodePoolsArgs) SetReq(val *cluster.ListNodePoolsRequest) {
 	p.Req = val
 }
 
-var fieldIDToName_ResourceServiceListNodePoolArgs = map[int16]string{
+var fieldIDToName_ResourceServiceListNodePoolsArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *ResourceServiceListNodePoolArgs) IsSetReq() bool {
+func (p *ResourceServiceListNodePoolsArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *ResourceServiceListNodePoolArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListNodePoolsArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -17052,7 +18097,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListNodePoolArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListNodePoolsArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -17062,17 +18107,17 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListNodePoolArgs) ReadField1(iprot thrift.TProtocol) error {
-	p.Req = cluster.NewListNodePoolRequest()
+func (p *ResourceServiceListNodePoolsArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = cluster.NewListNodePoolsRequest()
 	if err := p.Req.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceListNodePoolArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListNodePoolsArgs) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListNodePool_args"); err != nil {
+	if err = oprot.WriteStructBegin("ListNodePools_args"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -17099,7 +18144,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListNodePoolArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListNodePoolsArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -17116,14 +18161,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceListNodePoolArgs) String() string {
+func (p *ResourceServiceListNodePoolsArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceListNodePoolArgs(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceListNodePoolsArgs(%+v)", *p)
 }
 
-func (p *ResourceServiceListNodePoolArgs) DeepEqual(ano *ResourceServiceListNodePoolArgs) bool {
+func (p *ResourceServiceListNodePoolsArgs) DeepEqual(ano *ResourceServiceListNodePoolsArgs) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -17135,7 +18180,7 @@ func (p *ResourceServiceListNodePoolArgs) DeepEqual(ano *ResourceServiceListNode
 	return true
 }
 
-func (p *ResourceServiceListNodePoolArgs) Field1DeepEqual(src *cluster.ListNodePoolRequest) bool {
+func (p *ResourceServiceListNodePoolsArgs) Field1DeepEqual(src *cluster.ListNodePoolsRequest) bool {
 
 	if !p.Req.DeepEqual(src) {
 		return false
@@ -17143,53 +18188,53 @@ func (p *ResourceServiceListNodePoolArgs) Field1DeepEqual(src *cluster.ListNodeP
 	return true
 }
 
-type ResourceServiceListNodePoolResult struct {
-	Success *cluster.ListNodePoolResponse `thrift:"success,0" json:"success,omitempty"`
-	Err     *common.Error                 `thrift:"err,1" json:"err,omitempty"`
+type ResourceServiceListNodePoolsResult struct {
+	Success *cluster.ListNodePoolsResponse `thrift:"success,0" json:"success,omitempty"`
+	Err     *common.Error                  `thrift:"err,1" json:"err,omitempty"`
 }
 
-func NewResourceServiceListNodePoolResult() *ResourceServiceListNodePoolResult {
-	return &ResourceServiceListNodePoolResult{}
+func NewResourceServiceListNodePoolsResult() *ResourceServiceListNodePoolsResult {
+	return &ResourceServiceListNodePoolsResult{}
 }
 
-var ResourceServiceListNodePoolResult_Success_DEFAULT *cluster.ListNodePoolResponse
+var ResourceServiceListNodePoolsResult_Success_DEFAULT *cluster.ListNodePoolsResponse
 
-func (p *ResourceServiceListNodePoolResult) GetSuccess() (v *cluster.ListNodePoolResponse) {
+func (p *ResourceServiceListNodePoolsResult) GetSuccess() (v *cluster.ListNodePoolsResponse) {
 	if !p.IsSetSuccess() {
-		return ResourceServiceListNodePoolResult_Success_DEFAULT
+		return ResourceServiceListNodePoolsResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-var ResourceServiceListNodePoolResult_Err_DEFAULT *common.Error
+var ResourceServiceListNodePoolsResult_Err_DEFAULT *common.Error
 
-func (p *ResourceServiceListNodePoolResult) GetErr() (v *common.Error) {
+func (p *ResourceServiceListNodePoolsResult) GetErr() (v *common.Error) {
 	if !p.IsSetErr() {
-		return ResourceServiceListNodePoolResult_Err_DEFAULT
+		return ResourceServiceListNodePoolsResult_Err_DEFAULT
 	}
 	return p.Err
 }
-func (p *ResourceServiceListNodePoolResult) SetSuccess(x interface{}) {
-	p.Success = x.(*cluster.ListNodePoolResponse)
+func (p *ResourceServiceListNodePoolsResult) SetSuccess(x interface{}) {
+	p.Success = x.(*cluster.ListNodePoolsResponse)
 }
-func (p *ResourceServiceListNodePoolResult) SetErr(val *common.Error) {
+func (p *ResourceServiceListNodePoolsResult) SetErr(val *common.Error) {
 	p.Err = val
 }
 
-var fieldIDToName_ResourceServiceListNodePoolResult = map[int16]string{
+var fieldIDToName_ResourceServiceListNodePoolsResult = map[int16]string{
 	0: "success",
 	1: "err",
 }
 
-func (p *ResourceServiceListNodePoolResult) IsSetSuccess() bool {
+func (p *ResourceServiceListNodePoolsResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *ResourceServiceListNodePoolResult) IsSetErr() bool {
+func (p *ResourceServiceListNodePoolsResult) IsSetErr() bool {
 	return p.Err != nil
 }
 
-func (p *ResourceServiceListNodePoolResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListNodePoolsResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -17248,7 +18293,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListNodePoolResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListNodePoolsResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -17258,15 +18303,15 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListNodePoolResult) ReadField0(iprot thrift.TProtocol) error {
-	p.Success = cluster.NewListNodePoolResponse()
+func (p *ResourceServiceListNodePoolsResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = cluster.NewListNodePoolsResponse()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceListNodePoolResult) ReadField1(iprot thrift.TProtocol) error {
+func (p *ResourceServiceListNodePoolsResult) ReadField1(iprot thrift.TProtocol) error {
 	p.Err = common.NewError()
 	if err := p.Err.Read(iprot); err != nil {
 		return err
@@ -17274,9 +18319,9 @@ func (p *ResourceServiceListNodePoolResult) ReadField1(iprot thrift.TProtocol) e
 	return nil
 }
 
-func (p *ResourceServiceListNodePoolResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListNodePoolsResult) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListNodePool_result"); err != nil {
+	if err = oprot.WriteStructBegin("ListNodePools_result"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -17307,7 +18352,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListNodePoolResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListNodePoolsResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -17326,7 +18371,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *ResourceServiceListNodePoolResult) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListNodePoolsResult) writeField1(oprot thrift.TProtocol) (err error) {
 	if p.IsSetErr() {
 		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
 			goto WriteFieldBeginError
@@ -17345,14 +18390,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceListNodePoolResult) String() string {
+func (p *ResourceServiceListNodePoolsResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceListNodePoolResult(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceListNodePoolsResult(%+v)", *p)
 }
 
-func (p *ResourceServiceListNodePoolResult) DeepEqual(ano *ResourceServiceListNodePoolResult) bool {
+func (p *ResourceServiceListNodePoolsResult) DeepEqual(ano *ResourceServiceListNodePoolsResult) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -17367,14 +18412,14 @@ func (p *ResourceServiceListNodePoolResult) DeepEqual(ano *ResourceServiceListNo
 	return true
 }
 
-func (p *ResourceServiceListNodePoolResult) Field0DeepEqual(src *cluster.ListNodePoolResponse) bool {
+func (p *ResourceServiceListNodePoolsResult) Field0DeepEqual(src *cluster.ListNodePoolsResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ResourceServiceListNodePoolResult) Field1DeepEqual(src *common.Error) bool {
+func (p *ResourceServiceListNodePoolsResult) Field1DeepEqual(src *common.Error) bool {
 
 	if !p.Err.DeepEqual(src) {
 		return false
@@ -19011,22 +20056,22 @@ func (p *ResourceServiceDeleteNodePoolResult) Field1DeepEqual(src *common.Error)
 }
 
 type ResourceServiceListNodePoolScalingRecordsArgs struct {
-	Req *cluster.ListNodePoolScalingRecordRequest `thrift:"req,1" json:"req"`
+	Req *cluster.ListNodePoolScalingRecordsRequest `thrift:"req,1" json:"req"`
 }
 
 func NewResourceServiceListNodePoolScalingRecordsArgs() *ResourceServiceListNodePoolScalingRecordsArgs {
 	return &ResourceServiceListNodePoolScalingRecordsArgs{}
 }
 
-var ResourceServiceListNodePoolScalingRecordsArgs_Req_DEFAULT *cluster.ListNodePoolScalingRecordRequest
+var ResourceServiceListNodePoolScalingRecordsArgs_Req_DEFAULT *cluster.ListNodePoolScalingRecordsRequest
 
-func (p *ResourceServiceListNodePoolScalingRecordsArgs) GetReq() (v *cluster.ListNodePoolScalingRecordRequest) {
+func (p *ResourceServiceListNodePoolScalingRecordsArgs) GetReq() (v *cluster.ListNodePoolScalingRecordsRequest) {
 	if !p.IsSetReq() {
 		return ResourceServiceListNodePoolScalingRecordsArgs_Req_DEFAULT
 	}
 	return p.Req
 }
-func (p *ResourceServiceListNodePoolScalingRecordsArgs) SetReq(val *cluster.ListNodePoolScalingRecordRequest) {
+func (p *ResourceServiceListNodePoolScalingRecordsArgs) SetReq(val *cluster.ListNodePoolScalingRecordsRequest) {
 	p.Req = val
 }
 
@@ -19098,7 +20143,7 @@ ReadStructEndError:
 }
 
 func (p *ResourceServiceListNodePoolScalingRecordsArgs) ReadField1(iprot thrift.TProtocol) error {
-	p.Req = cluster.NewListNodePoolScalingRecordRequest()
+	p.Req = cluster.NewListNodePoolScalingRecordsRequest()
 	if err := p.Req.Read(iprot); err != nil {
 		return err
 	}
@@ -19170,7 +20215,7 @@ func (p *ResourceServiceListNodePoolScalingRecordsArgs) DeepEqual(ano *ResourceS
 	return true
 }
 
-func (p *ResourceServiceListNodePoolScalingRecordsArgs) Field1DeepEqual(src *cluster.ListNodePoolScalingRecordRequest) bool {
+func (p *ResourceServiceListNodePoolScalingRecordsArgs) Field1DeepEqual(src *cluster.ListNodePoolScalingRecordsRequest) bool {
 
 	if !p.Req.DeepEqual(src) {
 		return false
@@ -19179,17 +20224,17 @@ func (p *ResourceServiceListNodePoolScalingRecordsArgs) Field1DeepEqual(src *clu
 }
 
 type ResourceServiceListNodePoolScalingRecordsResult struct {
-	Success *cluster.ListNodePoolScalingRecordResponse `thrift:"success,0" json:"success,omitempty"`
-	Err     *common.Error                              `thrift:"err,1" json:"err,omitempty"`
+	Success *cluster.ListNodePoolScalingRecordsResponse `thrift:"success,0" json:"success,omitempty"`
+	Err     *common.Error                               `thrift:"err,1" json:"err,omitempty"`
 }
 
 func NewResourceServiceListNodePoolScalingRecordsResult() *ResourceServiceListNodePoolScalingRecordsResult {
 	return &ResourceServiceListNodePoolScalingRecordsResult{}
 }
 
-var ResourceServiceListNodePoolScalingRecordsResult_Success_DEFAULT *cluster.ListNodePoolScalingRecordResponse
+var ResourceServiceListNodePoolScalingRecordsResult_Success_DEFAULT *cluster.ListNodePoolScalingRecordsResponse
 
-func (p *ResourceServiceListNodePoolScalingRecordsResult) GetSuccess() (v *cluster.ListNodePoolScalingRecordResponse) {
+func (p *ResourceServiceListNodePoolScalingRecordsResult) GetSuccess() (v *cluster.ListNodePoolScalingRecordsResponse) {
 	if !p.IsSetSuccess() {
 		return ResourceServiceListNodePoolScalingRecordsResult_Success_DEFAULT
 	}
@@ -19205,7 +20250,7 @@ func (p *ResourceServiceListNodePoolScalingRecordsResult) GetErr() (v *common.Er
 	return p.Err
 }
 func (p *ResourceServiceListNodePoolScalingRecordsResult) SetSuccess(x interface{}) {
-	p.Success = x.(*cluster.ListNodePoolScalingRecordResponse)
+	p.Success = x.(*cluster.ListNodePoolScalingRecordsResponse)
 }
 func (p *ResourceServiceListNodePoolScalingRecordsResult) SetErr(val *common.Error) {
 	p.Err = val
@@ -19294,7 +20339,7 @@ ReadStructEndError:
 }
 
 func (p *ResourceServiceListNodePoolScalingRecordsResult) ReadField0(iprot thrift.TProtocol) error {
-	p.Success = cluster.NewListNodePoolScalingRecordResponse()
+	p.Success = cluster.NewListNodePoolScalingRecordsResponse()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
 	}
@@ -19402,7 +20447,7 @@ func (p *ResourceServiceListNodePoolScalingRecordsResult) DeepEqual(ano *Resourc
 	return true
 }
 
-func (p *ResourceServiceListNodePoolScalingRecordsResult) Field0DeepEqual(src *cluster.ListNodePoolScalingRecordResponse) bool {
+func (p *ResourceServiceListNodePoolScalingRecordsResult) Field0DeepEqual(src *cluster.ListNodePoolScalingRecordsResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false
@@ -19417,35 +20462,35 @@ func (p *ResourceServiceListNodePoolScalingRecordsResult) Field1DeepEqual(src *c
 	return true
 }
 
-type ResourceServiceListNodePoolNodeArgs struct {
-	Req *cluster.ListNodePoolNodeRequest `thrift:"req,1" json:"req"`
+type ResourceServiceListNodePoolNodesArgs struct {
+	Req *cluster.ListNodePoolNodesRequest `thrift:"req,1" json:"req"`
 }
 
-func NewResourceServiceListNodePoolNodeArgs() *ResourceServiceListNodePoolNodeArgs {
-	return &ResourceServiceListNodePoolNodeArgs{}
+func NewResourceServiceListNodePoolNodesArgs() *ResourceServiceListNodePoolNodesArgs {
+	return &ResourceServiceListNodePoolNodesArgs{}
 }
 
-var ResourceServiceListNodePoolNodeArgs_Req_DEFAULT *cluster.ListNodePoolNodeRequest
+var ResourceServiceListNodePoolNodesArgs_Req_DEFAULT *cluster.ListNodePoolNodesRequest
 
-func (p *ResourceServiceListNodePoolNodeArgs) GetReq() (v *cluster.ListNodePoolNodeRequest) {
+func (p *ResourceServiceListNodePoolNodesArgs) GetReq() (v *cluster.ListNodePoolNodesRequest) {
 	if !p.IsSetReq() {
-		return ResourceServiceListNodePoolNodeArgs_Req_DEFAULT
+		return ResourceServiceListNodePoolNodesArgs_Req_DEFAULT
 	}
 	return p.Req
 }
-func (p *ResourceServiceListNodePoolNodeArgs) SetReq(val *cluster.ListNodePoolNodeRequest) {
+func (p *ResourceServiceListNodePoolNodesArgs) SetReq(val *cluster.ListNodePoolNodesRequest) {
 	p.Req = val
 }
 
-var fieldIDToName_ResourceServiceListNodePoolNodeArgs = map[int16]string{
+var fieldIDToName_ResourceServiceListNodePoolNodesArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *ResourceServiceListNodePoolNodeArgs) IsSetReq() bool {
+func (p *ResourceServiceListNodePoolNodesArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *ResourceServiceListNodePoolNodeArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListNodePoolNodesArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -19494,7 +20539,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListNodePoolNodeArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListNodePoolNodesArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -19504,17 +20549,17 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListNodePoolNodeArgs) ReadField1(iprot thrift.TProtocol) error {
-	p.Req = cluster.NewListNodePoolNodeRequest()
+func (p *ResourceServiceListNodePoolNodesArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = cluster.NewListNodePoolNodesRequest()
 	if err := p.Req.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceListNodePoolNodeArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListNodePoolNodesArgs) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListNodePoolNode_args"); err != nil {
+	if err = oprot.WriteStructBegin("ListNodePoolNodes_args"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -19541,7 +20586,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListNodePoolNodeArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListNodePoolNodesArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -19558,14 +20603,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceListNodePoolNodeArgs) String() string {
+func (p *ResourceServiceListNodePoolNodesArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceListNodePoolNodeArgs(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceListNodePoolNodesArgs(%+v)", *p)
 }
 
-func (p *ResourceServiceListNodePoolNodeArgs) DeepEqual(ano *ResourceServiceListNodePoolNodeArgs) bool {
+func (p *ResourceServiceListNodePoolNodesArgs) DeepEqual(ano *ResourceServiceListNodePoolNodesArgs) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -19577,7 +20622,7 @@ func (p *ResourceServiceListNodePoolNodeArgs) DeepEqual(ano *ResourceServiceList
 	return true
 }
 
-func (p *ResourceServiceListNodePoolNodeArgs) Field1DeepEqual(src *cluster.ListNodePoolNodeRequest) bool {
+func (p *ResourceServiceListNodePoolNodesArgs) Field1DeepEqual(src *cluster.ListNodePoolNodesRequest) bool {
 
 	if !p.Req.DeepEqual(src) {
 		return false
@@ -19585,53 +20630,53 @@ func (p *ResourceServiceListNodePoolNodeArgs) Field1DeepEqual(src *cluster.ListN
 	return true
 }
 
-type ResourceServiceListNodePoolNodeResult struct {
-	Success *cluster.ListNodePoolNodeResponse `thrift:"success,0" json:"success,omitempty"`
-	Err     *common.Error                     `thrift:"err,1" json:"err,omitempty"`
+type ResourceServiceListNodePoolNodesResult struct {
+	Success *cluster.ListNodePoolNodesResponse `thrift:"success,0" json:"success,omitempty"`
+	Err     *common.Error                      `thrift:"err,1" json:"err,omitempty"`
 }
 
-func NewResourceServiceListNodePoolNodeResult() *ResourceServiceListNodePoolNodeResult {
-	return &ResourceServiceListNodePoolNodeResult{}
+func NewResourceServiceListNodePoolNodesResult() *ResourceServiceListNodePoolNodesResult {
+	return &ResourceServiceListNodePoolNodesResult{}
 }
 
-var ResourceServiceListNodePoolNodeResult_Success_DEFAULT *cluster.ListNodePoolNodeResponse
+var ResourceServiceListNodePoolNodesResult_Success_DEFAULT *cluster.ListNodePoolNodesResponse
 
-func (p *ResourceServiceListNodePoolNodeResult) GetSuccess() (v *cluster.ListNodePoolNodeResponse) {
+func (p *ResourceServiceListNodePoolNodesResult) GetSuccess() (v *cluster.ListNodePoolNodesResponse) {
 	if !p.IsSetSuccess() {
-		return ResourceServiceListNodePoolNodeResult_Success_DEFAULT
+		return ResourceServiceListNodePoolNodesResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-var ResourceServiceListNodePoolNodeResult_Err_DEFAULT *common.Error
+var ResourceServiceListNodePoolNodesResult_Err_DEFAULT *common.Error
 
-func (p *ResourceServiceListNodePoolNodeResult) GetErr() (v *common.Error) {
+func (p *ResourceServiceListNodePoolNodesResult) GetErr() (v *common.Error) {
 	if !p.IsSetErr() {
-		return ResourceServiceListNodePoolNodeResult_Err_DEFAULT
+		return ResourceServiceListNodePoolNodesResult_Err_DEFAULT
 	}
 	return p.Err
 }
-func (p *ResourceServiceListNodePoolNodeResult) SetSuccess(x interface{}) {
-	p.Success = x.(*cluster.ListNodePoolNodeResponse)
+func (p *ResourceServiceListNodePoolNodesResult) SetSuccess(x interface{}) {
+	p.Success = x.(*cluster.ListNodePoolNodesResponse)
 }
-func (p *ResourceServiceListNodePoolNodeResult) SetErr(val *common.Error) {
+func (p *ResourceServiceListNodePoolNodesResult) SetErr(val *common.Error) {
 	p.Err = val
 }
 
-var fieldIDToName_ResourceServiceListNodePoolNodeResult = map[int16]string{
+var fieldIDToName_ResourceServiceListNodePoolNodesResult = map[int16]string{
 	0: "success",
 	1: "err",
 }
 
-func (p *ResourceServiceListNodePoolNodeResult) IsSetSuccess() bool {
+func (p *ResourceServiceListNodePoolNodesResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *ResourceServiceListNodePoolNodeResult) IsSetErr() bool {
+func (p *ResourceServiceListNodePoolNodesResult) IsSetErr() bool {
 	return p.Err != nil
 }
 
-func (p *ResourceServiceListNodePoolNodeResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListNodePoolNodesResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -19690,7 +20735,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListNodePoolNodeResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListNodePoolNodesResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -19700,15 +20745,15 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListNodePoolNodeResult) ReadField0(iprot thrift.TProtocol) error {
-	p.Success = cluster.NewListNodePoolNodeResponse()
+func (p *ResourceServiceListNodePoolNodesResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = cluster.NewListNodePoolNodesResponse()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceListNodePoolNodeResult) ReadField1(iprot thrift.TProtocol) error {
+func (p *ResourceServiceListNodePoolNodesResult) ReadField1(iprot thrift.TProtocol) error {
 	p.Err = common.NewError()
 	if err := p.Err.Read(iprot); err != nil {
 		return err
@@ -19716,9 +20761,9 @@ func (p *ResourceServiceListNodePoolNodeResult) ReadField1(iprot thrift.TProtoco
 	return nil
 }
 
-func (p *ResourceServiceListNodePoolNodeResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListNodePoolNodesResult) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListNodePoolNode_result"); err != nil {
+	if err = oprot.WriteStructBegin("ListNodePoolNodes_result"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -19749,7 +20794,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListNodePoolNodeResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListNodePoolNodesResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -19768,7 +20813,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *ResourceServiceListNodePoolNodeResult) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListNodePoolNodesResult) writeField1(oprot thrift.TProtocol) (err error) {
 	if p.IsSetErr() {
 		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
 			goto WriteFieldBeginError
@@ -19787,14 +20832,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceListNodePoolNodeResult) String() string {
+func (p *ResourceServiceListNodePoolNodesResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceListNodePoolNodeResult(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceListNodePoolNodesResult(%+v)", *p)
 }
 
-func (p *ResourceServiceListNodePoolNodeResult) DeepEqual(ano *ResourceServiceListNodePoolNodeResult) bool {
+func (p *ResourceServiceListNodePoolNodesResult) DeepEqual(ano *ResourceServiceListNodePoolNodesResult) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -19809,14 +20854,14 @@ func (p *ResourceServiceListNodePoolNodeResult) DeepEqual(ano *ResourceServiceLi
 	return true
 }
 
-func (p *ResourceServiceListNodePoolNodeResult) Field0DeepEqual(src *cluster.ListNodePoolNodeResponse) bool {
+func (p *ResourceServiceListNodePoolNodesResult) Field0DeepEqual(src *cluster.ListNodePoolNodesResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ResourceServiceListNodePoolNodeResult) Field1DeepEqual(src *common.Error) bool {
+func (p *ResourceServiceListNodePoolNodesResult) Field1DeepEqual(src *common.Error) bool {
 
 	if !p.Err.DeepEqual(src) {
 		return false
@@ -33663,22 +34708,22 @@ func (p *ResourceServiceListCustomRolesResult) Field1DeepEqual(src *common.Error
 }
 
 type ResourceServiceListSupportedAddonsArgs struct {
-	Req *addon.ListSupportedAddonRequest `thrift:"req,1" json:"req"`
+	Req *addon.ListSupportedAddonsRequest `thrift:"req,1" json:"req"`
 }
 
 func NewResourceServiceListSupportedAddonsArgs() *ResourceServiceListSupportedAddonsArgs {
 	return &ResourceServiceListSupportedAddonsArgs{}
 }
 
-var ResourceServiceListSupportedAddonsArgs_Req_DEFAULT *addon.ListSupportedAddonRequest
+var ResourceServiceListSupportedAddonsArgs_Req_DEFAULT *addon.ListSupportedAddonsRequest
 
-func (p *ResourceServiceListSupportedAddonsArgs) GetReq() (v *addon.ListSupportedAddonRequest) {
+func (p *ResourceServiceListSupportedAddonsArgs) GetReq() (v *addon.ListSupportedAddonsRequest) {
 	if !p.IsSetReq() {
 		return ResourceServiceListSupportedAddonsArgs_Req_DEFAULT
 	}
 	return p.Req
 }
-func (p *ResourceServiceListSupportedAddonsArgs) SetReq(val *addon.ListSupportedAddonRequest) {
+func (p *ResourceServiceListSupportedAddonsArgs) SetReq(val *addon.ListSupportedAddonsRequest) {
 	p.Req = val
 }
 
@@ -33750,7 +34795,7 @@ ReadStructEndError:
 }
 
 func (p *ResourceServiceListSupportedAddonsArgs) ReadField1(iprot thrift.TProtocol) error {
-	p.Req = addon.NewListSupportedAddonRequest()
+	p.Req = addon.NewListSupportedAddonsRequest()
 	if err := p.Req.Read(iprot); err != nil {
 		return err
 	}
@@ -33822,7 +34867,7 @@ func (p *ResourceServiceListSupportedAddonsArgs) DeepEqual(ano *ResourceServiceL
 	return true
 }
 
-func (p *ResourceServiceListSupportedAddonsArgs) Field1DeepEqual(src *addon.ListSupportedAddonRequest) bool {
+func (p *ResourceServiceListSupportedAddonsArgs) Field1DeepEqual(src *addon.ListSupportedAddonsRequest) bool {
 
 	if !p.Req.DeepEqual(src) {
 		return false
@@ -33831,17 +34876,17 @@ func (p *ResourceServiceListSupportedAddonsArgs) Field1DeepEqual(src *addon.List
 }
 
 type ResourceServiceListSupportedAddonsResult struct {
-	Success *addon.ListSupportedAddonResponse `thrift:"success,0" json:"success,omitempty"`
-	Err     *common.Error                     `thrift:"err,1" json:"err,omitempty"`
+	Success *addon.ListSupportedAddonsResponse `thrift:"success,0" json:"success,omitempty"`
+	Err     *common.Error                      `thrift:"err,1" json:"err,omitempty"`
 }
 
 func NewResourceServiceListSupportedAddonsResult() *ResourceServiceListSupportedAddonsResult {
 	return &ResourceServiceListSupportedAddonsResult{}
 }
 
-var ResourceServiceListSupportedAddonsResult_Success_DEFAULT *addon.ListSupportedAddonResponse
+var ResourceServiceListSupportedAddonsResult_Success_DEFAULT *addon.ListSupportedAddonsResponse
 
-func (p *ResourceServiceListSupportedAddonsResult) GetSuccess() (v *addon.ListSupportedAddonResponse) {
+func (p *ResourceServiceListSupportedAddonsResult) GetSuccess() (v *addon.ListSupportedAddonsResponse) {
 	if !p.IsSetSuccess() {
 		return ResourceServiceListSupportedAddonsResult_Success_DEFAULT
 	}
@@ -33857,7 +34902,7 @@ func (p *ResourceServiceListSupportedAddonsResult) GetErr() (v *common.Error) {
 	return p.Err
 }
 func (p *ResourceServiceListSupportedAddonsResult) SetSuccess(x interface{}) {
-	p.Success = x.(*addon.ListSupportedAddonResponse)
+	p.Success = x.(*addon.ListSupportedAddonsResponse)
 }
 func (p *ResourceServiceListSupportedAddonsResult) SetErr(val *common.Error) {
 	p.Err = val
@@ -33946,7 +34991,7 @@ ReadStructEndError:
 }
 
 func (p *ResourceServiceListSupportedAddonsResult) ReadField0(iprot thrift.TProtocol) error {
-	p.Success = addon.NewListSupportedAddonResponse()
+	p.Success = addon.NewListSupportedAddonsResponse()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
 	}
@@ -34054,7 +35099,7 @@ func (p *ResourceServiceListSupportedAddonsResult) DeepEqual(ano *ResourceServic
 	return true
 }
 
-func (p *ResourceServiceListSupportedAddonsResult) Field0DeepEqual(src *addon.ListSupportedAddonResponse) bool {
+func (p *ResourceServiceListSupportedAddonsResult) Field0DeepEqual(src *addon.ListSupportedAddonsResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false
@@ -34070,22 +35115,22 @@ func (p *ResourceServiceListSupportedAddonsResult) Field1DeepEqual(src *common.E
 }
 
 type ResourceServiceListAddonsArgs struct {
-	Req *addon.ListAddonRequest `thrift:"req,1" json:"req"`
+	Req *addon.ListAddonsRequest `thrift:"req,1" json:"req"`
 }
 
 func NewResourceServiceListAddonsArgs() *ResourceServiceListAddonsArgs {
 	return &ResourceServiceListAddonsArgs{}
 }
 
-var ResourceServiceListAddonsArgs_Req_DEFAULT *addon.ListAddonRequest
+var ResourceServiceListAddonsArgs_Req_DEFAULT *addon.ListAddonsRequest
 
-func (p *ResourceServiceListAddonsArgs) GetReq() (v *addon.ListAddonRequest) {
+func (p *ResourceServiceListAddonsArgs) GetReq() (v *addon.ListAddonsRequest) {
 	if !p.IsSetReq() {
 		return ResourceServiceListAddonsArgs_Req_DEFAULT
 	}
 	return p.Req
 }
-func (p *ResourceServiceListAddonsArgs) SetReq(val *addon.ListAddonRequest) {
+func (p *ResourceServiceListAddonsArgs) SetReq(val *addon.ListAddonsRequest) {
 	p.Req = val
 }
 
@@ -34157,7 +35202,7 @@ ReadStructEndError:
 }
 
 func (p *ResourceServiceListAddonsArgs) ReadField1(iprot thrift.TProtocol) error {
-	p.Req = addon.NewListAddonRequest()
+	p.Req = addon.NewListAddonsRequest()
 	if err := p.Req.Read(iprot); err != nil {
 		return err
 	}
@@ -34229,7 +35274,7 @@ func (p *ResourceServiceListAddonsArgs) DeepEqual(ano *ResourceServiceListAddons
 	return true
 }
 
-func (p *ResourceServiceListAddonsArgs) Field1DeepEqual(src *addon.ListAddonRequest) bool {
+func (p *ResourceServiceListAddonsArgs) Field1DeepEqual(src *addon.ListAddonsRequest) bool {
 
 	if !p.Req.DeepEqual(src) {
 		return false
@@ -34238,17 +35283,17 @@ func (p *ResourceServiceListAddonsArgs) Field1DeepEqual(src *addon.ListAddonRequ
 }
 
 type ResourceServiceListAddonsResult struct {
-	Success *addon.ListAddonResponse `thrift:"success,0" json:"success,omitempty"`
-	Err     *common.Error            `thrift:"err,1" json:"err,omitempty"`
+	Success *addon.ListAddonsResponse `thrift:"success,0" json:"success,omitempty"`
+	Err     *common.Error             `thrift:"err,1" json:"err,omitempty"`
 }
 
 func NewResourceServiceListAddonsResult() *ResourceServiceListAddonsResult {
 	return &ResourceServiceListAddonsResult{}
 }
 
-var ResourceServiceListAddonsResult_Success_DEFAULT *addon.ListAddonResponse
+var ResourceServiceListAddonsResult_Success_DEFAULT *addon.ListAddonsResponse
 
-func (p *ResourceServiceListAddonsResult) GetSuccess() (v *addon.ListAddonResponse) {
+func (p *ResourceServiceListAddonsResult) GetSuccess() (v *addon.ListAddonsResponse) {
 	if !p.IsSetSuccess() {
 		return ResourceServiceListAddonsResult_Success_DEFAULT
 	}
@@ -34264,7 +35309,7 @@ func (p *ResourceServiceListAddonsResult) GetErr() (v *common.Error) {
 	return p.Err
 }
 func (p *ResourceServiceListAddonsResult) SetSuccess(x interface{}) {
-	p.Success = x.(*addon.ListAddonResponse)
+	p.Success = x.(*addon.ListAddonsResponse)
 }
 func (p *ResourceServiceListAddonsResult) SetErr(val *common.Error) {
 	p.Err = val
@@ -34353,7 +35398,7 @@ ReadStructEndError:
 }
 
 func (p *ResourceServiceListAddonsResult) ReadField0(iprot thrift.TProtocol) error {
-	p.Success = addon.NewListAddonResponse()
+	p.Success = addon.NewListAddonsResponse()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
 	}
@@ -34461,7 +35506,7 @@ func (p *ResourceServiceListAddonsResult) DeepEqual(ano *ResourceServiceListAddo
 	return true
 }
 
-func (p *ResourceServiceListAddonsResult) Field0DeepEqual(src *addon.ListAddonResponse) bool {
+func (p *ResourceServiceListAddonsResult) Field0DeepEqual(src *addon.ListAddonsResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false
@@ -34476,35 +35521,35 @@ func (p *ResourceServiceListAddonsResult) Field1DeepEqual(src *common.Error) boo
 	return true
 }
 
-type ResourceServiceInstallAddonArgs struct {
-	Req *addon.InstallAddonRequest `thrift:"req,1" json:"req"`
+type ResourceServiceInstallAddonsArgs struct {
+	Req *addon.InstallAddonsRequest `thrift:"req,1" json:"req"`
 }
 
-func NewResourceServiceInstallAddonArgs() *ResourceServiceInstallAddonArgs {
-	return &ResourceServiceInstallAddonArgs{}
+func NewResourceServiceInstallAddonsArgs() *ResourceServiceInstallAddonsArgs {
+	return &ResourceServiceInstallAddonsArgs{}
 }
 
-var ResourceServiceInstallAddonArgs_Req_DEFAULT *addon.InstallAddonRequest
+var ResourceServiceInstallAddonsArgs_Req_DEFAULT *addon.InstallAddonsRequest
 
-func (p *ResourceServiceInstallAddonArgs) GetReq() (v *addon.InstallAddonRequest) {
+func (p *ResourceServiceInstallAddonsArgs) GetReq() (v *addon.InstallAddonsRequest) {
 	if !p.IsSetReq() {
-		return ResourceServiceInstallAddonArgs_Req_DEFAULT
+		return ResourceServiceInstallAddonsArgs_Req_DEFAULT
 	}
 	return p.Req
 }
-func (p *ResourceServiceInstallAddonArgs) SetReq(val *addon.InstallAddonRequest) {
+func (p *ResourceServiceInstallAddonsArgs) SetReq(val *addon.InstallAddonsRequest) {
 	p.Req = val
 }
 
-var fieldIDToName_ResourceServiceInstallAddonArgs = map[int16]string{
+var fieldIDToName_ResourceServiceInstallAddonsArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *ResourceServiceInstallAddonArgs) IsSetReq() bool {
+func (p *ResourceServiceInstallAddonsArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *ResourceServiceInstallAddonArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceInstallAddonsArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -34553,7 +35598,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceInstallAddonArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceInstallAddonsArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -34563,17 +35608,17 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceInstallAddonArgs) ReadField1(iprot thrift.TProtocol) error {
-	p.Req = addon.NewInstallAddonRequest()
+func (p *ResourceServiceInstallAddonsArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = addon.NewInstallAddonsRequest()
 	if err := p.Req.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceInstallAddonArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceInstallAddonsArgs) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("InstallAddon_args"); err != nil {
+	if err = oprot.WriteStructBegin("InstallAddons_args"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -34600,7 +35645,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceInstallAddonArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceInstallAddonsArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -34617,14 +35662,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceInstallAddonArgs) String() string {
+func (p *ResourceServiceInstallAddonsArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceInstallAddonArgs(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceInstallAddonsArgs(%+v)", *p)
 }
 
-func (p *ResourceServiceInstallAddonArgs) DeepEqual(ano *ResourceServiceInstallAddonArgs) bool {
+func (p *ResourceServiceInstallAddonsArgs) DeepEqual(ano *ResourceServiceInstallAddonsArgs) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -34636,7 +35681,7 @@ func (p *ResourceServiceInstallAddonArgs) DeepEqual(ano *ResourceServiceInstallA
 	return true
 }
 
-func (p *ResourceServiceInstallAddonArgs) Field1DeepEqual(src *addon.InstallAddonRequest) bool {
+func (p *ResourceServiceInstallAddonsArgs) Field1DeepEqual(src *addon.InstallAddonsRequest) bool {
 
 	if !p.Req.DeepEqual(src) {
 		return false
@@ -34644,53 +35689,53 @@ func (p *ResourceServiceInstallAddonArgs) Field1DeepEqual(src *addon.InstallAddo
 	return true
 }
 
-type ResourceServiceInstallAddonResult struct {
-	Success *addon.InstallAddonResponse `thrift:"success,0" json:"success,omitempty"`
-	Err     *common.Error               `thrift:"err,1" json:"err,omitempty"`
+type ResourceServiceInstallAddonsResult struct {
+	Success *addon.InstallAddonsResponse `thrift:"success,0" json:"success,omitempty"`
+	Err     *common.Error                `thrift:"err,1" json:"err,omitempty"`
 }
 
-func NewResourceServiceInstallAddonResult() *ResourceServiceInstallAddonResult {
-	return &ResourceServiceInstallAddonResult{}
+func NewResourceServiceInstallAddonsResult() *ResourceServiceInstallAddonsResult {
+	return &ResourceServiceInstallAddonsResult{}
 }
 
-var ResourceServiceInstallAddonResult_Success_DEFAULT *addon.InstallAddonResponse
+var ResourceServiceInstallAddonsResult_Success_DEFAULT *addon.InstallAddonsResponse
 
-func (p *ResourceServiceInstallAddonResult) GetSuccess() (v *addon.InstallAddonResponse) {
+func (p *ResourceServiceInstallAddonsResult) GetSuccess() (v *addon.InstallAddonsResponse) {
 	if !p.IsSetSuccess() {
-		return ResourceServiceInstallAddonResult_Success_DEFAULT
+		return ResourceServiceInstallAddonsResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-var ResourceServiceInstallAddonResult_Err_DEFAULT *common.Error
+var ResourceServiceInstallAddonsResult_Err_DEFAULT *common.Error
 
-func (p *ResourceServiceInstallAddonResult) GetErr() (v *common.Error) {
+func (p *ResourceServiceInstallAddonsResult) GetErr() (v *common.Error) {
 	if !p.IsSetErr() {
-		return ResourceServiceInstallAddonResult_Err_DEFAULT
+		return ResourceServiceInstallAddonsResult_Err_DEFAULT
 	}
 	return p.Err
 }
-func (p *ResourceServiceInstallAddonResult) SetSuccess(x interface{}) {
-	p.Success = x.(*addon.InstallAddonResponse)
+func (p *ResourceServiceInstallAddonsResult) SetSuccess(x interface{}) {
+	p.Success = x.(*addon.InstallAddonsResponse)
 }
-func (p *ResourceServiceInstallAddonResult) SetErr(val *common.Error) {
+func (p *ResourceServiceInstallAddonsResult) SetErr(val *common.Error) {
 	p.Err = val
 }
 
-var fieldIDToName_ResourceServiceInstallAddonResult = map[int16]string{
+var fieldIDToName_ResourceServiceInstallAddonsResult = map[int16]string{
 	0: "success",
 	1: "err",
 }
 
-func (p *ResourceServiceInstallAddonResult) IsSetSuccess() bool {
+func (p *ResourceServiceInstallAddonsResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *ResourceServiceInstallAddonResult) IsSetErr() bool {
+func (p *ResourceServiceInstallAddonsResult) IsSetErr() bool {
 	return p.Err != nil
 }
 
-func (p *ResourceServiceInstallAddonResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceInstallAddonsResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -34749,7 +35794,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceInstallAddonResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceInstallAddonsResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -34759,15 +35804,15 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceInstallAddonResult) ReadField0(iprot thrift.TProtocol) error {
-	p.Success = addon.NewInstallAddonResponse()
+func (p *ResourceServiceInstallAddonsResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = addon.NewInstallAddonsResponse()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceInstallAddonResult) ReadField1(iprot thrift.TProtocol) error {
+func (p *ResourceServiceInstallAddonsResult) ReadField1(iprot thrift.TProtocol) error {
 	p.Err = common.NewError()
 	if err := p.Err.Read(iprot); err != nil {
 		return err
@@ -34775,9 +35820,9 @@ func (p *ResourceServiceInstallAddonResult) ReadField1(iprot thrift.TProtocol) e
 	return nil
 }
 
-func (p *ResourceServiceInstallAddonResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceInstallAddonsResult) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("InstallAddon_result"); err != nil {
+	if err = oprot.WriteStructBegin("InstallAddons_result"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -34808,7 +35853,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceInstallAddonResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceInstallAddonsResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -34827,7 +35872,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *ResourceServiceInstallAddonResult) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceInstallAddonsResult) writeField1(oprot thrift.TProtocol) (err error) {
 	if p.IsSetErr() {
 		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
 			goto WriteFieldBeginError
@@ -34846,14 +35891,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceInstallAddonResult) String() string {
+func (p *ResourceServiceInstallAddonsResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceInstallAddonResult(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceInstallAddonsResult(%+v)", *p)
 }
 
-func (p *ResourceServiceInstallAddonResult) DeepEqual(ano *ResourceServiceInstallAddonResult) bool {
+func (p *ResourceServiceInstallAddonsResult) DeepEqual(ano *ResourceServiceInstallAddonsResult) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -34868,14 +35913,14 @@ func (p *ResourceServiceInstallAddonResult) DeepEqual(ano *ResourceServiceInstal
 	return true
 }
 
-func (p *ResourceServiceInstallAddonResult) Field0DeepEqual(src *addon.InstallAddonResponse) bool {
+func (p *ResourceServiceInstallAddonsResult) Field0DeepEqual(src *addon.InstallAddonsResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ResourceServiceInstallAddonResult) Field1DeepEqual(src *common.Error) bool {
+func (p *ResourceServiceInstallAddonsResult) Field1DeepEqual(src *common.Error) bool {
 
 	if !p.Err.DeepEqual(src) {
 		return false
@@ -34883,35 +35928,35 @@ func (p *ResourceServiceInstallAddonResult) Field1DeepEqual(src *common.Error) b
 	return true
 }
 
-type ResourceServiceUninstallAddonArgs struct {
-	Req *addon.UninstallAddonRequest `thrift:"req,1" json:"req"`
+type ResourceServiceReinstallAddonArgs struct {
+	Req *addon.ReinstallAddonRequest `thrift:"req,1" json:"req"`
 }
 
-func NewResourceServiceUninstallAddonArgs() *ResourceServiceUninstallAddonArgs {
-	return &ResourceServiceUninstallAddonArgs{}
+func NewResourceServiceReinstallAddonArgs() *ResourceServiceReinstallAddonArgs {
+	return &ResourceServiceReinstallAddonArgs{}
 }
 
-var ResourceServiceUninstallAddonArgs_Req_DEFAULT *addon.UninstallAddonRequest
+var ResourceServiceReinstallAddonArgs_Req_DEFAULT *addon.ReinstallAddonRequest
 
-func (p *ResourceServiceUninstallAddonArgs) GetReq() (v *addon.UninstallAddonRequest) {
+func (p *ResourceServiceReinstallAddonArgs) GetReq() (v *addon.ReinstallAddonRequest) {
 	if !p.IsSetReq() {
-		return ResourceServiceUninstallAddonArgs_Req_DEFAULT
+		return ResourceServiceReinstallAddonArgs_Req_DEFAULT
 	}
 	return p.Req
 }
-func (p *ResourceServiceUninstallAddonArgs) SetReq(val *addon.UninstallAddonRequest) {
+func (p *ResourceServiceReinstallAddonArgs) SetReq(val *addon.ReinstallAddonRequest) {
 	p.Req = val
 }
 
-var fieldIDToName_ResourceServiceUninstallAddonArgs = map[int16]string{
+var fieldIDToName_ResourceServiceReinstallAddonArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *ResourceServiceUninstallAddonArgs) IsSetReq() bool {
+func (p *ResourceServiceReinstallAddonArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *ResourceServiceUninstallAddonArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceReinstallAddonArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -34960,7 +36005,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceUninstallAddonArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceReinstallAddonArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -34970,17 +36015,17 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceUninstallAddonArgs) ReadField1(iprot thrift.TProtocol) error {
-	p.Req = addon.NewUninstallAddonRequest()
+func (p *ResourceServiceReinstallAddonArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = addon.NewReinstallAddonRequest()
 	if err := p.Req.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceUninstallAddonArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceReinstallAddonArgs) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("UninstallAddon_args"); err != nil {
+	if err = oprot.WriteStructBegin("ReinstallAddon_args"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -35007,7 +36052,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceUninstallAddonArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceReinstallAddonArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -35024,14 +36069,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceUninstallAddonArgs) String() string {
+func (p *ResourceServiceReinstallAddonArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceUninstallAddonArgs(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceReinstallAddonArgs(%+v)", *p)
 }
 
-func (p *ResourceServiceUninstallAddonArgs) DeepEqual(ano *ResourceServiceUninstallAddonArgs) bool {
+func (p *ResourceServiceReinstallAddonArgs) DeepEqual(ano *ResourceServiceReinstallAddonArgs) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -35043,7 +36088,7 @@ func (p *ResourceServiceUninstallAddonArgs) DeepEqual(ano *ResourceServiceUninst
 	return true
 }
 
-func (p *ResourceServiceUninstallAddonArgs) Field1DeepEqual(src *addon.UninstallAddonRequest) bool {
+func (p *ResourceServiceReinstallAddonArgs) Field1DeepEqual(src *addon.ReinstallAddonRequest) bool {
 
 	if !p.Req.DeepEqual(src) {
 		return false
@@ -35051,53 +36096,53 @@ func (p *ResourceServiceUninstallAddonArgs) Field1DeepEqual(src *addon.Uninstall
 	return true
 }
 
-type ResourceServiceUninstallAddonResult struct {
-	Success *addon.UninstallAddonResponse `thrift:"success,0" json:"success,omitempty"`
+type ResourceServiceReinstallAddonResult struct {
+	Success *addon.ReinstallAddonResponse `thrift:"success,0" json:"success,omitempty"`
 	Err     *common.Error                 `thrift:"err,1" json:"err,omitempty"`
 }
 
-func NewResourceServiceUninstallAddonResult() *ResourceServiceUninstallAddonResult {
-	return &ResourceServiceUninstallAddonResult{}
+func NewResourceServiceReinstallAddonResult() *ResourceServiceReinstallAddonResult {
+	return &ResourceServiceReinstallAddonResult{}
 }
 
-var ResourceServiceUninstallAddonResult_Success_DEFAULT *addon.UninstallAddonResponse
+var ResourceServiceReinstallAddonResult_Success_DEFAULT *addon.ReinstallAddonResponse
 
-func (p *ResourceServiceUninstallAddonResult) GetSuccess() (v *addon.UninstallAddonResponse) {
+func (p *ResourceServiceReinstallAddonResult) GetSuccess() (v *addon.ReinstallAddonResponse) {
 	if !p.IsSetSuccess() {
-		return ResourceServiceUninstallAddonResult_Success_DEFAULT
+		return ResourceServiceReinstallAddonResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-var ResourceServiceUninstallAddonResult_Err_DEFAULT *common.Error
+var ResourceServiceReinstallAddonResult_Err_DEFAULT *common.Error
 
-func (p *ResourceServiceUninstallAddonResult) GetErr() (v *common.Error) {
+func (p *ResourceServiceReinstallAddonResult) GetErr() (v *common.Error) {
 	if !p.IsSetErr() {
-		return ResourceServiceUninstallAddonResult_Err_DEFAULT
+		return ResourceServiceReinstallAddonResult_Err_DEFAULT
 	}
 	return p.Err
 }
-func (p *ResourceServiceUninstallAddonResult) SetSuccess(x interface{}) {
-	p.Success = x.(*addon.UninstallAddonResponse)
+func (p *ResourceServiceReinstallAddonResult) SetSuccess(x interface{}) {
+	p.Success = x.(*addon.ReinstallAddonResponse)
 }
-func (p *ResourceServiceUninstallAddonResult) SetErr(val *common.Error) {
+func (p *ResourceServiceReinstallAddonResult) SetErr(val *common.Error) {
 	p.Err = val
 }
 
-var fieldIDToName_ResourceServiceUninstallAddonResult = map[int16]string{
+var fieldIDToName_ResourceServiceReinstallAddonResult = map[int16]string{
 	0: "success",
 	1: "err",
 }
 
-func (p *ResourceServiceUninstallAddonResult) IsSetSuccess() bool {
+func (p *ResourceServiceReinstallAddonResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *ResourceServiceUninstallAddonResult) IsSetErr() bool {
+func (p *ResourceServiceReinstallAddonResult) IsSetErr() bool {
 	return p.Err != nil
 }
 
-func (p *ResourceServiceUninstallAddonResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceReinstallAddonResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -35156,7 +36201,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceUninstallAddonResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceReinstallAddonResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -35166,15 +36211,15 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceUninstallAddonResult) ReadField0(iprot thrift.TProtocol) error {
-	p.Success = addon.NewUninstallAddonResponse()
+func (p *ResourceServiceReinstallAddonResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = addon.NewReinstallAddonResponse()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceUninstallAddonResult) ReadField1(iprot thrift.TProtocol) error {
+func (p *ResourceServiceReinstallAddonResult) ReadField1(iprot thrift.TProtocol) error {
 	p.Err = common.NewError()
 	if err := p.Err.Read(iprot); err != nil {
 		return err
@@ -35182,9 +36227,9 @@ func (p *ResourceServiceUninstallAddonResult) ReadField1(iprot thrift.TProtocol)
 	return nil
 }
 
-func (p *ResourceServiceUninstallAddonResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceReinstallAddonResult) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("UninstallAddon_result"); err != nil {
+	if err = oprot.WriteStructBegin("ReinstallAddon_result"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -35215,7 +36260,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceUninstallAddonResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceReinstallAddonResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -35234,7 +36279,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *ResourceServiceUninstallAddonResult) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceReinstallAddonResult) writeField1(oprot thrift.TProtocol) (err error) {
 	if p.IsSetErr() {
 		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
 			goto WriteFieldBeginError
@@ -35253,14 +36298,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceUninstallAddonResult) String() string {
+func (p *ResourceServiceReinstallAddonResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceUninstallAddonResult(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceReinstallAddonResult(%+v)", *p)
 }
 
-func (p *ResourceServiceUninstallAddonResult) DeepEqual(ano *ResourceServiceUninstallAddonResult) bool {
+func (p *ResourceServiceReinstallAddonResult) DeepEqual(ano *ResourceServiceReinstallAddonResult) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -35275,14 +36320,421 @@ func (p *ResourceServiceUninstallAddonResult) DeepEqual(ano *ResourceServiceUnin
 	return true
 }
 
-func (p *ResourceServiceUninstallAddonResult) Field0DeepEqual(src *addon.UninstallAddonResponse) bool {
+func (p *ResourceServiceReinstallAddonResult) Field0DeepEqual(src *addon.ReinstallAddonResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ResourceServiceUninstallAddonResult) Field1DeepEqual(src *common.Error) bool {
+func (p *ResourceServiceReinstallAddonResult) Field1DeepEqual(src *common.Error) bool {
+
+	if !p.Err.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type ResourceServiceUninstallAddonsArgs struct {
+	Req *addon.UninstallAddonsRequest `thrift:"req,1" json:"req"`
+}
+
+func NewResourceServiceUninstallAddonsArgs() *ResourceServiceUninstallAddonsArgs {
+	return &ResourceServiceUninstallAddonsArgs{}
+}
+
+var ResourceServiceUninstallAddonsArgs_Req_DEFAULT *addon.UninstallAddonsRequest
+
+func (p *ResourceServiceUninstallAddonsArgs) GetReq() (v *addon.UninstallAddonsRequest) {
+	if !p.IsSetReq() {
+		return ResourceServiceUninstallAddonsArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *ResourceServiceUninstallAddonsArgs) SetReq(val *addon.UninstallAddonsRequest) {
+	p.Req = val
+}
+
+var fieldIDToName_ResourceServiceUninstallAddonsArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *ResourceServiceUninstallAddonsArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *ResourceServiceUninstallAddonsArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceUninstallAddonsArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceUninstallAddonsArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = addon.NewUninstallAddonsRequest()
+	if err := p.Req.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceUninstallAddonsArgs) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("UninstallAddons_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ResourceServiceUninstallAddonsArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ResourceServiceUninstallAddonsArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ResourceServiceUninstallAddonsArgs(%+v)", *p)
+}
+
+func (p *ResourceServiceUninstallAddonsArgs) DeepEqual(ano *ResourceServiceUninstallAddonsArgs) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Req) {
+		return false
+	}
+	return true
+}
+
+func (p *ResourceServiceUninstallAddonsArgs) Field1DeepEqual(src *addon.UninstallAddonsRequest) bool {
+
+	if !p.Req.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type ResourceServiceUninstallAddonsResult struct {
+	Success *addon.UninstallAddonsResponse `thrift:"success,0" json:"success,omitempty"`
+	Err     *common.Error                  `thrift:"err,1" json:"err,omitempty"`
+}
+
+func NewResourceServiceUninstallAddonsResult() *ResourceServiceUninstallAddonsResult {
+	return &ResourceServiceUninstallAddonsResult{}
+}
+
+var ResourceServiceUninstallAddonsResult_Success_DEFAULT *addon.UninstallAddonsResponse
+
+func (p *ResourceServiceUninstallAddonsResult) GetSuccess() (v *addon.UninstallAddonsResponse) {
+	if !p.IsSetSuccess() {
+		return ResourceServiceUninstallAddonsResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+var ResourceServiceUninstallAddonsResult_Err_DEFAULT *common.Error
+
+func (p *ResourceServiceUninstallAddonsResult) GetErr() (v *common.Error) {
+	if !p.IsSetErr() {
+		return ResourceServiceUninstallAddonsResult_Err_DEFAULT
+	}
+	return p.Err
+}
+func (p *ResourceServiceUninstallAddonsResult) SetSuccess(x interface{}) {
+	p.Success = x.(*addon.UninstallAddonsResponse)
+}
+func (p *ResourceServiceUninstallAddonsResult) SetErr(val *common.Error) {
+	p.Err = val
+}
+
+var fieldIDToName_ResourceServiceUninstallAddonsResult = map[int16]string{
+	0: "success",
+	1: "err",
+}
+
+func (p *ResourceServiceUninstallAddonsResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *ResourceServiceUninstallAddonsResult) IsSetErr() bool {
+	return p.Err != nil
+}
+
+func (p *ResourceServiceUninstallAddonsResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceUninstallAddonsResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceUninstallAddonsResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = addon.NewUninstallAddonsResponse()
+	if err := p.Success.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceUninstallAddonsResult) ReadField1(iprot thrift.TProtocol) error {
+	p.Err = common.NewError()
+	if err := p.Err.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceUninstallAddonsResult) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("UninstallAddons_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ResourceServiceUninstallAddonsResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *ResourceServiceUninstallAddonsResult) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetErr() {
+		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Err.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ResourceServiceUninstallAddonsResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ResourceServiceUninstallAddonsResult(%+v)", *p)
+}
+
+func (p *ResourceServiceUninstallAddonsResult) DeepEqual(ano *ResourceServiceUninstallAddonsResult) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field0DeepEqual(ano.Success) {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Err) {
+		return false
+	}
+	return true
+}
+
+func (p *ResourceServiceUninstallAddonsResult) Field0DeepEqual(src *addon.UninstallAddonsResponse) bool {
+
+	if !p.Success.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+func (p *ResourceServiceUninstallAddonsResult) Field1DeepEqual(src *common.Error) bool {
 
 	if !p.Err.DeepEqual(src) {
 		return false
@@ -38546,6 +39998,413 @@ func (p *ResourceServiceListVolumesResult) Field1DeepEqual(src *common.Error) bo
 	return true
 }
 
+type ResourceServiceListKeyPairsArgs struct {
+	Req *instance.ListKeyPairsRequest `thrift:"req,1" json:"req"`
+}
+
+func NewResourceServiceListKeyPairsArgs() *ResourceServiceListKeyPairsArgs {
+	return &ResourceServiceListKeyPairsArgs{}
+}
+
+var ResourceServiceListKeyPairsArgs_Req_DEFAULT *instance.ListKeyPairsRequest
+
+func (p *ResourceServiceListKeyPairsArgs) GetReq() (v *instance.ListKeyPairsRequest) {
+	if !p.IsSetReq() {
+		return ResourceServiceListKeyPairsArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *ResourceServiceListKeyPairsArgs) SetReq(val *instance.ListKeyPairsRequest) {
+	p.Req = val
+}
+
+var fieldIDToName_ResourceServiceListKeyPairsArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *ResourceServiceListKeyPairsArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *ResourceServiceListKeyPairsArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListKeyPairsArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListKeyPairsArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = instance.NewListKeyPairsRequest()
+	if err := p.Req.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceListKeyPairsArgs) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ListKeyPairs_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListKeyPairsArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ResourceServiceListKeyPairsArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ResourceServiceListKeyPairsArgs(%+v)", *p)
+}
+
+func (p *ResourceServiceListKeyPairsArgs) DeepEqual(ano *ResourceServiceListKeyPairsArgs) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Req) {
+		return false
+	}
+	return true
+}
+
+func (p *ResourceServiceListKeyPairsArgs) Field1DeepEqual(src *instance.ListKeyPairsRequest) bool {
+
+	if !p.Req.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type ResourceServiceListKeyPairsResult struct {
+	Success *instance.ListKeyPairsResponse `thrift:"success,0" json:"success,omitempty"`
+	Err     *common.Error                  `thrift:"err,1" json:"err,omitempty"`
+}
+
+func NewResourceServiceListKeyPairsResult() *ResourceServiceListKeyPairsResult {
+	return &ResourceServiceListKeyPairsResult{}
+}
+
+var ResourceServiceListKeyPairsResult_Success_DEFAULT *instance.ListKeyPairsResponse
+
+func (p *ResourceServiceListKeyPairsResult) GetSuccess() (v *instance.ListKeyPairsResponse) {
+	if !p.IsSetSuccess() {
+		return ResourceServiceListKeyPairsResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+var ResourceServiceListKeyPairsResult_Err_DEFAULT *common.Error
+
+func (p *ResourceServiceListKeyPairsResult) GetErr() (v *common.Error) {
+	if !p.IsSetErr() {
+		return ResourceServiceListKeyPairsResult_Err_DEFAULT
+	}
+	return p.Err
+}
+func (p *ResourceServiceListKeyPairsResult) SetSuccess(x interface{}) {
+	p.Success = x.(*instance.ListKeyPairsResponse)
+}
+func (p *ResourceServiceListKeyPairsResult) SetErr(val *common.Error) {
+	p.Err = val
+}
+
+var fieldIDToName_ResourceServiceListKeyPairsResult = map[int16]string{
+	0: "success",
+	1: "err",
+}
+
+func (p *ResourceServiceListKeyPairsResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *ResourceServiceListKeyPairsResult) IsSetErr() bool {
+	return p.Err != nil
+}
+
+func (p *ResourceServiceListKeyPairsResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListKeyPairsResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListKeyPairsResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = instance.NewListKeyPairsResponse()
+	if err := p.Success.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceListKeyPairsResult) ReadField1(iprot thrift.TProtocol) error {
+	p.Err = common.NewError()
+	if err := p.Err.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceListKeyPairsResult) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ListKeyPairs_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListKeyPairsResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *ResourceServiceListKeyPairsResult) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetErr() {
+		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Err.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ResourceServiceListKeyPairsResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ResourceServiceListKeyPairsResult(%+v)", *p)
+}
+
+func (p *ResourceServiceListKeyPairsResult) DeepEqual(ano *ResourceServiceListKeyPairsResult) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field0DeepEqual(ano.Success) {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Err) {
+		return false
+	}
+	return true
+}
+
+func (p *ResourceServiceListKeyPairsResult) Field0DeepEqual(src *instance.ListKeyPairsResponse) bool {
+
+	if !p.Success.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+func (p *ResourceServiceListKeyPairsResult) Field1DeepEqual(src *common.Error) bool {
+
+	if !p.Err.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
 type ResourceServiceListSubnetsArgs struct {
 	Req *vpc.ListSubnetsRequest `thrift:"req,1" json:"req"`
 }
@@ -38953,35 +40812,35 @@ func (p *ResourceServiceListSubnetsResult) Field1DeepEqual(src *common.Error) bo
 	return true
 }
 
-type ResourceServiceListElasticIPPoolsArgs struct {
-	Req *vpc.ListElasticIPPoolsRequest `thrift:"req,1" json:"req"`
+type ResourceServiceListElasticIpPoolsArgs struct {
+	Req *vpc.ListElasticIpPoolsRequest `thrift:"req,1" json:"req"`
 }
 
-func NewResourceServiceListElasticIPPoolsArgs() *ResourceServiceListElasticIPPoolsArgs {
-	return &ResourceServiceListElasticIPPoolsArgs{}
+func NewResourceServiceListElasticIpPoolsArgs() *ResourceServiceListElasticIpPoolsArgs {
+	return &ResourceServiceListElasticIpPoolsArgs{}
 }
 
-var ResourceServiceListElasticIPPoolsArgs_Req_DEFAULT *vpc.ListElasticIPPoolsRequest
+var ResourceServiceListElasticIpPoolsArgs_Req_DEFAULT *vpc.ListElasticIpPoolsRequest
 
-func (p *ResourceServiceListElasticIPPoolsArgs) GetReq() (v *vpc.ListElasticIPPoolsRequest) {
+func (p *ResourceServiceListElasticIpPoolsArgs) GetReq() (v *vpc.ListElasticIpPoolsRequest) {
 	if !p.IsSetReq() {
-		return ResourceServiceListElasticIPPoolsArgs_Req_DEFAULT
+		return ResourceServiceListElasticIpPoolsArgs_Req_DEFAULT
 	}
 	return p.Req
 }
-func (p *ResourceServiceListElasticIPPoolsArgs) SetReq(val *vpc.ListElasticIPPoolsRequest) {
+func (p *ResourceServiceListElasticIpPoolsArgs) SetReq(val *vpc.ListElasticIpPoolsRequest) {
 	p.Req = val
 }
 
-var fieldIDToName_ResourceServiceListElasticIPPoolsArgs = map[int16]string{
+var fieldIDToName_ResourceServiceListElasticIpPoolsArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *ResourceServiceListElasticIPPoolsArgs) IsSetReq() bool {
+func (p *ResourceServiceListElasticIpPoolsArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *ResourceServiceListElasticIPPoolsArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListElasticIpPoolsArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -39030,7 +40889,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListElasticIPPoolsArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListElasticIpPoolsArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -39040,17 +40899,17 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListElasticIPPoolsArgs) ReadField1(iprot thrift.TProtocol) error {
-	p.Req = vpc.NewListElasticIPPoolsRequest()
+func (p *ResourceServiceListElasticIpPoolsArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = vpc.NewListElasticIpPoolsRequest()
 	if err := p.Req.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceListElasticIPPoolsArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListElasticIpPoolsArgs) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListElasticIPPools_args"); err != nil {
+	if err = oprot.WriteStructBegin("ListElasticIpPools_args"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -39077,7 +40936,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListElasticIPPoolsArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListElasticIpPoolsArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -39094,14 +40953,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceListElasticIPPoolsArgs) String() string {
+func (p *ResourceServiceListElasticIpPoolsArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceListElasticIPPoolsArgs(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceListElasticIpPoolsArgs(%+v)", *p)
 }
 
-func (p *ResourceServiceListElasticIPPoolsArgs) DeepEqual(ano *ResourceServiceListElasticIPPoolsArgs) bool {
+func (p *ResourceServiceListElasticIpPoolsArgs) DeepEqual(ano *ResourceServiceListElasticIpPoolsArgs) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -39113,7 +40972,7 @@ func (p *ResourceServiceListElasticIPPoolsArgs) DeepEqual(ano *ResourceServiceLi
 	return true
 }
 
-func (p *ResourceServiceListElasticIPPoolsArgs) Field1DeepEqual(src *vpc.ListElasticIPPoolsRequest) bool {
+func (p *ResourceServiceListElasticIpPoolsArgs) Field1DeepEqual(src *vpc.ListElasticIpPoolsRequest) bool {
 
 	if !p.Req.DeepEqual(src) {
 		return false
@@ -39121,53 +40980,53 @@ func (p *ResourceServiceListElasticIPPoolsArgs) Field1DeepEqual(src *vpc.ListEla
 	return true
 }
 
-type ResourceServiceListElasticIPPoolsResult struct {
-	Success *vpc.ListElasticIPPoolsResponse `thrift:"success,0" json:"success,omitempty"`
+type ResourceServiceListElasticIpPoolsResult struct {
+	Success *vpc.ListElasticIpPoolsResponse `thrift:"success,0" json:"success,omitempty"`
 	Err     *common.Error                   `thrift:"err,1" json:"err,omitempty"`
 }
 
-func NewResourceServiceListElasticIPPoolsResult() *ResourceServiceListElasticIPPoolsResult {
-	return &ResourceServiceListElasticIPPoolsResult{}
+func NewResourceServiceListElasticIpPoolsResult() *ResourceServiceListElasticIpPoolsResult {
+	return &ResourceServiceListElasticIpPoolsResult{}
 }
 
-var ResourceServiceListElasticIPPoolsResult_Success_DEFAULT *vpc.ListElasticIPPoolsResponse
+var ResourceServiceListElasticIpPoolsResult_Success_DEFAULT *vpc.ListElasticIpPoolsResponse
 
-func (p *ResourceServiceListElasticIPPoolsResult) GetSuccess() (v *vpc.ListElasticIPPoolsResponse) {
+func (p *ResourceServiceListElasticIpPoolsResult) GetSuccess() (v *vpc.ListElasticIpPoolsResponse) {
 	if !p.IsSetSuccess() {
-		return ResourceServiceListElasticIPPoolsResult_Success_DEFAULT
+		return ResourceServiceListElasticIpPoolsResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-var ResourceServiceListElasticIPPoolsResult_Err_DEFAULT *common.Error
+var ResourceServiceListElasticIpPoolsResult_Err_DEFAULT *common.Error
 
-func (p *ResourceServiceListElasticIPPoolsResult) GetErr() (v *common.Error) {
+func (p *ResourceServiceListElasticIpPoolsResult) GetErr() (v *common.Error) {
 	if !p.IsSetErr() {
-		return ResourceServiceListElasticIPPoolsResult_Err_DEFAULT
+		return ResourceServiceListElasticIpPoolsResult_Err_DEFAULT
 	}
 	return p.Err
 }
-func (p *ResourceServiceListElasticIPPoolsResult) SetSuccess(x interface{}) {
-	p.Success = x.(*vpc.ListElasticIPPoolsResponse)
+func (p *ResourceServiceListElasticIpPoolsResult) SetSuccess(x interface{}) {
+	p.Success = x.(*vpc.ListElasticIpPoolsResponse)
 }
-func (p *ResourceServiceListElasticIPPoolsResult) SetErr(val *common.Error) {
+func (p *ResourceServiceListElasticIpPoolsResult) SetErr(val *common.Error) {
 	p.Err = val
 }
 
-var fieldIDToName_ResourceServiceListElasticIPPoolsResult = map[int16]string{
+var fieldIDToName_ResourceServiceListElasticIpPoolsResult = map[int16]string{
 	0: "success",
 	1: "err",
 }
 
-func (p *ResourceServiceListElasticIPPoolsResult) IsSetSuccess() bool {
+func (p *ResourceServiceListElasticIpPoolsResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *ResourceServiceListElasticIPPoolsResult) IsSetErr() bool {
+func (p *ResourceServiceListElasticIpPoolsResult) IsSetErr() bool {
 	return p.Err != nil
 }
 
-func (p *ResourceServiceListElasticIPPoolsResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListElasticIpPoolsResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -39226,7 +41085,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListElasticIPPoolsResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListElasticIpPoolsResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -39236,15 +41095,15 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListElasticIPPoolsResult) ReadField0(iprot thrift.TProtocol) error {
-	p.Success = vpc.NewListElasticIPPoolsResponse()
+func (p *ResourceServiceListElasticIpPoolsResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = vpc.NewListElasticIpPoolsResponse()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ResourceServiceListElasticIPPoolsResult) ReadField1(iprot thrift.TProtocol) error {
+func (p *ResourceServiceListElasticIpPoolsResult) ReadField1(iprot thrift.TProtocol) error {
 	p.Err = common.NewError()
 	if err := p.Err.Read(iprot); err != nil {
 		return err
@@ -39252,9 +41111,9 @@ func (p *ResourceServiceListElasticIPPoolsResult) ReadField1(iprot thrift.TProto
 	return nil
 }
 
-func (p *ResourceServiceListElasticIPPoolsResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListElasticIpPoolsResult) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListElasticIPPools_result"); err != nil {
+	if err = oprot.WriteStructBegin("ListElasticIpPools_result"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -39285,7 +41144,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ResourceServiceListElasticIPPoolsResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListElasticIpPoolsResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -39304,7 +41163,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *ResourceServiceListElasticIPPoolsResult) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ResourceServiceListElasticIpPoolsResult) writeField1(oprot thrift.TProtocol) (err error) {
 	if p.IsSetErr() {
 		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
 			goto WriteFieldBeginError
@@ -39323,14 +41182,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ResourceServiceListElasticIPPoolsResult) String() string {
+func (p *ResourceServiceListElasticIpPoolsResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ResourceServiceListElasticIPPoolsResult(%+v)", *p)
+	return fmt.Sprintf("ResourceServiceListElasticIpPoolsResult(%+v)", *p)
 }
 
-func (p *ResourceServiceListElasticIPPoolsResult) DeepEqual(ano *ResourceServiceListElasticIPPoolsResult) bool {
+func (p *ResourceServiceListElasticIpPoolsResult) DeepEqual(ano *ResourceServiceListElasticIpPoolsResult) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -39345,14 +41204,14 @@ func (p *ResourceServiceListElasticIPPoolsResult) DeepEqual(ano *ResourceService
 	return true
 }
 
-func (p *ResourceServiceListElasticIPPoolsResult) Field0DeepEqual(src *vpc.ListElasticIPPoolsResponse) bool {
+func (p *ResourceServiceListElasticIpPoolsResult) Field0DeepEqual(src *vpc.ListElasticIpPoolsResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ResourceServiceListElasticIPPoolsResult) Field1DeepEqual(src *common.Error) bool {
+func (p *ResourceServiceListElasticIpPoolsResult) Field1DeepEqual(src *common.Error) bool {
 
 	if !p.Err.DeepEqual(src) {
 		return false
@@ -40175,22 +42034,22 @@ func (p *ResourceServiceListSecurityGroupsResult) Field1DeepEqual(src *common.Er
 }
 
 type ResourceServiceListClbsArgs struct {
-	Req *clb.ListClbRequest `thrift:"req,1" json:"req"`
+	Req *clb.ListClbsRequest `thrift:"req,1" json:"req"`
 }
 
 func NewResourceServiceListClbsArgs() *ResourceServiceListClbsArgs {
 	return &ResourceServiceListClbsArgs{}
 }
 
-var ResourceServiceListClbsArgs_Req_DEFAULT *clb.ListClbRequest
+var ResourceServiceListClbsArgs_Req_DEFAULT *clb.ListClbsRequest
 
-func (p *ResourceServiceListClbsArgs) GetReq() (v *clb.ListClbRequest) {
+func (p *ResourceServiceListClbsArgs) GetReq() (v *clb.ListClbsRequest) {
 	if !p.IsSetReq() {
 		return ResourceServiceListClbsArgs_Req_DEFAULT
 	}
 	return p.Req
 }
-func (p *ResourceServiceListClbsArgs) SetReq(val *clb.ListClbRequest) {
+func (p *ResourceServiceListClbsArgs) SetReq(val *clb.ListClbsRequest) {
 	p.Req = val
 }
 
@@ -40262,7 +42121,7 @@ ReadStructEndError:
 }
 
 func (p *ResourceServiceListClbsArgs) ReadField1(iprot thrift.TProtocol) error {
-	p.Req = clb.NewListClbRequest()
+	p.Req = clb.NewListClbsRequest()
 	if err := p.Req.Read(iprot); err != nil {
 		return err
 	}
@@ -40334,7 +42193,7 @@ func (p *ResourceServiceListClbsArgs) DeepEqual(ano *ResourceServiceListClbsArgs
 	return true
 }
 
-func (p *ResourceServiceListClbsArgs) Field1DeepEqual(src *clb.ListClbRequest) bool {
+func (p *ResourceServiceListClbsArgs) Field1DeepEqual(src *clb.ListClbsRequest) bool {
 
 	if !p.Req.DeepEqual(src) {
 		return false
@@ -40343,17 +42202,17 @@ func (p *ResourceServiceListClbsArgs) Field1DeepEqual(src *clb.ListClbRequest) b
 }
 
 type ResourceServiceListClbsResult struct {
-	Success *clb.ListClbResponse `thrift:"success,0" json:"success,omitempty"`
-	Err     *common.Error        `thrift:"err,1" json:"err,omitempty"`
+	Success *clb.ListClbsResponse `thrift:"success,0" json:"success,omitempty"`
+	Err     *common.Error         `thrift:"err,1" json:"err,omitempty"`
 }
 
 func NewResourceServiceListClbsResult() *ResourceServiceListClbsResult {
 	return &ResourceServiceListClbsResult{}
 }
 
-var ResourceServiceListClbsResult_Success_DEFAULT *clb.ListClbResponse
+var ResourceServiceListClbsResult_Success_DEFAULT *clb.ListClbsResponse
 
-func (p *ResourceServiceListClbsResult) GetSuccess() (v *clb.ListClbResponse) {
+func (p *ResourceServiceListClbsResult) GetSuccess() (v *clb.ListClbsResponse) {
 	if !p.IsSetSuccess() {
 		return ResourceServiceListClbsResult_Success_DEFAULT
 	}
@@ -40369,7 +42228,7 @@ func (p *ResourceServiceListClbsResult) GetErr() (v *common.Error) {
 	return p.Err
 }
 func (p *ResourceServiceListClbsResult) SetSuccess(x interface{}) {
-	p.Success = x.(*clb.ListClbResponse)
+	p.Success = x.(*clb.ListClbsResponse)
 }
 func (p *ResourceServiceListClbsResult) SetErr(val *common.Error) {
 	p.Err = val
@@ -40458,7 +42317,7 @@ ReadStructEndError:
 }
 
 func (p *ResourceServiceListClbsResult) ReadField0(iprot thrift.TProtocol) error {
-	p.Success = clb.NewListClbResponse()
+	p.Success = clb.NewListClbsResponse()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
 	}
@@ -40566,7 +42425,7 @@ func (p *ResourceServiceListClbsResult) DeepEqual(ano *ResourceServiceListClbsRe
 	return true
 }
 
-func (p *ResourceServiceListClbsResult) Field0DeepEqual(src *clb.ListClbResponse) bool {
+func (p *ResourceServiceListClbsResult) Field0DeepEqual(src *clb.ListClbsResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false
@@ -40574,6 +42433,413 @@ func (p *ResourceServiceListClbsResult) Field0DeepEqual(src *clb.ListClbResponse
 	return true
 }
 func (p *ResourceServiceListClbsResult) Field1DeepEqual(src *common.Error) bool {
+
+	if !p.Err.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type ResourceServiceListClbListenersArgs struct {
+	Req *clb.ListClbListenersRequest `thrift:"req,1" json:"req"`
+}
+
+func NewResourceServiceListClbListenersArgs() *ResourceServiceListClbListenersArgs {
+	return &ResourceServiceListClbListenersArgs{}
+}
+
+var ResourceServiceListClbListenersArgs_Req_DEFAULT *clb.ListClbListenersRequest
+
+func (p *ResourceServiceListClbListenersArgs) GetReq() (v *clb.ListClbListenersRequest) {
+	if !p.IsSetReq() {
+		return ResourceServiceListClbListenersArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *ResourceServiceListClbListenersArgs) SetReq(val *clb.ListClbListenersRequest) {
+	p.Req = val
+}
+
+var fieldIDToName_ResourceServiceListClbListenersArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *ResourceServiceListClbListenersArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *ResourceServiceListClbListenersArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListClbListenersArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListClbListenersArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = clb.NewListClbListenersRequest()
+	if err := p.Req.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceListClbListenersArgs) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ListClbListeners_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListClbListenersArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ResourceServiceListClbListenersArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ResourceServiceListClbListenersArgs(%+v)", *p)
+}
+
+func (p *ResourceServiceListClbListenersArgs) DeepEqual(ano *ResourceServiceListClbListenersArgs) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Req) {
+		return false
+	}
+	return true
+}
+
+func (p *ResourceServiceListClbListenersArgs) Field1DeepEqual(src *clb.ListClbListenersRequest) bool {
+
+	if !p.Req.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type ResourceServiceListClbListenersResult struct {
+	Success *clb.ListClbListenersResponse `thrift:"success,0" json:"success,omitempty"`
+	Err     *common.Error                 `thrift:"err,1" json:"err,omitempty"`
+}
+
+func NewResourceServiceListClbListenersResult() *ResourceServiceListClbListenersResult {
+	return &ResourceServiceListClbListenersResult{}
+}
+
+var ResourceServiceListClbListenersResult_Success_DEFAULT *clb.ListClbListenersResponse
+
+func (p *ResourceServiceListClbListenersResult) GetSuccess() (v *clb.ListClbListenersResponse) {
+	if !p.IsSetSuccess() {
+		return ResourceServiceListClbListenersResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+var ResourceServiceListClbListenersResult_Err_DEFAULT *common.Error
+
+func (p *ResourceServiceListClbListenersResult) GetErr() (v *common.Error) {
+	if !p.IsSetErr() {
+		return ResourceServiceListClbListenersResult_Err_DEFAULT
+	}
+	return p.Err
+}
+func (p *ResourceServiceListClbListenersResult) SetSuccess(x interface{}) {
+	p.Success = x.(*clb.ListClbListenersResponse)
+}
+func (p *ResourceServiceListClbListenersResult) SetErr(val *common.Error) {
+	p.Err = val
+}
+
+var fieldIDToName_ResourceServiceListClbListenersResult = map[int16]string{
+	0: "success",
+	1: "err",
+}
+
+func (p *ResourceServiceListClbListenersResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *ResourceServiceListClbListenersResult) IsSetErr() bool {
+	return p.Err != nil
+}
+
+func (p *ResourceServiceListClbListenersResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListClbListenersResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListClbListenersResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = clb.NewListClbListenersResponse()
+	if err := p.Success.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceListClbListenersResult) ReadField1(iprot thrift.TProtocol) error {
+	p.Err = common.NewError()
+	if err := p.Err.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceListClbListenersResult) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ListClbListeners_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListClbListenersResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *ResourceServiceListClbListenersResult) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetErr() {
+		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Err.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ResourceServiceListClbListenersResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ResourceServiceListClbListenersResult(%+v)", *p)
+}
+
+func (p *ResourceServiceListClbListenersResult) DeepEqual(ano *ResourceServiceListClbListenersResult) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field0DeepEqual(ano.Success) {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Err) {
+		return false
+	}
+	return true
+}
+
+func (p *ResourceServiceListClbListenersResult) Field0DeepEqual(src *clb.ListClbListenersResponse) bool {
+
+	if !p.Success.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+func (p *ResourceServiceListClbListenersResult) Field1DeepEqual(src *common.Error) bool {
 
 	if !p.Err.DeepEqual(src) {
 		return false
@@ -45458,6 +47724,2041 @@ func (p *ResourceServiceRecommendCidrResult) Field0DeepEqual(src *cluster.Recomm
 	return true
 }
 func (p *ResourceServiceRecommendCidrResult) Field1DeepEqual(src *common.Error) bool {
+
+	if !p.Err.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type ResourceServiceAddVciSubnetsArgs struct {
+	Req *cluster.AddVciSubnetsRequest `thrift:"req,1" json:"req"`
+}
+
+func NewResourceServiceAddVciSubnetsArgs() *ResourceServiceAddVciSubnetsArgs {
+	return &ResourceServiceAddVciSubnetsArgs{}
+}
+
+var ResourceServiceAddVciSubnetsArgs_Req_DEFAULT *cluster.AddVciSubnetsRequest
+
+func (p *ResourceServiceAddVciSubnetsArgs) GetReq() (v *cluster.AddVciSubnetsRequest) {
+	if !p.IsSetReq() {
+		return ResourceServiceAddVciSubnetsArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *ResourceServiceAddVciSubnetsArgs) SetReq(val *cluster.AddVciSubnetsRequest) {
+	p.Req = val
+}
+
+var fieldIDToName_ResourceServiceAddVciSubnetsArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *ResourceServiceAddVciSubnetsArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *ResourceServiceAddVciSubnetsArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceAddVciSubnetsArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceAddVciSubnetsArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = cluster.NewAddVciSubnetsRequest()
+	if err := p.Req.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceAddVciSubnetsArgs) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("AddVciSubnets_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ResourceServiceAddVciSubnetsArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ResourceServiceAddVciSubnetsArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ResourceServiceAddVciSubnetsArgs(%+v)", *p)
+}
+
+func (p *ResourceServiceAddVciSubnetsArgs) DeepEqual(ano *ResourceServiceAddVciSubnetsArgs) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Req) {
+		return false
+	}
+	return true
+}
+
+func (p *ResourceServiceAddVciSubnetsArgs) Field1DeepEqual(src *cluster.AddVciSubnetsRequest) bool {
+
+	if !p.Req.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type ResourceServiceAddVciSubnetsResult struct {
+	Success *cluster.AddVciSubnetsResponse `thrift:"success,0" json:"success,omitempty"`
+	Err     *common.Error                  `thrift:"err,1" json:"err,omitempty"`
+}
+
+func NewResourceServiceAddVciSubnetsResult() *ResourceServiceAddVciSubnetsResult {
+	return &ResourceServiceAddVciSubnetsResult{}
+}
+
+var ResourceServiceAddVciSubnetsResult_Success_DEFAULT *cluster.AddVciSubnetsResponse
+
+func (p *ResourceServiceAddVciSubnetsResult) GetSuccess() (v *cluster.AddVciSubnetsResponse) {
+	if !p.IsSetSuccess() {
+		return ResourceServiceAddVciSubnetsResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+var ResourceServiceAddVciSubnetsResult_Err_DEFAULT *common.Error
+
+func (p *ResourceServiceAddVciSubnetsResult) GetErr() (v *common.Error) {
+	if !p.IsSetErr() {
+		return ResourceServiceAddVciSubnetsResult_Err_DEFAULT
+	}
+	return p.Err
+}
+func (p *ResourceServiceAddVciSubnetsResult) SetSuccess(x interface{}) {
+	p.Success = x.(*cluster.AddVciSubnetsResponse)
+}
+func (p *ResourceServiceAddVciSubnetsResult) SetErr(val *common.Error) {
+	p.Err = val
+}
+
+var fieldIDToName_ResourceServiceAddVciSubnetsResult = map[int16]string{
+	0: "success",
+	1: "err",
+}
+
+func (p *ResourceServiceAddVciSubnetsResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *ResourceServiceAddVciSubnetsResult) IsSetErr() bool {
+	return p.Err != nil
+}
+
+func (p *ResourceServiceAddVciSubnetsResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceAddVciSubnetsResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceAddVciSubnetsResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = cluster.NewAddVciSubnetsResponse()
+	if err := p.Success.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceAddVciSubnetsResult) ReadField1(iprot thrift.TProtocol) error {
+	p.Err = common.NewError()
+	if err := p.Err.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceAddVciSubnetsResult) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("AddVciSubnets_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ResourceServiceAddVciSubnetsResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *ResourceServiceAddVciSubnetsResult) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetErr() {
+		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Err.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ResourceServiceAddVciSubnetsResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ResourceServiceAddVciSubnetsResult(%+v)", *p)
+}
+
+func (p *ResourceServiceAddVciSubnetsResult) DeepEqual(ano *ResourceServiceAddVciSubnetsResult) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field0DeepEqual(ano.Success) {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Err) {
+		return false
+	}
+	return true
+}
+
+func (p *ResourceServiceAddVciSubnetsResult) Field0DeepEqual(src *cluster.AddVciSubnetsResponse) bool {
+
+	if !p.Success.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+func (p *ResourceServiceAddVciSubnetsResult) Field1DeepEqual(src *common.Error) bool {
+
+	if !p.Err.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type ResourceServiceIsInShortTermWhiteListArgs struct {
+	Req *trade.IsInShortTermWhiteListRequest `thrift:"req,1" json:"req"`
+}
+
+func NewResourceServiceIsInShortTermWhiteListArgs() *ResourceServiceIsInShortTermWhiteListArgs {
+	return &ResourceServiceIsInShortTermWhiteListArgs{}
+}
+
+var ResourceServiceIsInShortTermWhiteListArgs_Req_DEFAULT *trade.IsInShortTermWhiteListRequest
+
+func (p *ResourceServiceIsInShortTermWhiteListArgs) GetReq() (v *trade.IsInShortTermWhiteListRequest) {
+	if !p.IsSetReq() {
+		return ResourceServiceIsInShortTermWhiteListArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *ResourceServiceIsInShortTermWhiteListArgs) SetReq(val *trade.IsInShortTermWhiteListRequest) {
+	p.Req = val
+}
+
+var fieldIDToName_ResourceServiceIsInShortTermWhiteListArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceIsInShortTermWhiteListArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = trade.NewIsInShortTermWhiteListRequest()
+	if err := p.Req.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListArgs) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("IsInShortTermWhiteList_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ResourceServiceIsInShortTermWhiteListArgs(%+v)", *p)
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListArgs) DeepEqual(ano *ResourceServiceIsInShortTermWhiteListArgs) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Req) {
+		return false
+	}
+	return true
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListArgs) Field1DeepEqual(src *trade.IsInShortTermWhiteListRequest) bool {
+
+	if !p.Req.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type ResourceServiceIsInShortTermWhiteListResult struct {
+	Success *trade.IsInShortTermWhiteListResponse `thrift:"success,0" json:"success,omitempty"`
+	Err     *common.Error                         `thrift:"err,1" json:"err,omitempty"`
+}
+
+func NewResourceServiceIsInShortTermWhiteListResult() *ResourceServiceIsInShortTermWhiteListResult {
+	return &ResourceServiceIsInShortTermWhiteListResult{}
+}
+
+var ResourceServiceIsInShortTermWhiteListResult_Success_DEFAULT *trade.IsInShortTermWhiteListResponse
+
+func (p *ResourceServiceIsInShortTermWhiteListResult) GetSuccess() (v *trade.IsInShortTermWhiteListResponse) {
+	if !p.IsSetSuccess() {
+		return ResourceServiceIsInShortTermWhiteListResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+var ResourceServiceIsInShortTermWhiteListResult_Err_DEFAULT *common.Error
+
+func (p *ResourceServiceIsInShortTermWhiteListResult) GetErr() (v *common.Error) {
+	if !p.IsSetErr() {
+		return ResourceServiceIsInShortTermWhiteListResult_Err_DEFAULT
+	}
+	return p.Err
+}
+func (p *ResourceServiceIsInShortTermWhiteListResult) SetSuccess(x interface{}) {
+	p.Success = x.(*trade.IsInShortTermWhiteListResponse)
+}
+func (p *ResourceServiceIsInShortTermWhiteListResult) SetErr(val *common.Error) {
+	p.Err = val
+}
+
+var fieldIDToName_ResourceServiceIsInShortTermWhiteListResult = map[int16]string{
+	0: "success",
+	1: "err",
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListResult) IsSetErr() bool {
+	return p.Err != nil
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceIsInShortTermWhiteListResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = trade.NewIsInShortTermWhiteListResponse()
+	if err := p.Success.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListResult) ReadField1(iprot thrift.TProtocol) error {
+	p.Err = common.NewError()
+	if err := p.Err.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListResult) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("IsInShortTermWhiteList_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListResult) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetErr() {
+		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Err.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ResourceServiceIsInShortTermWhiteListResult(%+v)", *p)
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListResult) DeepEqual(ano *ResourceServiceIsInShortTermWhiteListResult) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field0DeepEqual(ano.Success) {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Err) {
+		return false
+	}
+	return true
+}
+
+func (p *ResourceServiceIsInShortTermWhiteListResult) Field0DeepEqual(src *trade.IsInShortTermWhiteListResponse) bool {
+
+	if !p.Success.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+func (p *ResourceServiceIsInShortTermWhiteListResult) Field1DeepEqual(src *common.Error) bool {
+
+	if !p.Err.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type ResourceServiceAllowUserPublicTestArgs struct {
+	Req *publicverify.PublicTestAllowedReq `thrift:"req,1" json:"req"`
+}
+
+func NewResourceServiceAllowUserPublicTestArgs() *ResourceServiceAllowUserPublicTestArgs {
+	return &ResourceServiceAllowUserPublicTestArgs{}
+}
+
+var ResourceServiceAllowUserPublicTestArgs_Req_DEFAULT *publicverify.PublicTestAllowedReq
+
+func (p *ResourceServiceAllowUserPublicTestArgs) GetReq() (v *publicverify.PublicTestAllowedReq) {
+	if !p.IsSetReq() {
+		return ResourceServiceAllowUserPublicTestArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *ResourceServiceAllowUserPublicTestArgs) SetReq(val *publicverify.PublicTestAllowedReq) {
+	p.Req = val
+}
+
+var fieldIDToName_ResourceServiceAllowUserPublicTestArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *ResourceServiceAllowUserPublicTestArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *ResourceServiceAllowUserPublicTestArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceAllowUserPublicTestArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceAllowUserPublicTestArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = publicverify.NewPublicTestAllowedReq()
+	if err := p.Req.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceAllowUserPublicTestArgs) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("AllowUserPublicTest_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ResourceServiceAllowUserPublicTestArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ResourceServiceAllowUserPublicTestArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ResourceServiceAllowUserPublicTestArgs(%+v)", *p)
+}
+
+func (p *ResourceServiceAllowUserPublicTestArgs) DeepEqual(ano *ResourceServiceAllowUserPublicTestArgs) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Req) {
+		return false
+	}
+	return true
+}
+
+func (p *ResourceServiceAllowUserPublicTestArgs) Field1DeepEqual(src *publicverify.PublicTestAllowedReq) bool {
+
+	if !p.Req.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type ResourceServiceAllowUserPublicTestResult struct {
+	Success *publicverify.PublicTestAllowedResp `thrift:"success,0" json:"success,omitempty"`
+	Err     *common.Error                       `thrift:"err,1" json:"err,omitempty"`
+}
+
+func NewResourceServiceAllowUserPublicTestResult() *ResourceServiceAllowUserPublicTestResult {
+	return &ResourceServiceAllowUserPublicTestResult{}
+}
+
+var ResourceServiceAllowUserPublicTestResult_Success_DEFAULT *publicverify.PublicTestAllowedResp
+
+func (p *ResourceServiceAllowUserPublicTestResult) GetSuccess() (v *publicverify.PublicTestAllowedResp) {
+	if !p.IsSetSuccess() {
+		return ResourceServiceAllowUserPublicTestResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+var ResourceServiceAllowUserPublicTestResult_Err_DEFAULT *common.Error
+
+func (p *ResourceServiceAllowUserPublicTestResult) GetErr() (v *common.Error) {
+	if !p.IsSetErr() {
+		return ResourceServiceAllowUserPublicTestResult_Err_DEFAULT
+	}
+	return p.Err
+}
+func (p *ResourceServiceAllowUserPublicTestResult) SetSuccess(x interface{}) {
+	p.Success = x.(*publicverify.PublicTestAllowedResp)
+}
+func (p *ResourceServiceAllowUserPublicTestResult) SetErr(val *common.Error) {
+	p.Err = val
+}
+
+var fieldIDToName_ResourceServiceAllowUserPublicTestResult = map[int16]string{
+	0: "success",
+	1: "err",
+}
+
+func (p *ResourceServiceAllowUserPublicTestResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *ResourceServiceAllowUserPublicTestResult) IsSetErr() bool {
+	return p.Err != nil
+}
+
+func (p *ResourceServiceAllowUserPublicTestResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceAllowUserPublicTestResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceAllowUserPublicTestResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = publicverify.NewPublicTestAllowedResp()
+	if err := p.Success.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceAllowUserPublicTestResult) ReadField1(iprot thrift.TProtocol) error {
+	p.Err = common.NewError()
+	if err := p.Err.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceAllowUserPublicTestResult) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("AllowUserPublicTest_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ResourceServiceAllowUserPublicTestResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *ResourceServiceAllowUserPublicTestResult) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetErr() {
+		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Err.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ResourceServiceAllowUserPublicTestResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ResourceServiceAllowUserPublicTestResult(%+v)", *p)
+}
+
+func (p *ResourceServiceAllowUserPublicTestResult) DeepEqual(ano *ResourceServiceAllowUserPublicTestResult) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field0DeepEqual(ano.Success) {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Err) {
+		return false
+	}
+	return true
+}
+
+func (p *ResourceServiceAllowUserPublicTestResult) Field0DeepEqual(src *publicverify.PublicTestAllowedResp) bool {
+
+	if !p.Success.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+func (p *ResourceServiceAllowUserPublicTestResult) Field1DeepEqual(src *common.Error) bool {
+
+	if !p.Err.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type ResourceServiceListVciAvailabilityZonesArgs struct {
+	Req *vci.ListVciAvailabilityZonesRequest `thrift:"req,1" json:"req"`
+}
+
+func NewResourceServiceListVciAvailabilityZonesArgs() *ResourceServiceListVciAvailabilityZonesArgs {
+	return &ResourceServiceListVciAvailabilityZonesArgs{}
+}
+
+var ResourceServiceListVciAvailabilityZonesArgs_Req_DEFAULT *vci.ListVciAvailabilityZonesRequest
+
+func (p *ResourceServiceListVciAvailabilityZonesArgs) GetReq() (v *vci.ListVciAvailabilityZonesRequest) {
+	if !p.IsSetReq() {
+		return ResourceServiceListVciAvailabilityZonesArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *ResourceServiceListVciAvailabilityZonesArgs) SetReq(val *vci.ListVciAvailabilityZonesRequest) {
+	p.Req = val
+}
+
+var fieldIDToName_ResourceServiceListVciAvailabilityZonesArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListVciAvailabilityZonesArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = vci.NewListVciAvailabilityZonesRequest()
+	if err := p.Req.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesArgs) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ListVciAvailabilityZones_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ResourceServiceListVciAvailabilityZonesArgs(%+v)", *p)
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesArgs) DeepEqual(ano *ResourceServiceListVciAvailabilityZonesArgs) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Req) {
+		return false
+	}
+	return true
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesArgs) Field1DeepEqual(src *vci.ListVciAvailabilityZonesRequest) bool {
+
+	if !p.Req.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type ResourceServiceListVciAvailabilityZonesResult struct {
+	Success *vci.ListVciAvailabilityZonesResponse `thrift:"success,0" json:"success,omitempty"`
+	Err     *common.Error                         `thrift:"err,1" json:"err,omitempty"`
+}
+
+func NewResourceServiceListVciAvailabilityZonesResult() *ResourceServiceListVciAvailabilityZonesResult {
+	return &ResourceServiceListVciAvailabilityZonesResult{}
+}
+
+var ResourceServiceListVciAvailabilityZonesResult_Success_DEFAULT *vci.ListVciAvailabilityZonesResponse
+
+func (p *ResourceServiceListVciAvailabilityZonesResult) GetSuccess() (v *vci.ListVciAvailabilityZonesResponse) {
+	if !p.IsSetSuccess() {
+		return ResourceServiceListVciAvailabilityZonesResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+var ResourceServiceListVciAvailabilityZonesResult_Err_DEFAULT *common.Error
+
+func (p *ResourceServiceListVciAvailabilityZonesResult) GetErr() (v *common.Error) {
+	if !p.IsSetErr() {
+		return ResourceServiceListVciAvailabilityZonesResult_Err_DEFAULT
+	}
+	return p.Err
+}
+func (p *ResourceServiceListVciAvailabilityZonesResult) SetSuccess(x interface{}) {
+	p.Success = x.(*vci.ListVciAvailabilityZonesResponse)
+}
+func (p *ResourceServiceListVciAvailabilityZonesResult) SetErr(val *common.Error) {
+	p.Err = val
+}
+
+var fieldIDToName_ResourceServiceListVciAvailabilityZonesResult = map[int16]string{
+	0: "success",
+	1: "err",
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesResult) IsSetErr() bool {
+	return p.Err != nil
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListVciAvailabilityZonesResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = vci.NewListVciAvailabilityZonesResponse()
+	if err := p.Success.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesResult) ReadField1(iprot thrift.TProtocol) error {
+	p.Err = common.NewError()
+	if err := p.Err.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesResult) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ListVciAvailabilityZones_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesResult) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetErr() {
+		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Err.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ResourceServiceListVciAvailabilityZonesResult(%+v)", *p)
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesResult) DeepEqual(ano *ResourceServiceListVciAvailabilityZonesResult) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field0DeepEqual(ano.Success) {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Err) {
+		return false
+	}
+	return true
+}
+
+func (p *ResourceServiceListVciAvailabilityZonesResult) Field0DeepEqual(src *vci.ListVciAvailabilityZonesResponse) bool {
+
+	if !p.Success.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+func (p *ResourceServiceListVciAvailabilityZonesResult) Field1DeepEqual(src *common.Error) bool {
+
+	if !p.Err.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type ResourceServiceListNodeZonesArgs struct {
+	Req *cluster.ListNodeZonesRequest `thrift:"req,1" json:"req"`
+}
+
+func NewResourceServiceListNodeZonesArgs() *ResourceServiceListNodeZonesArgs {
+	return &ResourceServiceListNodeZonesArgs{}
+}
+
+var ResourceServiceListNodeZonesArgs_Req_DEFAULT *cluster.ListNodeZonesRequest
+
+func (p *ResourceServiceListNodeZonesArgs) GetReq() (v *cluster.ListNodeZonesRequest) {
+	if !p.IsSetReq() {
+		return ResourceServiceListNodeZonesArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *ResourceServiceListNodeZonesArgs) SetReq(val *cluster.ListNodeZonesRequest) {
+	p.Req = val
+}
+
+var fieldIDToName_ResourceServiceListNodeZonesArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *ResourceServiceListNodeZonesArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *ResourceServiceListNodeZonesArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListNodeZonesArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListNodeZonesArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = cluster.NewListNodeZonesRequest()
+	if err := p.Req.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceListNodeZonesArgs) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ListNodeZones_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListNodeZonesArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ResourceServiceListNodeZonesArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ResourceServiceListNodeZonesArgs(%+v)", *p)
+}
+
+func (p *ResourceServiceListNodeZonesArgs) DeepEqual(ano *ResourceServiceListNodeZonesArgs) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Req) {
+		return false
+	}
+	return true
+}
+
+func (p *ResourceServiceListNodeZonesArgs) Field1DeepEqual(src *cluster.ListNodeZonesRequest) bool {
+
+	if !p.Req.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type ResourceServiceListNodeZonesResult struct {
+	Success *cluster.ListNodeZonesResponse `thrift:"success,0" json:"success,omitempty"`
+	Err     *common.Error                  `thrift:"err,1" json:"err,omitempty"`
+}
+
+func NewResourceServiceListNodeZonesResult() *ResourceServiceListNodeZonesResult {
+	return &ResourceServiceListNodeZonesResult{}
+}
+
+var ResourceServiceListNodeZonesResult_Success_DEFAULT *cluster.ListNodeZonesResponse
+
+func (p *ResourceServiceListNodeZonesResult) GetSuccess() (v *cluster.ListNodeZonesResponse) {
+	if !p.IsSetSuccess() {
+		return ResourceServiceListNodeZonesResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+var ResourceServiceListNodeZonesResult_Err_DEFAULT *common.Error
+
+func (p *ResourceServiceListNodeZonesResult) GetErr() (v *common.Error) {
+	if !p.IsSetErr() {
+		return ResourceServiceListNodeZonesResult_Err_DEFAULT
+	}
+	return p.Err
+}
+func (p *ResourceServiceListNodeZonesResult) SetSuccess(x interface{}) {
+	p.Success = x.(*cluster.ListNodeZonesResponse)
+}
+func (p *ResourceServiceListNodeZonesResult) SetErr(val *common.Error) {
+	p.Err = val
+}
+
+var fieldIDToName_ResourceServiceListNodeZonesResult = map[int16]string{
+	0: "success",
+	1: "err",
+}
+
+func (p *ResourceServiceListNodeZonesResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *ResourceServiceListNodeZonesResult) IsSetErr() bool {
+	return p.Err != nil
+}
+
+func (p *ResourceServiceListNodeZonesResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ResourceServiceListNodeZonesResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListNodeZonesResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = cluster.NewListNodeZonesResponse()
+	if err := p.Success.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceListNodeZonesResult) ReadField1(iprot thrift.TProtocol) error {
+	p.Err = common.NewError()
+	if err := p.Err.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ResourceServiceListNodeZonesResult) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ListNodeZones_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ResourceServiceListNodeZonesResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *ResourceServiceListNodeZonesResult) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetErr() {
+		if err = oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Err.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ResourceServiceListNodeZonesResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ResourceServiceListNodeZonesResult(%+v)", *p)
+}
+
+func (p *ResourceServiceListNodeZonesResult) DeepEqual(ano *ResourceServiceListNodeZonesResult) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field0DeepEqual(ano.Success) {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Err) {
+		return false
+	}
+	return true
+}
+
+func (p *ResourceServiceListNodeZonesResult) Field0DeepEqual(src *cluster.ListNodeZonesResponse) bool {
+
+	if !p.Success.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+func (p *ResourceServiceListNodeZonesResult) Field1DeepEqual(src *common.Error) bool {
 
 	if !p.Err.DeepEqual(src) {
 		return false

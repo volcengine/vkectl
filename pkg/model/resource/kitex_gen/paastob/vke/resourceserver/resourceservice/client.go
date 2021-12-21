@@ -15,9 +15,12 @@ import (
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/instance"
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/network"
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/overview"
+	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/publicverify"
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/quota"
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/rbac"
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/storage"
+	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/trade"
+	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/vci"
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/vpc"
 )
 
@@ -25,36 +28,37 @@ import (
 type Client interface {
 	GetClusterOverview(ctx context.Context, req *overview.GetClusterOverviewRequest, callOptions ...callopt.Option) (r *overview.GetClusterOverviewResponse, err error)
 	GetKubeConfig(ctx context.Context, req *cluster.GetKubeConfigRequest, callOptions ...callopt.Option) (r *cluster.GetKubeConfigResponse, err error)
-	RevokeKubeConfig(ctx context.Context, req *cluster.RevokeKubeConfigRequest, callOptions ...callopt.Option) (r *cluster.RevokeKubeConfigResponse, err error)
-	ListKubeConfig(ctx context.Context, req *cluster.ListKubeConfigRequest, callOptions ...callopt.Option) (r *cluster.ListKubeConfigResponse, err error)
+	GetKubeconfig(ctx context.Context, req *cluster.GetKubeconfigRequest, callOptions ...callopt.Option) (r *cluster.GetKubeconfigResponse, err error)
+	RevokeKubeconfig(ctx context.Context, req *cluster.RevokeKubeconfigRequest, callOptions ...callopt.Option) (r *cluster.RevokeKubeconfigResponse, err error)
+	ListKubeconfigUsers(ctx context.Context, req *cluster.ListKubeconfigUsersRequest, callOptions ...callopt.Option) (r *cluster.ListKubeconfigUsersResponse, err error)
 	CreateCluster(ctx context.Context, req *cluster.CreateClusterRequest, callOptions ...callopt.Option) (r *cluster.CreateClusterResponse, err error)
 	RegisterCluster(ctx context.Context, req *cluster.RegisterClusterRequest, callOptions ...callopt.Option) (r *cluster.RegisterClusterResponse, err error)
 	UpdateCluster(ctx context.Context, req *cluster.UpdateClusterRequest, callOptions ...callopt.Option) (r *cluster.UpdateClusterResponse, err error)
 	UpgradeCluster(ctx context.Context, req *cluster.UpgradeClusterRequest, callOptions ...callopt.Option) (r *cluster.UpgradeClusterResponse, err error)
 	DeleteCluster(ctx context.Context, req *cluster.DeleteClusterRequest, callOptions ...callopt.Option) (r *cluster.DeleteClusterResponse, err error)
 	GetCluster(ctx context.Context, req *cluster.GetClusterRequest, callOptions ...callopt.Option) (r *cluster.GetClusterResponse, err error)
-	ListCluster(ctx context.Context, req *cluster.ListClusterRequest, callOptions ...callopt.Option) (r *cluster.ListClusterResponse, err error)
+	ListClusters(ctx context.Context, req *cluster.ListClustersRequest, callOptions ...callopt.Option) (r *cluster.ListClustersResponse, err error)
 	GetClusterDeployProgress(ctx context.Context, req *cluster.GetClusterDeployProgressRequest, callOptions ...callopt.Option) (r *cluster.GetClusterDeployProgressResponse, err error)
-	ListClusterKubernetesVersion(ctx context.Context, req *cluster.ListClusterKubernetesVersionRequest, callOptions ...callopt.Option) (r *cluster.ListClusterKubernetesVersionResponse, err error)
-	ListClusterNetworkCidr(ctx context.Context, req *cluster.ListClusterNetworkCidrRequest, callOptions ...callopt.Option) (r *cluster.ListClusterNetworkCidrResponse, err error)
-	ListSupportGpuModel(ctx context.Context, req *cluster.ListSupportGpuModelRequest, callOptions ...callopt.Option) (r *cluster.ListSupportGpuModelResponse, err error)
-	ListClusterNode(ctx context.Context, req *cluster.ListClusterNodeRequest, callOptions ...callopt.Option) (r *cluster.ListClusterNodeResponse, err error)
-	AddClusterNode(ctx context.Context, req *cluster.AddClusterNodeRequest, callOptions ...callopt.Option) (r *cluster.AddClusterNodeResponse, err error)
-	GetClusterNode(ctx context.Context, req *cluster.GetClusterNodeRequest, callOptions ...callopt.Option) (r *cluster.GetClusterNodeResponse, err error)
-	DeleteClusterNode(ctx context.Context, req *cluster.DeleteClusterNodeRequest, callOptions ...callopt.Option) (r *cluster.DeleteClusterNodeResponse, err error)
-	ListClusterNodeLabel(ctx context.Context, req *cluster.ListClusterNodeLabelRequest, callOptions ...callopt.Option) (r *cluster.ListClusterNodeLabelResponse, err error)
-	UpdateClusterNode(ctx context.Context, req *cluster.UpdateClusterNodeRequest, callOptions ...callopt.Option) (r *cluster.UpdateClusterNodeResponse, err error)
-	GetAutoScalingRule(ctx context.Context, req *cluster.GetAutoScalingRuleRequest, callOptions ...callopt.Option) (r *cluster.GetAutoScalingRuleResponse, err error)
-	UpdateAutoScalingRule(ctx context.Context, req *cluster.UpdateAutoScalingRuleRequest, callOptions ...callopt.Option) (r *cluster.UpdateAutoScalingRuleResponse, err error)
-	NodePoolScaleUp(ctx context.Context, req *cluster.NodePoolScaleUpRequest, callOptions ...callopt.Option) (r *cluster.NodePoolScaleUpResponse, err error)
-	NodePoolScaleDown(ctx context.Context, req *cluster.NodePoolScaleDownRequest, callOptions ...callopt.Option) (r *cluster.NodePoolScaleDownResponse, err error)
-	ListNodePool(ctx context.Context, req *cluster.ListNodePoolRequest, callOptions ...callopt.Option) (r *cluster.ListNodePoolResponse, err error)
+	ListSupportedKubernetesVersions(ctx context.Context, req *cluster.ListSupportedKubernetesVersionsRequest, callOptions ...callopt.Option) (r *cluster.ListSupportedKubernetesVersionsResponse, err error)
+	ListClusterNetworkCidrs(ctx context.Context, req *cluster.ListClusterNetworkCidrsRequest, callOptions ...callopt.Option) (r *cluster.ListClusterNetworkCidrsResponse, err error)
+	ListSupportedGpuModels(ctx context.Context, req *cluster.ListSupportedGpuModelsRequest, callOptions ...callopt.Option) (r *cluster.ListSupportedGpuModelsResponse, err error)
+	ListNodes(ctx context.Context, req *cluster.ListNodesRequest, callOptions ...callopt.Option) (r *cluster.ListNodesResponse, err error)
+	AddNodes(ctx context.Context, req *cluster.AddNodesRequest, callOptions ...callopt.Option) (r *cluster.AddNodesResponse, err error)
+	GetNode(ctx context.Context, req *cluster.GetNodeRequest, callOptions ...callopt.Option) (r *cluster.GetNodeResponse, err error)
+	DeleteNodes(ctx context.Context, req *cluster.DeleteNodesRequest, callOptions ...callopt.Option) (r *cluster.DeleteNodesResponse, err error)
+	ListNodeLabels(ctx context.Context, req *cluster.ListNodeLabelsRequest, callOptions ...callopt.Option) (r *cluster.ListNodeLabelsResponse, err error)
+	UpdateNode(ctx context.Context, req *cluster.UpdateNodeRequest, callOptions ...callopt.Option) (r *cluster.UpdateNodeResponse, err error)
+	GetClusterAutoScalingRule(ctx context.Context, req *cluster.GetClusterAutoScalingRuleRequest, callOptions ...callopt.Option) (r *cluster.GetClusterAutoScalingRuleResponse, err error)
+	UpdateClusterAutoScalingRule(ctx context.Context, req *cluster.UpdateClusterAutoScalingRuleRequest, callOptions ...callopt.Option) (r *cluster.UpdateClusterAutoScalingRuleResponse, err error)
+	ScaleUpNodePool(ctx context.Context, req *cluster.ScaleUpNodePoolRequest, callOptions ...callopt.Option) (r *cluster.ScaleUpNodePoolResponse, err error)
+	ScaleDownNodePool(ctx context.Context, req *cluster.ScaleDownNodePoolRequest, callOptions ...callopt.Option) (r *cluster.ScaleDownNodePoolResponse, err error)
+	ListNodePools(ctx context.Context, req *cluster.ListNodePoolsRequest, callOptions ...callopt.Option) (r *cluster.ListNodePoolsResponse, err error)
 	CreateNodePool(ctx context.Context, req *cluster.CreateNodePoolRequest, callOptions ...callopt.Option) (r *cluster.CreateNodePoolResponse, err error)
 	GetNodePool(ctx context.Context, req *cluster.GetNodePoolRequest, callOptions ...callopt.Option) (r *cluster.GetNodePoolResponse, err error)
 	UpdateNodePool(ctx context.Context, req *cluster.UpdateNodePoolRequest, callOptions ...callopt.Option) (r *cluster.UpdateNodePoolResponse, err error)
 	DeleteNodePool(ctx context.Context, req *cluster.DeleteNodePoolRequest, callOptions ...callopt.Option) (r *cluster.DeleteNodePoolResponse, err error)
-	ListNodePoolScalingRecords(ctx context.Context, req *cluster.ListNodePoolScalingRecordRequest, callOptions ...callopt.Option) (r *cluster.ListNodePoolScalingRecordResponse, err error)
-	ListNodePoolNode(ctx context.Context, req *cluster.ListNodePoolNodeRequest, callOptions ...callopt.Option) (r *cluster.ListNodePoolNodeResponse, err error)
+	ListNodePoolScalingRecords(ctx context.Context, req *cluster.ListNodePoolScalingRecordsRequest, callOptions ...callopt.Option) (r *cluster.ListNodePoolScalingRecordsResponse, err error)
+	ListNodePoolNodes(ctx context.Context, req *cluster.ListNodePoolNodesRequest, callOptions ...callopt.Option) (r *cluster.ListNodePoolNodesResponse, err error)
 	ListNamespace(ctx context.Context, req *cluster.ListNamespaceRequest, callOptions ...callopt.Option) (r *cluster.ListNamespaceResponse, err error)
 	CreateNamespace(ctx context.Context, req *cluster.CreateNamespaceRequest, callOptions ...callopt.Option) (r *cluster.CreateNamespaceResponse, err error)
 	GetNamespace(ctx context.Context, req *cluster.GetNamespaceRequest, callOptions ...callopt.Option) (r *cluster.GetNamespaceResponse, err error)
@@ -89,10 +93,11 @@ type Client interface {
 	UpdateUserRbac(ctx context.Context, req *rbac.UpdateUserRbacRequest, callOptions ...callopt.Option) (r *rbac.UpdateUserRbacResponse, err error)
 	DeleteUserRbac(ctx context.Context, req *rbac.DeleteUserRbacRequest, callOptions ...callopt.Option) (r *rbac.DeleteUserRbacResponse, err error)
 	ListCustomRoles(ctx context.Context, req *rbac.ListCustomRolesRequest, callOptions ...callopt.Option) (r *rbac.ListCustomRolesResponse, err error)
-	ListSupportedAddons(ctx context.Context, req *addon.ListSupportedAddonRequest, callOptions ...callopt.Option) (r *addon.ListSupportedAddonResponse, err error)
-	ListAddons(ctx context.Context, req *addon.ListAddonRequest, callOptions ...callopt.Option) (r *addon.ListAddonResponse, err error)
-	InstallAddon(ctx context.Context, req *addon.InstallAddonRequest, callOptions ...callopt.Option) (r *addon.InstallAddonResponse, err error)
-	UninstallAddon(ctx context.Context, req *addon.UninstallAddonRequest, callOptions ...callopt.Option) (r *addon.UninstallAddonResponse, err error)
+	ListSupportedAddons(ctx context.Context, req *addon.ListSupportedAddonsRequest, callOptions ...callopt.Option) (r *addon.ListSupportedAddonsResponse, err error)
+	ListAddons(ctx context.Context, req *addon.ListAddonsRequest, callOptions ...callopt.Option) (r *addon.ListAddonsResponse, err error)
+	InstallAddons(ctx context.Context, req *addon.InstallAddonsRequest, callOptions ...callopt.Option) (r *addon.InstallAddonsResponse, err error)
+	ReinstallAddon(ctx context.Context, req *addon.ReinstallAddonRequest, callOptions ...callopt.Option) (r *addon.ReinstallAddonResponse, err error)
+	UninstallAddons(ctx context.Context, req *addon.UninstallAddonsRequest, callOptions ...callopt.Option) (r *addon.UninstallAddonsResponse, err error)
 	UpgradeAddon(ctx context.Context, req *addon.UpgradeAddonRequest, callOptions ...callopt.Option) (r *addon.UpgradeAddonResponse, err error)
 	GetAddon(ctx context.Context, req *addon.GetAddonRequest, callOptions ...callopt.Option) (r *addon.GetAddonResponse, err error)
 	CheckResourceExist(ctx context.Context, req *helper.CheckResourceExistRequest, callOptions ...callopt.Option) (r *helper.CheckResourceExistResponse, err error)
@@ -101,11 +106,13 @@ type Client interface {
 	GetInstanceConsole(ctx context.Context, req *instance.GetInstanceConsoleRequest, callOptions ...callopt.Option) (r *instance.GetInstanceConsoleResponse, err error)
 	ListZones(ctx context.Context, req *instance.ListZonesRequest, callOptions ...callopt.Option) (r *instance.ListZonesResponse, err error)
 	ListVolumes(ctx context.Context, req *instance.ListVolumesRequest, callOptions ...callopt.Option) (r *instance.ListVolumesResponse, err error)
+	ListKeyPairs(ctx context.Context, req *instance.ListKeyPairsRequest, callOptions ...callopt.Option) (r *instance.ListKeyPairsResponse, err error)
 	ListSubnets(ctx context.Context, req *vpc.ListSubnetsRequest, callOptions ...callopt.Option) (r *vpc.ListSubnetsResponse, err error)
-	ListElasticIPPools(ctx context.Context, req *vpc.ListElasticIPPoolsRequest, callOptions ...callopt.Option) (r *vpc.ListElasticIPPoolsResponse, err error)
+	ListElasticIpPools(ctx context.Context, req *vpc.ListElasticIpPoolsRequest, callOptions ...callopt.Option) (r *vpc.ListElasticIpPoolsResponse, err error)
 	ListVpcs(ctx context.Context, req *vpc.ListVpcsRequest, callOptions ...callopt.Option) (r *vpc.ListVpcsResponse, err error)
 	ListSecurityGroups(ctx context.Context, req *vpc.ListSecurityGroupsRequest, callOptions ...callopt.Option) (r *vpc.ListSecurityGroupsResponse, err error)
-	ListClbs(ctx context.Context, req *clb.ListClbRequest, callOptions ...callopt.Option) (r *clb.ListClbResponse, err error)
+	ListClbs(ctx context.Context, req *clb.ListClbsRequest, callOptions ...callopt.Option) (r *clb.ListClbsResponse, err error)
+	ListClbListeners(ctx context.Context, req *clb.ListClbListenersRequest, callOptions ...callopt.Option) (r *clb.ListClbListenersResponse, err error)
 	ListQuotas(ctx context.Context, req *quota.ListQuotasRequest, callOptions ...callopt.Option) (r *quota.ListQuotasResponse, err error)
 	GetQuota(ctx context.Context, req *quota.GetQuotaRequest, callOptions ...callopt.Option) (r *quota.GetQuotaResponse, err error)
 	CreateBareMachine(ctx context.Context, req *baremachine.CreateBareMachineRequest, callOptions ...callopt.Option) (r *baremachine.CreateBareMachineResponse, err error)
@@ -118,6 +125,11 @@ type Client interface {
 	GetBareMachineImportExcelTemplate(ctx context.Context, req *baremachine.GetBareMachineImportExcelTemplateRequest, callOptions ...callopt.Option) (r *baremachine.GetBareMachineImportExcelTemplateResponse, err error)
 	CheckCidrConflict(ctx context.Context, req *cluster.CheckCidrConflictRequest, callOptions ...callopt.Option) (r *cluster.CheckCidrConflictResponse, err error)
 	RecommendCidr(ctx context.Context, req *cluster.RecommendCidrRequest, callOptions ...callopt.Option) (r *cluster.RecommendCidrResponse, err error)
+	AddVciSubnets(ctx context.Context, req *cluster.AddVciSubnetsRequest, callOptions ...callopt.Option) (r *cluster.AddVciSubnetsResponse, err error)
+	IsInShortTermWhiteList(ctx context.Context, req *trade.IsInShortTermWhiteListRequest, callOptions ...callopt.Option) (r *trade.IsInShortTermWhiteListResponse, err error)
+	AllowUserPublicTest(ctx context.Context, req *publicverify.PublicTestAllowedReq, callOptions ...callopt.Option) (r *publicverify.PublicTestAllowedResp, err error)
+	ListVciAvailabilityZones(ctx context.Context, req *vci.ListVciAvailabilityZonesRequest, callOptions ...callopt.Option) (r *vci.ListVciAvailabilityZonesResponse, err error)
+	ListNodeZones(ctx context.Context, req *cluster.ListNodeZonesRequest, callOptions ...callopt.Option) (r *cluster.ListNodeZonesResponse, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -159,14 +171,19 @@ func (p *kResourceServiceClient) GetKubeConfig(ctx context.Context, req *cluster
 	return p.kClient.GetKubeConfig(ctx, req)
 }
 
-func (p *kResourceServiceClient) RevokeKubeConfig(ctx context.Context, req *cluster.RevokeKubeConfigRequest, callOptions ...callopt.Option) (r *cluster.RevokeKubeConfigResponse, err error) {
+func (p *kResourceServiceClient) GetKubeconfig(ctx context.Context, req *cluster.GetKubeconfigRequest, callOptions ...callopt.Option) (r *cluster.GetKubeconfigResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.RevokeKubeConfig(ctx, req)
+	return p.kClient.GetKubeconfig(ctx, req)
 }
 
-func (p *kResourceServiceClient) ListKubeConfig(ctx context.Context, req *cluster.ListKubeConfigRequest, callOptions ...callopt.Option) (r *cluster.ListKubeConfigResponse, err error) {
+func (p *kResourceServiceClient) RevokeKubeconfig(ctx context.Context, req *cluster.RevokeKubeconfigRequest, callOptions ...callopt.Option) (r *cluster.RevokeKubeconfigResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.ListKubeConfig(ctx, req)
+	return p.kClient.RevokeKubeconfig(ctx, req)
+}
+
+func (p *kResourceServiceClient) ListKubeconfigUsers(ctx context.Context, req *cluster.ListKubeconfigUsersRequest, callOptions ...callopt.Option) (r *cluster.ListKubeconfigUsersResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.ListKubeconfigUsers(ctx, req)
 }
 
 func (p *kResourceServiceClient) CreateCluster(ctx context.Context, req *cluster.CreateClusterRequest, callOptions ...callopt.Option) (r *cluster.CreateClusterResponse, err error) {
@@ -199,9 +216,9 @@ func (p *kResourceServiceClient) GetCluster(ctx context.Context, req *cluster.Ge
 	return p.kClient.GetCluster(ctx, req)
 }
 
-func (p *kResourceServiceClient) ListCluster(ctx context.Context, req *cluster.ListClusterRequest, callOptions ...callopt.Option) (r *cluster.ListClusterResponse, err error) {
+func (p *kResourceServiceClient) ListClusters(ctx context.Context, req *cluster.ListClustersRequest, callOptions ...callopt.Option) (r *cluster.ListClustersResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.ListCluster(ctx, req)
+	return p.kClient.ListClusters(ctx, req)
 }
 
 func (p *kResourceServiceClient) GetClusterDeployProgress(ctx context.Context, req *cluster.GetClusterDeployProgressRequest, callOptions ...callopt.Option) (r *cluster.GetClusterDeployProgressResponse, err error) {
@@ -209,74 +226,74 @@ func (p *kResourceServiceClient) GetClusterDeployProgress(ctx context.Context, r
 	return p.kClient.GetClusterDeployProgress(ctx, req)
 }
 
-func (p *kResourceServiceClient) ListClusterKubernetesVersion(ctx context.Context, req *cluster.ListClusterKubernetesVersionRequest, callOptions ...callopt.Option) (r *cluster.ListClusterKubernetesVersionResponse, err error) {
+func (p *kResourceServiceClient) ListSupportedKubernetesVersions(ctx context.Context, req *cluster.ListSupportedKubernetesVersionsRequest, callOptions ...callopt.Option) (r *cluster.ListSupportedKubernetesVersionsResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.ListClusterKubernetesVersion(ctx, req)
+	return p.kClient.ListSupportedKubernetesVersions(ctx, req)
 }
 
-func (p *kResourceServiceClient) ListClusterNetworkCidr(ctx context.Context, req *cluster.ListClusterNetworkCidrRequest, callOptions ...callopt.Option) (r *cluster.ListClusterNetworkCidrResponse, err error) {
+func (p *kResourceServiceClient) ListClusterNetworkCidrs(ctx context.Context, req *cluster.ListClusterNetworkCidrsRequest, callOptions ...callopt.Option) (r *cluster.ListClusterNetworkCidrsResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.ListClusterNetworkCidr(ctx, req)
+	return p.kClient.ListClusterNetworkCidrs(ctx, req)
 }
 
-func (p *kResourceServiceClient) ListSupportGpuModel(ctx context.Context, req *cluster.ListSupportGpuModelRequest, callOptions ...callopt.Option) (r *cluster.ListSupportGpuModelResponse, err error) {
+func (p *kResourceServiceClient) ListSupportedGpuModels(ctx context.Context, req *cluster.ListSupportedGpuModelsRequest, callOptions ...callopt.Option) (r *cluster.ListSupportedGpuModelsResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.ListSupportGpuModel(ctx, req)
+	return p.kClient.ListSupportedGpuModels(ctx, req)
 }
 
-func (p *kResourceServiceClient) ListClusterNode(ctx context.Context, req *cluster.ListClusterNodeRequest, callOptions ...callopt.Option) (r *cluster.ListClusterNodeResponse, err error) {
+func (p *kResourceServiceClient) ListNodes(ctx context.Context, req *cluster.ListNodesRequest, callOptions ...callopt.Option) (r *cluster.ListNodesResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.ListClusterNode(ctx, req)
+	return p.kClient.ListNodes(ctx, req)
 }
 
-func (p *kResourceServiceClient) AddClusterNode(ctx context.Context, req *cluster.AddClusterNodeRequest, callOptions ...callopt.Option) (r *cluster.AddClusterNodeResponse, err error) {
+func (p *kResourceServiceClient) AddNodes(ctx context.Context, req *cluster.AddNodesRequest, callOptions ...callopt.Option) (r *cluster.AddNodesResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.AddClusterNode(ctx, req)
+	return p.kClient.AddNodes(ctx, req)
 }
 
-func (p *kResourceServiceClient) GetClusterNode(ctx context.Context, req *cluster.GetClusterNodeRequest, callOptions ...callopt.Option) (r *cluster.GetClusterNodeResponse, err error) {
+func (p *kResourceServiceClient) GetNode(ctx context.Context, req *cluster.GetNodeRequest, callOptions ...callopt.Option) (r *cluster.GetNodeResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.GetClusterNode(ctx, req)
+	return p.kClient.GetNode(ctx, req)
 }
 
-func (p *kResourceServiceClient) DeleteClusterNode(ctx context.Context, req *cluster.DeleteClusterNodeRequest, callOptions ...callopt.Option) (r *cluster.DeleteClusterNodeResponse, err error) {
+func (p *kResourceServiceClient) DeleteNodes(ctx context.Context, req *cluster.DeleteNodesRequest, callOptions ...callopt.Option) (r *cluster.DeleteNodesResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.DeleteClusterNode(ctx, req)
+	return p.kClient.DeleteNodes(ctx, req)
 }
 
-func (p *kResourceServiceClient) ListClusterNodeLabel(ctx context.Context, req *cluster.ListClusterNodeLabelRequest, callOptions ...callopt.Option) (r *cluster.ListClusterNodeLabelResponse, err error) {
+func (p *kResourceServiceClient) ListNodeLabels(ctx context.Context, req *cluster.ListNodeLabelsRequest, callOptions ...callopt.Option) (r *cluster.ListNodeLabelsResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.ListClusterNodeLabel(ctx, req)
+	return p.kClient.ListNodeLabels(ctx, req)
 }
 
-func (p *kResourceServiceClient) UpdateClusterNode(ctx context.Context, req *cluster.UpdateClusterNodeRequest, callOptions ...callopt.Option) (r *cluster.UpdateClusterNodeResponse, err error) {
+func (p *kResourceServiceClient) UpdateNode(ctx context.Context, req *cluster.UpdateNodeRequest, callOptions ...callopt.Option) (r *cluster.UpdateNodeResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.UpdateClusterNode(ctx, req)
+	return p.kClient.UpdateNode(ctx, req)
 }
 
-func (p *kResourceServiceClient) GetAutoScalingRule(ctx context.Context, req *cluster.GetAutoScalingRuleRequest, callOptions ...callopt.Option) (r *cluster.GetAutoScalingRuleResponse, err error) {
+func (p *kResourceServiceClient) GetClusterAutoScalingRule(ctx context.Context, req *cluster.GetClusterAutoScalingRuleRequest, callOptions ...callopt.Option) (r *cluster.GetClusterAutoScalingRuleResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.GetAutoScalingRule(ctx, req)
+	return p.kClient.GetClusterAutoScalingRule(ctx, req)
 }
 
-func (p *kResourceServiceClient) UpdateAutoScalingRule(ctx context.Context, req *cluster.UpdateAutoScalingRuleRequest, callOptions ...callopt.Option) (r *cluster.UpdateAutoScalingRuleResponse, err error) {
+func (p *kResourceServiceClient) UpdateClusterAutoScalingRule(ctx context.Context, req *cluster.UpdateClusterAutoScalingRuleRequest, callOptions ...callopt.Option) (r *cluster.UpdateClusterAutoScalingRuleResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.UpdateAutoScalingRule(ctx, req)
+	return p.kClient.UpdateClusterAutoScalingRule(ctx, req)
 }
 
-func (p *kResourceServiceClient) NodePoolScaleUp(ctx context.Context, req *cluster.NodePoolScaleUpRequest, callOptions ...callopt.Option) (r *cluster.NodePoolScaleUpResponse, err error) {
+func (p *kResourceServiceClient) ScaleUpNodePool(ctx context.Context, req *cluster.ScaleUpNodePoolRequest, callOptions ...callopt.Option) (r *cluster.ScaleUpNodePoolResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.NodePoolScaleUp(ctx, req)
+	return p.kClient.ScaleUpNodePool(ctx, req)
 }
 
-func (p *kResourceServiceClient) NodePoolScaleDown(ctx context.Context, req *cluster.NodePoolScaleDownRequest, callOptions ...callopt.Option) (r *cluster.NodePoolScaleDownResponse, err error) {
+func (p *kResourceServiceClient) ScaleDownNodePool(ctx context.Context, req *cluster.ScaleDownNodePoolRequest, callOptions ...callopt.Option) (r *cluster.ScaleDownNodePoolResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.NodePoolScaleDown(ctx, req)
+	return p.kClient.ScaleDownNodePool(ctx, req)
 }
 
-func (p *kResourceServiceClient) ListNodePool(ctx context.Context, req *cluster.ListNodePoolRequest, callOptions ...callopt.Option) (r *cluster.ListNodePoolResponse, err error) {
+func (p *kResourceServiceClient) ListNodePools(ctx context.Context, req *cluster.ListNodePoolsRequest, callOptions ...callopt.Option) (r *cluster.ListNodePoolsResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.ListNodePool(ctx, req)
+	return p.kClient.ListNodePools(ctx, req)
 }
 
 func (p *kResourceServiceClient) CreateNodePool(ctx context.Context, req *cluster.CreateNodePoolRequest, callOptions ...callopt.Option) (r *cluster.CreateNodePoolResponse, err error) {
@@ -299,14 +316,14 @@ func (p *kResourceServiceClient) DeleteNodePool(ctx context.Context, req *cluste
 	return p.kClient.DeleteNodePool(ctx, req)
 }
 
-func (p *kResourceServiceClient) ListNodePoolScalingRecords(ctx context.Context, req *cluster.ListNodePoolScalingRecordRequest, callOptions ...callopt.Option) (r *cluster.ListNodePoolScalingRecordResponse, err error) {
+func (p *kResourceServiceClient) ListNodePoolScalingRecords(ctx context.Context, req *cluster.ListNodePoolScalingRecordsRequest, callOptions ...callopt.Option) (r *cluster.ListNodePoolScalingRecordsResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.ListNodePoolScalingRecords(ctx, req)
 }
 
-func (p *kResourceServiceClient) ListNodePoolNode(ctx context.Context, req *cluster.ListNodePoolNodeRequest, callOptions ...callopt.Option) (r *cluster.ListNodePoolNodeResponse, err error) {
+func (p *kResourceServiceClient) ListNodePoolNodes(ctx context.Context, req *cluster.ListNodePoolNodesRequest, callOptions ...callopt.Option) (r *cluster.ListNodePoolNodesResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.ListNodePoolNode(ctx, req)
+	return p.kClient.ListNodePoolNodes(ctx, req)
 }
 
 func (p *kResourceServiceClient) ListNamespace(ctx context.Context, req *cluster.ListNamespaceRequest, callOptions ...callopt.Option) (r *cluster.ListNamespaceResponse, err error) {
@@ -479,24 +496,29 @@ func (p *kResourceServiceClient) ListCustomRoles(ctx context.Context, req *rbac.
 	return p.kClient.ListCustomRoles(ctx, req)
 }
 
-func (p *kResourceServiceClient) ListSupportedAddons(ctx context.Context, req *addon.ListSupportedAddonRequest, callOptions ...callopt.Option) (r *addon.ListSupportedAddonResponse, err error) {
+func (p *kResourceServiceClient) ListSupportedAddons(ctx context.Context, req *addon.ListSupportedAddonsRequest, callOptions ...callopt.Option) (r *addon.ListSupportedAddonsResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.ListSupportedAddons(ctx, req)
 }
 
-func (p *kResourceServiceClient) ListAddons(ctx context.Context, req *addon.ListAddonRequest, callOptions ...callopt.Option) (r *addon.ListAddonResponse, err error) {
+func (p *kResourceServiceClient) ListAddons(ctx context.Context, req *addon.ListAddonsRequest, callOptions ...callopt.Option) (r *addon.ListAddonsResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.ListAddons(ctx, req)
 }
 
-func (p *kResourceServiceClient) InstallAddon(ctx context.Context, req *addon.InstallAddonRequest, callOptions ...callopt.Option) (r *addon.InstallAddonResponse, err error) {
+func (p *kResourceServiceClient) InstallAddons(ctx context.Context, req *addon.InstallAddonsRequest, callOptions ...callopt.Option) (r *addon.InstallAddonsResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.InstallAddon(ctx, req)
+	return p.kClient.InstallAddons(ctx, req)
 }
 
-func (p *kResourceServiceClient) UninstallAddon(ctx context.Context, req *addon.UninstallAddonRequest, callOptions ...callopt.Option) (r *addon.UninstallAddonResponse, err error) {
+func (p *kResourceServiceClient) ReinstallAddon(ctx context.Context, req *addon.ReinstallAddonRequest, callOptions ...callopt.Option) (r *addon.ReinstallAddonResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.UninstallAddon(ctx, req)
+	return p.kClient.ReinstallAddon(ctx, req)
+}
+
+func (p *kResourceServiceClient) UninstallAddons(ctx context.Context, req *addon.UninstallAddonsRequest, callOptions ...callopt.Option) (r *addon.UninstallAddonsResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.UninstallAddons(ctx, req)
 }
 
 func (p *kResourceServiceClient) UpgradeAddon(ctx context.Context, req *addon.UpgradeAddonRequest, callOptions ...callopt.Option) (r *addon.UpgradeAddonResponse, err error) {
@@ -539,14 +561,19 @@ func (p *kResourceServiceClient) ListVolumes(ctx context.Context, req *instance.
 	return p.kClient.ListVolumes(ctx, req)
 }
 
+func (p *kResourceServiceClient) ListKeyPairs(ctx context.Context, req *instance.ListKeyPairsRequest, callOptions ...callopt.Option) (r *instance.ListKeyPairsResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.ListKeyPairs(ctx, req)
+}
+
 func (p *kResourceServiceClient) ListSubnets(ctx context.Context, req *vpc.ListSubnetsRequest, callOptions ...callopt.Option) (r *vpc.ListSubnetsResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.ListSubnets(ctx, req)
 }
 
-func (p *kResourceServiceClient) ListElasticIPPools(ctx context.Context, req *vpc.ListElasticIPPoolsRequest, callOptions ...callopt.Option) (r *vpc.ListElasticIPPoolsResponse, err error) {
+func (p *kResourceServiceClient) ListElasticIpPools(ctx context.Context, req *vpc.ListElasticIpPoolsRequest, callOptions ...callopt.Option) (r *vpc.ListElasticIpPoolsResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.ListElasticIPPools(ctx, req)
+	return p.kClient.ListElasticIpPools(ctx, req)
 }
 
 func (p *kResourceServiceClient) ListVpcs(ctx context.Context, req *vpc.ListVpcsRequest, callOptions ...callopt.Option) (r *vpc.ListVpcsResponse, err error) {
@@ -559,9 +586,14 @@ func (p *kResourceServiceClient) ListSecurityGroups(ctx context.Context, req *vp
 	return p.kClient.ListSecurityGroups(ctx, req)
 }
 
-func (p *kResourceServiceClient) ListClbs(ctx context.Context, req *clb.ListClbRequest, callOptions ...callopt.Option) (r *clb.ListClbResponse, err error) {
+func (p *kResourceServiceClient) ListClbs(ctx context.Context, req *clb.ListClbsRequest, callOptions ...callopt.Option) (r *clb.ListClbsResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.ListClbs(ctx, req)
+}
+
+func (p *kResourceServiceClient) ListClbListeners(ctx context.Context, req *clb.ListClbListenersRequest, callOptions ...callopt.Option) (r *clb.ListClbListenersResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.ListClbListeners(ctx, req)
 }
 
 func (p *kResourceServiceClient) ListQuotas(ctx context.Context, req *quota.ListQuotasRequest, callOptions ...callopt.Option) (r *quota.ListQuotasResponse, err error) {
@@ -622,4 +654,29 @@ func (p *kResourceServiceClient) CheckCidrConflict(ctx context.Context, req *clu
 func (p *kResourceServiceClient) RecommendCidr(ctx context.Context, req *cluster.RecommendCidrRequest, callOptions ...callopt.Option) (r *cluster.RecommendCidrResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.RecommendCidr(ctx, req)
+}
+
+func (p *kResourceServiceClient) AddVciSubnets(ctx context.Context, req *cluster.AddVciSubnetsRequest, callOptions ...callopt.Option) (r *cluster.AddVciSubnetsResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.AddVciSubnets(ctx, req)
+}
+
+func (p *kResourceServiceClient) IsInShortTermWhiteList(ctx context.Context, req *trade.IsInShortTermWhiteListRequest, callOptions ...callopt.Option) (r *trade.IsInShortTermWhiteListResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.IsInShortTermWhiteList(ctx, req)
+}
+
+func (p *kResourceServiceClient) AllowUserPublicTest(ctx context.Context, req *publicverify.PublicTestAllowedReq, callOptions ...callopt.Option) (r *publicverify.PublicTestAllowedResp, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.AllowUserPublicTest(ctx, req)
+}
+
+func (p *kResourceServiceClient) ListVciAvailabilityZones(ctx context.Context, req *vci.ListVciAvailabilityZonesRequest, callOptions ...callopt.Option) (r *vci.ListVciAvailabilityZonesResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.ListVciAvailabilityZones(ctx, req)
+}
+
+func (p *kResourceServiceClient) ListNodeZones(ctx context.Context, req *cluster.ListNodeZonesRequest, callOptions ...callopt.Option) (r *cluster.ListNodeZonesResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.ListNodeZones(ctx, req)
 }

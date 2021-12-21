@@ -2315,6 +2315,34 @@ func (p *ParameterNAS) FastRead(buf []byte) (int, error) {
 					goto SkipFieldError
 				}
 			}
+		case 4:
+			if fieldTypeId == thrift.STRING {
+				l, err = p.FastReadField4(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 5:
+			if fieldTypeId == thrift.STRING {
+				l, err = p.FastReadField5(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
 		default:
 			l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
 			offset += l
@@ -2398,6 +2426,34 @@ func (p *ParameterNAS) FastReadField3(buf []byte) (int, error) {
 	return offset, nil
 }
 
+func (p *ParameterNAS) FastReadField4(buf []byte) (int, error) {
+	offset := 0
+
+	if v, l, err := bthrift.Binary.ReadString(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+
+		p.FsId = v
+
+	}
+	return offset, nil
+}
+
+func (p *ParameterNAS) FastReadField5(buf []byte) (int, error) {
+	offset := 0
+
+	if v, l, err := bthrift.Binary.ReadString(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+
+		p.FSType = v
+
+	}
+	return offset, nil
+}
+
 // for compatibility
 func (p *ParameterNAS) FastWrite(buf []byte) int {
 	return 0
@@ -2410,6 +2466,8 @@ func (p *ParameterNAS) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWr
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
 		offset += p.fastWriteField2(buf[offset:], binaryWriter)
 		offset += p.fastWriteField3(buf[offset:], binaryWriter)
+		offset += p.fastWriteField4(buf[offset:], binaryWriter)
+		offset += p.fastWriteField5(buf[offset:], binaryWriter)
 	}
 	offset += bthrift.Binary.WriteFieldStop(buf[offset:])
 	offset += bthrift.Binary.WriteStructEnd(buf[offset:])
@@ -2423,6 +2481,8 @@ func (p *ParameterNAS) BLength() int {
 		l += p.field1Length()
 		l += p.field2Length()
 		l += p.field3Length()
+		l += p.field4Length()
+		l += p.field5Length()
 	}
 	l += bthrift.Binary.FieldStopLength()
 	l += bthrift.Binary.StructEndLength()
@@ -2460,6 +2520,28 @@ func (p *ParameterNAS) fastWriteField3(buf []byte, binaryWriter bthrift.BinaryWr
 	return offset
 }
 
+func (p *ParameterNAS) fastWriteField4(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	if p.IsSetFsId() {
+		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "FsId", thrift.STRING, 4)
+		offset += bthrift.Binary.WriteStringNocopy(buf[offset:], binaryWriter, p.FsId)
+
+		offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	}
+	return offset
+}
+
+func (p *ParameterNAS) fastWriteField5(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	if p.IsSetFSType() {
+		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "FSType", thrift.STRING, 5)
+		offset += bthrift.Binary.WriteStringNocopy(buf[offset:], binaryWriter, p.FSType)
+
+		offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	}
+	return offset
+}
+
 func (p *ParameterNAS) field1Length() int {
 	l := 0
 	l += bthrift.Binary.FieldBeginLength("NFSServer", thrift.STRING, 1)
@@ -2485,6 +2567,28 @@ func (p *ParameterNAS) field3Length() int {
 	if p.IsSetNFSVersion() {
 		l += bthrift.Binary.FieldBeginLength("NFSVersion", thrift.STRING, 3)
 		l += bthrift.Binary.StringLengthNocopy(p.NFSVersion)
+
+		l += bthrift.Binary.FieldEndLength()
+	}
+	return l
+}
+
+func (p *ParameterNAS) field4Length() int {
+	l := 0
+	if p.IsSetFsId() {
+		l += bthrift.Binary.FieldBeginLength("FsId", thrift.STRING, 4)
+		l += bthrift.Binary.StringLengthNocopy(p.FsId)
+
+		l += bthrift.Binary.FieldEndLength()
+	}
+	return l
+}
+
+func (p *ParameterNAS) field5Length() int {
+	l := 0
+	if p.IsSetFSType() {
+		l += bthrift.Binary.FieldBeginLength("FSType", thrift.STRING, 5)
+		l += bthrift.Binary.StringLengthNocopy(p.FSType)
 
 		l += bthrift.Binary.FieldEndLength()
 	}
@@ -2859,6 +2963,20 @@ func (p *CreateStorageClassRequest) FastRead(buf []byte) (int, error) {
 					goto SkipFieldError
 				}
 			}
+		case 9:
+			if fieldTypeId == thrift.STRING {
+				l, err = p.FastReadField9(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
 		case 254:
 			if fieldTypeId == thrift.STRUCT {
 				l, err = p.FastReadField254(buf[offset:])
@@ -3061,6 +3179,19 @@ func (p *CreateStorageClassRequest) FastReadField8(buf []byte) (int, error) {
 	return offset, nil
 }
 
+func (p *CreateStorageClassRequest) FastReadField9(buf []byte) (int, error) {
+	offset := 0
+
+	if v, l, err := bthrift.Binary.ReadString(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+		p.ZoneId = &v
+
+	}
+	return offset, nil
+}
+
 func (p *CreateStorageClassRequest) FastReadField254(buf []byte) (int, error) {
 	offset := 0
 	p.Top = base.NewTopParam()
@@ -3100,6 +3231,7 @@ func (p *CreateStorageClassRequest) FastWriteNocopy(buf []byte, binaryWriter bth
 		offset += p.fastWriteField6(buf[offset:], binaryWriter)
 		offset += p.fastWriteField7(buf[offset:], binaryWriter)
 		offset += p.fastWriteField8(buf[offset:], binaryWriter)
+		offset += p.fastWriteField9(buf[offset:], binaryWriter)
 		offset += p.fastWriteField254(buf[offset:], binaryWriter)
 		offset += p.fastWriteField255(buf[offset:], binaryWriter)
 	}
@@ -3120,6 +3252,7 @@ func (p *CreateStorageClassRequest) BLength() int {
 		l += p.field6Length()
 		l += p.field7Length()
 		l += p.field8Length()
+		l += p.field9Length()
 		l += p.field254Length()
 		l += p.field255Length()
 	}
@@ -3200,6 +3333,17 @@ func (p *CreateStorageClassRequest) fastWriteField8(buf []byte, binaryWriter bth
 	if p.IsSetParameter() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "Parameter", thrift.STRUCT, 8)
 		offset += p.Parameter.FastWriteNocopy(buf[offset:], binaryWriter)
+		offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	}
+	return offset
+}
+
+func (p *CreateStorageClassRequest) fastWriteField9(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	if p.IsSetZoneId() {
+		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "ZoneId", thrift.STRING, 9)
+		offset += bthrift.Binary.WriteStringNocopy(buf[offset:], binaryWriter, *p.ZoneId)
+
 		offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
 	}
 	return offset
@@ -3295,6 +3439,17 @@ func (p *CreateStorageClassRequest) field8Length() int {
 	if p.IsSetParameter() {
 		l += bthrift.Binary.FieldBeginLength("Parameter", thrift.STRUCT, 8)
 		l += p.Parameter.BLength()
+		l += bthrift.Binary.FieldEndLength()
+	}
+	return l
+}
+
+func (p *CreateStorageClassRequest) field9Length() int {
+	l := 0
+	if p.IsSetZoneId() {
+		l += bthrift.Binary.FieldBeginLength("ZoneId", thrift.STRING, 9)
+		l += bthrift.Binary.StringLengthNocopy(*p.ZoneId)
+
 		l += bthrift.Binary.FieldEndLength()
 	}
 	return l
@@ -3804,6 +3959,7 @@ func (p *GetStorageClassResponse) FastRead(buf []byte) (int, error) {
 	var issetVolumeType bool = false
 	var issetReclaimPolicy bool = false
 	var issetVolumeBindingMode bool = false
+	var issetZoneId bool = false
 	_, l, err = bthrift.Binary.ReadStructBegin(buf)
 	offset += l
 	if err != nil {
@@ -3937,6 +4093,21 @@ func (p *GetStorageClassResponse) FastRead(buf []byte) (int, error) {
 					goto SkipFieldError
 				}
 			}
+		case 9:
+			if fieldTypeId == thrift.STRING {
+				l, err = p.FastReadField9(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+				issetZoneId = true
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
 		case 255:
 			if fieldTypeId == thrift.STRUCT {
 				l, err = p.FastReadField255(buf[offset:])
@@ -3993,6 +4164,11 @@ func (p *GetStorageClassResponse) FastRead(buf []byte) (int, error) {
 
 	if !issetVolumeBindingMode {
 		fieldId = 7
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetZoneId {
+		fieldId = 9
 		goto RequiredFieldNotSetError
 	}
 	return offset, nil
@@ -4119,6 +4295,20 @@ func (p *GetStorageClassResponse) FastReadField8(buf []byte) (int, error) {
 	return offset, nil
 }
 
+func (p *GetStorageClassResponse) FastReadField9(buf []byte) (int, error) {
+	offset := 0
+
+	if v, l, err := bthrift.Binary.ReadString(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+
+		p.ZoneId = v
+
+	}
+	return offset, nil
+}
+
 func (p *GetStorageClassResponse) FastReadField255(buf []byte) (int, error) {
 	offset := 0
 	p.Base = base.NewBase()
@@ -4147,6 +4337,7 @@ func (p *GetStorageClassResponse) FastWriteNocopy(buf []byte, binaryWriter bthri
 		offset += p.fastWriteField6(buf[offset:], binaryWriter)
 		offset += p.fastWriteField7(buf[offset:], binaryWriter)
 		offset += p.fastWriteField8(buf[offset:], binaryWriter)
+		offset += p.fastWriteField9(buf[offset:], binaryWriter)
 		offset += p.fastWriteField255(buf[offset:], binaryWriter)
 	}
 	offset += bthrift.Binary.WriteFieldStop(buf[offset:])
@@ -4166,6 +4357,7 @@ func (p *GetStorageClassResponse) BLength() int {
 		l += p.field6Length()
 		l += p.field7Length()
 		l += p.field8Length()
+		l += p.field9Length()
 		l += p.field255Length()
 	}
 	l += bthrift.Binary.FieldStopLength()
@@ -4247,6 +4439,15 @@ func (p *GetStorageClassResponse) fastWriteField8(buf []byte, binaryWriter bthri
 		offset += p.Parameter.FastWriteNocopy(buf[offset:], binaryWriter)
 		offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
 	}
+	return offset
+}
+
+func (p *GetStorageClassResponse) fastWriteField9(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "ZoneId", thrift.STRING, 9)
+	offset += bthrift.Binary.WriteStringNocopy(buf[offset:], binaryWriter, p.ZoneId)
+
+	offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
 	return offset
 }
 
@@ -4334,6 +4535,15 @@ func (p *GetStorageClassResponse) field8Length() int {
 		l += p.Parameter.BLength()
 		l += bthrift.Binary.FieldEndLength()
 	}
+	return l
+}
+
+func (p *GetStorageClassResponse) field9Length() int {
+	l := 0
+	l += bthrift.Binary.FieldBeginLength("ZoneId", thrift.STRING, 9)
+	l += bthrift.Binary.StringLengthNocopy(p.ZoneId)
+
+	l += bthrift.Binary.FieldEndLength()
 	return l
 }
 
@@ -6179,6 +6389,20 @@ func (p *CreatePersistentVolumeRequest) FastRead(buf []byte) (int, error) {
 					goto SkipFieldError
 				}
 			}
+		case 10:
+			if fieldTypeId == thrift.STRING {
+				l, err = p.FastReadField10(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
 		case 254:
 			if fieldTypeId == thrift.STRUCT {
 				l, err = p.FastReadField254(buf[offset:])
@@ -6400,6 +6624,19 @@ func (p *CreatePersistentVolumeRequest) FastReadField9(buf []byte) (int, error) 
 	return offset, nil
 }
 
+func (p *CreatePersistentVolumeRequest) FastReadField10(buf []byte) (int, error) {
+	offset := 0
+
+	if v, l, err := bthrift.Binary.ReadString(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+		p.ZoneId = &v
+
+	}
+	return offset, nil
+}
+
 func (p *CreatePersistentVolumeRequest) FastReadField254(buf []byte) (int, error) {
 	offset := 0
 	p.Top = base.NewTopParam()
@@ -6440,6 +6677,7 @@ func (p *CreatePersistentVolumeRequest) FastWriteNocopy(buf []byte, binaryWriter
 		offset += p.fastWriteField7(buf[offset:], binaryWriter)
 		offset += p.fastWriteField8(buf[offset:], binaryWriter)
 		offset += p.fastWriteField9(buf[offset:], binaryWriter)
+		offset += p.fastWriteField10(buf[offset:], binaryWriter)
 		offset += p.fastWriteField254(buf[offset:], binaryWriter)
 		offset += p.fastWriteField255(buf[offset:], binaryWriter)
 	}
@@ -6461,6 +6699,7 @@ func (p *CreatePersistentVolumeRequest) BLength() int {
 		l += p.field7Length()
 		l += p.field8Length()
 		l += p.field9Length()
+		l += p.field10Length()
 		l += p.field254Length()
 		l += p.field255Length()
 	}
@@ -6550,6 +6789,17 @@ func (p *CreatePersistentVolumeRequest) fastWriteField9(buf []byte, binaryWriter
 	if p.IsSetParameter() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "Parameter", thrift.STRUCT, 9)
 		offset += p.Parameter.FastWriteNocopy(buf[offset:], binaryWriter)
+		offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	}
+	return offset
+}
+
+func (p *CreatePersistentVolumeRequest) fastWriteField10(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	if p.IsSetZoneId() {
+		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "ZoneId", thrift.STRING, 10)
+		offset += bthrift.Binary.WriteStringNocopy(buf[offset:], binaryWriter, *p.ZoneId)
+
 		offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
 	}
 	return offset
@@ -6654,6 +6904,17 @@ func (p *CreatePersistentVolumeRequest) field9Length() int {
 	if p.IsSetParameter() {
 		l += bthrift.Binary.FieldBeginLength("Parameter", thrift.STRUCT, 9)
 		l += p.Parameter.BLength()
+		l += bthrift.Binary.FieldEndLength()
+	}
+	return l
+}
+
+func (p *CreatePersistentVolumeRequest) field10Length() int {
+	l := 0
+	if p.IsSetZoneId() {
+		l += bthrift.Binary.FieldBeginLength("ZoneId", thrift.STRING, 10)
+		l += bthrift.Binary.StringLengthNocopy(*p.ZoneId)
+
 		l += bthrift.Binary.FieldEndLength()
 	}
 	return l
@@ -11089,6 +11350,20 @@ func (p *GetPersistentVolumeClaimResponse) FastRead(buf []byte) (int, error) {
 					goto SkipFieldError
 				}
 			}
+		case 10:
+			if fieldTypeId == thrift.STRING {
+				l, err = p.FastReadField10(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
 		case 255:
 			if fieldTypeId == thrift.STRUCT {
 				l, err = p.FastReadField255(buf[offset:])
@@ -11320,6 +11595,20 @@ func (p *GetPersistentVolumeClaimResponse) FastReadField9(buf []byte) (int, erro
 	return offset, nil
 }
 
+func (p *GetPersistentVolumeClaimResponse) FastReadField10(buf []byte) (int, error) {
+	offset := 0
+
+	if v, l, err := bthrift.Binary.ReadString(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+
+		p.FSType = v
+
+	}
+	return offset, nil
+}
+
 func (p *GetPersistentVolumeClaimResponse) FastReadField255(buf []byte) (int, error) {
 	offset := 0
 	p.Base = base.NewBase()
@@ -11349,6 +11638,7 @@ func (p *GetPersistentVolumeClaimResponse) FastWriteNocopy(buf []byte, binaryWri
 		offset += p.fastWriteField7(buf[offset:], binaryWriter)
 		offset += p.fastWriteField8(buf[offset:], binaryWriter)
 		offset += p.fastWriteField9(buf[offset:], binaryWriter)
+		offset += p.fastWriteField10(buf[offset:], binaryWriter)
 		offset += p.fastWriteField255(buf[offset:], binaryWriter)
 	}
 	offset += bthrift.Binary.WriteFieldStop(buf[offset:])
@@ -11369,6 +11659,7 @@ func (p *GetPersistentVolumeClaimResponse) BLength() int {
 		l += p.field7Length()
 		l += p.field8Length()
 		l += p.field9Length()
+		l += p.field10Length()
 		l += p.field255Length()
 	}
 	l += bthrift.Binary.FieldStopLength()
@@ -11467,6 +11758,17 @@ func (p *GetPersistentVolumeClaimResponse) fastWriteField9(buf []byte, binaryWri
 	return offset
 }
 
+func (p *GetPersistentVolumeClaimResponse) fastWriteField10(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	if p.IsSetFSType() {
+		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "FSType", thrift.STRING, 10)
+		offset += bthrift.Binary.WriteStringNocopy(buf[offset:], binaryWriter, p.FSType)
+
+		offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	}
+	return offset
+}
+
 func (p *GetPersistentVolumeClaimResponse) fastWriteField255(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetBase() {
@@ -11561,6 +11863,17 @@ func (p *GetPersistentVolumeClaimResponse) field9Length() int {
 	l += bthrift.Binary.StringLengthNocopy(p.VolumeType)
 
 	l += bthrift.Binary.FieldEndLength()
+	return l
+}
+
+func (p *GetPersistentVolumeClaimResponse) field10Length() int {
+	l := 0
+	if p.IsSetFSType() {
+		l += bthrift.Binary.FieldBeginLength("FSType", thrift.STRING, 10)
+		l += bthrift.Binary.StringLengthNocopy(p.FSType)
+
+		l += bthrift.Binary.FieldEndLength()
+	}
 	return l
 }
 

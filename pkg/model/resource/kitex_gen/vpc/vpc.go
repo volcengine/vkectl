@@ -9,151 +9,92 @@ import (
 	"strings"
 )
 
-type ListSubnetsRequest struct {
-	SubnetIds  []string       `thrift:"SubnetIds,1" json:"SubnetIds,omitempty"`
-	SubnetName *string        `thrift:"SubnetName,2" json:"SubnetName,omitempty"`
-	VpcId      *string        `thrift:"VpcId,3" json:"VpcId,omitempty"`
-	Start      int32          `thrift:"Start,4" json:"Start,omitempty"`
-	Limit      int32          `thrift:"Limit,5" json:"Limit,omitempty"`
-	Top        *base.TopParam `thrift:"Top,254,required" json:"Top"`
-	Base       *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
+type ListSubnetsFilter struct {
+	Ids    []string `thrift:"Ids,1" json:"Ids,omitempty"`
+	Name   *string  `thrift:"Name,2" json:"Name,omitempty"`
+	VpcId  *string  `thrift:"VpcId,3" json:"VpcId,omitempty"`
+	ZoneId *string  `thrift:"ZoneId,4" json:"ZoneId,omitempty"`
 }
 
-func NewListSubnetsRequest() *ListSubnetsRequest {
-	return &ListSubnetsRequest{
+func NewListSubnetsFilter() *ListSubnetsFilter {
+	return &ListSubnetsFilter{}
+}
 
-		Start: 0,
-		Limit: 10,
+var ListSubnetsFilter_Ids_DEFAULT []string
+
+func (p *ListSubnetsFilter) GetIds() (v []string) {
+	if !p.IsSetIds() {
+		return ListSubnetsFilter_Ids_DEFAULT
 	}
+	return p.Ids
 }
 
-var ListSubnetsRequest_SubnetIds_DEFAULT []string
+var ListSubnetsFilter_Name_DEFAULT string
 
-func (p *ListSubnetsRequest) GetSubnetIds() (v []string) {
-	if !p.IsSetSubnetIds() {
-		return ListSubnetsRequest_SubnetIds_DEFAULT
+func (p *ListSubnetsFilter) GetName() (v string) {
+	if !p.IsSetName() {
+		return ListSubnetsFilter_Name_DEFAULT
 	}
-	return p.SubnetIds
+	return *p.Name
 }
 
-var ListSubnetsRequest_SubnetName_DEFAULT string
+var ListSubnetsFilter_VpcId_DEFAULT string
 
-func (p *ListSubnetsRequest) GetSubnetName() (v string) {
-	if !p.IsSetSubnetName() {
-		return ListSubnetsRequest_SubnetName_DEFAULT
-	}
-	return *p.SubnetName
-}
-
-var ListSubnetsRequest_VpcId_DEFAULT string
-
-func (p *ListSubnetsRequest) GetVpcId() (v string) {
+func (p *ListSubnetsFilter) GetVpcId() (v string) {
 	if !p.IsSetVpcId() {
-		return ListSubnetsRequest_VpcId_DEFAULT
+		return ListSubnetsFilter_VpcId_DEFAULT
 	}
 	return *p.VpcId
 }
 
-var ListSubnetsRequest_Start_DEFAULT int32 = 0
+var ListSubnetsFilter_ZoneId_DEFAULT string
 
-func (p *ListSubnetsRequest) GetStart() (v int32) {
-	if !p.IsSetStart() {
-		return ListSubnetsRequest_Start_DEFAULT
+func (p *ListSubnetsFilter) GetZoneId() (v string) {
+	if !p.IsSetZoneId() {
+		return ListSubnetsFilter_ZoneId_DEFAULT
 	}
-	return p.Start
+	return *p.ZoneId
 }
-
-var ListSubnetsRequest_Limit_DEFAULT int32 = 10
-
-func (p *ListSubnetsRequest) GetLimit() (v int32) {
-	if !p.IsSetLimit() {
-		return ListSubnetsRequest_Limit_DEFAULT
-	}
-	return p.Limit
+func (p *ListSubnetsFilter) SetIds(val []string) {
+	p.Ids = val
 }
-
-var ListSubnetsRequest_Top_DEFAULT *base.TopParam
-
-func (p *ListSubnetsRequest) GetTop() (v *base.TopParam) {
-	if !p.IsSetTop() {
-		return ListSubnetsRequest_Top_DEFAULT
-	}
-	return p.Top
+func (p *ListSubnetsFilter) SetName(val *string) {
+	p.Name = val
 }
-
-var ListSubnetsRequest_Base_DEFAULT *base.Base
-
-func (p *ListSubnetsRequest) GetBase() (v *base.Base) {
-	if !p.IsSetBase() {
-		return ListSubnetsRequest_Base_DEFAULT
-	}
-	return p.Base
-}
-func (p *ListSubnetsRequest) SetSubnetIds(val []string) {
-	p.SubnetIds = val
-}
-func (p *ListSubnetsRequest) SetSubnetName(val *string) {
-	p.SubnetName = val
-}
-func (p *ListSubnetsRequest) SetVpcId(val *string) {
+func (p *ListSubnetsFilter) SetVpcId(val *string) {
 	p.VpcId = val
 }
-func (p *ListSubnetsRequest) SetStart(val int32) {
-	p.Start = val
-}
-func (p *ListSubnetsRequest) SetLimit(val int32) {
-	p.Limit = val
-}
-func (p *ListSubnetsRequest) SetTop(val *base.TopParam) {
-	p.Top = val
-}
-func (p *ListSubnetsRequest) SetBase(val *base.Base) {
-	p.Base = val
+func (p *ListSubnetsFilter) SetZoneId(val *string) {
+	p.ZoneId = val
 }
 
-var fieldIDToName_ListSubnetsRequest = map[int16]string{
-	1:   "SubnetIds",
-	2:   "SubnetName",
-	3:   "VpcId",
-	4:   "Start",
-	5:   "Limit",
-	254: "Top",
-	255: "Base",
+var fieldIDToName_ListSubnetsFilter = map[int16]string{
+	1: "Ids",
+	2: "Name",
+	3: "VpcId",
+	4: "ZoneId",
 }
 
-func (p *ListSubnetsRequest) IsSetSubnetIds() bool {
-	return p.SubnetIds != nil
+func (p *ListSubnetsFilter) IsSetIds() bool {
+	return p.Ids != nil
 }
 
-func (p *ListSubnetsRequest) IsSetSubnetName() bool {
-	return p.SubnetName != nil
+func (p *ListSubnetsFilter) IsSetName() bool {
+	return p.Name != nil
 }
 
-func (p *ListSubnetsRequest) IsSetVpcId() bool {
+func (p *ListSubnetsFilter) IsSetVpcId() bool {
 	return p.VpcId != nil
 }
 
-func (p *ListSubnetsRequest) IsSetStart() bool {
-	return p.Start != ListSubnetsRequest_Start_DEFAULT
+func (p *ListSubnetsFilter) IsSetZoneId() bool {
+	return p.ZoneId != nil
 }
 
-func (p *ListSubnetsRequest) IsSetLimit() bool {
-	return p.Limit != ListSubnetsRequest_Limit_DEFAULT
-}
-
-func (p *ListSubnetsRequest) IsSetTop() bool {
-	return p.Top != nil
-}
-
-func (p *ListSubnetsRequest) IsSetBase() bool {
-	return p.Base != nil
-}
-
-func (p *ListSubnetsRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *ListSubnetsFilter) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetTop bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -200,7 +141,7 @@ func (p *ListSubnetsRequest) Read(iprot thrift.TProtocol) (err error) {
 				}
 			}
 		case 4:
-			if fieldTypeId == thrift.I32 {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField4(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -209,9 +150,464 @@ func (p *ListSubnetsRequest) Read(iprot thrift.TProtocol) (err error) {
 					goto SkipFieldError
 				}
 			}
-		case 5:
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListSubnetsFilter[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ListSubnetsFilter) ReadField1(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.Ids = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		p.Ids = append(p.Ids, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ListSubnetsFilter) ReadField2(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.Name = &v
+	}
+	return nil
+}
+
+func (p *ListSubnetsFilter) ReadField3(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.VpcId = &v
+	}
+	return nil
+}
+
+func (p *ListSubnetsFilter) ReadField4(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.ZoneId = &v
+	}
+	return nil
+}
+
+func (p *ListSubnetsFilter) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ListSubnetsFilter"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
+			goto WriteFieldError
+		}
+		if err = p.writeField4(oprot); err != nil {
+			fieldId = 4
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ListSubnetsFilter) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetIds() {
+		if err = oprot.WriteFieldBegin("Ids", thrift.LIST, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRING, len(p.Ids)); err != nil {
+			return err
+		}
+		for _, v := range p.Ids {
+			if err := oprot.WriteString(v); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ListSubnetsFilter) writeField2(oprot thrift.TProtocol) (err error) {
+	if p.IsSetName() {
+		if err = oprot.WriteFieldBegin("Name", thrift.STRING, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.Name); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *ListSubnetsFilter) writeField3(oprot thrift.TProtocol) (err error) {
+	if p.IsSetVpcId() {
+		if err = oprot.WriteFieldBegin("VpcId", thrift.STRING, 3); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.VpcId); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
+}
+
+func (p *ListSubnetsFilter) writeField4(oprot thrift.TProtocol) (err error) {
+	if p.IsSetZoneId() {
+		if err = oprot.WriteFieldBegin("ZoneId", thrift.STRING, 4); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.ZoneId); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
+}
+
+func (p *ListSubnetsFilter) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ListSubnetsFilter(%+v)", *p)
+}
+
+func (p *ListSubnetsFilter) DeepEqual(ano *ListSubnetsFilter) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Ids) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.Name) {
+		return false
+	}
+	if !p.Field3DeepEqual(ano.VpcId) {
+		return false
+	}
+	if !p.Field4DeepEqual(ano.ZoneId) {
+		return false
+	}
+	return true
+}
+
+func (p *ListSubnetsFilter) Field1DeepEqual(src []string) bool {
+
+	if len(p.Ids) != len(src) {
+		return false
+	}
+	for i, v := range p.Ids {
+		_src := src[i]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
+	}
+	return true
+}
+func (p *ListSubnetsFilter) Field2DeepEqual(src *string) bool {
+
+	if p.Name == src {
+		return true
+	} else if p.Name == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.Name, *src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *ListSubnetsFilter) Field3DeepEqual(src *string) bool {
+
+	if p.VpcId == src {
+		return true
+	} else if p.VpcId == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.VpcId, *src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *ListSubnetsFilter) Field4DeepEqual(src *string) bool {
+
+	if p.ZoneId == src {
+		return true
+	} else if p.ZoneId == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.ZoneId, *src) != 0 {
+		return false
+	}
+	return true
+}
+
+type ListSubnetsRequest struct {
+	PageNumber int32              `thrift:"PageNumber,1" json:"PageNumber" default:"1"`
+	PageSize   int32              `thrift:"PageSize,2" json:"PageSize" default:"100"`
+	Filter     *ListSubnetsFilter `thrift:"Filter,3" json:"Filter,omitempty"`
+	WithVci    bool               `thrift:"WithVci,4" json:"WithVci,omitempty"`
+	Top        *base.TopParam     `thrift:"Top,254,required" json:"Top"`
+	Base       *base.Base         `thrift:"Base,255" json:"Base,omitempty"`
+}
+
+func NewListSubnetsRequest() *ListSubnetsRequest {
+	return &ListSubnetsRequest{
+
+		PageNumber: 1,
+		PageSize:   100,
+		WithVci:    false,
+	}
+}
+
+var ListSubnetsRequest_PageNumber_DEFAULT int32 = 1
+
+func (p *ListSubnetsRequest) GetPageNumber() (v int32) {
+	if !p.IsSetPageNumber() {
+		return ListSubnetsRequest_PageNumber_DEFAULT
+	}
+	return p.PageNumber
+}
+
+var ListSubnetsRequest_PageSize_DEFAULT int32 = 100
+
+func (p *ListSubnetsRequest) GetPageSize() (v int32) {
+	if !p.IsSetPageSize() {
+		return ListSubnetsRequest_PageSize_DEFAULT
+	}
+	return p.PageSize
+}
+
+var ListSubnetsRequest_Filter_DEFAULT *ListSubnetsFilter
+
+func (p *ListSubnetsRequest) GetFilter() (v *ListSubnetsFilter) {
+	if !p.IsSetFilter() {
+		return ListSubnetsRequest_Filter_DEFAULT
+	}
+	return p.Filter
+}
+
+var ListSubnetsRequest_WithVci_DEFAULT bool = false
+
+func (p *ListSubnetsRequest) GetWithVci() (v bool) {
+	if !p.IsSetWithVci() {
+		return ListSubnetsRequest_WithVci_DEFAULT
+	}
+	return p.WithVci
+}
+
+var ListSubnetsRequest_Top_DEFAULT *base.TopParam
+
+func (p *ListSubnetsRequest) GetTop() (v *base.TopParam) {
+	if !p.IsSetTop() {
+		return ListSubnetsRequest_Top_DEFAULT
+	}
+	return p.Top
+}
+
+var ListSubnetsRequest_Base_DEFAULT *base.Base
+
+func (p *ListSubnetsRequest) GetBase() (v *base.Base) {
+	if !p.IsSetBase() {
+		return ListSubnetsRequest_Base_DEFAULT
+	}
+	return p.Base
+}
+func (p *ListSubnetsRequest) SetPageNumber(val int32) {
+	p.PageNumber = val
+}
+func (p *ListSubnetsRequest) SetPageSize(val int32) {
+	p.PageSize = val
+}
+func (p *ListSubnetsRequest) SetFilter(val *ListSubnetsFilter) {
+	p.Filter = val
+}
+func (p *ListSubnetsRequest) SetWithVci(val bool) {
+	p.WithVci = val
+}
+func (p *ListSubnetsRequest) SetTop(val *base.TopParam) {
+	p.Top = val
+}
+func (p *ListSubnetsRequest) SetBase(val *base.Base) {
+	p.Base = val
+}
+
+var fieldIDToName_ListSubnetsRequest = map[int16]string{
+	1:   "PageNumber",
+	2:   "PageSize",
+	3:   "Filter",
+	4:   "WithVci",
+	254: "Top",
+	255: "Base",
+}
+
+func (p *ListSubnetsRequest) IsSetPageNumber() bool {
+	return p.PageNumber != ListSubnetsRequest_PageNumber_DEFAULT
+}
+
+func (p *ListSubnetsRequest) IsSetPageSize() bool {
+	return p.PageSize != ListSubnetsRequest_PageSize_DEFAULT
+}
+
+func (p *ListSubnetsRequest) IsSetFilter() bool {
+	return p.Filter != nil
+}
+
+func (p *ListSubnetsRequest) IsSetWithVci() bool {
+	return p.WithVci != ListSubnetsRequest_WithVci_DEFAULT
+}
+
+func (p *ListSubnetsRequest) IsSetTop() bool {
+	return p.Top != nil
+}
+
+func (p *ListSubnetsRequest) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *ListSubnetsRequest) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	var issetTop bool = false
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
 			if fieldTypeId == thrift.I32 {
-				if err = p.ReadField5(iprot); err != nil {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 2:
+			if fieldTypeId == thrift.I32 {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 3:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 4:
+			if fieldTypeId == thrift.BOOL {
+				if err = p.ReadField4(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else {
@@ -277,59 +673,36 @@ RequiredFieldNotSetError:
 }
 
 func (p *ListSubnetsRequest) ReadField1(iprot thrift.TProtocol) error {
-	_, size, err := iprot.ReadListBegin()
-	if err != nil {
+	if v, err := iprot.ReadI32(); err != nil {
 		return err
-	}
-	p.SubnetIds = make([]string, 0, size)
-	for i := 0; i < size; i++ {
-		var _elem string
-		if v, err := iprot.ReadString(); err != nil {
-			return err
-		} else {
-			_elem = v
-		}
-
-		p.SubnetIds = append(p.SubnetIds, _elem)
-	}
-	if err := iprot.ReadListEnd(); err != nil {
-		return err
+	} else {
+		p.PageNumber = v
 	}
 	return nil
 }
 
 func (p *ListSubnetsRequest) ReadField2(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadString(); err != nil {
+	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
-		p.SubnetName = &v
+		p.PageSize = v
 	}
 	return nil
 }
 
 func (p *ListSubnetsRequest) ReadField3(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadString(); err != nil {
+	p.Filter = NewListSubnetsFilter()
+	if err := p.Filter.Read(iprot); err != nil {
 		return err
-	} else {
-		p.VpcId = &v
 	}
 	return nil
 }
 
 func (p *ListSubnetsRequest) ReadField4(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadI32(); err != nil {
+	if v, err := iprot.ReadBool(); err != nil {
 		return err
 	} else {
-		p.Start = v
-	}
-	return nil
-}
-
-func (p *ListSubnetsRequest) ReadField5(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadI32(); err != nil {
-		return err
-	} else {
-		p.Limit = v
+		p.WithVci = v
 	}
 	return nil
 }
@@ -372,10 +745,6 @@ func (p *ListSubnetsRequest) Write(oprot thrift.TProtocol) (err error) {
 			fieldId = 4
 			goto WriteFieldError
 		}
-		if err = p.writeField5(oprot); err != nil {
-			fieldId = 5
-			goto WriteFieldError
-		}
 		if err = p.writeField254(oprot); err != nil {
 			fieldId = 254
 			goto WriteFieldError
@@ -404,19 +773,11 @@ WriteStructEndError:
 }
 
 func (p *ListSubnetsRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if p.IsSetSubnetIds() {
-		if err = oprot.WriteFieldBegin("SubnetIds", thrift.LIST, 1); err != nil {
+	if p.IsSetPageNumber() {
+		if err = oprot.WriteFieldBegin("PageNumber", thrift.I32, 1); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteListBegin(thrift.STRING, len(p.SubnetIds)); err != nil {
-			return err
-		}
-		for _, v := range p.SubnetIds {
-			if err := oprot.WriteString(v); err != nil {
-				return err
-			}
-		}
-		if err := oprot.WriteListEnd(); err != nil {
+		if err := oprot.WriteI32(p.PageNumber); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -431,11 +792,11 @@ WriteFieldEndError:
 }
 
 func (p *ListSubnetsRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if p.IsSetSubnetName() {
-		if err = oprot.WriteFieldBegin("SubnetName", thrift.STRING, 2); err != nil {
+	if p.IsSetPageSize() {
+		if err = oprot.WriteFieldBegin("PageSize", thrift.I32, 2); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteString(*p.SubnetName); err != nil {
+		if err := oprot.WriteI32(p.PageSize); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -450,11 +811,11 @@ WriteFieldEndError:
 }
 
 func (p *ListSubnetsRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if p.IsSetVpcId() {
-		if err = oprot.WriteFieldBegin("VpcId", thrift.STRING, 3); err != nil {
+	if p.IsSetFilter() {
+		if err = oprot.WriteFieldBegin("Filter", thrift.STRUCT, 3); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteString(*p.VpcId); err != nil {
+		if err := p.Filter.Write(oprot); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -469,11 +830,11 @@ WriteFieldEndError:
 }
 
 func (p *ListSubnetsRequest) writeField4(oprot thrift.TProtocol) (err error) {
-	if p.IsSetStart() {
-		if err = oprot.WriteFieldBegin("Start", thrift.I32, 4); err != nil {
+	if p.IsSetWithVci() {
+		if err = oprot.WriteFieldBegin("WithVci", thrift.BOOL, 4); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteI32(p.Start); err != nil {
+		if err := oprot.WriteBool(p.WithVci); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -485,25 +846,6 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
-}
-
-func (p *ListSubnetsRequest) writeField5(oprot thrift.TProtocol) (err error) {
-	if p.IsSetLimit() {
-		if err = oprot.WriteFieldBegin("Limit", thrift.I32, 5); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteI32(p.Limit); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 5 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
 }
 
 func (p *ListSubnetsRequest) writeField254(oprot thrift.TProtocol) (err error) {
@@ -555,19 +897,16 @@ func (p *ListSubnetsRequest) DeepEqual(ano *ListSubnetsRequest) bool {
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.SubnetIds) {
+	if !p.Field1DeepEqual(ano.PageNumber) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.SubnetName) {
+	if !p.Field2DeepEqual(ano.PageSize) {
 		return false
 	}
-	if !p.Field3DeepEqual(ano.VpcId) {
+	if !p.Field3DeepEqual(ano.Filter) {
 		return false
 	}
-	if !p.Field4DeepEqual(ano.Start) {
-		return false
-	}
-	if !p.Field5DeepEqual(ano.Limit) {
+	if !p.Field4DeepEqual(ano.WithVci) {
 		return false
 	}
 	if !p.Field254DeepEqual(ano.Top) {
@@ -579,53 +918,30 @@ func (p *ListSubnetsRequest) DeepEqual(ano *ListSubnetsRequest) bool {
 	return true
 }
 
-func (p *ListSubnetsRequest) Field1DeepEqual(src []string) bool {
+func (p *ListSubnetsRequest) Field1DeepEqual(src int32) bool {
 
-	if len(p.SubnetIds) != len(src) {
-		return false
-	}
-	for i, v := range p.SubnetIds {
-		_src := src[i]
-		if strings.Compare(v, _src) != 0 {
-			return false
-		}
-	}
-	return true
-}
-func (p *ListSubnetsRequest) Field2DeepEqual(src *string) bool {
-
-	if p.SubnetName == src {
-		return true
-	} else if p.SubnetName == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.SubnetName, *src) != 0 {
+	if p.PageNumber != src {
 		return false
 	}
 	return true
 }
-func (p *ListSubnetsRequest) Field3DeepEqual(src *string) bool {
+func (p *ListSubnetsRequest) Field2DeepEqual(src int32) bool {
 
-	if p.VpcId == src {
-		return true
-	} else if p.VpcId == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.VpcId, *src) != 0 {
+	if p.PageSize != src {
 		return false
 	}
 	return true
 }
-func (p *ListSubnetsRequest) Field4DeepEqual(src int32) bool {
+func (p *ListSubnetsRequest) Field3DeepEqual(src *ListSubnetsFilter) bool {
 
-	if p.Start != src {
+	if !p.Filter.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ListSubnetsRequest) Field5DeepEqual(src int32) bool {
+func (p *ListSubnetsRequest) Field4DeepEqual(src bool) bool {
 
-	if p.Limit != src {
+	if p.WithVci != src {
 		return false
 	}
 	return true
@@ -655,6 +971,7 @@ type Subnet struct {
 	Description             string      `thrift:"Description,7,required" json:"Description"`
 	CreationTime            string      `thrift:"CreationTime,8,required" json:"CreationTime"`
 	RouteTable              *RouteTable `thrift:"RouteTable,9,required" json:"RouteTable"`
+	SupportVci              string      `thrift:"SupportVci,101,required" json:"SupportVci"`
 }
 
 func NewSubnet() *Subnet {
@@ -701,6 +1018,10 @@ func (p *Subnet) GetRouteTable() (v *RouteTable) {
 	}
 	return p.RouteTable
 }
+
+func (p *Subnet) GetSupportVci() (v string) {
+	return p.SupportVci
+}
 func (p *Subnet) SetId(val string) {
 	p.Id = val
 }
@@ -728,17 +1049,21 @@ func (p *Subnet) SetCreationTime(val string) {
 func (p *Subnet) SetRouteTable(val *RouteTable) {
 	p.RouteTable = val
 }
+func (p *Subnet) SetSupportVci(val string) {
+	p.SupportVci = val
+}
 
 var fieldIDToName_Subnet = map[int16]string{
-	1: "Id",
-	2: "Name",
-	3: "VpcId",
-	4: "ZoneId",
-	5: "CidrBlock",
-	6: "AvailableIpAddressCount",
-	7: "Description",
-	8: "CreationTime",
-	9: "RouteTable",
+	1:   "Id",
+	2:   "Name",
+	3:   "VpcId",
+	4:   "ZoneId",
+	5:   "CidrBlock",
+	6:   "AvailableIpAddressCount",
+	7:   "Description",
+	8:   "CreationTime",
+	9:   "RouteTable",
+	101: "SupportVci",
 }
 
 func (p *Subnet) IsSetRouteTable() bool {
@@ -758,6 +1083,7 @@ func (p *Subnet) Read(iprot thrift.TProtocol) (err error) {
 	var issetDescription bool = false
 	var issetCreationTime bool = false
 	var issetRouteTable bool = false
+	var issetSupportVci bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -872,6 +1198,17 @@ func (p *Subnet) Read(iprot thrift.TProtocol) (err error) {
 					goto SkipFieldError
 				}
 			}
+		case 101:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField101(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetSupportVci = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
 		default:
 			if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
@@ -928,6 +1265,11 @@ func (p *Subnet) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetRouteTable {
 		fieldId = 9
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetSupportVci {
+		fieldId = 101
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -1028,6 +1370,15 @@ func (p *Subnet) ReadField9(iprot thrift.TProtocol) error {
 	return nil
 }
 
+func (p *Subnet) ReadField101(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.SupportVci = v
+	}
+	return nil
+}
+
 func (p *Subnet) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
 	if err = oprot.WriteStructBegin("Subnet"); err != nil {
@@ -1068,6 +1419,10 @@ func (p *Subnet) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField9(oprot); err != nil {
 			fieldId = 9
+			goto WriteFieldError
+		}
+		if err = p.writeField101(oprot); err != nil {
+			fieldId = 101
 			goto WriteFieldError
 		}
 
@@ -1242,6 +1597,23 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 9 end error: ", p), err)
 }
 
+func (p *Subnet) writeField101(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("SupportVci", thrift.STRING, 101); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.SupportVci); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 101 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 101 end error: ", p), err)
+}
+
 func (p *Subnet) String() string {
 	if p == nil {
 		return "<nil>"
@@ -1280,6 +1652,9 @@ func (p *Subnet) DeepEqual(ano *Subnet) bool {
 		return false
 	}
 	if !p.Field9DeepEqual(ano.RouteTable) {
+		return false
+	}
+	if !p.Field101DeepEqual(ano.SupportVci) {
 		return false
 	}
 	return true
@@ -1344,6 +1719,13 @@ func (p *Subnet) Field8DeepEqual(src string) bool {
 func (p *Subnet) Field9DeepEqual(src *RouteTable) bool {
 
 	if !p.RouteTable.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+func (p *Subnet) Field101DeepEqual(src string) bool {
+
+	if strings.Compare(p.SupportVci, src) != 0 {
 		return false
 	}
 	return true
@@ -1911,53 +2293,53 @@ func (p *ListSubnetsResponse) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
-type ListElasticIPPoolsRequest struct {
+type ListElasticIpPoolsRequest struct {
 	Top  *base.TopParam `thrift:"Top,254,required" json:"Top"`
 	Base *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewListElasticIPPoolsRequest() *ListElasticIPPoolsRequest {
-	return &ListElasticIPPoolsRequest{}
+func NewListElasticIpPoolsRequest() *ListElasticIpPoolsRequest {
+	return &ListElasticIpPoolsRequest{}
 }
 
-var ListElasticIPPoolsRequest_Top_DEFAULT *base.TopParam
+var ListElasticIpPoolsRequest_Top_DEFAULT *base.TopParam
 
-func (p *ListElasticIPPoolsRequest) GetTop() (v *base.TopParam) {
+func (p *ListElasticIpPoolsRequest) GetTop() (v *base.TopParam) {
 	if !p.IsSetTop() {
-		return ListElasticIPPoolsRequest_Top_DEFAULT
+		return ListElasticIpPoolsRequest_Top_DEFAULT
 	}
 	return p.Top
 }
 
-var ListElasticIPPoolsRequest_Base_DEFAULT *base.Base
+var ListElasticIpPoolsRequest_Base_DEFAULT *base.Base
 
-func (p *ListElasticIPPoolsRequest) GetBase() (v *base.Base) {
+func (p *ListElasticIpPoolsRequest) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return ListElasticIPPoolsRequest_Base_DEFAULT
+		return ListElasticIpPoolsRequest_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *ListElasticIPPoolsRequest) SetTop(val *base.TopParam) {
+func (p *ListElasticIpPoolsRequest) SetTop(val *base.TopParam) {
 	p.Top = val
 }
-func (p *ListElasticIPPoolsRequest) SetBase(val *base.Base) {
+func (p *ListElasticIpPoolsRequest) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_ListElasticIPPoolsRequest = map[int16]string{
+var fieldIDToName_ListElasticIpPoolsRequest = map[int16]string{
 	254: "Top",
 	255: "Base",
 }
 
-func (p *ListElasticIPPoolsRequest) IsSetTop() bool {
+func (p *ListElasticIpPoolsRequest) IsSetTop() bool {
 	return p.Top != nil
 }
 
-func (p *ListElasticIPPoolsRequest) IsSetBase() bool {
+func (p *ListElasticIpPoolsRequest) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *ListElasticIPPoolsRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *ListElasticIpPoolsRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -2022,7 +2404,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListElasticIPPoolsRequest[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListElasticIpPoolsRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -2031,10 +2413,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListElasticIPPoolsRequest[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListElasticIpPoolsRequest[fieldId]))
 }
 
-func (p *ListElasticIPPoolsRequest) ReadField254(iprot thrift.TProtocol) error {
+func (p *ListElasticIpPoolsRequest) ReadField254(iprot thrift.TProtocol) error {
 	p.Top = base.NewTopParam()
 	if err := p.Top.Read(iprot); err != nil {
 		return err
@@ -2042,7 +2424,7 @@ func (p *ListElasticIPPoolsRequest) ReadField254(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListElasticIPPoolsRequest) ReadField255(iprot thrift.TProtocol) error {
+func (p *ListElasticIpPoolsRequest) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -2050,9 +2432,9 @@ func (p *ListElasticIPPoolsRequest) ReadField255(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListElasticIPPoolsRequest) Write(oprot thrift.TProtocol) (err error) {
+func (p *ListElasticIpPoolsRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListElasticIPPoolsRequest"); err != nil {
+	if err = oprot.WriteStructBegin("ListElasticIpPoolsRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -2083,7 +2465,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ListElasticIPPoolsRequest) writeField254(oprot thrift.TProtocol) (err error) {
+func (p *ListElasticIpPoolsRequest) writeField254(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Top", thrift.STRUCT, 254); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -2100,7 +2482,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 254 end error: ", p), err)
 }
 
-func (p *ListElasticIPPoolsRequest) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *ListElasticIpPoolsRequest) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -2119,14 +2501,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *ListElasticIPPoolsRequest) String() string {
+func (p *ListElasticIpPoolsRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ListElasticIPPoolsRequest(%+v)", *p)
+	return fmt.Sprintf("ListElasticIpPoolsRequest(%+v)", *p)
 }
 
-func (p *ListElasticIPPoolsRequest) DeepEqual(ano *ListElasticIPPoolsRequest) bool {
+func (p *ListElasticIpPoolsRequest) DeepEqual(ano *ListElasticIpPoolsRequest) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -2141,14 +2523,14 @@ func (p *ListElasticIPPoolsRequest) DeepEqual(ano *ListElasticIPPoolsRequest) bo
 	return true
 }
 
-func (p *ListElasticIPPoolsRequest) Field254DeepEqual(src *base.TopParam) bool {
+func (p *ListElasticIpPoolsRequest) Field254DeepEqual(src *base.TopParam) bool {
 
 	if !p.Top.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ListElasticIPPoolsRequest) Field255DeepEqual(src *base.Base) bool {
+func (p *ListElasticIpPoolsRequest) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -2156,44 +2538,44 @@ func (p *ListElasticIPPoolsRequest) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
-type ListElasticIPPoolsResponse struct {
+type ListElasticIpPoolsResponse struct {
 	Isps []string   `thrift:"Isps,1,required" json:"Isps"`
 	Base *base.Base `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewListElasticIPPoolsResponse() *ListElasticIPPoolsResponse {
-	return &ListElasticIPPoolsResponse{}
+func NewListElasticIpPoolsResponse() *ListElasticIpPoolsResponse {
+	return &ListElasticIpPoolsResponse{}
 }
 
-func (p *ListElasticIPPoolsResponse) GetIsps() (v []string) {
+func (p *ListElasticIpPoolsResponse) GetIsps() (v []string) {
 	return p.Isps
 }
 
-var ListElasticIPPoolsResponse_Base_DEFAULT *base.Base
+var ListElasticIpPoolsResponse_Base_DEFAULT *base.Base
 
-func (p *ListElasticIPPoolsResponse) GetBase() (v *base.Base) {
+func (p *ListElasticIpPoolsResponse) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return ListElasticIPPoolsResponse_Base_DEFAULT
+		return ListElasticIpPoolsResponse_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *ListElasticIPPoolsResponse) SetIsps(val []string) {
+func (p *ListElasticIpPoolsResponse) SetIsps(val []string) {
 	p.Isps = val
 }
-func (p *ListElasticIPPoolsResponse) SetBase(val *base.Base) {
+func (p *ListElasticIpPoolsResponse) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_ListElasticIPPoolsResponse = map[int16]string{
+var fieldIDToName_ListElasticIpPoolsResponse = map[int16]string{
 	1:   "Isps",
 	255: "Base",
 }
 
-func (p *ListElasticIPPoolsResponse) IsSetBase() bool {
+func (p *ListElasticIpPoolsResponse) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *ListElasticIPPoolsResponse) Read(iprot thrift.TProtocol) (err error) {
+func (p *ListElasticIpPoolsResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -2258,7 +2640,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListElasticIPPoolsResponse[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListElasticIpPoolsResponse[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -2267,10 +2649,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListElasticIPPoolsResponse[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListElasticIpPoolsResponse[fieldId]))
 }
 
-func (p *ListElasticIPPoolsResponse) ReadField1(iprot thrift.TProtocol) error {
+func (p *ListElasticIpPoolsResponse) ReadField1(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
@@ -2292,7 +2674,7 @@ func (p *ListElasticIPPoolsResponse) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListElasticIPPoolsResponse) ReadField255(iprot thrift.TProtocol) error {
+func (p *ListElasticIpPoolsResponse) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -2300,9 +2682,9 @@ func (p *ListElasticIPPoolsResponse) ReadField255(iprot thrift.TProtocol) error 
 	return nil
 }
 
-func (p *ListElasticIPPoolsResponse) Write(oprot thrift.TProtocol) (err error) {
+func (p *ListElasticIpPoolsResponse) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListElasticIPPoolsResponse"); err != nil {
+	if err = oprot.WriteStructBegin("ListElasticIpPoolsResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -2333,7 +2715,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ListElasticIPPoolsResponse) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ListElasticIpPoolsResponse) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Isps", thrift.LIST, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -2358,7 +2740,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ListElasticIPPoolsResponse) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *ListElasticIpPoolsResponse) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -2377,14 +2759,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *ListElasticIPPoolsResponse) String() string {
+func (p *ListElasticIpPoolsResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ListElasticIPPoolsResponse(%+v)", *p)
+	return fmt.Sprintf("ListElasticIpPoolsResponse(%+v)", *p)
 }
 
-func (p *ListElasticIPPoolsResponse) DeepEqual(ano *ListElasticIPPoolsResponse) bool {
+func (p *ListElasticIpPoolsResponse) DeepEqual(ano *ListElasticIpPoolsResponse) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -2399,7 +2781,7 @@ func (p *ListElasticIPPoolsResponse) DeepEqual(ano *ListElasticIPPoolsResponse) 
 	return true
 }
 
-func (p *ListElasticIPPoolsResponse) Field1DeepEqual(src []string) bool {
+func (p *ListElasticIpPoolsResponse) Field1DeepEqual(src []string) bool {
 
 	if len(p.Isps) != len(src) {
 		return false
@@ -2412,7 +2794,7 @@ func (p *ListElasticIPPoolsResponse) Field1DeepEqual(src []string) bool {
 	}
 	return true
 }
-func (p *ListElasticIPPoolsResponse) Field255DeepEqual(src *base.Base) bool {
+func (p *ListElasticIpPoolsResponse) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -2420,133 +2802,56 @@ func (p *ListElasticIPPoolsResponse) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
-type ListVpcsRequest struct {
-	Ids   []string       `thrift:"Ids,1" json:"Ids,omitempty"`
-	Name  *string        `thrift:"Name,2" json:"Name,omitempty"`
-	Start int32          `thrift:"Start,3" json:"Start,omitempty"`
-	Limit int32          `thrift:"Limit,4" json:"Limit,omitempty"`
-	Top   *base.TopParam `thrift:"Top,254,required" json:"Top"`
-	Base  *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
+type ListVpcsFilter struct {
+	Ids  []string `thrift:"Ids,1" json:"Ids,omitempty"`
+	Name *string  `thrift:"Name,2" json:"Name,omitempty"`
 }
 
-func NewListVpcsRequest() *ListVpcsRequest {
-	return &ListVpcsRequest{
-
-		Start: 0,
-		Limit: 10,
-	}
+func NewListVpcsFilter() *ListVpcsFilter {
+	return &ListVpcsFilter{}
 }
 
-var ListVpcsRequest_Ids_DEFAULT []string
+var ListVpcsFilter_Ids_DEFAULT []string
 
-func (p *ListVpcsRequest) GetIds() (v []string) {
+func (p *ListVpcsFilter) GetIds() (v []string) {
 	if !p.IsSetIds() {
-		return ListVpcsRequest_Ids_DEFAULT
+		return ListVpcsFilter_Ids_DEFAULT
 	}
 	return p.Ids
 }
 
-var ListVpcsRequest_Name_DEFAULT string
+var ListVpcsFilter_Name_DEFAULT string
 
-func (p *ListVpcsRequest) GetName() (v string) {
+func (p *ListVpcsFilter) GetName() (v string) {
 	if !p.IsSetName() {
-		return ListVpcsRequest_Name_DEFAULT
+		return ListVpcsFilter_Name_DEFAULT
 	}
 	return *p.Name
 }
-
-var ListVpcsRequest_Start_DEFAULT int32 = 0
-
-func (p *ListVpcsRequest) GetStart() (v int32) {
-	if !p.IsSetStart() {
-		return ListVpcsRequest_Start_DEFAULT
-	}
-	return p.Start
-}
-
-var ListVpcsRequest_Limit_DEFAULT int32 = 10
-
-func (p *ListVpcsRequest) GetLimit() (v int32) {
-	if !p.IsSetLimit() {
-		return ListVpcsRequest_Limit_DEFAULT
-	}
-	return p.Limit
-}
-
-var ListVpcsRequest_Top_DEFAULT *base.TopParam
-
-func (p *ListVpcsRequest) GetTop() (v *base.TopParam) {
-	if !p.IsSetTop() {
-		return ListVpcsRequest_Top_DEFAULT
-	}
-	return p.Top
-}
-
-var ListVpcsRequest_Base_DEFAULT *base.Base
-
-func (p *ListVpcsRequest) GetBase() (v *base.Base) {
-	if !p.IsSetBase() {
-		return ListVpcsRequest_Base_DEFAULT
-	}
-	return p.Base
-}
-func (p *ListVpcsRequest) SetIds(val []string) {
+func (p *ListVpcsFilter) SetIds(val []string) {
 	p.Ids = val
 }
-func (p *ListVpcsRequest) SetName(val *string) {
+func (p *ListVpcsFilter) SetName(val *string) {
 	p.Name = val
 }
-func (p *ListVpcsRequest) SetStart(val int32) {
-	p.Start = val
-}
-func (p *ListVpcsRequest) SetLimit(val int32) {
-	p.Limit = val
-}
-func (p *ListVpcsRequest) SetTop(val *base.TopParam) {
-	p.Top = val
-}
-func (p *ListVpcsRequest) SetBase(val *base.Base) {
-	p.Base = val
+
+var fieldIDToName_ListVpcsFilter = map[int16]string{
+	1: "Ids",
+	2: "Name",
 }
 
-var fieldIDToName_ListVpcsRequest = map[int16]string{
-	1:   "Ids",
-	2:   "Name",
-	3:   "Start",
-	4:   "Limit",
-	254: "Top",
-	255: "Base",
-}
-
-func (p *ListVpcsRequest) IsSetIds() bool {
+func (p *ListVpcsFilter) IsSetIds() bool {
 	return p.Ids != nil
 }
 
-func (p *ListVpcsRequest) IsSetName() bool {
+func (p *ListVpcsFilter) IsSetName() bool {
 	return p.Name != nil
 }
 
-func (p *ListVpcsRequest) IsSetStart() bool {
-	return p.Start != ListVpcsRequest_Start_DEFAULT
-}
-
-func (p *ListVpcsRequest) IsSetLimit() bool {
-	return p.Limit != ListVpcsRequest_Limit_DEFAULT
-}
-
-func (p *ListVpcsRequest) IsSetTop() bool {
-	return p.Top != nil
-}
-
-func (p *ListVpcsRequest) IsSetBase() bool {
-	return p.Base != nil
-}
-
-func (p *ListVpcsRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *ListVpcsFilter) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetTop bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -2582,9 +2887,321 @@ func (p *ListVpcsRequest) Read(iprot thrift.TProtocol) (err error) {
 					goto SkipFieldError
 				}
 			}
-		case 3:
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListVpcsFilter[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ListVpcsFilter) ReadField1(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.Ids = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		p.Ids = append(p.Ids, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ListVpcsFilter) ReadField2(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.Name = &v
+	}
+	return nil
+}
+
+func (p *ListVpcsFilter) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ListVpcsFilter"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ListVpcsFilter) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetIds() {
+		if err = oprot.WriteFieldBegin("Ids", thrift.LIST, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRING, len(p.Ids)); err != nil {
+			return err
+		}
+		for _, v := range p.Ids {
+			if err := oprot.WriteString(v); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ListVpcsFilter) writeField2(oprot thrift.TProtocol) (err error) {
+	if p.IsSetName() {
+		if err = oprot.WriteFieldBegin("Name", thrift.STRING, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.Name); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *ListVpcsFilter) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ListVpcsFilter(%+v)", *p)
+}
+
+func (p *ListVpcsFilter) DeepEqual(ano *ListVpcsFilter) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Ids) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.Name) {
+		return false
+	}
+	return true
+}
+
+func (p *ListVpcsFilter) Field1DeepEqual(src []string) bool {
+
+	if len(p.Ids) != len(src) {
+		return false
+	}
+	for i, v := range p.Ids {
+		_src := src[i]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
+	}
+	return true
+}
+func (p *ListVpcsFilter) Field2DeepEqual(src *string) bool {
+
+	if p.Name == src {
+		return true
+	} else if p.Name == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.Name, *src) != 0 {
+		return false
+	}
+	return true
+}
+
+type ListVpcsRequest struct {
+	PageNumber int32           `thrift:"PageNumber,1" json:"PageNumber" default:"1"`
+	PageSize   int32           `thrift:"PageSize,2" json:"PageSize" default:"100"`
+	Filter     *ListVpcsFilter `thrift:"Filter,3" json:"Filter,omitempty"`
+	Top        *base.TopParam  `thrift:"Top,254,required" json:"Top"`
+	Base       *base.Base      `thrift:"Base,255" json:"Base,omitempty"`
+}
+
+func NewListVpcsRequest() *ListVpcsRequest {
+	return &ListVpcsRequest{
+
+		PageNumber: 1,
+		PageSize:   100,
+	}
+}
+
+var ListVpcsRequest_PageNumber_DEFAULT int32 = 1
+
+func (p *ListVpcsRequest) GetPageNumber() (v int32) {
+	if !p.IsSetPageNumber() {
+		return ListVpcsRequest_PageNumber_DEFAULT
+	}
+	return p.PageNumber
+}
+
+var ListVpcsRequest_PageSize_DEFAULT int32 = 100
+
+func (p *ListVpcsRequest) GetPageSize() (v int32) {
+	if !p.IsSetPageSize() {
+		return ListVpcsRequest_PageSize_DEFAULT
+	}
+	return p.PageSize
+}
+
+var ListVpcsRequest_Filter_DEFAULT *ListVpcsFilter
+
+func (p *ListVpcsRequest) GetFilter() (v *ListVpcsFilter) {
+	if !p.IsSetFilter() {
+		return ListVpcsRequest_Filter_DEFAULT
+	}
+	return p.Filter
+}
+
+var ListVpcsRequest_Top_DEFAULT *base.TopParam
+
+func (p *ListVpcsRequest) GetTop() (v *base.TopParam) {
+	if !p.IsSetTop() {
+		return ListVpcsRequest_Top_DEFAULT
+	}
+	return p.Top
+}
+
+var ListVpcsRequest_Base_DEFAULT *base.Base
+
+func (p *ListVpcsRequest) GetBase() (v *base.Base) {
+	if !p.IsSetBase() {
+		return ListVpcsRequest_Base_DEFAULT
+	}
+	return p.Base
+}
+func (p *ListVpcsRequest) SetPageNumber(val int32) {
+	p.PageNumber = val
+}
+func (p *ListVpcsRequest) SetPageSize(val int32) {
+	p.PageSize = val
+}
+func (p *ListVpcsRequest) SetFilter(val *ListVpcsFilter) {
+	p.Filter = val
+}
+func (p *ListVpcsRequest) SetTop(val *base.TopParam) {
+	p.Top = val
+}
+func (p *ListVpcsRequest) SetBase(val *base.Base) {
+	p.Base = val
+}
+
+var fieldIDToName_ListVpcsRequest = map[int16]string{
+	1:   "PageNumber",
+	2:   "PageSize",
+	3:   "Filter",
+	254: "Top",
+	255: "Base",
+}
+
+func (p *ListVpcsRequest) IsSetPageNumber() bool {
+	return p.PageNumber != ListVpcsRequest_PageNumber_DEFAULT
+}
+
+func (p *ListVpcsRequest) IsSetPageSize() bool {
+	return p.PageSize != ListVpcsRequest_PageSize_DEFAULT
+}
+
+func (p *ListVpcsRequest) IsSetFilter() bool {
+	return p.Filter != nil
+}
+
+func (p *ListVpcsRequest) IsSetTop() bool {
+	return p.Top != nil
+}
+
+func (p *ListVpcsRequest) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *ListVpcsRequest) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	var issetTop bool = false
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
 			if fieldTypeId == thrift.I32 {
-				if err = p.ReadField3(iprot); err != nil {
+				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else {
@@ -2592,9 +3209,19 @@ func (p *ListVpcsRequest) Read(iprot thrift.TProtocol) (err error) {
 					goto SkipFieldError
 				}
 			}
-		case 4:
+		case 2:
 			if fieldTypeId == thrift.I32 {
-				if err = p.ReadField4(iprot); err != nil {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 3:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField3(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else {
@@ -2660,50 +3287,27 @@ RequiredFieldNotSetError:
 }
 
 func (p *ListVpcsRequest) ReadField1(iprot thrift.TProtocol) error {
-	_, size, err := iprot.ReadListBegin()
-	if err != nil {
+	if v, err := iprot.ReadI32(); err != nil {
 		return err
-	}
-	p.Ids = make([]string, 0, size)
-	for i := 0; i < size; i++ {
-		var _elem string
-		if v, err := iprot.ReadString(); err != nil {
-			return err
-		} else {
-			_elem = v
-		}
-
-		p.Ids = append(p.Ids, _elem)
-	}
-	if err := iprot.ReadListEnd(); err != nil {
-		return err
+	} else {
+		p.PageNumber = v
 	}
 	return nil
 }
 
 func (p *ListVpcsRequest) ReadField2(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadString(); err != nil {
+	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
-		p.Name = &v
+		p.PageSize = v
 	}
 	return nil
 }
 
 func (p *ListVpcsRequest) ReadField3(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadI32(); err != nil {
+	p.Filter = NewListVpcsFilter()
+	if err := p.Filter.Read(iprot); err != nil {
 		return err
-	} else {
-		p.Start = v
-	}
-	return nil
-}
-
-func (p *ListVpcsRequest) ReadField4(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadI32(); err != nil {
-		return err
-	} else {
-		p.Limit = v
 	}
 	return nil
 }
@@ -2742,10 +3346,6 @@ func (p *ListVpcsRequest) Write(oprot thrift.TProtocol) (err error) {
 			fieldId = 3
 			goto WriteFieldError
 		}
-		if err = p.writeField4(oprot); err != nil {
-			fieldId = 4
-			goto WriteFieldError
-		}
 		if err = p.writeField254(oprot); err != nil {
 			fieldId = 254
 			goto WriteFieldError
@@ -2774,19 +3374,11 @@ WriteStructEndError:
 }
 
 func (p *ListVpcsRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if p.IsSetIds() {
-		if err = oprot.WriteFieldBegin("Ids", thrift.LIST, 1); err != nil {
+	if p.IsSetPageNumber() {
+		if err = oprot.WriteFieldBegin("PageNumber", thrift.I32, 1); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteListBegin(thrift.STRING, len(p.Ids)); err != nil {
-			return err
-		}
-		for _, v := range p.Ids {
-			if err := oprot.WriteString(v); err != nil {
-				return err
-			}
-		}
-		if err := oprot.WriteListEnd(); err != nil {
+		if err := oprot.WriteI32(p.PageNumber); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -2801,11 +3393,11 @@ WriteFieldEndError:
 }
 
 func (p *ListVpcsRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if p.IsSetName() {
-		if err = oprot.WriteFieldBegin("Name", thrift.STRING, 2); err != nil {
+	if p.IsSetPageSize() {
+		if err = oprot.WriteFieldBegin("PageSize", thrift.I32, 2); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteString(*p.Name); err != nil {
+		if err := oprot.WriteI32(p.PageSize); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -2820,11 +3412,11 @@ WriteFieldEndError:
 }
 
 func (p *ListVpcsRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if p.IsSetStart() {
-		if err = oprot.WriteFieldBegin("Start", thrift.I32, 3); err != nil {
+	if p.IsSetFilter() {
+		if err = oprot.WriteFieldBegin("Filter", thrift.STRUCT, 3); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteI32(p.Start); err != nil {
+		if err := p.Filter.Write(oprot); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -2836,25 +3428,6 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
-}
-
-func (p *ListVpcsRequest) writeField4(oprot thrift.TProtocol) (err error) {
-	if p.IsSetLimit() {
-		if err = oprot.WriteFieldBegin("Limit", thrift.I32, 4); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteI32(p.Limit); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
 }
 
 func (p *ListVpcsRequest) writeField254(oprot thrift.TProtocol) (err error) {
@@ -2906,16 +3479,13 @@ func (p *ListVpcsRequest) DeepEqual(ano *ListVpcsRequest) bool {
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.Ids) {
+	if !p.Field1DeepEqual(ano.PageNumber) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.Name) {
+	if !p.Field2DeepEqual(ano.PageSize) {
 		return false
 	}
-	if !p.Field3DeepEqual(ano.Start) {
-		return false
-	}
-	if !p.Field4DeepEqual(ano.Limit) {
+	if !p.Field3DeepEqual(ano.Filter) {
 		return false
 	}
 	if !p.Field254DeepEqual(ano.Top) {
@@ -2927,41 +3497,23 @@ func (p *ListVpcsRequest) DeepEqual(ano *ListVpcsRequest) bool {
 	return true
 }
 
-func (p *ListVpcsRequest) Field1DeepEqual(src []string) bool {
+func (p *ListVpcsRequest) Field1DeepEqual(src int32) bool {
 
-	if len(p.Ids) != len(src) {
-		return false
-	}
-	for i, v := range p.Ids {
-		_src := src[i]
-		if strings.Compare(v, _src) != 0 {
-			return false
-		}
-	}
-	return true
-}
-func (p *ListVpcsRequest) Field2DeepEqual(src *string) bool {
-
-	if p.Name == src {
-		return true
-	} else if p.Name == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.Name, *src) != 0 {
+	if p.PageNumber != src {
 		return false
 	}
 	return true
 }
-func (p *ListVpcsRequest) Field3DeepEqual(src int32) bool {
+func (p *ListVpcsRequest) Field2DeepEqual(src int32) bool {
 
-	if p.Start != src {
+	if p.PageSize != src {
 		return false
 	}
 	return true
 }
-func (p *ListVpcsRequest) Field4DeepEqual(src int32) bool {
+func (p *ListVpcsRequest) Field3DeepEqual(src *ListVpcsFilter) bool {
 
-	if p.Limit != src {
+	if !p.Filter.DeepEqual(src) {
 		return false
 	}
 	return true
@@ -4663,67 +5215,417 @@ func (p *ListVpcsResponse) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
+type ListSecurityGroupsFilter struct {
+	Ids   []string `thrift:"Ids,1" json:"Ids,omitempty"`
+	Names []string `thrift:"Names,2" json:"Names,omitempty"`
+	VpcId *string  `thrift:"VpcId,3" json:"VpcId,omitempty"`
+}
+
+func NewListSecurityGroupsFilter() *ListSecurityGroupsFilter {
+	return &ListSecurityGroupsFilter{}
+}
+
+var ListSecurityGroupsFilter_Ids_DEFAULT []string
+
+func (p *ListSecurityGroupsFilter) GetIds() (v []string) {
+	if !p.IsSetIds() {
+		return ListSecurityGroupsFilter_Ids_DEFAULT
+	}
+	return p.Ids
+}
+
+var ListSecurityGroupsFilter_Names_DEFAULT []string
+
+func (p *ListSecurityGroupsFilter) GetNames() (v []string) {
+	if !p.IsSetNames() {
+		return ListSecurityGroupsFilter_Names_DEFAULT
+	}
+	return p.Names
+}
+
+var ListSecurityGroupsFilter_VpcId_DEFAULT string
+
+func (p *ListSecurityGroupsFilter) GetVpcId() (v string) {
+	if !p.IsSetVpcId() {
+		return ListSecurityGroupsFilter_VpcId_DEFAULT
+	}
+	return *p.VpcId
+}
+func (p *ListSecurityGroupsFilter) SetIds(val []string) {
+	p.Ids = val
+}
+func (p *ListSecurityGroupsFilter) SetNames(val []string) {
+	p.Names = val
+}
+func (p *ListSecurityGroupsFilter) SetVpcId(val *string) {
+	p.VpcId = val
+}
+
+var fieldIDToName_ListSecurityGroupsFilter = map[int16]string{
+	1: "Ids",
+	2: "Names",
+	3: "VpcId",
+}
+
+func (p *ListSecurityGroupsFilter) IsSetIds() bool {
+	return p.Ids != nil
+}
+
+func (p *ListSecurityGroupsFilter) IsSetNames() bool {
+	return p.Names != nil
+}
+
+func (p *ListSecurityGroupsFilter) IsSetVpcId() bool {
+	return p.VpcId != nil
+}
+
+func (p *ListSecurityGroupsFilter) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 2:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 3:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListSecurityGroupsFilter[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ListSecurityGroupsFilter) ReadField1(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.Ids = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		p.Ids = append(p.Ids, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ListSecurityGroupsFilter) ReadField2(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.Names = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		p.Names = append(p.Names, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ListSecurityGroupsFilter) ReadField3(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.VpcId = &v
+	}
+	return nil
+}
+
+func (p *ListSecurityGroupsFilter) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ListSecurityGroupsFilter"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ListSecurityGroupsFilter) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetIds() {
+		if err = oprot.WriteFieldBegin("Ids", thrift.LIST, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRING, len(p.Ids)); err != nil {
+			return err
+		}
+		for _, v := range p.Ids {
+			if err := oprot.WriteString(v); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ListSecurityGroupsFilter) writeField2(oprot thrift.TProtocol) (err error) {
+	if p.IsSetNames() {
+		if err = oprot.WriteFieldBegin("Names", thrift.LIST, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRING, len(p.Names)); err != nil {
+			return err
+		}
+		for _, v := range p.Names {
+			if err := oprot.WriteString(v); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *ListSecurityGroupsFilter) writeField3(oprot thrift.TProtocol) (err error) {
+	if p.IsSetVpcId() {
+		if err = oprot.WriteFieldBegin("VpcId", thrift.STRING, 3); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.VpcId); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
+}
+
+func (p *ListSecurityGroupsFilter) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ListSecurityGroupsFilter(%+v)", *p)
+}
+
+func (p *ListSecurityGroupsFilter) DeepEqual(ano *ListSecurityGroupsFilter) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Ids) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.Names) {
+		return false
+	}
+	if !p.Field3DeepEqual(ano.VpcId) {
+		return false
+	}
+	return true
+}
+
+func (p *ListSecurityGroupsFilter) Field1DeepEqual(src []string) bool {
+
+	if len(p.Ids) != len(src) {
+		return false
+	}
+	for i, v := range p.Ids {
+		_src := src[i]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
+	}
+	return true
+}
+func (p *ListSecurityGroupsFilter) Field2DeepEqual(src []string) bool {
+
+	if len(p.Names) != len(src) {
+		return false
+	}
+	for i, v := range p.Names {
+		_src := src[i]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
+	}
+	return true
+}
+func (p *ListSecurityGroupsFilter) Field3DeepEqual(src *string) bool {
+
+	if p.VpcId == src {
+		return true
+	} else if p.VpcId == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.VpcId, *src) != 0 {
+		return false
+	}
+	return true
+}
+
 type ListSecurityGroupsRequest struct {
-	VpcId              *string        `thrift:"VpcId,1" json:"VpcId,omitempty"`
-	SecurityGroupIds   []string       `thrift:"SecurityGroupIds,2" json:"SecurityGroupIds,omitempty"`
-	SecurityGroupNames []string       `thrift:"SecurityGroupNames,3" json:"SecurityGroupNames,omitempty"`
-	Start              int32          `thrift:"Start,4" json:"Start,omitempty"`
-	Limit              int32          `thrift:"Limit,5" json:"Limit,omitempty"`
-	Top                *base.TopParam `thrift:"Top,254,required" json:"Top"`
-	Base               *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
+	PageNumber int32                     `thrift:"PageNumber,1" json:"PageNumber" default:"1"`
+	PageSize   int32                     `thrift:"PageSize,2" json:"PageSize" default:"100"`
+	Filter     *ListSecurityGroupsFilter `thrift:"Filter,3" json:"Filter,omitempty"`
+	Top        *base.TopParam            `thrift:"Top,254,required" json:"Top"`
+	Base       *base.Base                `thrift:"Base,255" json:"Base,omitempty"`
 }
 
 func NewListSecurityGroupsRequest() *ListSecurityGroupsRequest {
 	return &ListSecurityGroupsRequest{
 
-		Start: 0,
-		Limit: 10,
+		PageNumber: 1,
+		PageSize:   100,
 	}
 }
 
-var ListSecurityGroupsRequest_VpcId_DEFAULT string
+var ListSecurityGroupsRequest_PageNumber_DEFAULT int32 = 1
 
-func (p *ListSecurityGroupsRequest) GetVpcId() (v string) {
-	if !p.IsSetVpcId() {
-		return ListSecurityGroupsRequest_VpcId_DEFAULT
+func (p *ListSecurityGroupsRequest) GetPageNumber() (v int32) {
+	if !p.IsSetPageNumber() {
+		return ListSecurityGroupsRequest_PageNumber_DEFAULT
 	}
-	return *p.VpcId
+	return p.PageNumber
 }
 
-var ListSecurityGroupsRequest_SecurityGroupIds_DEFAULT []string
+var ListSecurityGroupsRequest_PageSize_DEFAULT int32 = 100
 
-func (p *ListSecurityGroupsRequest) GetSecurityGroupIds() (v []string) {
-	if !p.IsSetSecurityGroupIds() {
-		return ListSecurityGroupsRequest_SecurityGroupIds_DEFAULT
+func (p *ListSecurityGroupsRequest) GetPageSize() (v int32) {
+	if !p.IsSetPageSize() {
+		return ListSecurityGroupsRequest_PageSize_DEFAULT
 	}
-	return p.SecurityGroupIds
+	return p.PageSize
 }
 
-var ListSecurityGroupsRequest_SecurityGroupNames_DEFAULT []string
+var ListSecurityGroupsRequest_Filter_DEFAULT *ListSecurityGroupsFilter
 
-func (p *ListSecurityGroupsRequest) GetSecurityGroupNames() (v []string) {
-	if !p.IsSetSecurityGroupNames() {
-		return ListSecurityGroupsRequest_SecurityGroupNames_DEFAULT
+func (p *ListSecurityGroupsRequest) GetFilter() (v *ListSecurityGroupsFilter) {
+	if !p.IsSetFilter() {
+		return ListSecurityGroupsRequest_Filter_DEFAULT
 	}
-	return p.SecurityGroupNames
-}
-
-var ListSecurityGroupsRequest_Start_DEFAULT int32 = 0
-
-func (p *ListSecurityGroupsRequest) GetStart() (v int32) {
-	if !p.IsSetStart() {
-		return ListSecurityGroupsRequest_Start_DEFAULT
-	}
-	return p.Start
-}
-
-var ListSecurityGroupsRequest_Limit_DEFAULT int32 = 10
-
-func (p *ListSecurityGroupsRequest) GetLimit() (v int32) {
-	if !p.IsSetLimit() {
-		return ListSecurityGroupsRequest_Limit_DEFAULT
-	}
-	return p.Limit
+	return p.Filter
 }
 
 var ListSecurityGroupsRequest_Top_DEFAULT *base.TopParam
@@ -4743,20 +5645,14 @@ func (p *ListSecurityGroupsRequest) GetBase() (v *base.Base) {
 	}
 	return p.Base
 }
-func (p *ListSecurityGroupsRequest) SetVpcId(val *string) {
-	p.VpcId = val
+func (p *ListSecurityGroupsRequest) SetPageNumber(val int32) {
+	p.PageNumber = val
 }
-func (p *ListSecurityGroupsRequest) SetSecurityGroupIds(val []string) {
-	p.SecurityGroupIds = val
+func (p *ListSecurityGroupsRequest) SetPageSize(val int32) {
+	p.PageSize = val
 }
-func (p *ListSecurityGroupsRequest) SetSecurityGroupNames(val []string) {
-	p.SecurityGroupNames = val
-}
-func (p *ListSecurityGroupsRequest) SetStart(val int32) {
-	p.Start = val
-}
-func (p *ListSecurityGroupsRequest) SetLimit(val int32) {
-	p.Limit = val
+func (p *ListSecurityGroupsRequest) SetFilter(val *ListSecurityGroupsFilter) {
+	p.Filter = val
 }
 func (p *ListSecurityGroupsRequest) SetTop(val *base.TopParam) {
 	p.Top = val
@@ -4766,33 +5662,23 @@ func (p *ListSecurityGroupsRequest) SetBase(val *base.Base) {
 }
 
 var fieldIDToName_ListSecurityGroupsRequest = map[int16]string{
-	1:   "VpcId",
-	2:   "SecurityGroupIds",
-	3:   "SecurityGroupNames",
-	4:   "Start",
-	5:   "Limit",
+	1:   "PageNumber",
+	2:   "PageSize",
+	3:   "Filter",
 	254: "Top",
 	255: "Base",
 }
 
-func (p *ListSecurityGroupsRequest) IsSetVpcId() bool {
-	return p.VpcId != nil
+func (p *ListSecurityGroupsRequest) IsSetPageNumber() bool {
+	return p.PageNumber != ListSecurityGroupsRequest_PageNumber_DEFAULT
 }
 
-func (p *ListSecurityGroupsRequest) IsSetSecurityGroupIds() bool {
-	return p.SecurityGroupIds != nil
+func (p *ListSecurityGroupsRequest) IsSetPageSize() bool {
+	return p.PageSize != ListSecurityGroupsRequest_PageSize_DEFAULT
 }
 
-func (p *ListSecurityGroupsRequest) IsSetSecurityGroupNames() bool {
-	return p.SecurityGroupNames != nil
-}
-
-func (p *ListSecurityGroupsRequest) IsSetStart() bool {
-	return p.Start != ListSecurityGroupsRequest_Start_DEFAULT
-}
-
-func (p *ListSecurityGroupsRequest) IsSetLimit() bool {
-	return p.Limit != ListSecurityGroupsRequest_Limit_DEFAULT
+func (p *ListSecurityGroupsRequest) IsSetFilter() bool {
+	return p.Filter != nil
 }
 
 func (p *ListSecurityGroupsRequest) IsSetTop() bool {
@@ -4824,7 +5710,7 @@ func (p *ListSecurityGroupsRequest) Read(iprot thrift.TProtocol) (err error) {
 
 		switch fieldId {
 		case 1:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.I32 {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -4834,7 +5720,7 @@ func (p *ListSecurityGroupsRequest) Read(iprot thrift.TProtocol) (err error) {
 				}
 			}
 		case 2:
-			if fieldTypeId == thrift.LIST {
+			if fieldTypeId == thrift.I32 {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -4844,28 +5730,8 @@ func (p *ListSecurityGroupsRequest) Read(iprot thrift.TProtocol) (err error) {
 				}
 			}
 		case 3:
-			if fieldTypeId == thrift.LIST {
+			if fieldTypeId == thrift.STRUCT {
 				if err = p.ReadField3(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else {
-				if err = iprot.Skip(fieldTypeId); err != nil {
-					goto SkipFieldError
-				}
-			}
-		case 4:
-			if fieldTypeId == thrift.I32 {
-				if err = p.ReadField4(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else {
-				if err = iprot.Skip(fieldTypeId); err != nil {
-					goto SkipFieldError
-				}
-			}
-		case 5:
-			if fieldTypeId == thrift.I32 {
-				if err = p.ReadField5(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else {
@@ -4931,72 +5797,27 @@ RequiredFieldNotSetError:
 }
 
 func (p *ListSecurityGroupsRequest) ReadField1(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadString(); err != nil {
+	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
-		p.VpcId = &v
+		p.PageNumber = v
 	}
 	return nil
 }
 
 func (p *ListSecurityGroupsRequest) ReadField2(iprot thrift.TProtocol) error {
-	_, size, err := iprot.ReadListBegin()
-	if err != nil {
+	if v, err := iprot.ReadI32(); err != nil {
 		return err
-	}
-	p.SecurityGroupIds = make([]string, 0, size)
-	for i := 0; i < size; i++ {
-		var _elem string
-		if v, err := iprot.ReadString(); err != nil {
-			return err
-		} else {
-			_elem = v
-		}
-
-		p.SecurityGroupIds = append(p.SecurityGroupIds, _elem)
-	}
-	if err := iprot.ReadListEnd(); err != nil {
-		return err
+	} else {
+		p.PageSize = v
 	}
 	return nil
 }
 
 func (p *ListSecurityGroupsRequest) ReadField3(iprot thrift.TProtocol) error {
-	_, size, err := iprot.ReadListBegin()
-	if err != nil {
+	p.Filter = NewListSecurityGroupsFilter()
+	if err := p.Filter.Read(iprot); err != nil {
 		return err
-	}
-	p.SecurityGroupNames = make([]string, 0, size)
-	for i := 0; i < size; i++ {
-		var _elem string
-		if v, err := iprot.ReadString(); err != nil {
-			return err
-		} else {
-			_elem = v
-		}
-
-		p.SecurityGroupNames = append(p.SecurityGroupNames, _elem)
-	}
-	if err := iprot.ReadListEnd(); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (p *ListSecurityGroupsRequest) ReadField4(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadI32(); err != nil {
-		return err
-	} else {
-		p.Start = v
-	}
-	return nil
-}
-
-func (p *ListSecurityGroupsRequest) ReadField5(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadI32(); err != nil {
-		return err
-	} else {
-		p.Limit = v
 	}
 	return nil
 }
@@ -5035,14 +5856,6 @@ func (p *ListSecurityGroupsRequest) Write(oprot thrift.TProtocol) (err error) {
 			fieldId = 3
 			goto WriteFieldError
 		}
-		if err = p.writeField4(oprot); err != nil {
-			fieldId = 4
-			goto WriteFieldError
-		}
-		if err = p.writeField5(oprot); err != nil {
-			fieldId = 5
-			goto WriteFieldError
-		}
 		if err = p.writeField254(oprot); err != nil {
 			fieldId = 254
 			goto WriteFieldError
@@ -5071,11 +5884,11 @@ WriteStructEndError:
 }
 
 func (p *ListSecurityGroupsRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if p.IsSetVpcId() {
-		if err = oprot.WriteFieldBegin("VpcId", thrift.STRING, 1); err != nil {
+	if p.IsSetPageNumber() {
+		if err = oprot.WriteFieldBegin("PageNumber", thrift.I32, 1); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteString(*p.VpcId); err != nil {
+		if err := oprot.WriteI32(p.PageNumber); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -5090,19 +5903,11 @@ WriteFieldEndError:
 }
 
 func (p *ListSecurityGroupsRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if p.IsSetSecurityGroupIds() {
-		if err = oprot.WriteFieldBegin("SecurityGroupIds", thrift.LIST, 2); err != nil {
+	if p.IsSetPageSize() {
+		if err = oprot.WriteFieldBegin("PageSize", thrift.I32, 2); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteListBegin(thrift.STRING, len(p.SecurityGroupIds)); err != nil {
-			return err
-		}
-		for _, v := range p.SecurityGroupIds {
-			if err := oprot.WriteString(v); err != nil {
-				return err
-			}
-		}
-		if err := oprot.WriteListEnd(); err != nil {
+		if err := oprot.WriteI32(p.PageSize); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -5117,19 +5922,11 @@ WriteFieldEndError:
 }
 
 func (p *ListSecurityGroupsRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if p.IsSetSecurityGroupNames() {
-		if err = oprot.WriteFieldBegin("SecurityGroupNames", thrift.LIST, 3); err != nil {
+	if p.IsSetFilter() {
+		if err = oprot.WriteFieldBegin("Filter", thrift.STRUCT, 3); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteListBegin(thrift.STRING, len(p.SecurityGroupNames)); err != nil {
-			return err
-		}
-		for _, v := range p.SecurityGroupNames {
-			if err := oprot.WriteString(v); err != nil {
-				return err
-			}
-		}
-		if err := oprot.WriteListEnd(); err != nil {
+		if err := p.Filter.Write(oprot); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -5141,44 +5938,6 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
-}
-
-func (p *ListSecurityGroupsRequest) writeField4(oprot thrift.TProtocol) (err error) {
-	if p.IsSetStart() {
-		if err = oprot.WriteFieldBegin("Start", thrift.I32, 4); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteI32(p.Start); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
-}
-
-func (p *ListSecurityGroupsRequest) writeField5(oprot thrift.TProtocol) (err error) {
-	if p.IsSetLimit() {
-		if err = oprot.WriteFieldBegin("Limit", thrift.I32, 5); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteI32(p.Limit); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 5 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
 }
 
 func (p *ListSecurityGroupsRequest) writeField254(oprot thrift.TProtocol) (err error) {
@@ -5230,19 +5989,13 @@ func (p *ListSecurityGroupsRequest) DeepEqual(ano *ListSecurityGroupsRequest) bo
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.VpcId) {
+	if !p.Field1DeepEqual(ano.PageNumber) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.SecurityGroupIds) {
+	if !p.Field2DeepEqual(ano.PageSize) {
 		return false
 	}
-	if !p.Field3DeepEqual(ano.SecurityGroupNames) {
-		return false
-	}
-	if !p.Field4DeepEqual(ano.Start) {
-		return false
-	}
-	if !p.Field5DeepEqual(ano.Limit) {
+	if !p.Field3DeepEqual(ano.Filter) {
 		return false
 	}
 	if !p.Field254DeepEqual(ano.Top) {
@@ -5254,54 +6007,23 @@ func (p *ListSecurityGroupsRequest) DeepEqual(ano *ListSecurityGroupsRequest) bo
 	return true
 }
 
-func (p *ListSecurityGroupsRequest) Field1DeepEqual(src *string) bool {
+func (p *ListSecurityGroupsRequest) Field1DeepEqual(src int32) bool {
 
-	if p.VpcId == src {
-		return true
-	} else if p.VpcId == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.VpcId, *src) != 0 {
+	if p.PageNumber != src {
 		return false
 	}
 	return true
 }
-func (p *ListSecurityGroupsRequest) Field2DeepEqual(src []string) bool {
+func (p *ListSecurityGroupsRequest) Field2DeepEqual(src int32) bool {
 
-	if len(p.SecurityGroupIds) != len(src) {
-		return false
-	}
-	for i, v := range p.SecurityGroupIds {
-		_src := src[i]
-		if strings.Compare(v, _src) != 0 {
-			return false
-		}
-	}
-	return true
-}
-func (p *ListSecurityGroupsRequest) Field3DeepEqual(src []string) bool {
-
-	if len(p.SecurityGroupNames) != len(src) {
-		return false
-	}
-	for i, v := range p.SecurityGroupNames {
-		_src := src[i]
-		if strings.Compare(v, _src) != 0 {
-			return false
-		}
-	}
-	return true
-}
-func (p *ListSecurityGroupsRequest) Field4DeepEqual(src int32) bool {
-
-	if p.Start != src {
+	if p.PageSize != src {
 		return false
 	}
 	return true
 }
-func (p *ListSecurityGroupsRequest) Field5DeepEqual(src int32) bool {
+func (p *ListSecurityGroupsRequest) Field3DeepEqual(src *ListSecurityGroupsFilter) bool {
 
-	if p.Limit != src {
+	if !p.Filter.DeepEqual(src) {
 		return false
 	}
 	return true

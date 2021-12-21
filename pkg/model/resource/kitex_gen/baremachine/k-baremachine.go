@@ -1023,7 +1023,7 @@ func (p *CreateBareMachineResponse) FastRead(buf []byte) (int, error) {
 	var l int
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetId bool = false
+	var issetIds bool = false
 	_, l, err = bthrift.Binary.ReadStructBegin(buf)
 	offset += l
 	if err != nil {
@@ -1041,13 +1041,13 @@ func (p *CreateBareMachineResponse) FastRead(buf []byte) (int, error) {
 		}
 		switch fieldId {
 		case 1:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.LIST {
 				l, err = p.FastReadField1(buf[offset:])
 				offset += l
 				if err != nil {
 					goto ReadFieldError
 				}
-				issetId = true
+				issetIds = true
 			} else {
 				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
 				offset += l
@@ -1089,7 +1089,7 @@ func (p *CreateBareMachineResponse) FastRead(buf []byte) (int, error) {
 		goto ReadStructEndError
 	}
 
-	if !issetId {
+	if !issetIds {
 		fieldId = 1
 		goto RequiredFieldNotSetError
 	}
@@ -1113,13 +1113,29 @@ RequiredFieldNotSetError:
 func (p *CreateBareMachineResponse) FastReadField1(buf []byte) (int, error) {
 	offset := 0
 
-	if v, l, err := bthrift.Binary.ReadString(buf[offset:]); err != nil {
+	_, size, l, err := bthrift.Binary.ReadListBegin(buf[offset:])
+	offset += l
+	if err != nil {
+		return offset, err
+	}
+	p.Ids = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, l, err := bthrift.Binary.ReadString(buf[offset:]); err != nil {
+			return offset, err
+		} else {
+			offset += l
+
+			_elem = v
+
+		}
+
+		p.Ids = append(p.Ids, _elem)
+	}
+	if l, err := bthrift.Binary.ReadListEnd(buf[offset:]); err != nil {
 		return offset, err
 	} else {
 		offset += l
-
-		p.Id = v
-
 	}
 	return offset, nil
 }
@@ -1166,9 +1182,17 @@ func (p *CreateBareMachineResponse) BLength() int {
 
 func (p *CreateBareMachineResponse) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "Id", thrift.STRING, 1)
-	offset += bthrift.Binary.WriteStringNocopy(buf[offset:], binaryWriter, p.Id)
+	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "Ids", thrift.LIST, 1)
+	listBeginOffset := offset
+	offset += bthrift.Binary.ListBeginLength(thrift.STRING, 0)
+	var length int
+	for _, v := range p.Ids {
+		length++
+		offset += bthrift.Binary.WriteStringNocopy(buf[offset:], binaryWriter, v)
 
+	}
+	bthrift.Binary.WriteListBegin(buf[listBeginOffset:], thrift.STRING, length)
+	offset += bthrift.Binary.WriteListEnd(buf[offset:])
 	offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
 	return offset
 }
@@ -1185,9 +1209,13 @@ func (p *CreateBareMachineResponse) fastWriteField255(buf []byte, binaryWriter b
 
 func (p *CreateBareMachineResponse) field1Length() int {
 	l := 0
-	l += bthrift.Binary.FieldBeginLength("Id", thrift.STRING, 1)
-	l += bthrift.Binary.StringLengthNocopy(p.Id)
+	l += bthrift.Binary.FieldBeginLength("Ids", thrift.LIST, 1)
+	l += bthrift.Binary.ListBeginLength(thrift.STRING, len(p.Ids))
+	for _, v := range p.Ids {
+		l += bthrift.Binary.StringLengthNocopy(v)
 
+	}
+	l += bthrift.Binary.ListEndLength()
 	l += bthrift.Binary.FieldEndLength()
 	return l
 }

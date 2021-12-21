@@ -13,6 +13,8 @@ import (
 )
 
 const (
+	LoginTypeKeyPair = "KeyPair"
+
 	LoginTypeSshKey = "SshKey"
 
 	LoginTypePassword = "Password"
@@ -35,6 +37,8 @@ const (
 
 	NetworkTypeFlannel = "Flannel"
 
+	NetworkTypeVpcCNI = "VPC-CNI"
+
 	KubeProxyModeIpvs = "ipvs"
 
 	KubeProxyModeIptables = "iptables"
@@ -55,13 +59,17 @@ const (
 
 	StatusClusterOverdue = "Overdue"
 
-	KubeConfigTypeUserExternal = "UserExternal"
+	StatusClusterImporting = "Importing"
 
-	KubeConfigTypeUserInternal = "UserInternal"
+	StatusClusterimportFailed = "ImportFailed"
 
-	KubeConfigTypeServiceInternal = "ServiceInternal"
+	KubeconfigTypeUserExternal = "UserExternal"
 
-	KubeConfigTypeRegistered = "Registered"
+	KubeconfigTypeUserInternal = "UserInternal"
+
+	KubeconfigTypeServiceInternal = "ServiceInternal"
+
+	KubeconfigTypeRegistered = "Registered"
 
 	StatusClusterDeployWaiting = "Waiting"
 
@@ -83,6 +91,8 @@ const (
 
 	StatusNodeRemoving = "Removing"
 
+	StatusNodeRemoveFailed = "RemoveFailed"
+
 	StatusNodeOnlining = "Onlining"
 
 	StatusNodeOfflining = "Offlining"
@@ -103,7 +113,7 @@ const (
 
 	StatusNodePoolDeleting = "Deleting"
 
-	StatusNodePoolOverdue = "Overdue"
+	StatusNodePoolDeleteFailed = "DeleteFailed"
 
 	StatusScalingRecordScaling = "Scaling"
 
@@ -114,17 +124,31 @@ const (
 	StatusNamespaceActive = "Active"
 
 	StatusNamespaceTerminating = "Terminating"
+
+	PodCidrConflictWithVpcCidr = "PodCidrConflictWithVpcCidr"
+
+	PodCidrConflictWithServiceCidr = "PodCidrConflictWithServiceCidr"
+
+	PodCidrConflictWithClusterCidr = "PodCidrConflictWithClusterCidr"
+
+	ServiceCidrConflictWithVpcCidr = "ServiceCidrConflictWithVpcCidr"
+
+	ServiceCidrConflictWithClusterCidr = "ServiceCidrConflictWithClusterCidr"
+
+	PodCidrForbidden = "PodCidrForbidden"
+
+	ServiceCidrForbbiden = "ServiceCidrForbidden"
 )
 
 type ResourceStatistics struct {
 	TotalCpu            string `thrift:"TotalCpu,1,required" json:"TotalCpu"`
 	UsedCpu             string `thrift:"UsedCpu,2,required" json:"UsedCpu"`
 	FreeCpu             string `thrift:"FreeCpu,3,required" json:"FreeCpu"`
-	UnSchedulableCpu    string `thrift:"UnSchedulableCpu,4,required" json:"UnSchedulableCpu"`
+	UnschedulableCpu    string `thrift:"UnschedulableCpu,4,required" json:"UnschedulableCpu"`
 	TotalMemory         string `thrift:"TotalMemory,5,required" json:"TotalMemory"`
 	UsedMemory          string `thrift:"UsedMemory,6,required" json:"UsedMemory"`
 	FreeMemory          string `thrift:"FreeMemory,7,required" json:"FreeMemory"`
-	UnSchedulableMemory string `thrift:"UnSchedulableMemory,8,required" json:"UnSchedulableMemory"`
+	UnschedulableMemory string `thrift:"UnschedulableMemory,8,required" json:"UnschedulableMemory"`
 }
 
 func NewResourceStatistics() *ResourceStatistics {
@@ -143,8 +167,8 @@ func (p *ResourceStatistics) GetFreeCpu() (v string) {
 	return p.FreeCpu
 }
 
-func (p *ResourceStatistics) GetUnSchedulableCpu() (v string) {
-	return p.UnSchedulableCpu
+func (p *ResourceStatistics) GetUnschedulableCpu() (v string) {
+	return p.UnschedulableCpu
 }
 
 func (p *ResourceStatistics) GetTotalMemory() (v string) {
@@ -159,8 +183,8 @@ func (p *ResourceStatistics) GetFreeMemory() (v string) {
 	return p.FreeMemory
 }
 
-func (p *ResourceStatistics) GetUnSchedulableMemory() (v string) {
-	return p.UnSchedulableMemory
+func (p *ResourceStatistics) GetUnschedulableMemory() (v string) {
+	return p.UnschedulableMemory
 }
 func (p *ResourceStatistics) SetTotalCpu(val string) {
 	p.TotalCpu = val
@@ -171,8 +195,8 @@ func (p *ResourceStatistics) SetUsedCpu(val string) {
 func (p *ResourceStatistics) SetFreeCpu(val string) {
 	p.FreeCpu = val
 }
-func (p *ResourceStatistics) SetUnSchedulableCpu(val string) {
-	p.UnSchedulableCpu = val
+func (p *ResourceStatistics) SetUnschedulableCpu(val string) {
+	p.UnschedulableCpu = val
 }
 func (p *ResourceStatistics) SetTotalMemory(val string) {
 	p.TotalMemory = val
@@ -183,19 +207,19 @@ func (p *ResourceStatistics) SetUsedMemory(val string) {
 func (p *ResourceStatistics) SetFreeMemory(val string) {
 	p.FreeMemory = val
 }
-func (p *ResourceStatistics) SetUnSchedulableMemory(val string) {
-	p.UnSchedulableMemory = val
+func (p *ResourceStatistics) SetUnschedulableMemory(val string) {
+	p.UnschedulableMemory = val
 }
 
 var fieldIDToName_ResourceStatistics = map[int16]string{
 	1: "TotalCpu",
 	2: "UsedCpu",
 	3: "FreeCpu",
-	4: "UnSchedulableCpu",
+	4: "UnschedulableCpu",
 	5: "TotalMemory",
 	6: "UsedMemory",
 	7: "FreeMemory",
-	8: "UnSchedulableMemory",
+	8: "UnschedulableMemory",
 }
 
 func (p *ResourceStatistics) Read(iprot thrift.TProtocol) (err error) {
@@ -205,11 +229,11 @@ func (p *ResourceStatistics) Read(iprot thrift.TProtocol) (err error) {
 	var issetTotalCpu bool = false
 	var issetUsedCpu bool = false
 	var issetFreeCpu bool = false
-	var issetUnSchedulableCpu bool = false
+	var issetUnschedulableCpu bool = false
 	var issetTotalMemory bool = false
 	var issetUsedMemory bool = false
 	var issetFreeMemory bool = false
-	var issetUnSchedulableMemory bool = false
+	var issetUnschedulableMemory bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -263,7 +287,7 @@ func (p *ResourceStatistics) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField4(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetUnSchedulableCpu = true
+				issetUnschedulableCpu = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -307,7 +331,7 @@ func (p *ResourceStatistics) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField8(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetUnSchedulableMemory = true
+				issetUnschedulableMemory = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -342,7 +366,7 @@ func (p *ResourceStatistics) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetUnSchedulableCpu {
+	if !issetUnschedulableCpu {
 		fieldId = 4
 		goto RequiredFieldNotSetError
 	}
@@ -362,7 +386,7 @@ func (p *ResourceStatistics) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetUnSchedulableMemory {
+	if !issetUnschedulableMemory {
 		fieldId = 8
 		goto RequiredFieldNotSetError
 	}
@@ -415,7 +439,7 @@ func (p *ResourceStatistics) ReadField4(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.UnSchedulableCpu = v
+		p.UnschedulableCpu = v
 	}
 	return nil
 }
@@ -451,7 +475,7 @@ func (p *ResourceStatistics) ReadField8(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.UnSchedulableMemory = v
+		p.UnschedulableMemory = v
 	}
 	return nil
 }
@@ -565,10 +589,10 @@ WriteFieldEndError:
 }
 
 func (p *ResourceStatistics) writeField4(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("UnSchedulableCpu", thrift.STRING, 4); err != nil {
+	if err = oprot.WriteFieldBegin("UnschedulableCpu", thrift.STRING, 4); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.UnSchedulableCpu); err != nil {
+	if err := oprot.WriteString(p.UnschedulableCpu); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -633,10 +657,10 @@ WriteFieldEndError:
 }
 
 func (p *ResourceStatistics) writeField8(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("UnSchedulableMemory", thrift.STRING, 8); err != nil {
+	if err = oprot.WriteFieldBegin("UnschedulableMemory", thrift.STRING, 8); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.UnSchedulableMemory); err != nil {
+	if err := oprot.WriteString(p.UnschedulableMemory); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -671,7 +695,7 @@ func (p *ResourceStatistics) DeepEqual(ano *ResourceStatistics) bool {
 	if !p.Field3DeepEqual(ano.FreeCpu) {
 		return false
 	}
-	if !p.Field4DeepEqual(ano.UnSchedulableCpu) {
+	if !p.Field4DeepEqual(ano.UnschedulableCpu) {
 		return false
 	}
 	if !p.Field5DeepEqual(ano.TotalMemory) {
@@ -683,7 +707,7 @@ func (p *ResourceStatistics) DeepEqual(ano *ResourceStatistics) bool {
 	if !p.Field7DeepEqual(ano.FreeMemory) {
 		return false
 	}
-	if !p.Field8DeepEqual(ano.UnSchedulableMemory) {
+	if !p.Field8DeepEqual(ano.UnschedulableMemory) {
 		return false
 	}
 	return true
@@ -712,7 +736,7 @@ func (p *ResourceStatistics) Field3DeepEqual(src string) bool {
 }
 func (p *ResourceStatistics) Field4DeepEqual(src string) bool {
 
-	if strings.Compare(p.UnSchedulableCpu, src) != 0 {
+	if strings.Compare(p.UnschedulableCpu, src) != 0 {
 		return false
 	}
 	return true
@@ -740,7 +764,7 @@ func (p *ResourceStatistics) Field7DeepEqual(src string) bool {
 }
 func (p *ResourceStatistics) Field8DeepEqual(src string) bool {
 
-	if strings.Compare(p.UnSchedulableMemory, src) != 0 {
+	if strings.Compare(p.UnschedulableMemory, src) != 0 {
 		return false
 	}
 	return true
@@ -980,75 +1004,67 @@ func (p *Gpu) Field2DeepEqual(src string) bool {
 	return true
 }
 
-type NodeSpecific struct {
+type InstanceType struct {
 	Id         string `thrift:"Id,1,required" json:"Id"`
-	Type       string `thrift:"Type,2" json:"Type,omitempty"`
+	Type       string `thrift:"Type,2,required" json:"Type"`
 	TypeFamily string `thrift:"TypeFamily,3,required" json:"TypeFamily"`
 	Cpu        string `thrift:"Cpu,4,required" json:"Cpu"`
 	Memory     string `thrift:"Memory,5,required" json:"Memory"`
-	Gpu        *Gpu   `thrift:"Gpu,6" json:"Gpu,omitempty"`
+	Gpu        *Gpu   `thrift:"Gpu,6,required" json:"Gpu"`
 }
 
-func NewNodeSpecific() *NodeSpecific {
-	return &NodeSpecific{
-
-		Type: "",
-	}
+func NewInstanceType() *InstanceType {
+	return &InstanceType{}
 }
 
-func (p *NodeSpecific) GetId() (v string) {
+func (p *InstanceType) GetId() (v string) {
 	return p.Id
 }
 
-var NodeSpecific_Type_DEFAULT string = ""
-
-func (p *NodeSpecific) GetType() (v string) {
-	if !p.IsSetType() {
-		return NodeSpecific_Type_DEFAULT
-	}
+func (p *InstanceType) GetType() (v string) {
 	return p.Type
 }
 
-func (p *NodeSpecific) GetTypeFamily() (v string) {
+func (p *InstanceType) GetTypeFamily() (v string) {
 	return p.TypeFamily
 }
 
-func (p *NodeSpecific) GetCpu() (v string) {
+func (p *InstanceType) GetCpu() (v string) {
 	return p.Cpu
 }
 
-func (p *NodeSpecific) GetMemory() (v string) {
+func (p *InstanceType) GetMemory() (v string) {
 	return p.Memory
 }
 
-var NodeSpecific_Gpu_DEFAULT *Gpu
+var InstanceType_Gpu_DEFAULT *Gpu
 
-func (p *NodeSpecific) GetGpu() (v *Gpu) {
+func (p *InstanceType) GetGpu() (v *Gpu) {
 	if !p.IsSetGpu() {
-		return NodeSpecific_Gpu_DEFAULT
+		return InstanceType_Gpu_DEFAULT
 	}
 	return p.Gpu
 }
-func (p *NodeSpecific) SetId(val string) {
+func (p *InstanceType) SetId(val string) {
 	p.Id = val
 }
-func (p *NodeSpecific) SetType(val string) {
+func (p *InstanceType) SetType(val string) {
 	p.Type = val
 }
-func (p *NodeSpecific) SetTypeFamily(val string) {
+func (p *InstanceType) SetTypeFamily(val string) {
 	p.TypeFamily = val
 }
-func (p *NodeSpecific) SetCpu(val string) {
+func (p *InstanceType) SetCpu(val string) {
 	p.Cpu = val
 }
-func (p *NodeSpecific) SetMemory(val string) {
+func (p *InstanceType) SetMemory(val string) {
 	p.Memory = val
 }
-func (p *NodeSpecific) SetGpu(val *Gpu) {
+func (p *InstanceType) SetGpu(val *Gpu) {
 	p.Gpu = val
 }
 
-var fieldIDToName_NodeSpecific = map[int16]string{
+var fieldIDToName_InstanceType = map[int16]string{
 	1: "Id",
 	2: "Type",
 	3: "TypeFamily",
@@ -1057,22 +1073,20 @@ var fieldIDToName_NodeSpecific = map[int16]string{
 	6: "Gpu",
 }
 
-func (p *NodeSpecific) IsSetType() bool {
-	return p.Type != NodeSpecific_Type_DEFAULT
-}
-
-func (p *NodeSpecific) IsSetGpu() bool {
+func (p *InstanceType) IsSetGpu() bool {
 	return p.Gpu != nil
 }
 
-func (p *NodeSpecific) Read(iprot thrift.TProtocol) (err error) {
+func (p *InstanceType) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetId bool = false
+	var issetType bool = false
 	var issetTypeFamily bool = false
 	var issetCpu bool = false
 	var issetMemory bool = false
+	var issetGpu bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -1104,6 +1118,7 @@ func (p *NodeSpecific) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
+				issetType = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -1147,6 +1162,7 @@ func (p *NodeSpecific) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField6(iprot); err != nil {
 					goto ReadFieldError
 				}
+				issetGpu = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -1171,6 +1187,11 @@ func (p *NodeSpecific) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
+	if !issetType {
+		fieldId = 2
+		goto RequiredFieldNotSetError
+	}
+
 	if !issetTypeFamily {
 		fieldId = 3
 		goto RequiredFieldNotSetError
@@ -1185,13 +1206,18 @@ func (p *NodeSpecific) Read(iprot thrift.TProtocol) (err error) {
 		fieldId = 5
 		goto RequiredFieldNotSetError
 	}
+
+	if !issetGpu {
+		fieldId = 6
+		goto RequiredFieldNotSetError
+	}
 	return nil
 ReadStructBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_NodeSpecific[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_InstanceType[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -1200,10 +1226,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_NodeSpecific[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_InstanceType[fieldId]))
 }
 
-func (p *NodeSpecific) ReadField1(iprot thrift.TProtocol) error {
+func (p *InstanceType) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -1212,7 +1238,7 @@ func (p *NodeSpecific) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *NodeSpecific) ReadField2(iprot thrift.TProtocol) error {
+func (p *InstanceType) ReadField2(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -1221,7 +1247,7 @@ func (p *NodeSpecific) ReadField2(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *NodeSpecific) ReadField3(iprot thrift.TProtocol) error {
+func (p *InstanceType) ReadField3(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -1230,7 +1256,7 @@ func (p *NodeSpecific) ReadField3(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *NodeSpecific) ReadField4(iprot thrift.TProtocol) error {
+func (p *InstanceType) ReadField4(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -1239,7 +1265,7 @@ func (p *NodeSpecific) ReadField4(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *NodeSpecific) ReadField5(iprot thrift.TProtocol) error {
+func (p *InstanceType) ReadField5(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -1248,7 +1274,7 @@ func (p *NodeSpecific) ReadField5(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *NodeSpecific) ReadField6(iprot thrift.TProtocol) error {
+func (p *InstanceType) ReadField6(iprot thrift.TProtocol) error {
 	p.Gpu = NewGpu()
 	if err := p.Gpu.Read(iprot); err != nil {
 		return err
@@ -1256,9 +1282,9 @@ func (p *NodeSpecific) ReadField6(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *NodeSpecific) Write(oprot thrift.TProtocol) (err error) {
+func (p *InstanceType) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("NodeSpecific"); err != nil {
+	if err = oprot.WriteStructBegin("InstanceType"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -1305,7 +1331,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *NodeSpecific) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *InstanceType) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Id", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -1322,17 +1348,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *NodeSpecific) writeField2(oprot thrift.TProtocol) (err error) {
-	if p.IsSetType() {
-		if err = oprot.WriteFieldBegin("Type", thrift.STRING, 2); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(p.Type); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+func (p *InstanceType) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("Type", thrift.STRING, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Type); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -1341,7 +1365,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *NodeSpecific) writeField3(oprot thrift.TProtocol) (err error) {
+func (p *InstanceType) writeField3(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("TypeFamily", thrift.STRING, 3); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -1358,7 +1382,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
-func (p *NodeSpecific) writeField4(oprot thrift.TProtocol) (err error) {
+func (p *InstanceType) writeField4(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Cpu", thrift.STRING, 4); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -1375,7 +1399,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
 }
 
-func (p *NodeSpecific) writeField5(oprot thrift.TProtocol) (err error) {
+func (p *InstanceType) writeField5(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Memory", thrift.STRING, 5); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -1392,17 +1416,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
 }
 
-func (p *NodeSpecific) writeField6(oprot thrift.TProtocol) (err error) {
-	if p.IsSetGpu() {
-		if err = oprot.WriteFieldBegin("Gpu", thrift.STRUCT, 6); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := p.Gpu.Write(oprot); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+func (p *InstanceType) writeField6(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("Gpu", thrift.STRUCT, 6); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Gpu.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -1411,14 +1433,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
 }
 
-func (p *NodeSpecific) String() string {
+func (p *InstanceType) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("NodeSpecific(%+v)", *p)
+	return fmt.Sprintf("InstanceType(%+v)", *p)
 }
 
-func (p *NodeSpecific) DeepEqual(ano *NodeSpecific) bool {
+func (p *InstanceType) DeepEqual(ano *InstanceType) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -1445,42 +1467,42 @@ func (p *NodeSpecific) DeepEqual(ano *NodeSpecific) bool {
 	return true
 }
 
-func (p *NodeSpecific) Field1DeepEqual(src string) bool {
+func (p *InstanceType) Field1DeepEqual(src string) bool {
 
 	if strings.Compare(p.Id, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *NodeSpecific) Field2DeepEqual(src string) bool {
+func (p *InstanceType) Field2DeepEqual(src string) bool {
 
 	if strings.Compare(p.Type, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *NodeSpecific) Field3DeepEqual(src string) bool {
+func (p *InstanceType) Field3DeepEqual(src string) bool {
 
 	if strings.Compare(p.TypeFamily, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *NodeSpecific) Field4DeepEqual(src string) bool {
+func (p *InstanceType) Field4DeepEqual(src string) bool {
 
 	if strings.Compare(p.Cpu, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *NodeSpecific) Field5DeepEqual(src string) bool {
+func (p *InstanceType) Field5DeepEqual(src string) bool {
 
 	if strings.Compare(p.Memory, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *NodeSpecific) Field6DeepEqual(src *Gpu) bool {
+func (p *InstanceType) Field6DeepEqual(src *Gpu) bool {
 
 	if !p.Gpu.DeepEqual(src) {
 		return false
@@ -2023,9 +2045,10 @@ func (p *Volume) Field2DeepEqual(src int64) bool {
 }
 
 type Login struct {
-	LoginType string  `thrift:"LoginType,1,required" json:"LoginType"`
-	SshKey    *string `thrift:"SshKey,2" json:"SshKey,omitempty"`
-	Password  *string `thrift:"Password,3" json:"Password,omitempty"`
+	LoginType   string  `thrift:"LoginType,1,required" validate:"required"`
+	SshKey      *string `thrift:"SshKey,2" json:"SshKey,omitempty"`
+	Password    *string `thrift:"Password,3" json:"Password,omitempty"`
+	KeyPairName *string `thrift:"KeyPairName,4" json:"KeyPairName,omitempty"`
 }
 
 func NewLogin() *Login {
@@ -2053,6 +2076,15 @@ func (p *Login) GetPassword() (v string) {
 	}
 	return *p.Password
 }
+
+var Login_KeyPairName_DEFAULT string
+
+func (p *Login) GetKeyPairName() (v string) {
+	if !p.IsSetKeyPairName() {
+		return Login_KeyPairName_DEFAULT
+	}
+	return *p.KeyPairName
+}
 func (p *Login) SetLoginType(val string) {
 	p.LoginType = val
 }
@@ -2062,11 +2094,15 @@ func (p *Login) SetSshKey(val *string) {
 func (p *Login) SetPassword(val *string) {
 	p.Password = val
 }
+func (p *Login) SetKeyPairName(val *string) {
+	p.KeyPairName = val
+}
 
 var fieldIDToName_Login = map[int16]string{
 	1: "LoginType",
 	2: "SshKey",
 	3: "Password",
+	4: "KeyPairName",
 }
 
 func (p *Login) IsSetSshKey() bool {
@@ -2075,6 +2111,10 @@ func (p *Login) IsSetSshKey() bool {
 
 func (p *Login) IsSetPassword() bool {
 	return p.Password != nil
+}
+
+func (p *Login) IsSetKeyPairName() bool {
+	return p.KeyPairName != nil
 }
 
 func (p *Login) Read(iprot thrift.TProtocol) (err error) {
@@ -2121,6 +2161,16 @@ func (p *Login) Read(iprot thrift.TProtocol) (err error) {
 		case 3:
 			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 4:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField4(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else {
@@ -2191,6 +2241,15 @@ func (p *Login) ReadField3(iprot thrift.TProtocol) error {
 	return nil
 }
 
+func (p *Login) ReadField4(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.KeyPairName = &v
+	}
+	return nil
+}
+
 func (p *Login) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
 	if err = oprot.WriteStructBegin("Login"); err != nil {
@@ -2207,6 +2266,10 @@ func (p *Login) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField3(oprot); err != nil {
 			fieldId = 3
+			goto WriteFieldError
+		}
+		if err = p.writeField4(oprot); err != nil {
+			fieldId = 4
 			goto WriteFieldError
 		}
 
@@ -2283,6 +2346,25 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
+func (p *Login) writeField4(oprot thrift.TProtocol) (err error) {
+	if p.IsSetKeyPairName() {
+		if err = oprot.WriteFieldBegin("KeyPairName", thrift.STRING, 4); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.KeyPairName); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
+}
+
 func (p *Login) String() string {
 	if p == nil {
 		return "<nil>"
@@ -2303,6 +2385,9 @@ func (p *Login) DeepEqual(ano *Login) bool {
 		return false
 	}
 	if !p.Field3DeepEqual(ano.Password) {
+		return false
+	}
+	if !p.Field4DeepEqual(ano.KeyPairName) {
 		return false
 	}
 	return true
@@ -2339,22 +2424,48 @@ func (p *Login) Field3DeepEqual(src *string) bool {
 	}
 	return true
 }
+func (p *Login) Field4DeepEqual(src *string) bool {
+
+	if p.KeyPairName == src {
+		return true
+	} else if p.KeyPairName == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.KeyPairName, *src) != 0 {
+		return false
+	}
+	return true
+}
 
 type NetworkPermission struct {
-	ChargeType     string `thrift:"ChargeType,1,required" validate:"required,oneof=PostPaid"`
-	LanType        string `thrift:"LanType,2,required" validate:"required,oneof=BGPMultiLine BGPSingleLine ChinaUnicom ChinaMobile ChinaTelecom"`
-	BandwidthLimit int32  `thrift:"BandwidthLimit,3,required" validate:"required"`
+	ChargeType     string `thrift:"ChargeType,1" json:"ChargeType" validate:"oneof=PostPaid" default:"PostPaid"`
+	LanType        string `thrift:"LanType,2" json:"LanType" validate:"oneof=BGP ChinaUnicom ChinaMobile ChinaTelecom" default:"BGP"`
+	BandwidthLimit int32  `thrift:"BandwidthLimit,3,required" validate:"required,gte=1,lte=500"`
 }
 
 func NewNetworkPermission() *NetworkPermission {
-	return &NetworkPermission{}
+	return &NetworkPermission{
+
+		ChargeType: "PostPaid",
+		LanType:    "BGP",
+	}
 }
 
+var NetworkPermission_ChargeType_DEFAULT string = "PostPaid"
+
 func (p *NetworkPermission) GetChargeType() (v string) {
+	if !p.IsSetChargeType() {
+		return NetworkPermission_ChargeType_DEFAULT
+	}
 	return p.ChargeType
 }
 
+var NetworkPermission_LanType_DEFAULT string = "BGP"
+
 func (p *NetworkPermission) GetLanType() (v string) {
+	if !p.IsSetLanType() {
+		return NetworkPermission_LanType_DEFAULT
+	}
 	return p.LanType
 }
 
@@ -2377,12 +2488,18 @@ var fieldIDToName_NetworkPermission = map[int16]string{
 	3: "BandwidthLimit",
 }
 
+func (p *NetworkPermission) IsSetChargeType() bool {
+	return p.ChargeType != NetworkPermission_ChargeType_DEFAULT
+}
+
+func (p *NetworkPermission) IsSetLanType() bool {
+	return p.LanType != NetworkPermission_LanType_DEFAULT
+}
+
 func (p *NetworkPermission) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetChargeType bool = false
-	var issetLanType bool = false
 	var issetBandwidthLimit bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
@@ -2404,7 +2521,6 @@ func (p *NetworkPermission) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetChargeType = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -2415,7 +2531,6 @@ func (p *NetworkPermission) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetLanType = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -2444,16 +2559,6 @@ func (p *NetworkPermission) Read(iprot thrift.TProtocol) (err error) {
 	}
 	if err = iprot.ReadStructEnd(); err != nil {
 		goto ReadStructEndError
-	}
-
-	if !issetChargeType {
-		fieldId = 1
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetLanType {
-		fieldId = 2
-		goto RequiredFieldNotSetError
 	}
 
 	if !issetBandwidthLimit {
@@ -2543,14 +2648,16 @@ WriteStructEndError:
 }
 
 func (p *NetworkPermission) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("ChargeType", thrift.STRING, 1); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.ChargeType); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+	if p.IsSetChargeType() {
+		if err = oprot.WriteFieldBegin("ChargeType", thrift.STRING, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(p.ChargeType); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:
@@ -2560,14 +2667,16 @@ WriteFieldEndError:
 }
 
 func (p *NetworkPermission) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("LanType", thrift.STRING, 2); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.LanType); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+	if p.IsSetLanType() {
+		if err = oprot.WriteFieldBegin("LanType", thrift.STRING, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(p.LanType); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:
@@ -2643,14 +2752,16 @@ func (p *NetworkPermission) Field3DeepEqual(src int32) bool {
 type ClusterNetworkConfig struct {
 	VpcId                 *string            `thrift:"VpcId,1" json:"VpcId,omitempty"`
 	SubnetId              *string            `thrift:"SubnetId,2" json:"SubnetId,omitempty"`
-	Type                  string             `thrift:"Type,3,required" validate:"required,oneof=Calico Flannel"`
+	Type                  string             `thrift:"Type,3,required" validate:"required,oneof=Calico Flannel VPC-CNI"`
 	Mode                  *string            `thrift:"Mode,4" json:"Mode,omitempty"`
-	PodCidr               string             `thrift:"PodCidr,5,required" validate:"required"`
-	MaxNodePodNum         int32              `thrift:"MaxNodePodNum,6,required" validate:"required,oneof=16 32 64 128 256"`
+	PodCidr               *string            `thrift:"PodCidr,5" json:"PodCidr,omitempty"`
+	PodSubnets            []string           `thrift:"PodSubnets,6" json:"PodSubnets,omitempty"`
 	ServiceCidr           string             `thrift:"ServiceCidr,7,required" validate:"required"`
-	NodePublicAccess      bool               `thrift:"NodePublicAccess,8,required" json:"NodePublicAccess"`
-	ApiServerPublicAccess *NetworkPermission `thrift:"ApiServerPublicAccess,9" json:"ApiServerPublicAccess,omitempty"`
-	Vip                   *string            `thrift:"Vip,10" json:"Vip,omitempty"`
+	MaxNodePodNumber      *int32             `thrift:"MaxNodePodNumber,8" json:"MaxNodePodNumber,omitempty"`
+	NodePublicAccess      bool               `thrift:"NodePublicAccess,9,required" json:"NodePublicAccess"`
+	ApiServerPublicAccess *NetworkPermission `thrift:"ApiServerPublicAccess,10" json:"ApiServerPublicAccess,omitempty"`
+	Vip                   *string            `thrift:"Vip,11" json:"Vip,omitempty"`
+	SubnetIds             []string           `thrift:"SubnetIds,12" json:"SubnetIds,omitempty"`
 }
 
 func NewClusterNetworkConfig() *ClusterNetworkConfig {
@@ -2688,16 +2799,35 @@ func (p *ClusterNetworkConfig) GetMode() (v string) {
 	return *p.Mode
 }
 
+var ClusterNetworkConfig_PodCidr_DEFAULT string
+
 func (p *ClusterNetworkConfig) GetPodCidr() (v string) {
-	return p.PodCidr
+	if !p.IsSetPodCidr() {
+		return ClusterNetworkConfig_PodCidr_DEFAULT
+	}
+	return *p.PodCidr
 }
 
-func (p *ClusterNetworkConfig) GetMaxNodePodNum() (v int32) {
-	return p.MaxNodePodNum
+var ClusterNetworkConfig_PodSubnets_DEFAULT []string
+
+func (p *ClusterNetworkConfig) GetPodSubnets() (v []string) {
+	if !p.IsSetPodSubnets() {
+		return ClusterNetworkConfig_PodSubnets_DEFAULT
+	}
+	return p.PodSubnets
 }
 
 func (p *ClusterNetworkConfig) GetServiceCidr() (v string) {
 	return p.ServiceCidr
+}
+
+var ClusterNetworkConfig_MaxNodePodNumber_DEFAULT int32
+
+func (p *ClusterNetworkConfig) GetMaxNodePodNumber() (v int32) {
+	if !p.IsSetMaxNodePodNumber() {
+		return ClusterNetworkConfig_MaxNodePodNumber_DEFAULT
+	}
+	return *p.MaxNodePodNumber
 }
 
 func (p *ClusterNetworkConfig) GetNodePublicAccess() (v bool) {
@@ -2721,6 +2851,15 @@ func (p *ClusterNetworkConfig) GetVip() (v string) {
 	}
 	return *p.Vip
 }
+
+var ClusterNetworkConfig_SubnetIds_DEFAULT []string
+
+func (p *ClusterNetworkConfig) GetSubnetIds() (v []string) {
+	if !p.IsSetSubnetIds() {
+		return ClusterNetworkConfig_SubnetIds_DEFAULT
+	}
+	return p.SubnetIds
+}
 func (p *ClusterNetworkConfig) SetVpcId(val *string) {
 	p.VpcId = val
 }
@@ -2733,14 +2872,17 @@ func (p *ClusterNetworkConfig) SetType(val string) {
 func (p *ClusterNetworkConfig) SetMode(val *string) {
 	p.Mode = val
 }
-func (p *ClusterNetworkConfig) SetPodCidr(val string) {
+func (p *ClusterNetworkConfig) SetPodCidr(val *string) {
 	p.PodCidr = val
 }
-func (p *ClusterNetworkConfig) SetMaxNodePodNum(val int32) {
-	p.MaxNodePodNum = val
+func (p *ClusterNetworkConfig) SetPodSubnets(val []string) {
+	p.PodSubnets = val
 }
 func (p *ClusterNetworkConfig) SetServiceCidr(val string) {
 	p.ServiceCidr = val
+}
+func (p *ClusterNetworkConfig) SetMaxNodePodNumber(val *int32) {
+	p.MaxNodePodNumber = val
 }
 func (p *ClusterNetworkConfig) SetNodePublicAccess(val bool) {
 	p.NodePublicAccess = val
@@ -2751,6 +2893,9 @@ func (p *ClusterNetworkConfig) SetApiServerPublicAccess(val *NetworkPermission) 
 func (p *ClusterNetworkConfig) SetVip(val *string) {
 	p.Vip = val
 }
+func (p *ClusterNetworkConfig) SetSubnetIds(val []string) {
+	p.SubnetIds = val
+}
 
 var fieldIDToName_ClusterNetworkConfig = map[int16]string{
 	1:  "VpcId",
@@ -2758,11 +2903,13 @@ var fieldIDToName_ClusterNetworkConfig = map[int16]string{
 	3:  "Type",
 	4:  "Mode",
 	5:  "PodCidr",
-	6:  "MaxNodePodNum",
+	6:  "PodSubnets",
 	7:  "ServiceCidr",
-	8:  "NodePublicAccess",
-	9:  "ApiServerPublicAccess",
-	10: "Vip",
+	8:  "MaxNodePodNumber",
+	9:  "NodePublicAccess",
+	10: "ApiServerPublicAccess",
+	11: "Vip",
+	12: "SubnetIds",
 }
 
 func (p *ClusterNetworkConfig) IsSetVpcId() bool {
@@ -2777,6 +2924,18 @@ func (p *ClusterNetworkConfig) IsSetMode() bool {
 	return p.Mode != nil
 }
 
+func (p *ClusterNetworkConfig) IsSetPodCidr() bool {
+	return p.PodCidr != nil
+}
+
+func (p *ClusterNetworkConfig) IsSetPodSubnets() bool {
+	return p.PodSubnets != nil
+}
+
+func (p *ClusterNetworkConfig) IsSetMaxNodePodNumber() bool {
+	return p.MaxNodePodNumber != nil
+}
+
 func (p *ClusterNetworkConfig) IsSetApiServerPublicAccess() bool {
 	return p.ApiServerPublicAccess != nil
 }
@@ -2785,13 +2944,15 @@ func (p *ClusterNetworkConfig) IsSetVip() bool {
 	return p.Vip != nil
 }
 
+func (p *ClusterNetworkConfig) IsSetSubnetIds() bool {
+	return p.SubnetIds != nil
+}
+
 func (p *ClusterNetworkConfig) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetType bool = false
-	var issetPodCidr bool = false
-	var issetMaxNodePodNum bool = false
 	var issetServiceCidr bool = false
 	var issetNodePublicAccess bool = false
 
@@ -2855,18 +3016,16 @@ func (p *ClusterNetworkConfig) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField5(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetPodCidr = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
 				}
 			}
 		case 6:
-			if fieldTypeId == thrift.I32 {
+			if fieldTypeId == thrift.LIST {
 				if err = p.ReadField6(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetMaxNodePodNum = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -2884,8 +3043,18 @@ func (p *ClusterNetworkConfig) Read(iprot thrift.TProtocol) (err error) {
 				}
 			}
 		case 8:
-			if fieldTypeId == thrift.BOOL {
+			if fieldTypeId == thrift.I32 {
 				if err = p.ReadField8(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 9:
+			if fieldTypeId == thrift.BOOL {
+				if err = p.ReadField9(iprot); err != nil {
 					goto ReadFieldError
 				}
 				issetNodePublicAccess = true
@@ -2894,9 +3063,9 @@ func (p *ClusterNetworkConfig) Read(iprot thrift.TProtocol) (err error) {
 					goto SkipFieldError
 				}
 			}
-		case 9:
+		case 10:
 			if fieldTypeId == thrift.STRUCT {
-				if err = p.ReadField9(iprot); err != nil {
+				if err = p.ReadField10(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else {
@@ -2904,9 +3073,19 @@ func (p *ClusterNetworkConfig) Read(iprot thrift.TProtocol) (err error) {
 					goto SkipFieldError
 				}
 			}
-		case 10:
+		case 11:
 			if fieldTypeId == thrift.STRING {
-				if err = p.ReadField10(iprot); err != nil {
+				if err = p.ReadField11(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 12:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField12(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else {
@@ -2933,23 +3112,13 @@ func (p *ClusterNetworkConfig) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetPodCidr {
-		fieldId = 5
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetMaxNodePodNum {
-		fieldId = 6
-		goto RequiredFieldNotSetError
-	}
-
 	if !issetServiceCidr {
 		fieldId = 7
 		goto RequiredFieldNotSetError
 	}
 
 	if !issetNodePublicAccess {
-		fieldId = 8
+		fieldId = 9
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -3010,16 +3179,29 @@ func (p *ClusterNetworkConfig) ReadField5(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.PodCidr = v
+		p.PodCidr = &v
 	}
 	return nil
 }
 
 func (p *ClusterNetworkConfig) ReadField6(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadI32(); err != nil {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
 		return err
-	} else {
-		p.MaxNodePodNum = v
+	}
+	p.PodSubnets = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		p.PodSubnets = append(p.PodSubnets, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
 	}
 	return nil
 }
@@ -3034,6 +3216,15 @@ func (p *ClusterNetworkConfig) ReadField7(iprot thrift.TProtocol) error {
 }
 
 func (p *ClusterNetworkConfig) ReadField8(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadI32(); err != nil {
+		return err
+	} else {
+		p.MaxNodePodNumber = &v
+	}
+	return nil
+}
+
+func (p *ClusterNetworkConfig) ReadField9(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadBool(); err != nil {
 		return err
 	} else {
@@ -3042,7 +3233,7 @@ func (p *ClusterNetworkConfig) ReadField8(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ClusterNetworkConfig) ReadField9(iprot thrift.TProtocol) error {
+func (p *ClusterNetworkConfig) ReadField10(iprot thrift.TProtocol) error {
 	p.ApiServerPublicAccess = NewNetworkPermission()
 	if err := p.ApiServerPublicAccess.Read(iprot); err != nil {
 		return err
@@ -3050,11 +3241,33 @@ func (p *ClusterNetworkConfig) ReadField9(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ClusterNetworkConfig) ReadField10(iprot thrift.TProtocol) error {
+func (p *ClusterNetworkConfig) ReadField11(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
 		p.Vip = &v
+	}
+	return nil
+}
+
+func (p *ClusterNetworkConfig) ReadField12(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.SubnetIds = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		p.SubnetIds = append(p.SubnetIds, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
 	}
 	return nil
 }
@@ -3103,6 +3316,14 @@ func (p *ClusterNetworkConfig) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField10(oprot); err != nil {
 			fieldId = 10
+			goto WriteFieldError
+		}
+		if err = p.writeField11(oprot); err != nil {
+			fieldId = 11
+			goto WriteFieldError
+		}
+		if err = p.writeField12(oprot); err != nil {
+			fieldId = 12
 			goto WriteFieldError
 		}
 
@@ -3199,14 +3420,16 @@ WriteFieldEndError:
 }
 
 func (p *ClusterNetworkConfig) writeField5(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("PodCidr", thrift.STRING, 5); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.PodCidr); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+	if p.IsSetPodCidr() {
+		if err = oprot.WriteFieldBegin("PodCidr", thrift.STRING, 5); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.PodCidr); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:
@@ -3216,14 +3439,24 @@ WriteFieldEndError:
 }
 
 func (p *ClusterNetworkConfig) writeField6(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("MaxNodePodNum", thrift.I32, 6); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteI32(p.MaxNodePodNum); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+	if p.IsSetPodSubnets() {
+		if err = oprot.WriteFieldBegin("PodSubnets", thrift.LIST, 6); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRING, len(p.PodSubnets)); err != nil {
+			return err
+		}
+		for _, v := range p.PodSubnets {
+			if err := oprot.WriteString(v); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:
@@ -3250,7 +3483,26 @@ WriteFieldEndError:
 }
 
 func (p *ClusterNetworkConfig) writeField8(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("NodePublicAccess", thrift.BOOL, 8); err != nil {
+	if p.IsSetMaxNodePodNumber() {
+		if err = oprot.WriteFieldBegin("MaxNodePodNumber", thrift.I32, 8); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteI32(*p.MaxNodePodNumber); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 8 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 8 end error: ", p), err)
+}
+
+func (p *ClusterNetworkConfig) writeField9(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("NodePublicAccess", thrift.BOOL, 9); err != nil {
 		goto WriteFieldBeginError
 	}
 	if err := oprot.WriteBool(p.NodePublicAccess); err != nil {
@@ -3261,14 +3513,14 @@ func (p *ClusterNetworkConfig) writeField8(oprot thrift.TProtocol) (err error) {
 	}
 	return nil
 WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 8 begin error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 9 begin error: ", p), err)
 WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 8 end error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 9 end error: ", p), err)
 }
 
-func (p *ClusterNetworkConfig) writeField9(oprot thrift.TProtocol) (err error) {
+func (p *ClusterNetworkConfig) writeField10(oprot thrift.TProtocol) (err error) {
 	if p.IsSetApiServerPublicAccess() {
-		if err = oprot.WriteFieldBegin("ApiServerPublicAccess", thrift.STRUCT, 9); err != nil {
+		if err = oprot.WriteFieldBegin("ApiServerPublicAccess", thrift.STRUCT, 10); err != nil {
 			goto WriteFieldBeginError
 		}
 		if err := p.ApiServerPublicAccess.Write(oprot); err != nil {
@@ -3280,14 +3532,14 @@ func (p *ClusterNetworkConfig) writeField9(oprot thrift.TProtocol) (err error) {
 	}
 	return nil
 WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 9 begin error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 10 begin error: ", p), err)
 WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 9 end error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 10 end error: ", p), err)
 }
 
-func (p *ClusterNetworkConfig) writeField10(oprot thrift.TProtocol) (err error) {
+func (p *ClusterNetworkConfig) writeField11(oprot thrift.TProtocol) (err error) {
 	if p.IsSetVip() {
-		if err = oprot.WriteFieldBegin("Vip", thrift.STRING, 10); err != nil {
+		if err = oprot.WriteFieldBegin("Vip", thrift.STRING, 11); err != nil {
 			goto WriteFieldBeginError
 		}
 		if err := oprot.WriteString(*p.Vip); err != nil {
@@ -3299,9 +3551,36 @@ func (p *ClusterNetworkConfig) writeField10(oprot thrift.TProtocol) (err error) 
 	}
 	return nil
 WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 10 begin error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 11 begin error: ", p), err)
 WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 10 end error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 11 end error: ", p), err)
+}
+
+func (p *ClusterNetworkConfig) writeField12(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSubnetIds() {
+		if err = oprot.WriteFieldBegin("SubnetIds", thrift.LIST, 12); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRING, len(p.SubnetIds)); err != nil {
+			return err
+		}
+		for _, v := range p.SubnetIds {
+			if err := oprot.WriteString(v); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 12 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 12 end error: ", p), err)
 }
 
 func (p *ClusterNetworkConfig) String() string {
@@ -3332,19 +3611,25 @@ func (p *ClusterNetworkConfig) DeepEqual(ano *ClusterNetworkConfig) bool {
 	if !p.Field5DeepEqual(ano.PodCidr) {
 		return false
 	}
-	if !p.Field6DeepEqual(ano.MaxNodePodNum) {
+	if !p.Field6DeepEqual(ano.PodSubnets) {
 		return false
 	}
 	if !p.Field7DeepEqual(ano.ServiceCidr) {
 		return false
 	}
-	if !p.Field8DeepEqual(ano.NodePublicAccess) {
+	if !p.Field8DeepEqual(ano.MaxNodePodNumber) {
 		return false
 	}
-	if !p.Field9DeepEqual(ano.ApiServerPublicAccess) {
+	if !p.Field9DeepEqual(ano.NodePublicAccess) {
 		return false
 	}
-	if !p.Field10DeepEqual(ano.Vip) {
+	if !p.Field10DeepEqual(ano.ApiServerPublicAccess) {
+		return false
+	}
+	if !p.Field11DeepEqual(ano.Vip) {
+		return false
+	}
+	if !p.Field12DeepEqual(ano.SubnetIds) {
 		return false
 	}
 	return true
@@ -3393,17 +3678,28 @@ func (p *ClusterNetworkConfig) Field4DeepEqual(src *string) bool {
 	}
 	return true
 }
-func (p *ClusterNetworkConfig) Field5DeepEqual(src string) bool {
+func (p *ClusterNetworkConfig) Field5DeepEqual(src *string) bool {
 
-	if strings.Compare(p.PodCidr, src) != 0 {
+	if p.PodCidr == src {
+		return true
+	} else if p.PodCidr == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.PodCidr, *src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *ClusterNetworkConfig) Field6DeepEqual(src int32) bool {
+func (p *ClusterNetworkConfig) Field6DeepEqual(src []string) bool {
 
-	if p.MaxNodePodNum != src {
+	if len(p.PodSubnets) != len(src) {
 		return false
+	}
+	for i, v := range p.PodSubnets {
+		_src := src[i]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
 	}
 	return true
 }
@@ -3414,21 +3710,33 @@ func (p *ClusterNetworkConfig) Field7DeepEqual(src string) bool {
 	}
 	return true
 }
-func (p *ClusterNetworkConfig) Field8DeepEqual(src bool) bool {
+func (p *ClusterNetworkConfig) Field8DeepEqual(src *int32) bool {
+
+	if p.MaxNodePodNumber == src {
+		return true
+	} else if p.MaxNodePodNumber == nil || src == nil {
+		return false
+	}
+	if *p.MaxNodePodNumber != *src {
+		return false
+	}
+	return true
+}
+func (p *ClusterNetworkConfig) Field9DeepEqual(src bool) bool {
 
 	if p.NodePublicAccess != src {
 		return false
 	}
 	return true
 }
-func (p *ClusterNetworkConfig) Field9DeepEqual(src *NetworkPermission) bool {
+func (p *ClusterNetworkConfig) Field10DeepEqual(src *NetworkPermission) bool {
 
 	if !p.ApiServerPublicAccess.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ClusterNetworkConfig) Field10DeepEqual(src *string) bool {
+func (p *ClusterNetworkConfig) Field11DeepEqual(src *string) bool {
 
 	if p.Vip == src {
 		return true
@@ -3440,17 +3748,209 @@ func (p *ClusterNetworkConfig) Field10DeepEqual(src *string) bool {
 	}
 	return true
 }
+func (p *ClusterNetworkConfig) Field12DeepEqual(src []string) bool {
+
+	if len(p.SubnetIds) != len(src) {
+		return false
+	}
+	for i, v := range p.SubnetIds {
+		_src := src[i]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
+	}
+	return true
+}
+
+type Address struct {
+	Ipv4 *string `thrift:"Ipv4,1" json:"Ipv4,omitempty"`
+}
+
+func NewAddress() *Address {
+	return &Address{}
+}
+
+var Address_Ipv4_DEFAULT string
+
+func (p *Address) GetIpv4() (v string) {
+	if !p.IsSetIpv4() {
+		return Address_Ipv4_DEFAULT
+	}
+	return *p.Ipv4
+}
+func (p *Address) SetIpv4(val *string) {
+	p.Ipv4 = val
+}
+
+var fieldIDToName_Address = map[int16]string{
+	1: "Ipv4",
+}
+
+func (p *Address) IsSetIpv4() bool {
+	return p.Ipv4 != nil
+}
+
+func (p *Address) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_Address[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *Address) ReadField1(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.Ipv4 = &v
+	}
+	return nil
+}
+
+func (p *Address) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("Address"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *Address) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetIpv4() {
+		if err = oprot.WriteFieldBegin("Ipv4", thrift.STRING, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.Ipv4); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *Address) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("Address(%+v)", *p)
+}
+
+func (p *Address) DeepEqual(ano *Address) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Ipv4) {
+		return false
+	}
+	return true
+}
+
+func (p *Address) Field1DeepEqual(src *string) bool {
+
+	if p.Ipv4 == src {
+		return true
+	} else if p.Ipv4 == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.Ipv4, *src) != 0 {
+		return false
+	}
+	return true
+}
 
 type ClusterNetwork struct {
 	Vpc                      *iaas.Vpc `thrift:"Vpc,1,required" json:"Vpc"`
 	Type                     *string   `thrift:"Type,2" json:"Type,omitempty"`
 	Mode                     *string   `thrift:"Mode,3" json:"Mode,omitempty"`
 	PodCidr                  string    `thrift:"PodCidr,4,required" json:"PodCidr"`
-	MaxNodePodNum            int32     `thrift:"MaxNodePodNum,5,required" json:"MaxNodePodNum"`
+	MaxNodePodNumber         int32     `thrift:"MaxNodePodNumber,5,required" json:"MaxNodePodNumber"`
 	ServiceCidr              string    `thrift:"ServiceCidr,6,required" json:"ServiceCidr"`
 	KubeProxyMode            string    `thrift:"KubeProxyMode,7,required" json:"KubeProxyMode"`
-	ApiServerInternalAddress string    `thrift:"ApiServerInternalAddress,8,required" json:"ApiServerInternalAddress"`
-	ApiServerPublicAddress   *string   `thrift:"ApiServerPublicAddress,9" json:"ApiServerPublicAddress,omitempty"`
+	ApiServerInternalAddress *Address  `thrift:"ApiServerInternalAddress,8,required" json:"ApiServerInternalAddress"`
+	ApiServerPublicAddress   *Address  `thrift:"ApiServerPublicAddress,9" json:"ApiServerPublicAddress,omitempty"`
+	EnableApiServerPublic    bool      `thrift:"EnableApiServerPublic,10,required" json:"EnableApiServerPublic"`
+	PodSubnets               []string  `thrift:"PodSubnets,11" json:"PodSubnets,omitempty"`
+	Zones                    []string  `thrift:"Zones,12" json:"Zones,omitempty"`
 }
 
 func NewClusterNetwork() *ClusterNetwork {
@@ -3488,8 +3988,8 @@ func (p *ClusterNetwork) GetPodCidr() (v string) {
 	return p.PodCidr
 }
 
-func (p *ClusterNetwork) GetMaxNodePodNum() (v int32) {
-	return p.MaxNodePodNum
+func (p *ClusterNetwork) GetMaxNodePodNumber() (v int32) {
+	return p.MaxNodePodNumber
 }
 
 func (p *ClusterNetwork) GetServiceCidr() (v string) {
@@ -3500,17 +4000,44 @@ func (p *ClusterNetwork) GetKubeProxyMode() (v string) {
 	return p.KubeProxyMode
 }
 
-func (p *ClusterNetwork) GetApiServerInternalAddress() (v string) {
+var ClusterNetwork_ApiServerInternalAddress_DEFAULT *Address
+
+func (p *ClusterNetwork) GetApiServerInternalAddress() (v *Address) {
+	if !p.IsSetApiServerInternalAddress() {
+		return ClusterNetwork_ApiServerInternalAddress_DEFAULT
+	}
 	return p.ApiServerInternalAddress
 }
 
-var ClusterNetwork_ApiServerPublicAddress_DEFAULT string
+var ClusterNetwork_ApiServerPublicAddress_DEFAULT *Address
 
-func (p *ClusterNetwork) GetApiServerPublicAddress() (v string) {
+func (p *ClusterNetwork) GetApiServerPublicAddress() (v *Address) {
 	if !p.IsSetApiServerPublicAddress() {
 		return ClusterNetwork_ApiServerPublicAddress_DEFAULT
 	}
-	return *p.ApiServerPublicAddress
+	return p.ApiServerPublicAddress
+}
+
+func (p *ClusterNetwork) GetEnableApiServerPublic() (v bool) {
+	return p.EnableApiServerPublic
+}
+
+var ClusterNetwork_PodSubnets_DEFAULT []string
+
+func (p *ClusterNetwork) GetPodSubnets() (v []string) {
+	if !p.IsSetPodSubnets() {
+		return ClusterNetwork_PodSubnets_DEFAULT
+	}
+	return p.PodSubnets
+}
+
+var ClusterNetwork_Zones_DEFAULT []string
+
+func (p *ClusterNetwork) GetZones() (v []string) {
+	if !p.IsSetZones() {
+		return ClusterNetwork_Zones_DEFAULT
+	}
+	return p.Zones
 }
 func (p *ClusterNetwork) SetVpc(val *iaas.Vpc) {
 	p.Vpc = val
@@ -3524,8 +4051,8 @@ func (p *ClusterNetwork) SetMode(val *string) {
 func (p *ClusterNetwork) SetPodCidr(val string) {
 	p.PodCidr = val
 }
-func (p *ClusterNetwork) SetMaxNodePodNum(val int32) {
-	p.MaxNodePodNum = val
+func (p *ClusterNetwork) SetMaxNodePodNumber(val int32) {
+	p.MaxNodePodNumber = val
 }
 func (p *ClusterNetwork) SetServiceCidr(val string) {
 	p.ServiceCidr = val
@@ -3533,23 +4060,35 @@ func (p *ClusterNetwork) SetServiceCidr(val string) {
 func (p *ClusterNetwork) SetKubeProxyMode(val string) {
 	p.KubeProxyMode = val
 }
-func (p *ClusterNetwork) SetApiServerInternalAddress(val string) {
+func (p *ClusterNetwork) SetApiServerInternalAddress(val *Address) {
 	p.ApiServerInternalAddress = val
 }
-func (p *ClusterNetwork) SetApiServerPublicAddress(val *string) {
+func (p *ClusterNetwork) SetApiServerPublicAddress(val *Address) {
 	p.ApiServerPublicAddress = val
+}
+func (p *ClusterNetwork) SetEnableApiServerPublic(val bool) {
+	p.EnableApiServerPublic = val
+}
+func (p *ClusterNetwork) SetPodSubnets(val []string) {
+	p.PodSubnets = val
+}
+func (p *ClusterNetwork) SetZones(val []string) {
+	p.Zones = val
 }
 
 var fieldIDToName_ClusterNetwork = map[int16]string{
-	1: "Vpc",
-	2: "Type",
-	3: "Mode",
-	4: "PodCidr",
-	5: "MaxNodePodNum",
-	6: "ServiceCidr",
-	7: "KubeProxyMode",
-	8: "ApiServerInternalAddress",
-	9: "ApiServerPublicAddress",
+	1:  "Vpc",
+	2:  "Type",
+	3:  "Mode",
+	4:  "PodCidr",
+	5:  "MaxNodePodNumber",
+	6:  "ServiceCidr",
+	7:  "KubeProxyMode",
+	8:  "ApiServerInternalAddress",
+	9:  "ApiServerPublicAddress",
+	10: "EnableApiServerPublic",
+	11: "PodSubnets",
+	12: "Zones",
 }
 
 func (p *ClusterNetwork) IsSetVpc() bool {
@@ -3564,8 +4103,20 @@ func (p *ClusterNetwork) IsSetMode() bool {
 	return p.Mode != nil
 }
 
+func (p *ClusterNetwork) IsSetApiServerInternalAddress() bool {
+	return p.ApiServerInternalAddress != nil
+}
+
 func (p *ClusterNetwork) IsSetApiServerPublicAddress() bool {
 	return p.ApiServerPublicAddress != nil
+}
+
+func (p *ClusterNetwork) IsSetPodSubnets() bool {
+	return p.PodSubnets != nil
+}
+
+func (p *ClusterNetwork) IsSetZones() bool {
+	return p.Zones != nil
 }
 
 func (p *ClusterNetwork) Read(iprot thrift.TProtocol) (err error) {
@@ -3574,10 +4125,11 @@ func (p *ClusterNetwork) Read(iprot thrift.TProtocol) (err error) {
 	var fieldId int16
 	var issetVpc bool = false
 	var issetPodCidr bool = false
-	var issetMaxNodePodNum bool = false
+	var issetMaxNodePodNumber bool = false
 	var issetServiceCidr bool = false
 	var issetKubeProxyMode bool = false
 	var issetApiServerInternalAddress bool = false
+	var issetEnableApiServerPublic bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -3640,7 +4192,7 @@ func (p *ClusterNetwork) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField5(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetMaxNodePodNum = true
+				issetMaxNodePodNumber = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -3669,7 +4221,7 @@ func (p *ClusterNetwork) Read(iprot thrift.TProtocol) (err error) {
 				}
 			}
 		case 8:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.STRUCT {
 				if err = p.ReadField8(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -3680,8 +4232,39 @@ func (p *ClusterNetwork) Read(iprot thrift.TProtocol) (err error) {
 				}
 			}
 		case 9:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.STRUCT {
 				if err = p.ReadField9(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 10:
+			if fieldTypeId == thrift.BOOL {
+				if err = p.ReadField10(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetEnableApiServerPublic = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 11:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField11(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 12:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField12(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else {
@@ -3713,7 +4296,7 @@ func (p *ClusterNetwork) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetMaxNodePodNum {
+	if !issetMaxNodePodNumber {
 		fieldId = 5
 		goto RequiredFieldNotSetError
 	}
@@ -3730,6 +4313,11 @@ func (p *ClusterNetwork) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetApiServerInternalAddress {
 		fieldId = 8
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetEnableApiServerPublic {
+		fieldId = 10
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -3789,7 +4377,7 @@ func (p *ClusterNetwork) ReadField5(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
-		p.MaxNodePodNum = v
+		p.MaxNodePodNumber = v
 	}
 	return nil
 }
@@ -3813,19 +4401,70 @@ func (p *ClusterNetwork) ReadField7(iprot thrift.TProtocol) error {
 }
 
 func (p *ClusterNetwork) ReadField8(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadString(); err != nil {
+	p.ApiServerInternalAddress = NewAddress()
+	if err := p.ApiServerInternalAddress.Read(iprot); err != nil {
 		return err
-	} else {
-		p.ApiServerInternalAddress = v
 	}
 	return nil
 }
 
 func (p *ClusterNetwork) ReadField9(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadString(); err != nil {
+	p.ApiServerPublicAddress = NewAddress()
+	if err := p.ApiServerPublicAddress.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ClusterNetwork) ReadField10(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadBool(); err != nil {
 		return err
 	} else {
-		p.ApiServerPublicAddress = &v
+		p.EnableApiServerPublic = v
+	}
+	return nil
+}
+
+func (p *ClusterNetwork) ReadField11(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.PodSubnets = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		p.PodSubnets = append(p.PodSubnets, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ClusterNetwork) ReadField12(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.Zones = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		p.Zones = append(p.Zones, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
 	}
 	return nil
 }
@@ -3870,6 +4509,18 @@ func (p *ClusterNetwork) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField9(oprot); err != nil {
 			fieldId = 9
+			goto WriteFieldError
+		}
+		if err = p.writeField10(oprot); err != nil {
+			fieldId = 10
+			goto WriteFieldError
+		}
+		if err = p.writeField11(oprot); err != nil {
+			fieldId = 11
+			goto WriteFieldError
+		}
+		if err = p.writeField12(oprot); err != nil {
+			fieldId = 12
 			goto WriteFieldError
 		}
 
@@ -3964,10 +4615,10 @@ WriteFieldEndError:
 }
 
 func (p *ClusterNetwork) writeField5(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("MaxNodePodNum", thrift.I32, 5); err != nil {
+	if err = oprot.WriteFieldBegin("MaxNodePodNumber", thrift.I32, 5); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI32(p.MaxNodePodNum); err != nil {
+	if err := oprot.WriteI32(p.MaxNodePodNumber); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -4015,10 +4666,10 @@ WriteFieldEndError:
 }
 
 func (p *ClusterNetwork) writeField8(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("ApiServerInternalAddress", thrift.STRING, 8); err != nil {
+	if err = oprot.WriteFieldBegin("ApiServerInternalAddress", thrift.STRUCT, 8); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.ApiServerInternalAddress); err != nil {
+	if err := p.ApiServerInternalAddress.Write(oprot); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -4033,10 +4684,10 @@ WriteFieldEndError:
 
 func (p *ClusterNetwork) writeField9(oprot thrift.TProtocol) (err error) {
 	if p.IsSetApiServerPublicAddress() {
-		if err = oprot.WriteFieldBegin("ApiServerPublicAddress", thrift.STRING, 9); err != nil {
+		if err = oprot.WriteFieldBegin("ApiServerPublicAddress", thrift.STRUCT, 9); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteString(*p.ApiServerPublicAddress); err != nil {
+		if err := p.ApiServerPublicAddress.Write(oprot); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -4048,6 +4699,77 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 9 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 9 end error: ", p), err)
+}
+
+func (p *ClusterNetwork) writeField10(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("EnableApiServerPublic", thrift.BOOL, 10); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteBool(p.EnableApiServerPublic); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 10 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 10 end error: ", p), err)
+}
+
+func (p *ClusterNetwork) writeField11(oprot thrift.TProtocol) (err error) {
+	if p.IsSetPodSubnets() {
+		if err = oprot.WriteFieldBegin("PodSubnets", thrift.LIST, 11); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRING, len(p.PodSubnets)); err != nil {
+			return err
+		}
+		for _, v := range p.PodSubnets {
+			if err := oprot.WriteString(v); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 11 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 11 end error: ", p), err)
+}
+
+func (p *ClusterNetwork) writeField12(oprot thrift.TProtocol) (err error) {
+	if p.IsSetZones() {
+		if err = oprot.WriteFieldBegin("Zones", thrift.LIST, 12); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRING, len(p.Zones)); err != nil {
+			return err
+		}
+		for _, v := range p.Zones {
+			if err := oprot.WriteString(v); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 12 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 12 end error: ", p), err)
 }
 
 func (p *ClusterNetwork) String() string {
@@ -4075,7 +4797,7 @@ func (p *ClusterNetwork) DeepEqual(ano *ClusterNetwork) bool {
 	if !p.Field4DeepEqual(ano.PodCidr) {
 		return false
 	}
-	if !p.Field5DeepEqual(ano.MaxNodePodNum) {
+	if !p.Field5DeepEqual(ano.MaxNodePodNumber) {
 		return false
 	}
 	if !p.Field6DeepEqual(ano.ServiceCidr) {
@@ -4088,6 +4810,15 @@ func (p *ClusterNetwork) DeepEqual(ano *ClusterNetwork) bool {
 		return false
 	}
 	if !p.Field9DeepEqual(ano.ApiServerPublicAddress) {
+		return false
+	}
+	if !p.Field10DeepEqual(ano.EnableApiServerPublic) {
+		return false
+	}
+	if !p.Field11DeepEqual(ano.PodSubnets) {
+		return false
+	}
+	if !p.Field12DeepEqual(ano.Zones) {
 		return false
 	}
 	return true
@@ -4133,7 +4864,7 @@ func (p *ClusterNetwork) Field4DeepEqual(src string) bool {
 }
 func (p *ClusterNetwork) Field5DeepEqual(src int32) bool {
 
-	if p.MaxNodePodNum != src {
+	if p.MaxNodePodNumber != src {
 		return false
 	}
 	return true
@@ -4152,22 +4883,50 @@ func (p *ClusterNetwork) Field7DeepEqual(src string) bool {
 	}
 	return true
 }
-func (p *ClusterNetwork) Field8DeepEqual(src string) bool {
+func (p *ClusterNetwork) Field8DeepEqual(src *Address) bool {
 
-	if strings.Compare(p.ApiServerInternalAddress, src) != 0 {
+	if !p.ApiServerInternalAddress.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ClusterNetwork) Field9DeepEqual(src *string) bool {
+func (p *ClusterNetwork) Field9DeepEqual(src *Address) bool {
 
-	if p.ApiServerPublicAddress == src {
-		return true
-	} else if p.ApiServerPublicAddress == nil || src == nil {
+	if !p.ApiServerPublicAddress.DeepEqual(src) {
 		return false
 	}
-	if strings.Compare(*p.ApiServerPublicAddress, *src) != 0 {
+	return true
+}
+func (p *ClusterNetwork) Field10DeepEqual(src bool) bool {
+
+	if p.EnableApiServerPublic != src {
 		return false
+	}
+	return true
+}
+func (p *ClusterNetwork) Field11DeepEqual(src []string) bool {
+
+	if len(p.PodSubnets) != len(src) {
+		return false
+	}
+	for i, v := range p.PodSubnets {
+		_src := src[i]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
+	}
+	return true
+}
+func (p *ClusterNetwork) Field12DeepEqual(src []string) bool {
+
+	if len(p.Zones) != len(src) {
+		return false
+	}
+	for i, v := range p.Zones {
+		_src := src[i]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
 	}
 	return true
 }
@@ -4340,79 +5099,30 @@ func (p *OnPremiseNode) Field1DeepEqual(src string) bool {
 	return true
 }
 
-type ExistNode struct {
-	Id         string        `thrift:"Id,1,required" validate:"required"`
-	ZoneId     string        `thrift:"ZoneId,2,required" validate:"required"`
-	SubnetId   string        `thrift:"SubnetId,3,required" validate:"required"`
-	Specific   *NodeSpecific `thrift:"Specific,4,required" validate:"required"`
-	ChargeType string        `thrift:"ChargeType,5,required" validate:"required,oneof=PostPaid"`
+type ExistingNode struct {
+	InstanceId string `thrift:"InstanceId,1,required" validate:"required"`
 }
 
-func NewExistNode() *ExistNode {
-	return &ExistNode{}
+func NewExistingNode() *ExistingNode {
+	return &ExistingNode{}
 }
 
-func (p *ExistNode) GetId() (v string) {
-	return p.Id
+func (p *ExistingNode) GetInstanceId() (v string) {
+	return p.InstanceId
+}
+func (p *ExistingNode) SetInstanceId(val string) {
+	p.InstanceId = val
 }
 
-func (p *ExistNode) GetZoneId() (v string) {
-	return p.ZoneId
+var fieldIDToName_ExistingNode = map[int16]string{
+	1: "InstanceId",
 }
 
-func (p *ExistNode) GetSubnetId() (v string) {
-	return p.SubnetId
-}
-
-var ExistNode_Specific_DEFAULT *NodeSpecific
-
-func (p *ExistNode) GetSpecific() (v *NodeSpecific) {
-	if !p.IsSetSpecific() {
-		return ExistNode_Specific_DEFAULT
-	}
-	return p.Specific
-}
-
-func (p *ExistNode) GetChargeType() (v string) {
-	return p.ChargeType
-}
-func (p *ExistNode) SetId(val string) {
-	p.Id = val
-}
-func (p *ExistNode) SetZoneId(val string) {
-	p.ZoneId = val
-}
-func (p *ExistNode) SetSubnetId(val string) {
-	p.SubnetId = val
-}
-func (p *ExistNode) SetSpecific(val *NodeSpecific) {
-	p.Specific = val
-}
-func (p *ExistNode) SetChargeType(val string) {
-	p.ChargeType = val
-}
-
-var fieldIDToName_ExistNode = map[int16]string{
-	1: "Id",
-	2: "ZoneId",
-	3: "SubnetId",
-	4: "Specific",
-	5: "ChargeType",
-}
-
-func (p *ExistNode) IsSetSpecific() bool {
-	return p.Specific != nil
-}
-
-func (p *ExistNode) Read(iprot thrift.TProtocol) (err error) {
+func (p *ExistingNode) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetId bool = false
-	var issetZoneId bool = false
-	var issetSubnetId bool = false
-	var issetSpecific bool = false
-	var issetChargeType bool = false
+	var issetInstanceId bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -4433,51 +5143,7 @@ func (p *ExistNode) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetId = true
-			} else {
-				if err = iprot.Skip(fieldTypeId); err != nil {
-					goto SkipFieldError
-				}
-			}
-		case 2:
-			if fieldTypeId == thrift.STRING {
-				if err = p.ReadField2(iprot); err != nil {
-					goto ReadFieldError
-				}
-				issetZoneId = true
-			} else {
-				if err = iprot.Skip(fieldTypeId); err != nil {
-					goto SkipFieldError
-				}
-			}
-		case 3:
-			if fieldTypeId == thrift.STRING {
-				if err = p.ReadField3(iprot); err != nil {
-					goto ReadFieldError
-				}
-				issetSubnetId = true
-			} else {
-				if err = iprot.Skip(fieldTypeId); err != nil {
-					goto SkipFieldError
-				}
-			}
-		case 4:
-			if fieldTypeId == thrift.STRUCT {
-				if err = p.ReadField4(iprot); err != nil {
-					goto ReadFieldError
-				}
-				issetSpecific = true
-			} else {
-				if err = iprot.Skip(fieldTypeId); err != nil {
-					goto SkipFieldError
-				}
-			}
-		case 5:
-			if fieldTypeId == thrift.STRING {
-				if err = p.ReadField5(iprot); err != nil {
-					goto ReadFieldError
-				}
-				issetChargeType = true
+				issetInstanceId = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -4497,28 +5163,8 @@ func (p *ExistNode) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
-	if !issetId {
+	if !issetInstanceId {
 		fieldId = 1
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetZoneId {
-		fieldId = 2
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetSubnetId {
-		fieldId = 3
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetSpecific {
-		fieldId = 4
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetChargeType {
-		fieldId = 5
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -4527,7 +5173,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ExistNode[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ExistingNode[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -4536,77 +5182,26 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ExistNode[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ExistingNode[fieldId]))
 }
 
-func (p *ExistNode) ReadField1(iprot thrift.TProtocol) error {
+func (p *ExistingNode) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.Id = v
+		p.InstanceId = v
 	}
 	return nil
 }
 
-func (p *ExistNode) ReadField2(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		p.ZoneId = v
-	}
-	return nil
-}
-
-func (p *ExistNode) ReadField3(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		p.SubnetId = v
-	}
-	return nil
-}
-
-func (p *ExistNode) ReadField4(iprot thrift.TProtocol) error {
-	p.Specific = NewNodeSpecific()
-	if err := p.Specific.Read(iprot); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (p *ExistNode) ReadField5(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		p.ChargeType = v
-	}
-	return nil
-}
-
-func (p *ExistNode) Write(oprot thrift.TProtocol) (err error) {
+func (p *ExistingNode) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ExistNode"); err != nil {
+	if err = oprot.WriteStructBegin("ExistingNode"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
 		if err = p.writeField1(oprot); err != nil {
 			fieldId = 1
-			goto WriteFieldError
-		}
-		if err = p.writeField2(oprot); err != nil {
-			fieldId = 2
-			goto WriteFieldError
-		}
-		if err = p.writeField3(oprot); err != nil {
-			fieldId = 3
-			goto WriteFieldError
-		}
-		if err = p.writeField4(oprot); err != nil {
-			fieldId = 4
-			goto WriteFieldError
-		}
-		if err = p.writeField5(oprot); err != nil {
-			fieldId = 5
 			goto WriteFieldError
 		}
 
@@ -4628,11 +5223,11 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ExistNode) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("Id", thrift.STRING, 1); err != nil {
+func (p *ExistingNode) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("InstanceId", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Id); err != nil {
+	if err := oprot.WriteString(p.InstanceId); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -4645,178 +5240,83 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ExistNode) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("ZoneId", thrift.STRING, 2); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.ZoneId); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
-}
-
-func (p *ExistNode) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("SubnetId", thrift.STRING, 3); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.SubnetId); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
-}
-
-func (p *ExistNode) writeField4(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("Specific", thrift.STRUCT, 4); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := p.Specific.Write(oprot); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
-}
-
-func (p *ExistNode) writeField5(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("ChargeType", thrift.STRING, 5); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.ChargeType); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 5 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
-}
-
-func (p *ExistNode) String() string {
+func (p *ExistingNode) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ExistNode(%+v)", *p)
+	return fmt.Sprintf("ExistingNode(%+v)", *p)
 }
 
-func (p *ExistNode) DeepEqual(ano *ExistNode) bool {
+func (p *ExistingNode) DeepEqual(ano *ExistingNode) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.Id) {
-		return false
-	}
-	if !p.Field2DeepEqual(ano.ZoneId) {
-		return false
-	}
-	if !p.Field3DeepEqual(ano.SubnetId) {
-		return false
-	}
-	if !p.Field4DeepEqual(ano.Specific) {
-		return false
-	}
-	if !p.Field5DeepEqual(ano.ChargeType) {
+	if !p.Field1DeepEqual(ano.InstanceId) {
 		return false
 	}
 	return true
 }
 
-func (p *ExistNode) Field1DeepEqual(src string) bool {
+func (p *ExistingNode) Field1DeepEqual(src string) bool {
 
-	if strings.Compare(p.Id, src) != 0 {
-		return false
-	}
-	return true
-}
-func (p *ExistNode) Field2DeepEqual(src string) bool {
-
-	if strings.Compare(p.ZoneId, src) != 0 {
-		return false
-	}
-	return true
-}
-func (p *ExistNode) Field3DeepEqual(src string) bool {
-
-	if strings.Compare(p.SubnetId, src) != 0 {
-		return false
-	}
-	return true
-}
-func (p *ExistNode) Field4DeepEqual(src *NodeSpecific) bool {
-
-	if !p.Specific.DeepEqual(src) {
-		return false
-	}
-	return true
-}
-func (p *ExistNode) Field5DeepEqual(src string) bool {
-
-	if strings.Compare(p.ChargeType, src) != 0 {
+	if strings.Compare(p.InstanceId, src) != 0 {
 		return false
 	}
 	return true
 }
 
 type NewNode_ struct {
-	ZoneId     string        `thrift:"ZoneId,1,required" validate:"required"`
-	SubnetId   string        `thrift:"SubnetId,2,required" validate:"required"`
-	ChargeType string        `thrift:"ChargeType,3,required" validate:"required,oneof=PostPaid"`
-	Specific   *NodeSpecific `thrift:"Specific,4,required" validate:"required"`
-	ImageId    string        `thrift:"ImageId,5,required" validate:"required"`
-	RootVolume *Volume       `thrift:"RootVolume,6,required" validate:"required"`
-	DataVolume []*Volume     `thrift:"DataVolume,7" json:"DataVolume,omitempty"`
-	Count      int32         `thrift:"Count,8,required" validate:"required"`
+	ZoneId         *string   `thrift:"ZoneId,1" json:"ZoneId,omitempty"`
+	SubnetId       string    `thrift:"SubnetId,2,required" validate:"required"`
+	ChargeType     *string   `thrift:"ChargeType,3" json:"ChargeType" validate:"oneof=PostPaid" default:"PostPaid"`
+	InstanceTypeId string    `thrift:"InstanceTypeId,4,required" json:"InstanceTypeId"`
+	ImageId        string    `thrift:"ImageId,5" json:"ImageId,omitempty"`
+	RootVolume     *Volume   `thrift:"RootVolume,6,required" validate:"required"`
+	DataVolumes    []*Volume `thrift:"DataVolumes,7" json:"DataVolumes,omitempty"`
+	Amount         int32     `thrift:"Amount,8,required" validate:"required"`
 }
 
 func NewNewNode_() *NewNode_ {
-	return &NewNode_{}
+	return &NewNode_{
+
+		ImageId: "Velinux-VKE",
+	}
 }
 
+var NewNode__ZoneId_DEFAULT string
+
 func (p *NewNode_) GetZoneId() (v string) {
-	return p.ZoneId
+	if !p.IsSetZoneId() {
+		return NewNode__ZoneId_DEFAULT
+	}
+	return *p.ZoneId
 }
 
 func (p *NewNode_) GetSubnetId() (v string) {
 	return p.SubnetId
 }
 
+var NewNode__ChargeType_DEFAULT string
+
 func (p *NewNode_) GetChargeType() (v string) {
-	return p.ChargeType
-}
-
-var NewNode__Specific_DEFAULT *NodeSpecific
-
-func (p *NewNode_) GetSpecific() (v *NodeSpecific) {
-	if !p.IsSetSpecific() {
-		return NewNode__Specific_DEFAULT
+	if !p.IsSetChargeType() {
+		return NewNode__ChargeType_DEFAULT
 	}
-	return p.Specific
+	return *p.ChargeType
 }
+
+func (p *NewNode_) GetInstanceTypeId() (v string) {
+	return p.InstanceTypeId
+}
+
+var NewNode__ImageId_DEFAULT string = "Velinux-VKE"
 
 func (p *NewNode_) GetImageId() (v string) {
+	if !p.IsSetImageId() {
+		return NewNode__ImageId_DEFAULT
+	}
 	return p.ImageId
 }
 
@@ -4829,29 +5329,29 @@ func (p *NewNode_) GetRootVolume() (v *Volume) {
 	return p.RootVolume
 }
 
-var NewNode__DataVolume_DEFAULT []*Volume
+var NewNode__DataVolumes_DEFAULT []*Volume
 
-func (p *NewNode_) GetDataVolume() (v []*Volume) {
-	if !p.IsSetDataVolume() {
-		return NewNode__DataVolume_DEFAULT
+func (p *NewNode_) GetDataVolumes() (v []*Volume) {
+	if !p.IsSetDataVolumes() {
+		return NewNode__DataVolumes_DEFAULT
 	}
-	return p.DataVolume
+	return p.DataVolumes
 }
 
-func (p *NewNode_) GetCount() (v int32) {
-	return p.Count
+func (p *NewNode_) GetAmount() (v int32) {
+	return p.Amount
 }
-func (p *NewNode_) SetZoneId(val string) {
+func (p *NewNode_) SetZoneId(val *string) {
 	p.ZoneId = val
 }
 func (p *NewNode_) SetSubnetId(val string) {
 	p.SubnetId = val
 }
-func (p *NewNode_) SetChargeType(val string) {
+func (p *NewNode_) SetChargeType(val *string) {
 	p.ChargeType = val
 }
-func (p *NewNode_) SetSpecific(val *NodeSpecific) {
-	p.Specific = val
+func (p *NewNode_) SetInstanceTypeId(val string) {
+	p.InstanceTypeId = val
 }
 func (p *NewNode_) SetImageId(val string) {
 	p.ImageId = val
@@ -4859,47 +5359,52 @@ func (p *NewNode_) SetImageId(val string) {
 func (p *NewNode_) SetRootVolume(val *Volume) {
 	p.RootVolume = val
 }
-func (p *NewNode_) SetDataVolume(val []*Volume) {
-	p.DataVolume = val
+func (p *NewNode_) SetDataVolumes(val []*Volume) {
+	p.DataVolumes = val
 }
-func (p *NewNode_) SetCount(val int32) {
-	p.Count = val
+func (p *NewNode_) SetAmount(val int32) {
+	p.Amount = val
 }
 
 var fieldIDToName_NewNode_ = map[int16]string{
 	1: "ZoneId",
 	2: "SubnetId",
 	3: "ChargeType",
-	4: "Specific",
+	4: "InstanceTypeId",
 	5: "ImageId",
 	6: "RootVolume",
-	7: "DataVolume",
-	8: "Count",
+	7: "DataVolumes",
+	8: "Amount",
 }
 
-func (p *NewNode_) IsSetSpecific() bool {
-	return p.Specific != nil
+func (p *NewNode_) IsSetZoneId() bool {
+	return p.ZoneId != nil
+}
+
+func (p *NewNode_) IsSetChargeType() bool {
+	return p.ChargeType != nil
+}
+
+func (p *NewNode_) IsSetImageId() bool {
+	return p.ImageId != NewNode__ImageId_DEFAULT
 }
 
 func (p *NewNode_) IsSetRootVolume() bool {
 	return p.RootVolume != nil
 }
 
-func (p *NewNode_) IsSetDataVolume() bool {
-	return p.DataVolume != nil
+func (p *NewNode_) IsSetDataVolumes() bool {
+	return p.DataVolumes != nil
 }
 
 func (p *NewNode_) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetZoneId bool = false
 	var issetSubnetId bool = false
-	var issetChargeType bool = false
-	var issetSpecific bool = false
-	var issetImageId bool = false
+	var issetInstanceTypeId bool = false
 	var issetRootVolume bool = false
-	var issetCount bool = false
+	var issetAmount bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -4920,7 +5425,6 @@ func (p *NewNode_) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetZoneId = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -4942,18 +5446,17 @@ func (p *NewNode_) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField3(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetChargeType = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
 				}
 			}
 		case 4:
-			if fieldTypeId == thrift.STRUCT {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField4(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetSpecific = true
+				issetInstanceTypeId = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -4964,7 +5467,6 @@ func (p *NewNode_) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField5(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetImageId = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -4996,7 +5498,7 @@ func (p *NewNode_) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField8(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetCount = true
+				issetAmount = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -5016,28 +5518,13 @@ func (p *NewNode_) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
-	if !issetZoneId {
-		fieldId = 1
-		goto RequiredFieldNotSetError
-	}
-
 	if !issetSubnetId {
 		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetChargeType {
-		fieldId = 3
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetSpecific {
+	if !issetInstanceTypeId {
 		fieldId = 4
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetImageId {
-		fieldId = 5
 		goto RequiredFieldNotSetError
 	}
 
@@ -5046,7 +5533,7 @@ func (p *NewNode_) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetCount {
+	if !issetAmount {
 		fieldId = 8
 		goto RequiredFieldNotSetError
 	}
@@ -5072,7 +5559,7 @@ func (p *NewNode_) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.ZoneId = v
+		p.ZoneId = &v
 	}
 	return nil
 }
@@ -5090,15 +5577,16 @@ func (p *NewNode_) ReadField3(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.ChargeType = v
+		p.ChargeType = &v
 	}
 	return nil
 }
 
 func (p *NewNode_) ReadField4(iprot thrift.TProtocol) error {
-	p.Specific = NewNodeSpecific()
-	if err := p.Specific.Read(iprot); err != nil {
+	if v, err := iprot.ReadString(); err != nil {
 		return err
+	} else {
+		p.InstanceTypeId = v
 	}
 	return nil
 }
@@ -5125,14 +5613,14 @@ func (p *NewNode_) ReadField7(iprot thrift.TProtocol) error {
 	if err != nil {
 		return err
 	}
-	p.DataVolume = make([]*Volume, 0, size)
+	p.DataVolumes = make([]*Volume, 0, size)
 	for i := 0; i < size; i++ {
 		_elem := NewVolume()
 		if err := _elem.Read(iprot); err != nil {
 			return err
 		}
 
-		p.DataVolume = append(p.DataVolume, _elem)
+		p.DataVolumes = append(p.DataVolumes, _elem)
 	}
 	if err := iprot.ReadListEnd(); err != nil {
 		return err
@@ -5144,7 +5632,7 @@ func (p *NewNode_) ReadField8(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
-		p.Count = v
+		p.Amount = v
 	}
 	return nil
 }
@@ -5207,14 +5695,16 @@ WriteStructEndError:
 }
 
 func (p *NewNode_) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("ZoneId", thrift.STRING, 1); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.ZoneId); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+	if p.IsSetZoneId() {
+		if err = oprot.WriteFieldBegin("ZoneId", thrift.STRING, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.ZoneId); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:
@@ -5241,14 +5731,16 @@ WriteFieldEndError:
 }
 
 func (p *NewNode_) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("ChargeType", thrift.STRING, 3); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.ChargeType); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+	if p.IsSetChargeType() {
+		if err = oprot.WriteFieldBegin("ChargeType", thrift.STRING, 3); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.ChargeType); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:
@@ -5258,10 +5750,10 @@ WriteFieldEndError:
 }
 
 func (p *NewNode_) writeField4(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("Specific", thrift.STRUCT, 4); err != nil {
+	if err = oprot.WriteFieldBegin("InstanceTypeId", thrift.STRING, 4); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := p.Specific.Write(oprot); err != nil {
+	if err := oprot.WriteString(p.InstanceTypeId); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -5275,14 +5767,16 @@ WriteFieldEndError:
 }
 
 func (p *NewNode_) writeField5(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("ImageId", thrift.STRING, 5); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.ImageId); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+	if p.IsSetImageId() {
+		if err = oprot.WriteFieldBegin("ImageId", thrift.STRING, 5); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(p.ImageId); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:
@@ -5309,14 +5803,14 @@ WriteFieldEndError:
 }
 
 func (p *NewNode_) writeField7(oprot thrift.TProtocol) (err error) {
-	if p.IsSetDataVolume() {
-		if err = oprot.WriteFieldBegin("DataVolume", thrift.LIST, 7); err != nil {
+	if p.IsSetDataVolumes() {
+		if err = oprot.WriteFieldBegin("DataVolumes", thrift.LIST, 7); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteListBegin(thrift.STRUCT, len(p.DataVolume)); err != nil {
+		if err := oprot.WriteListBegin(thrift.STRUCT, len(p.DataVolumes)); err != nil {
 			return err
 		}
-		for _, v := range p.DataVolume {
+		for _, v := range p.DataVolumes {
 			if err := v.Write(oprot); err != nil {
 				return err
 			}
@@ -5336,10 +5830,10 @@ WriteFieldEndError:
 }
 
 func (p *NewNode_) writeField8(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("Count", thrift.I32, 8); err != nil {
+	if err = oprot.WriteFieldBegin("Amount", thrift.I32, 8); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI32(p.Count); err != nil {
+	if err := oprot.WriteI32(p.Amount); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -5374,7 +5868,7 @@ func (p *NewNode_) DeepEqual(ano *NewNode_) bool {
 	if !p.Field3DeepEqual(ano.ChargeType) {
 		return false
 	}
-	if !p.Field4DeepEqual(ano.Specific) {
+	if !p.Field4DeepEqual(ano.InstanceTypeId) {
 		return false
 	}
 	if !p.Field5DeepEqual(ano.ImageId) {
@@ -5383,18 +5877,23 @@ func (p *NewNode_) DeepEqual(ano *NewNode_) bool {
 	if !p.Field6DeepEqual(ano.RootVolume) {
 		return false
 	}
-	if !p.Field7DeepEqual(ano.DataVolume) {
+	if !p.Field7DeepEqual(ano.DataVolumes) {
 		return false
 	}
-	if !p.Field8DeepEqual(ano.Count) {
+	if !p.Field8DeepEqual(ano.Amount) {
 		return false
 	}
 	return true
 }
 
-func (p *NewNode_) Field1DeepEqual(src string) bool {
+func (p *NewNode_) Field1DeepEqual(src *string) bool {
 
-	if strings.Compare(p.ZoneId, src) != 0 {
+	if p.ZoneId == src {
+		return true
+	} else if p.ZoneId == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.ZoneId, *src) != 0 {
 		return false
 	}
 	return true
@@ -5406,16 +5905,21 @@ func (p *NewNode_) Field2DeepEqual(src string) bool {
 	}
 	return true
 }
-func (p *NewNode_) Field3DeepEqual(src string) bool {
+func (p *NewNode_) Field3DeepEqual(src *string) bool {
 
-	if strings.Compare(p.ChargeType, src) != 0 {
+	if p.ChargeType == src {
+		return true
+	} else if p.ChargeType == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.ChargeType, *src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *NewNode_) Field4DeepEqual(src *NodeSpecific) bool {
+func (p *NewNode_) Field4DeepEqual(src string) bool {
 
-	if !p.Specific.DeepEqual(src) {
+	if strings.Compare(p.InstanceTypeId, src) != 0 {
 		return false
 	}
 	return true
@@ -5436,10 +5940,10 @@ func (p *NewNode_) Field6DeepEqual(src *Volume) bool {
 }
 func (p *NewNode_) Field7DeepEqual(src []*Volume) bool {
 
-	if len(p.DataVolume) != len(src) {
+	if len(p.DataVolumes) != len(src) {
 		return false
 	}
-	for i, v := range p.DataVolume {
+	for i, v := range p.DataVolumes {
 		_src := src[i]
 		if !v.DeepEqual(_src) {
 			return false
@@ -5449,14 +5953,14 @@ func (p *NewNode_) Field7DeepEqual(src []*Volume) bool {
 }
 func (p *NewNode_) Field8DeepEqual(src int32) bool {
 
-	if p.Count != src {
+	if p.Amount != src {
 		return false
 	}
 	return true
 }
 
 type NodeBaseConfig struct {
-	ExistNode     *ExistNode     `thrift:"ExistNode,1" json:"ExistNode,omitempty"`
+	ExistingNode  *ExistingNode  `thrift:"ExistingNode,1" json:"ExistingNode,omitempty"`
 	NewNode_      *NewNode_      `thrift:"NewNode,2" json:"NewNode,omitempty"`
 	OnPremiseNode *OnPremiseNode `thrift:"OnPremiseNode,3" json:"OnPremiseNode,omitempty"`
 }
@@ -5465,13 +5969,13 @@ func NewNodeBaseConfig() *NodeBaseConfig {
 	return &NodeBaseConfig{}
 }
 
-var NodeBaseConfig_ExistNode_DEFAULT *ExistNode
+var NodeBaseConfig_ExistingNode_DEFAULT *ExistingNode
 
-func (p *NodeBaseConfig) GetExistNode() (v *ExistNode) {
-	if !p.IsSetExistNode() {
-		return NodeBaseConfig_ExistNode_DEFAULT
+func (p *NodeBaseConfig) GetExistingNode() (v *ExistingNode) {
+	if !p.IsSetExistingNode() {
+		return NodeBaseConfig_ExistingNode_DEFAULT
 	}
-	return p.ExistNode
+	return p.ExistingNode
 }
 
 var NodeBaseConfig_NewNode__DEFAULT *NewNode_
@@ -5491,8 +5995,8 @@ func (p *NodeBaseConfig) GetOnPremiseNode() (v *OnPremiseNode) {
 	}
 	return p.OnPremiseNode
 }
-func (p *NodeBaseConfig) SetExistNode(val *ExistNode) {
-	p.ExistNode = val
+func (p *NodeBaseConfig) SetExistingNode(val *ExistingNode) {
+	p.ExistingNode = val
 }
 func (p *NodeBaseConfig) SetNewNode_(val *NewNode_) {
 	p.NewNode_ = val
@@ -5502,13 +6006,13 @@ func (p *NodeBaseConfig) SetOnPremiseNode(val *OnPremiseNode) {
 }
 
 var fieldIDToName_NodeBaseConfig = map[int16]string{
-	1: "ExistNode",
+	1: "ExistingNode",
 	2: "NewNode",
 	3: "OnPremiseNode",
 }
 
-func (p *NodeBaseConfig) IsSetExistNode() bool {
-	return p.ExistNode != nil
+func (p *NodeBaseConfig) IsSetExistingNode() bool {
+	return p.ExistingNode != nil
 }
 
 func (p *NodeBaseConfig) IsSetNewNode_() bool {
@@ -5599,8 +6103,8 @@ ReadStructEndError:
 }
 
 func (p *NodeBaseConfig) ReadField1(iprot thrift.TProtocol) error {
-	p.ExistNode = NewExistNode()
-	if err := p.ExistNode.Read(iprot); err != nil {
+	p.ExistingNode = NewExistingNode()
+	if err := p.ExistingNode.Read(iprot); err != nil {
 		return err
 	}
 	return nil
@@ -5660,11 +6164,11 @@ WriteStructEndError:
 }
 
 func (p *NodeBaseConfig) writeField1(oprot thrift.TProtocol) (err error) {
-	if p.IsSetExistNode() {
-		if err = oprot.WriteFieldBegin("ExistNode", thrift.STRUCT, 1); err != nil {
+	if p.IsSetExistingNode() {
+		if err = oprot.WriteFieldBegin("ExistingNode", thrift.STRUCT, 1); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := p.ExistNode.Write(oprot); err != nil {
+		if err := p.ExistingNode.Write(oprot); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -5729,7 +6233,7 @@ func (p *NodeBaseConfig) DeepEqual(ano *NodeBaseConfig) bool {
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.ExistNode) {
+	if !p.Field1DeepEqual(ano.ExistingNode) {
 		return false
 	}
 	if !p.Field2DeepEqual(ano.NewNode_) {
@@ -5741,9 +6245,9 @@ func (p *NodeBaseConfig) DeepEqual(ano *NodeBaseConfig) bool {
 	return true
 }
 
-func (p *NodeBaseConfig) Field1DeepEqual(src *ExistNode) bool {
+func (p *NodeBaseConfig) Field1DeepEqual(src *ExistingNode) bool {
 
-	if !p.ExistNode.DeepEqual(src) {
+	if !p.ExistingNode.DeepEqual(src) {
 		return false
 	}
 	return true
@@ -5764,41 +6268,40 @@ func (p *NodeBaseConfig) Field3DeepEqual(src *OnPremiseNode) bool {
 }
 
 type ClusterNodeConfig struct {
-	Master           []*NodeBaseConfig `thrift:"Master,1" json:"Master,omitempty"`
-	Worker           []*NodeBaseConfig `thrift:"Worker,2" json:"Worker,omitempty"`
-	SecurityGroups   []string          `thrift:"SecurityGroups,3" json:"SecurityGroups,omitempty"`
-	Login            *Login            `thrift:"Login,4" json:"Login,omitempty"`
-	NamePrefix       *string           `thrift:"NamePrefix,5" json:"NamePrefix,omitempty"`
-	PreScript        *string           `thrift:"PreScript,6" json:"PreScript,omitempty"`
-	PostScript       *string           `thrift:"PostScript,7" json:"PostScript,omitempty"`
-	Cordon           bool              `thrift:"Cordon,8" json:"Cordon,omitempty"`
-	SecurityStrategy bool              `thrift:"SecurityStrategy,9" json:"SecurityStrategy,omitempty"`
+	Masters            []*NodeBaseConfig `thrift:"Masters,1" json:"Masters,omitempty"`
+	Workers            []*NodeBaseConfig `thrift:"Workers,2" json:"Workers,omitempty"`
+	SecurityGroups     []string          `thrift:"SecurityGroups,3" json:"SecurityGroups,omitempty"`
+	Login              *Login            `thrift:"Login,4" json:"Login,omitempty"`
+	NamePrefix         *string           `thrift:"NamePrefix,5" json:"NamePrefix,omitempty"`
+	PreScript          *string           `thrift:"PreScript,6" json:"PreScript,omitempty"`
+	PostScript         *string           `thrift:"PostScript,7" json:"PostScript,omitempty"`
+	Cordon             bool              `thrift:"Cordon,8" json:"Cordon,omitempty"`
+	SecurityStrategies []string          `thrift:"SecurityStrategies,9" json:"SecurityStrategies,omitempty"`
 }
 
 func NewClusterNodeConfig() *ClusterNodeConfig {
 	return &ClusterNodeConfig{
 
-		Cordon:           false,
-		SecurityStrategy: false,
+		Cordon: false,
 	}
 }
 
-var ClusterNodeConfig_Master_DEFAULT []*NodeBaseConfig
+var ClusterNodeConfig_Masters_DEFAULT []*NodeBaseConfig
 
-func (p *ClusterNodeConfig) GetMaster() (v []*NodeBaseConfig) {
-	if !p.IsSetMaster() {
-		return ClusterNodeConfig_Master_DEFAULT
+func (p *ClusterNodeConfig) GetMasters() (v []*NodeBaseConfig) {
+	if !p.IsSetMasters() {
+		return ClusterNodeConfig_Masters_DEFAULT
 	}
-	return p.Master
+	return p.Masters
 }
 
-var ClusterNodeConfig_Worker_DEFAULT []*NodeBaseConfig
+var ClusterNodeConfig_Workers_DEFAULT []*NodeBaseConfig
 
-func (p *ClusterNodeConfig) GetWorker() (v []*NodeBaseConfig) {
-	if !p.IsSetWorker() {
-		return ClusterNodeConfig_Worker_DEFAULT
+func (p *ClusterNodeConfig) GetWorkers() (v []*NodeBaseConfig) {
+	if !p.IsSetWorkers() {
+		return ClusterNodeConfig_Workers_DEFAULT
 	}
-	return p.Worker
+	return p.Workers
 }
 
 var ClusterNodeConfig_SecurityGroups_DEFAULT []string
@@ -5855,19 +6358,19 @@ func (p *ClusterNodeConfig) GetCordon() (v bool) {
 	return p.Cordon
 }
 
-var ClusterNodeConfig_SecurityStrategy_DEFAULT bool = false
+var ClusterNodeConfig_SecurityStrategies_DEFAULT []string
 
-func (p *ClusterNodeConfig) GetSecurityStrategy() (v bool) {
-	if !p.IsSetSecurityStrategy() {
-		return ClusterNodeConfig_SecurityStrategy_DEFAULT
+func (p *ClusterNodeConfig) GetSecurityStrategies() (v []string) {
+	if !p.IsSetSecurityStrategies() {
+		return ClusterNodeConfig_SecurityStrategies_DEFAULT
 	}
-	return p.SecurityStrategy
+	return p.SecurityStrategies
 }
-func (p *ClusterNodeConfig) SetMaster(val []*NodeBaseConfig) {
-	p.Master = val
+func (p *ClusterNodeConfig) SetMasters(val []*NodeBaseConfig) {
+	p.Masters = val
 }
-func (p *ClusterNodeConfig) SetWorker(val []*NodeBaseConfig) {
-	p.Worker = val
+func (p *ClusterNodeConfig) SetWorkers(val []*NodeBaseConfig) {
+	p.Workers = val
 }
 func (p *ClusterNodeConfig) SetSecurityGroups(val []string) {
 	p.SecurityGroups = val
@@ -5887,28 +6390,28 @@ func (p *ClusterNodeConfig) SetPostScript(val *string) {
 func (p *ClusterNodeConfig) SetCordon(val bool) {
 	p.Cordon = val
 }
-func (p *ClusterNodeConfig) SetSecurityStrategy(val bool) {
-	p.SecurityStrategy = val
+func (p *ClusterNodeConfig) SetSecurityStrategies(val []string) {
+	p.SecurityStrategies = val
 }
 
 var fieldIDToName_ClusterNodeConfig = map[int16]string{
-	1: "Master",
-	2: "Worker",
+	1: "Masters",
+	2: "Workers",
 	3: "SecurityGroups",
 	4: "Login",
 	5: "NamePrefix",
 	6: "PreScript",
 	7: "PostScript",
 	8: "Cordon",
-	9: "SecurityStrategy",
+	9: "SecurityStrategies",
 }
 
-func (p *ClusterNodeConfig) IsSetMaster() bool {
-	return p.Master != nil
+func (p *ClusterNodeConfig) IsSetMasters() bool {
+	return p.Masters != nil
 }
 
-func (p *ClusterNodeConfig) IsSetWorker() bool {
-	return p.Worker != nil
+func (p *ClusterNodeConfig) IsSetWorkers() bool {
+	return p.Workers != nil
 }
 
 func (p *ClusterNodeConfig) IsSetSecurityGroups() bool {
@@ -5935,8 +6438,8 @@ func (p *ClusterNodeConfig) IsSetCordon() bool {
 	return p.Cordon != ClusterNodeConfig_Cordon_DEFAULT
 }
 
-func (p *ClusterNodeConfig) IsSetSecurityStrategy() bool {
-	return p.SecurityStrategy != ClusterNodeConfig_SecurityStrategy_DEFAULT
+func (p *ClusterNodeConfig) IsSetSecurityStrategies() bool {
+	return p.SecurityStrategies != nil
 }
 
 func (p *ClusterNodeConfig) Read(iprot thrift.TProtocol) (err error) {
@@ -6039,7 +6542,7 @@ func (p *ClusterNodeConfig) Read(iprot thrift.TProtocol) (err error) {
 				}
 			}
 		case 9:
-			if fieldTypeId == thrift.BOOL {
+			if fieldTypeId == thrift.LIST {
 				if err = p.ReadField9(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -6083,14 +6586,14 @@ func (p *ClusterNodeConfig) ReadField1(iprot thrift.TProtocol) error {
 	if err != nil {
 		return err
 	}
-	p.Master = make([]*NodeBaseConfig, 0, size)
+	p.Masters = make([]*NodeBaseConfig, 0, size)
 	for i := 0; i < size; i++ {
 		_elem := NewNodeBaseConfig()
 		if err := _elem.Read(iprot); err != nil {
 			return err
 		}
 
-		p.Master = append(p.Master, _elem)
+		p.Masters = append(p.Masters, _elem)
 	}
 	if err := iprot.ReadListEnd(); err != nil {
 		return err
@@ -6103,14 +6606,14 @@ func (p *ClusterNodeConfig) ReadField2(iprot thrift.TProtocol) error {
 	if err != nil {
 		return err
 	}
-	p.Worker = make([]*NodeBaseConfig, 0, size)
+	p.Workers = make([]*NodeBaseConfig, 0, size)
 	for i := 0; i < size; i++ {
 		_elem := NewNodeBaseConfig()
 		if err := _elem.Read(iprot); err != nil {
 			return err
 		}
 
-		p.Worker = append(p.Worker, _elem)
+		p.Workers = append(p.Workers, _elem)
 	}
 	if err := iprot.ReadListEnd(); err != nil {
 		return err
@@ -6185,10 +6688,23 @@ func (p *ClusterNodeConfig) ReadField8(iprot thrift.TProtocol) error {
 }
 
 func (p *ClusterNodeConfig) ReadField9(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadBool(); err != nil {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
 		return err
-	} else {
-		p.SecurityStrategy = v
+	}
+	p.SecurityStrategies = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		p.SecurityStrategies = append(p.SecurityStrategies, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
 	}
 	return nil
 }
@@ -6255,14 +6771,14 @@ WriteStructEndError:
 }
 
 func (p *ClusterNodeConfig) writeField1(oprot thrift.TProtocol) (err error) {
-	if p.IsSetMaster() {
-		if err = oprot.WriteFieldBegin("Master", thrift.LIST, 1); err != nil {
+	if p.IsSetMasters() {
+		if err = oprot.WriteFieldBegin("Masters", thrift.LIST, 1); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteListBegin(thrift.STRUCT, len(p.Master)); err != nil {
+		if err := oprot.WriteListBegin(thrift.STRUCT, len(p.Masters)); err != nil {
 			return err
 		}
-		for _, v := range p.Master {
+		for _, v := range p.Masters {
 			if err := v.Write(oprot); err != nil {
 				return err
 			}
@@ -6282,14 +6798,14 @@ WriteFieldEndError:
 }
 
 func (p *ClusterNodeConfig) writeField2(oprot thrift.TProtocol) (err error) {
-	if p.IsSetWorker() {
-		if err = oprot.WriteFieldBegin("Worker", thrift.LIST, 2); err != nil {
+	if p.IsSetWorkers() {
+		if err = oprot.WriteFieldBegin("Workers", thrift.LIST, 2); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteListBegin(thrift.STRUCT, len(p.Worker)); err != nil {
+		if err := oprot.WriteListBegin(thrift.STRUCT, len(p.Workers)); err != nil {
 			return err
 		}
-		for _, v := range p.Worker {
+		for _, v := range p.Workers {
 			if err := v.Write(oprot); err != nil {
 				return err
 			}
@@ -6431,11 +6947,19 @@ WriteFieldEndError:
 }
 
 func (p *ClusterNodeConfig) writeField9(oprot thrift.TProtocol) (err error) {
-	if p.IsSetSecurityStrategy() {
-		if err = oprot.WriteFieldBegin("SecurityStrategy", thrift.BOOL, 9); err != nil {
+	if p.IsSetSecurityStrategies() {
+		if err = oprot.WriteFieldBegin("SecurityStrategies", thrift.LIST, 9); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteBool(p.SecurityStrategy); err != nil {
+		if err := oprot.WriteListBegin(thrift.STRING, len(p.SecurityStrategies)); err != nil {
+			return err
+		}
+		for _, v := range p.SecurityStrategies {
+			if err := oprot.WriteString(v); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -6462,10 +6986,10 @@ func (p *ClusterNodeConfig) DeepEqual(ano *ClusterNodeConfig) bool {
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.Master) {
+	if !p.Field1DeepEqual(ano.Masters) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.Worker) {
+	if !p.Field2DeepEqual(ano.Workers) {
 		return false
 	}
 	if !p.Field3DeepEqual(ano.SecurityGroups) {
@@ -6486,7 +7010,7 @@ func (p *ClusterNodeConfig) DeepEqual(ano *ClusterNodeConfig) bool {
 	if !p.Field8DeepEqual(ano.Cordon) {
 		return false
 	}
-	if !p.Field9DeepEqual(ano.SecurityStrategy) {
+	if !p.Field9DeepEqual(ano.SecurityStrategies) {
 		return false
 	}
 	return true
@@ -6494,10 +7018,10 @@ func (p *ClusterNodeConfig) DeepEqual(ano *ClusterNodeConfig) bool {
 
 func (p *ClusterNodeConfig) Field1DeepEqual(src []*NodeBaseConfig) bool {
 
-	if len(p.Master) != len(src) {
+	if len(p.Masters) != len(src) {
 		return false
 	}
-	for i, v := range p.Master {
+	for i, v := range p.Masters {
 		_src := src[i]
 		if !v.DeepEqual(_src) {
 			return false
@@ -6507,10 +7031,10 @@ func (p *ClusterNodeConfig) Field1DeepEqual(src []*NodeBaseConfig) bool {
 }
 func (p *ClusterNodeConfig) Field2DeepEqual(src []*NodeBaseConfig) bool {
 
-	if len(p.Worker) != len(src) {
+	if len(p.Workers) != len(src) {
 		return false
 	}
-	for i, v := range p.Worker {
+	for i, v := range p.Workers {
 		_src := src[i]
 		if !v.DeepEqual(_src) {
 			return false
@@ -6581,34 +7105,43 @@ func (p *ClusterNodeConfig) Field8DeepEqual(src bool) bool {
 	}
 	return true
 }
-func (p *ClusterNodeConfig) Field9DeepEqual(src bool) bool {
+func (p *ClusterNodeConfig) Field9DeepEqual(src []string) bool {
 
-	if p.SecurityStrategy != src {
+	if len(p.SecurityStrategies) != len(src) {
 		return false
+	}
+	for i, v := range p.SecurityStrategies {
+		_src := src[i]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
 	}
 	return true
 }
 
 type CreateClusterRequest struct {
-	Name              string                `thrift:"Name,1,required" validate:"required,k8sAlias"`
-	Type              string                `thrift:"Type,2,required" validate:"required,oneof=Standard Managed OnPremise"`
-	KubernetesVersion string                `thrift:"KubernetesVersion,3,required" validate:"required,oneof=v1.20.6"`
-	RegionId          *string               `thrift:"RegionId,4" json:"RegionId,omitempty"`
-	Description       *string               `thrift:"Description,5" json:"Description,omitempty"`
-	NetworkConfig     *ClusterNetworkConfig `thrift:"NetworkConfig,6,required" validate:"required"`
-	Labels            []*helper.Label       `thrift:"Labels,7" validate:"k8sLabel"`
-	DeleteProtection  bool                  `thrift:"DeleteProtection,8,required" json:"DeleteProtection"`
-	NodeConfig        *ClusterNodeConfig    `thrift:"NodeConfig,9" json:"NodeConfig,omitempty"`
-	Addons            []*addon.AddonConfig  `thrift:"Addons,10,required" validate:"required"`
-	ChargeType        string                `thrift:"ChargeType,11" json:"ChargeType,omitempty"`
-	Top               *base.TopParam        `thrift:"Top,254,required" json:"Top"`
-	Base              *base.Base            `thrift:"Base,255" json:"Base,omitempty"`
+	Name                   string                `thrift:"Name,1,required" validate:"required,k8sAlias"`
+	Type                   string                `thrift:"Type,2" json:"Type,omitempty"`
+	KubernetesVersion      string                `thrift:"KubernetesVersion,3" json:"KubernetesVersion" default:"v1.20.12"`
+	RegionId               *string               `thrift:"RegionId,4" json:"RegionId,omitempty"`
+	Description            *string               `thrift:"Description,5" json:"Description,omitempty"`
+	NetworkConfig          *ClusterNetworkConfig `thrift:"NetworkConfig,6,required" validate:"required"`
+	Labels                 []*helper.Label       `thrift:"Labels,7" validate:"k8sLabel"`
+	EnableDeleteProtection bool                  `thrift:"EnableDeleteProtection,8" json:"EnableDeleteProtection,omitempty"`
+	NodeConfig             *ClusterNodeConfig    `thrift:"NodeConfig,9" json:"NodeConfig,omitempty"`
+	Addons                 []*addon.AddonConfig  `thrift:"Addons,10,required" validate:"required"`
+	ChargeType             string                `thrift:"ChargeType,11" json:"ChargeType" validate:"oneof=PostPaid" default:"PostPaid"`
+	Top                    *base.TopParam        `thrift:"Top,254,required" json:"Top"`
+	Base                   *base.Base            `thrift:"Base,255" json:"Base,omitempty"`
 }
 
 func NewCreateClusterRequest() *CreateClusterRequest {
 	return &CreateClusterRequest{
 
-		ChargeType: "",
+		Type:                   "",
+		KubernetesVersion:      "v1.20.12",
+		EnableDeleteProtection: false,
+		ChargeType:             "PostPaid",
 	}
 }
 
@@ -6616,11 +7149,21 @@ func (p *CreateClusterRequest) GetName() (v string) {
 	return p.Name
 }
 
+var CreateClusterRequest_Type_DEFAULT string = ""
+
 func (p *CreateClusterRequest) GetType() (v string) {
+	if !p.IsSetType() {
+		return CreateClusterRequest_Type_DEFAULT
+	}
 	return p.Type
 }
 
+var CreateClusterRequest_KubernetesVersion_DEFAULT string = "v1.20.12"
+
 func (p *CreateClusterRequest) GetKubernetesVersion() (v string) {
+	if !p.IsSetKubernetesVersion() {
+		return CreateClusterRequest_KubernetesVersion_DEFAULT
+	}
 	return p.KubernetesVersion
 }
 
@@ -6660,8 +7203,13 @@ func (p *CreateClusterRequest) GetLabels() (v []*helper.Label) {
 	return p.Labels
 }
 
-func (p *CreateClusterRequest) GetDeleteProtection() (v bool) {
-	return p.DeleteProtection
+var CreateClusterRequest_EnableDeleteProtection_DEFAULT bool = false
+
+func (p *CreateClusterRequest) GetEnableDeleteProtection() (v bool) {
+	if !p.IsSetEnableDeleteProtection() {
+		return CreateClusterRequest_EnableDeleteProtection_DEFAULT
+	}
+	return p.EnableDeleteProtection
 }
 
 var CreateClusterRequest_NodeConfig_DEFAULT *ClusterNodeConfig
@@ -6677,7 +7225,7 @@ func (p *CreateClusterRequest) GetAddons() (v []*addon.AddonConfig) {
 	return p.Addons
 }
 
-var CreateClusterRequest_ChargeType_DEFAULT string = ""
+var CreateClusterRequest_ChargeType_DEFAULT string = "PostPaid"
 
 func (p *CreateClusterRequest) GetChargeType() (v string) {
 	if !p.IsSetChargeType() {
@@ -6724,8 +7272,8 @@ func (p *CreateClusterRequest) SetNetworkConfig(val *ClusterNetworkConfig) {
 func (p *CreateClusterRequest) SetLabels(val []*helper.Label) {
 	p.Labels = val
 }
-func (p *CreateClusterRequest) SetDeleteProtection(val bool) {
-	p.DeleteProtection = val
+func (p *CreateClusterRequest) SetEnableDeleteProtection(val bool) {
+	p.EnableDeleteProtection = val
 }
 func (p *CreateClusterRequest) SetNodeConfig(val *ClusterNodeConfig) {
 	p.NodeConfig = val
@@ -6751,12 +7299,20 @@ var fieldIDToName_CreateClusterRequest = map[int16]string{
 	5:   "Description",
 	6:   "NetworkConfig",
 	7:   "Labels",
-	8:   "DeleteProtection",
+	8:   "EnableDeleteProtection",
 	9:   "NodeConfig",
 	10:  "Addons",
 	11:  "ChargeType",
 	254: "Top",
 	255: "Base",
+}
+
+func (p *CreateClusterRequest) IsSetType() bool {
+	return p.Type != CreateClusterRequest_Type_DEFAULT
+}
+
+func (p *CreateClusterRequest) IsSetKubernetesVersion() bool {
+	return p.KubernetesVersion != CreateClusterRequest_KubernetesVersion_DEFAULT
 }
 
 func (p *CreateClusterRequest) IsSetRegionId() bool {
@@ -6773,6 +7329,10 @@ func (p *CreateClusterRequest) IsSetNetworkConfig() bool {
 
 func (p *CreateClusterRequest) IsSetLabels() bool {
 	return p.Labels != nil
+}
+
+func (p *CreateClusterRequest) IsSetEnableDeleteProtection() bool {
+	return p.EnableDeleteProtection != CreateClusterRequest_EnableDeleteProtection_DEFAULT
 }
 
 func (p *CreateClusterRequest) IsSetNodeConfig() bool {
@@ -6796,10 +7356,7 @@ func (p *CreateClusterRequest) Read(iprot thrift.TProtocol) (err error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetName bool = false
-	var issetType bool = false
-	var issetKubernetesVersion bool = false
 	var issetNetworkConfig bool = false
-	var issetDeleteProtection bool = false
 	var issetAddons bool = false
 	var issetTop bool = false
 
@@ -6833,7 +7390,6 @@ func (p *CreateClusterRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetType = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -6844,7 +7400,6 @@ func (p *CreateClusterRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField3(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetKubernetesVersion = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -6896,7 +7451,6 @@ func (p *CreateClusterRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField8(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetDeleteProtection = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -6973,23 +7527,8 @@ func (p *CreateClusterRequest) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetType {
-		fieldId = 2
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetKubernetesVersion {
-		fieldId = 3
-		goto RequiredFieldNotSetError
-	}
-
 	if !issetNetworkConfig {
 		fieldId = 6
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetDeleteProtection {
-		fieldId = 8
 		goto RequiredFieldNotSetError
 	}
 
@@ -7097,7 +7636,7 @@ func (p *CreateClusterRequest) ReadField8(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadBool(); err != nil {
 		return err
 	} else {
-		p.DeleteProtection = v
+		p.EnableDeleteProtection = v
 	}
 	return nil
 }
@@ -7250,14 +7789,16 @@ WriteFieldEndError:
 }
 
 func (p *CreateClusterRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("Type", thrift.STRING, 2); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.Type); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+	if p.IsSetType() {
+		if err = oprot.WriteFieldBegin("Type", thrift.STRING, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(p.Type); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:
@@ -7267,14 +7808,16 @@ WriteFieldEndError:
 }
 
 func (p *CreateClusterRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("KubernetesVersion", thrift.STRING, 3); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.KubernetesVersion); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+	if p.IsSetKubernetesVersion() {
+		if err = oprot.WriteFieldBegin("KubernetesVersion", thrift.STRING, 3); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(p.KubernetesVersion); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:
@@ -7366,14 +7909,16 @@ WriteFieldEndError:
 }
 
 func (p *CreateClusterRequest) writeField8(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("DeleteProtection", thrift.BOOL, 8); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteBool(p.DeleteProtection); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+	if p.IsSetEnableDeleteProtection() {
+		if err = oprot.WriteFieldBegin("EnableDeleteProtection", thrift.BOOL, 8); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteBool(p.EnableDeleteProtection); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:
@@ -7515,7 +8060,7 @@ func (p *CreateClusterRequest) DeepEqual(ano *CreateClusterRequest) bool {
 	if !p.Field7DeepEqual(ano.Labels) {
 		return false
 	}
-	if !p.Field8DeepEqual(ano.DeleteProtection) {
+	if !p.Field8DeepEqual(ano.EnableDeleteProtection) {
 		return false
 	}
 	if !p.Field9DeepEqual(ano.NodeConfig) {
@@ -7603,7 +8148,7 @@ func (p *CreateClusterRequest) Field7DeepEqual(src []*helper.Label) bool {
 }
 func (p *CreateClusterRequest) Field8DeepEqual(src bool) bool {
 
-	if p.DeleteProtection != src {
+	if p.EnableDeleteProtection != src {
 		return false
 	}
 	return true
@@ -7894,7 +8439,7 @@ type RegisterClusterRequest struct {
 	DeleteProtection bool            `thrift:"DeleteProtection,4,required" json:"DeleteProtection"`
 	CloudType        string          `thrift:"CloudType,5,required" validate:"required,oneof=ACK CCE TKE Self"`
 	ImportType       string          `thrift:"ImportType,6,required" validate:"required,oneof=Direct Agent"`
-	KubeConfig       string          `thrift:"KubeConfig,7,required" json:"KubeConfig"`
+	Kubeconfig       string          `thrift:"Kubeconfig,7,required" json:"Kubeconfig"`
 	Top              *base.TopParam  `thrift:"Top,254,required" json:"Top"`
 	Base             *base.Base      `thrift:"Base,255" json:"Base,omitempty"`
 }
@@ -7937,8 +8482,8 @@ func (p *RegisterClusterRequest) GetImportType() (v string) {
 	return p.ImportType
 }
 
-func (p *RegisterClusterRequest) GetKubeConfig() (v string) {
-	return p.KubeConfig
+func (p *RegisterClusterRequest) GetKubeconfig() (v string) {
+	return p.Kubeconfig
 }
 
 var RegisterClusterRequest_Top_DEFAULT *base.TopParam
@@ -7976,8 +8521,8 @@ func (p *RegisterClusterRequest) SetCloudType(val string) {
 func (p *RegisterClusterRequest) SetImportType(val string) {
 	p.ImportType = val
 }
-func (p *RegisterClusterRequest) SetKubeConfig(val string) {
-	p.KubeConfig = val
+func (p *RegisterClusterRequest) SetKubeconfig(val string) {
+	p.Kubeconfig = val
 }
 func (p *RegisterClusterRequest) SetTop(val *base.TopParam) {
 	p.Top = val
@@ -7993,7 +8538,7 @@ var fieldIDToName_RegisterClusterRequest = map[int16]string{
 	4:   "DeleteProtection",
 	5:   "CloudType",
 	6:   "ImportType",
-	7:   "KubeConfig",
+	7:   "Kubeconfig",
 	254: "Top",
 	255: "Base",
 }
@@ -8022,7 +8567,7 @@ func (p *RegisterClusterRequest) Read(iprot thrift.TProtocol) (err error) {
 	var issetDeleteProtection bool = false
 	var issetCloudType bool = false
 	var issetImportType bool = false
-	var issetKubeConfig bool = false
+	var issetKubeconfig bool = false
 	var issetTop bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
@@ -8108,7 +8653,7 @@ func (p *RegisterClusterRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField7(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetKubeConfig = true
+				issetKubeconfig = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -8169,7 +8714,7 @@ func (p *RegisterClusterRequest) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetKubeConfig {
+	if !issetKubeconfig {
 		fieldId = 7
 		goto RequiredFieldNotSetError
 	}
@@ -8265,7 +8810,7 @@ func (p *RegisterClusterRequest) ReadField7(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.KubeConfig = v
+		p.Kubeconfig = v
 	}
 	return nil
 }
@@ -8462,10 +9007,10 @@ WriteFieldEndError:
 }
 
 func (p *RegisterClusterRequest) writeField7(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("KubeConfig", thrift.STRING, 7); err != nil {
+	if err = oprot.WriteFieldBegin("Kubeconfig", thrift.STRING, 7); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.KubeConfig); err != nil {
+	if err := oprot.WriteString(p.Kubeconfig); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -8545,7 +9090,7 @@ func (p *RegisterClusterRequest) DeepEqual(ano *RegisterClusterRequest) bool {
 	if !p.Field6DeepEqual(ano.ImportType) {
 		return false
 	}
-	if !p.Field7DeepEqual(ano.KubeConfig) {
+	if !p.Field7DeepEqual(ano.Kubeconfig) {
 		return false
 	}
 	if !p.Field254DeepEqual(ano.Top) {
@@ -8612,7 +9157,7 @@ func (p *RegisterClusterRequest) Field6DeepEqual(src string) bool {
 }
 func (p *RegisterClusterRequest) Field7DeepEqual(src string) bool {
 
-	if strings.Compare(p.KubeConfig, src) != 0 {
+	if strings.Compare(p.Kubeconfig, src) != 0 {
 		return false
 	}
 	return true
@@ -9188,11 +9733,11 @@ type GetClusterResponse struct {
 	Region                     *iaas.Region        `thrift:"Region,5,required" json:"Region"`
 	NodeCount                  int32               `thrift:"NodeCount,6,required" json:"NodeCount"`
 	Labels                     []*helper.Label     `thrift:"Labels,7,required" json:"Labels"`
-	DeleteProtection           bool                `thrift:"DeleteProtection,8,required" json:"DeleteProtection"`
+	EnableDeleteProtection     bool                `thrift:"EnableDeleteProtection,8,required" json:"EnableDeleteProtection"`
 	Description                string              `thrift:"Description,9,required" json:"Description"`
 	Resource                   *ResourceStatistics `thrift:"Resource,10,required" json:"Resource"`
 	Network                    *ClusterNetwork     `thrift:"Network,11,required" json:"Network"`
-	DefaultWorkerSecurityGroup *iaas.SecurityGroup `thrift:"DefaultWorkerSecurityGroup,12" json:"DefaultWorkerSecurityGroup,omitempty"`
+	DefaultWorkerSecurityGroup *iaas.SecurityGroup `thrift:"DefaultWorkerSecurityGroup,12,required" json:"DefaultWorkerSecurityGroup"`
 	CreateTime                 string              `thrift:"CreateTime,13,required" json:"CreateTime"`
 	Status                     string              `thrift:"Status,14,required" json:"Status"`
 	ErrorMessage               string              `thrift:"ErrorMessage,16,required" json:"ErrorMessage"`
@@ -9238,8 +9783,8 @@ func (p *GetClusterResponse) GetLabels() (v []*helper.Label) {
 	return p.Labels
 }
 
-func (p *GetClusterResponse) GetDeleteProtection() (v bool) {
-	return p.DeleteProtection
+func (p *GetClusterResponse) GetEnableDeleteProtection() (v bool) {
+	return p.EnableDeleteProtection
 }
 
 func (p *GetClusterResponse) GetDescription() (v string) {
@@ -9332,8 +9877,8 @@ func (p *GetClusterResponse) SetNodeCount(val int32) {
 func (p *GetClusterResponse) SetLabels(val []*helper.Label) {
 	p.Labels = val
 }
-func (p *GetClusterResponse) SetDeleteProtection(val bool) {
-	p.DeleteProtection = val
+func (p *GetClusterResponse) SetEnableDeleteProtection(val bool) {
+	p.EnableDeleteProtection = val
 }
 func (p *GetClusterResponse) SetDescription(val string) {
 	p.Description = val
@@ -9374,7 +9919,7 @@ var fieldIDToName_GetClusterResponse = map[int16]string{
 	5:   "Region",
 	6:   "NodeCount",
 	7:   "Labels",
-	8:   "DeleteProtection",
+	8:   "EnableDeleteProtection",
 	9:   "Description",
 	10:  "Resource",
 	11:  "Network",
@@ -9426,10 +9971,11 @@ func (p *GetClusterResponse) Read(iprot thrift.TProtocol) (err error) {
 	var issetRegion bool = false
 	var issetNodeCount bool = false
 	var issetLabels bool = false
-	var issetDeleteProtection bool = false
+	var issetEnableDeleteProtection bool = false
 	var issetDescription bool = false
 	var issetResource bool = false
 	var issetNetwork bool = false
+	var issetDefaultWorkerSecurityGroup bool = false
 	var issetCreateTime bool = false
 	var issetStatus bool = false
 	var issetErrorMessage bool = false
@@ -9530,7 +10076,7 @@ func (p *GetClusterResponse) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField8(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetDeleteProtection = true
+				issetEnableDeleteProtection = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -9574,6 +10120,7 @@ func (p *GetClusterResponse) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField12(iprot); err != nil {
 					goto ReadFieldError
 				}
+				issetDefaultWorkerSecurityGroup = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -9691,7 +10238,7 @@ func (p *GetClusterResponse) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetDeleteProtection {
+	if !issetEnableDeleteProtection {
 		fieldId = 8
 		goto RequiredFieldNotSetError
 	}
@@ -9708,6 +10255,11 @@ func (p *GetClusterResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetNetwork {
 		fieldId = 11
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetDefaultWorkerSecurityGroup {
+		fieldId = 12
 		goto RequiredFieldNotSetError
 	}
 
@@ -9820,7 +10372,7 @@ func (p *GetClusterResponse) ReadField8(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadBool(); err != nil {
 		return err
 	} else {
-		p.DeleteProtection = v
+		p.EnableDeleteProtection = v
 	}
 	return nil
 }
@@ -10136,10 +10688,10 @@ WriteFieldEndError:
 }
 
 func (p *GetClusterResponse) writeField8(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("DeleteProtection", thrift.BOOL, 8); err != nil {
+	if err = oprot.WriteFieldBegin("EnableDeleteProtection", thrift.BOOL, 8); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteBool(p.DeleteProtection); err != nil {
+	if err := oprot.WriteBool(p.EnableDeleteProtection); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -10204,16 +10756,14 @@ WriteFieldEndError:
 }
 
 func (p *GetClusterResponse) writeField12(oprot thrift.TProtocol) (err error) {
-	if p.IsSetDefaultWorkerSecurityGroup() {
-		if err = oprot.WriteFieldBegin("DefaultWorkerSecurityGroup", thrift.STRUCT, 12); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := p.DefaultWorkerSecurityGroup.Write(oprot); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("DefaultWorkerSecurityGroup", thrift.STRUCT, 12); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.DefaultWorkerSecurityGroup.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -10364,7 +10914,7 @@ func (p *GetClusterResponse) DeepEqual(ano *GetClusterResponse) bool {
 	if !p.Field7DeepEqual(ano.Labels) {
 		return false
 	}
-	if !p.Field8DeepEqual(ano.DeleteProtection) {
+	if !p.Field8DeepEqual(ano.EnableDeleteProtection) {
 		return false
 	}
 	if !p.Field9DeepEqual(ano.Description) {
@@ -10457,7 +11007,7 @@ func (p *GetClusterResponse) Field7DeepEqual(src []*helper.Label) bool {
 }
 func (p *GetClusterResponse) Field8DeepEqual(src bool) bool {
 
-	if p.DeleteProtection != src {
+	if p.EnableDeleteProtection != src {
 		return false
 	}
 	return true
@@ -10544,7 +11094,7 @@ func (p *GetClusterResponse) Field255DeepEqual(src *base.Base) bool {
 }
 
 type PublicAccess struct {
-	IsOpen    bool               `thrift:"IsOpen,1,required" json:"IsOpen"`
+	Enable    bool               `thrift:"Enable,1,required" json:"Enable"`
 	EipConfig *NetworkPermission `thrift:"EipConfig,2" json:"EipConfig,omitempty"`
 }
 
@@ -10552,8 +11102,8 @@ func NewPublicAccess() *PublicAccess {
 	return &PublicAccess{}
 }
 
-func (p *PublicAccess) GetIsOpen() (v bool) {
-	return p.IsOpen
+func (p *PublicAccess) GetEnable() (v bool) {
+	return p.Enable
 }
 
 var PublicAccess_EipConfig_DEFAULT *NetworkPermission
@@ -10564,15 +11114,15 @@ func (p *PublicAccess) GetEipConfig() (v *NetworkPermission) {
 	}
 	return p.EipConfig
 }
-func (p *PublicAccess) SetIsOpen(val bool) {
-	p.IsOpen = val
+func (p *PublicAccess) SetEnable(val bool) {
+	p.Enable = val
 }
 func (p *PublicAccess) SetEipConfig(val *NetworkPermission) {
 	p.EipConfig = val
 }
 
 var fieldIDToName_PublicAccess = map[int16]string{
-	1: "IsOpen",
+	1: "Enable",
 	2: "EipConfig",
 }
 
@@ -10584,7 +11134,7 @@ func (p *PublicAccess) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetIsOpen bool = false
+	var issetEnable bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -10605,7 +11155,7 @@ func (p *PublicAccess) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetIsOpen = true
+				issetEnable = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -10635,7 +11185,7 @@ func (p *PublicAccess) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
-	if !issetIsOpen {
+	if !issetEnable {
 		fieldId = 1
 		goto RequiredFieldNotSetError
 	}
@@ -10661,7 +11211,7 @@ func (p *PublicAccess) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadBool(); err != nil {
 		return err
 	} else {
-		p.IsOpen = v
+		p.Enable = v
 	}
 	return nil
 }
@@ -10708,10 +11258,10 @@ WriteStructEndError:
 }
 
 func (p *PublicAccess) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("IsOpen", thrift.BOOL, 1); err != nil {
+	if err = oprot.WriteFieldBegin("Enable", thrift.BOOL, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteBool(p.IsOpen); err != nil {
+	if err := oprot.WriteBool(p.Enable); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -10756,7 +11306,7 @@ func (p *PublicAccess) DeepEqual(ano *PublicAccess) bool {
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.IsOpen) {
+	if !p.Field1DeepEqual(ano.Enable) {
 		return false
 	}
 	if !p.Field2DeepEqual(ano.EipConfig) {
@@ -10767,7 +11317,7 @@ func (p *PublicAccess) DeepEqual(ano *PublicAccess) bool {
 
 func (p *PublicAccess) Field1DeepEqual(src bool) bool {
 
-	if p.IsOpen != src {
+	if p.Enable != src {
 		return false
 	}
 	return true
@@ -10781,14 +11331,14 @@ func (p *PublicAccess) Field2DeepEqual(src *NetworkPermission) bool {
 }
 
 type UpdateClusterRequest struct {
-	Id                    string          `thrift:"Id,1,required" validate:"required,k8sName"`
-	Name                  *string         `thrift:"Name,2" json:"Name,omitempty"`
-	Description           *string         `thrift:"Description,3" json:"Description,omitempty"`
-	ApiServerPublicAccess *PublicAccess   `thrift:"ApiServerPublicAccess,4" json:"ApiServerPublicAccess,omitempty"`
-	DeleteProtection      *bool           `thrift:"DeleteProtection,5" json:"DeleteProtection,omitempty"`
-	Labels                []*helper.Label `thrift:"Labels,6" validate:"k8sLabel"`
-	Top                   *base.TopParam  `thrift:"Top,254,required" json:"Top"`
-	Base                  *base.Base      `thrift:"Base,255" json:"Base,omitempty"`
+	Id                     string          `thrift:"Id,1,required" validate:"required,k8sName"`
+	Name                   *string         `thrift:"Name,2" json:"Name,omitempty"`
+	Description            *string         `thrift:"Description,3" json:"Description,omitempty"`
+	ApiServerPublicAccess  *PublicAccess   `thrift:"ApiServerPublicAccess,4" json:"ApiServerPublicAccess,omitempty"`
+	EnableDeleteProtection *bool           `thrift:"EnableDeleteProtection,5" json:"EnableDeleteProtection,omitempty"`
+	Labels                 []*helper.Label `thrift:"Labels,6" validate:"k8sLabel"`
+	Top                    *base.TopParam  `thrift:"Top,254,required" json:"Top"`
+	Base                   *base.Base      `thrift:"Base,255" json:"Base,omitempty"`
 }
 
 func NewUpdateClusterRequest() *UpdateClusterRequest {
@@ -10826,13 +11376,13 @@ func (p *UpdateClusterRequest) GetApiServerPublicAccess() (v *PublicAccess) {
 	return p.ApiServerPublicAccess
 }
 
-var UpdateClusterRequest_DeleteProtection_DEFAULT bool
+var UpdateClusterRequest_EnableDeleteProtection_DEFAULT bool
 
-func (p *UpdateClusterRequest) GetDeleteProtection() (v bool) {
-	if !p.IsSetDeleteProtection() {
-		return UpdateClusterRequest_DeleteProtection_DEFAULT
+func (p *UpdateClusterRequest) GetEnableDeleteProtection() (v bool) {
+	if !p.IsSetEnableDeleteProtection() {
+		return UpdateClusterRequest_EnableDeleteProtection_DEFAULT
 	}
-	return *p.DeleteProtection
+	return *p.EnableDeleteProtection
 }
 
 var UpdateClusterRequest_Labels_DEFAULT []*helper.Label
@@ -10873,8 +11423,8 @@ func (p *UpdateClusterRequest) SetDescription(val *string) {
 func (p *UpdateClusterRequest) SetApiServerPublicAccess(val *PublicAccess) {
 	p.ApiServerPublicAccess = val
 }
-func (p *UpdateClusterRequest) SetDeleteProtection(val *bool) {
-	p.DeleteProtection = val
+func (p *UpdateClusterRequest) SetEnableDeleteProtection(val *bool) {
+	p.EnableDeleteProtection = val
 }
 func (p *UpdateClusterRequest) SetLabels(val []*helper.Label) {
 	p.Labels = val
@@ -10891,7 +11441,7 @@ var fieldIDToName_UpdateClusterRequest = map[int16]string{
 	2:   "Name",
 	3:   "Description",
 	4:   "ApiServerPublicAccess",
-	5:   "DeleteProtection",
+	5:   "EnableDeleteProtection",
 	6:   "Labels",
 	254: "Top",
 	255: "Base",
@@ -10909,8 +11459,8 @@ func (p *UpdateClusterRequest) IsSetApiServerPublicAccess() bool {
 	return p.ApiServerPublicAccess != nil
 }
 
-func (p *UpdateClusterRequest) IsSetDeleteProtection() bool {
-	return p.DeleteProtection != nil
+func (p *UpdateClusterRequest) IsSetEnableDeleteProtection() bool {
+	return p.EnableDeleteProtection != nil
 }
 
 func (p *UpdateClusterRequest) IsSetLabels() bool {
@@ -11108,7 +11658,7 @@ func (p *UpdateClusterRequest) ReadField5(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadBool(); err != nil {
 		return err
 	} else {
-		p.DeleteProtection = &v
+		p.EnableDeleteProtection = &v
 	}
 	return nil
 }
@@ -11281,11 +11831,11 @@ WriteFieldEndError:
 }
 
 func (p *UpdateClusterRequest) writeField5(oprot thrift.TProtocol) (err error) {
-	if p.IsSetDeleteProtection() {
-		if err = oprot.WriteFieldBegin("DeleteProtection", thrift.BOOL, 5); err != nil {
+	if p.IsSetEnableDeleteProtection() {
+		if err = oprot.WriteFieldBegin("EnableDeleteProtection", thrift.BOOL, 5); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteBool(*p.DeleteProtection); err != nil {
+		if err := oprot.WriteBool(*p.EnableDeleteProtection); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -11387,7 +11937,7 @@ func (p *UpdateClusterRequest) DeepEqual(ano *UpdateClusterRequest) bool {
 	if !p.Field4DeepEqual(ano.ApiServerPublicAccess) {
 		return false
 	}
-	if !p.Field5DeepEqual(ano.DeleteProtection) {
+	if !p.Field5DeepEqual(ano.EnableDeleteProtection) {
 		return false
 	}
 	if !p.Field6DeepEqual(ano.Labels) {
@@ -11442,12 +11992,12 @@ func (p *UpdateClusterRequest) Field4DeepEqual(src *PublicAccess) bool {
 }
 func (p *UpdateClusterRequest) Field5DeepEqual(src *bool) bool {
 
-	if p.DeleteProtection == src {
+	if p.EnableDeleteProtection == src {
 		return true
-	} else if p.DeleteProtection == nil || src == nil {
+	} else if p.EnableDeleteProtection == nil || src == nil {
 		return false
 	}
-	if *p.DeleteProtection != *src {
+	if *p.EnableDeleteProtection != *src {
 		return false
 	}
 	return true
@@ -11649,13 +12199,10 @@ func (p *UpdateClusterResponse) Field1DeepEqual(src string) bool {
 }
 
 type DeleteClusterRequest struct {
-	Id                string         `thrift:"Id,1,required" validate:"required,k8sName"`
-	DeleteStorageFlag bool           `thrift:"DeleteStorageFlag,2,required" json:"DeleteStorageFlag"`
-	DeleteNodeFlag    bool           `thrift:"DeleteNodeFlag,3,required" json:"DeleteNodeFlag"`
-	DeleteClbFlag     bool           `thrift:"DeleteClbFlag,4,required" json:"DeleteClbFlag"`
-	DeleteNatFlag     bool           `thrift:"DeleteNatFlag,5,required" json:"DeleteNatFlag"`
-	Top               *base.TopParam `thrift:"Top,254,required" json:"Top"`
-	Base              *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
+	Id                       string         `thrift:"Id,1,required" validate:"required,k8sName"`
+	CascadingDeleteResources []string       `thrift:"CascadingDeleteResources,2,required" json:"CascadingDeleteResources"`
+	Top                      *base.TopParam `thrift:"Top,254,required" json:"Top"`
+	Base                     *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
 }
 
 func NewDeleteClusterRequest() *DeleteClusterRequest {
@@ -11666,20 +12213,8 @@ func (p *DeleteClusterRequest) GetId() (v string) {
 	return p.Id
 }
 
-func (p *DeleteClusterRequest) GetDeleteStorageFlag() (v bool) {
-	return p.DeleteStorageFlag
-}
-
-func (p *DeleteClusterRequest) GetDeleteNodeFlag() (v bool) {
-	return p.DeleteNodeFlag
-}
-
-func (p *DeleteClusterRequest) GetDeleteClbFlag() (v bool) {
-	return p.DeleteClbFlag
-}
-
-func (p *DeleteClusterRequest) GetDeleteNatFlag() (v bool) {
-	return p.DeleteNatFlag
+func (p *DeleteClusterRequest) GetCascadingDeleteResources() (v []string) {
+	return p.CascadingDeleteResources
 }
 
 var DeleteClusterRequest_Top_DEFAULT *base.TopParam
@@ -11702,17 +12237,8 @@ func (p *DeleteClusterRequest) GetBase() (v *base.Base) {
 func (p *DeleteClusterRequest) SetId(val string) {
 	p.Id = val
 }
-func (p *DeleteClusterRequest) SetDeleteStorageFlag(val bool) {
-	p.DeleteStorageFlag = val
-}
-func (p *DeleteClusterRequest) SetDeleteNodeFlag(val bool) {
-	p.DeleteNodeFlag = val
-}
-func (p *DeleteClusterRequest) SetDeleteClbFlag(val bool) {
-	p.DeleteClbFlag = val
-}
-func (p *DeleteClusterRequest) SetDeleteNatFlag(val bool) {
-	p.DeleteNatFlag = val
+func (p *DeleteClusterRequest) SetCascadingDeleteResources(val []string) {
+	p.CascadingDeleteResources = val
 }
 func (p *DeleteClusterRequest) SetTop(val *base.TopParam) {
 	p.Top = val
@@ -11723,10 +12249,7 @@ func (p *DeleteClusterRequest) SetBase(val *base.Base) {
 
 var fieldIDToName_DeleteClusterRequest = map[int16]string{
 	1:   "Id",
-	2:   "DeleteStorageFlag",
-	3:   "DeleteNodeFlag",
-	4:   "DeleteClbFlag",
-	5:   "DeleteNatFlag",
+	2:   "CascadingDeleteResources",
 	254: "Top",
 	255: "Base",
 }
@@ -11744,10 +12267,7 @@ func (p *DeleteClusterRequest) Read(iprot thrift.TProtocol) (err error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetId bool = false
-	var issetDeleteStorageFlag bool = false
-	var issetDeleteNodeFlag bool = false
-	var issetDeleteClbFlag bool = false
-	var issetDeleteNatFlag bool = false
+	var issetCascadingDeleteResources bool = false
 	var issetTop bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
@@ -11776,44 +12296,11 @@ func (p *DeleteClusterRequest) Read(iprot thrift.TProtocol) (err error) {
 				}
 			}
 		case 2:
-			if fieldTypeId == thrift.BOOL {
+			if fieldTypeId == thrift.LIST {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetDeleteStorageFlag = true
-			} else {
-				if err = iprot.Skip(fieldTypeId); err != nil {
-					goto SkipFieldError
-				}
-			}
-		case 3:
-			if fieldTypeId == thrift.BOOL {
-				if err = p.ReadField3(iprot); err != nil {
-					goto ReadFieldError
-				}
-				issetDeleteNodeFlag = true
-			} else {
-				if err = iprot.Skip(fieldTypeId); err != nil {
-					goto SkipFieldError
-				}
-			}
-		case 4:
-			if fieldTypeId == thrift.BOOL {
-				if err = p.ReadField4(iprot); err != nil {
-					goto ReadFieldError
-				}
-				issetDeleteClbFlag = true
-			} else {
-				if err = iprot.Skip(fieldTypeId); err != nil {
-					goto SkipFieldError
-				}
-			}
-		case 5:
-			if fieldTypeId == thrift.BOOL {
-				if err = p.ReadField5(iprot); err != nil {
-					goto ReadFieldError
-				}
-				issetDeleteNatFlag = true
+				issetCascadingDeleteResources = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -11859,23 +12346,8 @@ func (p *DeleteClusterRequest) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetDeleteStorageFlag {
+	if !issetCascadingDeleteResources {
 		fieldId = 2
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetDeleteNodeFlag {
-		fieldId = 3
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetDeleteClbFlag {
-		fieldId = 4
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetDeleteNatFlag {
-		fieldId = 5
 		goto RequiredFieldNotSetError
 	}
 
@@ -11911,37 +12383,23 @@ func (p *DeleteClusterRequest) ReadField1(iprot thrift.TProtocol) error {
 }
 
 func (p *DeleteClusterRequest) ReadField2(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadBool(); err != nil {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
 		return err
-	} else {
-		p.DeleteStorageFlag = v
 	}
-	return nil
-}
+	p.CascadingDeleteResources = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
 
-func (p *DeleteClusterRequest) ReadField3(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadBool(); err != nil {
-		return err
-	} else {
-		p.DeleteNodeFlag = v
+		p.CascadingDeleteResources = append(p.CascadingDeleteResources, _elem)
 	}
-	return nil
-}
-
-func (p *DeleteClusterRequest) ReadField4(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadBool(); err != nil {
+	if err := iprot.ReadListEnd(); err != nil {
 		return err
-	} else {
-		p.DeleteClbFlag = v
-	}
-	return nil
-}
-
-func (p *DeleteClusterRequest) ReadField5(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadBool(); err != nil {
-		return err
-	} else {
-		p.DeleteNatFlag = v
 	}
 	return nil
 }
@@ -11974,18 +12432,6 @@ func (p *DeleteClusterRequest) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField2(oprot); err != nil {
 			fieldId = 2
-			goto WriteFieldError
-		}
-		if err = p.writeField3(oprot); err != nil {
-			fieldId = 3
-			goto WriteFieldError
-		}
-		if err = p.writeField4(oprot); err != nil {
-			fieldId = 4
-			goto WriteFieldError
-		}
-		if err = p.writeField5(oprot); err != nil {
-			fieldId = 5
 			goto WriteFieldError
 		}
 		if err = p.writeField254(oprot); err != nil {
@@ -12033,10 +12479,18 @@ WriteFieldEndError:
 }
 
 func (p *DeleteClusterRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("DeleteStorageFlag", thrift.BOOL, 2); err != nil {
+	if err = oprot.WriteFieldBegin("CascadingDeleteResources", thrift.LIST, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteBool(p.DeleteStorageFlag); err != nil {
+	if err := oprot.WriteListBegin(thrift.STRING, len(p.CascadingDeleteResources)); err != nil {
+		return err
+	}
+	for _, v := range p.CascadingDeleteResources {
+		if err := oprot.WriteString(v); err != nil {
+			return err
+		}
+	}
+	if err := oprot.WriteListEnd(); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -12047,57 +12501,6 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
-}
-
-func (p *DeleteClusterRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("DeleteNodeFlag", thrift.BOOL, 3); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteBool(p.DeleteNodeFlag); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
-}
-
-func (p *DeleteClusterRequest) writeField4(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("DeleteClbFlag", thrift.BOOL, 4); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteBool(p.DeleteClbFlag); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
-}
-
-func (p *DeleteClusterRequest) writeField5(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("DeleteNatFlag", thrift.BOOL, 5); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteBool(p.DeleteNatFlag); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 5 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
 }
 
 func (p *DeleteClusterRequest) writeField254(oprot thrift.TProtocol) (err error) {
@@ -12152,16 +12555,7 @@ func (p *DeleteClusterRequest) DeepEqual(ano *DeleteClusterRequest) bool {
 	if !p.Field1DeepEqual(ano.Id) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.DeleteStorageFlag) {
-		return false
-	}
-	if !p.Field3DeepEqual(ano.DeleteNodeFlag) {
-		return false
-	}
-	if !p.Field4DeepEqual(ano.DeleteClbFlag) {
-		return false
-	}
-	if !p.Field5DeepEqual(ano.DeleteNatFlag) {
+	if !p.Field2DeepEqual(ano.CascadingDeleteResources) {
 		return false
 	}
 	if !p.Field254DeepEqual(ano.Top) {
@@ -12180,31 +12574,16 @@ func (p *DeleteClusterRequest) Field1DeepEqual(src string) bool {
 	}
 	return true
 }
-func (p *DeleteClusterRequest) Field2DeepEqual(src bool) bool {
+func (p *DeleteClusterRequest) Field2DeepEqual(src []string) bool {
 
-	if p.DeleteStorageFlag != src {
+	if len(p.CascadingDeleteResources) != len(src) {
 		return false
 	}
-	return true
-}
-func (p *DeleteClusterRequest) Field3DeepEqual(src bool) bool {
-
-	if p.DeleteNodeFlag != src {
-		return false
-	}
-	return true
-}
-func (p *DeleteClusterRequest) Field4DeepEqual(src bool) bool {
-
-	if p.DeleteClbFlag != src {
-		return false
-	}
-	return true
-}
-func (p *DeleteClusterRequest) Field5DeepEqual(src bool) bool {
-
-	if p.DeleteNatFlag != src {
-		return false
+	for i, v := range p.CascadingDeleteResources {
+		_src := src[i]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
 	}
 	return true
 }
@@ -13151,111 +13530,600 @@ func (p *UpgradeClusterResponse) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
-type ListClusterRequest struct {
-	Start   int32               `thrift:"Start,1" validate:"gte=0"`
-	Limit   int32               `thrift:"Limit,2" json:"Limit,omitempty"`
-	Filters map[string][]string `thrift:"Filters,3" json:"Filters,omitempty"`
-	Top     *base.TopParam      `thrift:"Top,254,required" json:"Top"`
-	Base    *base.Base          `thrift:"Base,255" json:"Base,omitempty"`
+type ListClustersFilter struct {
+	Ids      []string `thrift:"Ids,1" json:"Ids,omitempty"`
+	Names    []string `thrift:"Names,2" json:"Names,omitempty"`
+	Statuses []string `thrift:"Statuses,3" json:"Statuses,omitempty"`
+	Types    []string `thrift:"Types,4" json:"Types,omitempty"`
 }
 
-func NewListClusterRequest() *ListClusterRequest {
-	return &ListClusterRequest{
+func NewListClustersFilter() *ListClustersFilter {
+	return &ListClustersFilter{}
+}
 
-		Start: 0,
-		Limit: 10,
+var ListClustersFilter_Ids_DEFAULT []string
+
+func (p *ListClustersFilter) GetIds() (v []string) {
+	if !p.IsSetIds() {
+		return ListClustersFilter_Ids_DEFAULT
+	}
+	return p.Ids
+}
+
+var ListClustersFilter_Names_DEFAULT []string
+
+func (p *ListClustersFilter) GetNames() (v []string) {
+	if !p.IsSetNames() {
+		return ListClustersFilter_Names_DEFAULT
+	}
+	return p.Names
+}
+
+var ListClustersFilter_Statuses_DEFAULT []string
+
+func (p *ListClustersFilter) GetStatuses() (v []string) {
+	if !p.IsSetStatuses() {
+		return ListClustersFilter_Statuses_DEFAULT
+	}
+	return p.Statuses
+}
+
+var ListClustersFilter_Types_DEFAULT []string
+
+func (p *ListClustersFilter) GetTypes() (v []string) {
+	if !p.IsSetTypes() {
+		return ListClustersFilter_Types_DEFAULT
+	}
+	return p.Types
+}
+func (p *ListClustersFilter) SetIds(val []string) {
+	p.Ids = val
+}
+func (p *ListClustersFilter) SetNames(val []string) {
+	p.Names = val
+}
+func (p *ListClustersFilter) SetStatuses(val []string) {
+	p.Statuses = val
+}
+func (p *ListClustersFilter) SetTypes(val []string) {
+	p.Types = val
+}
+
+var fieldIDToName_ListClustersFilter = map[int16]string{
+	1: "Ids",
+	2: "Names",
+	3: "Statuses",
+	4: "Types",
+}
+
+func (p *ListClustersFilter) IsSetIds() bool {
+	return p.Ids != nil
+}
+
+func (p *ListClustersFilter) IsSetNames() bool {
+	return p.Names != nil
+}
+
+func (p *ListClustersFilter) IsSetStatuses() bool {
+	return p.Statuses != nil
+}
+
+func (p *ListClustersFilter) IsSetTypes() bool {
+	return p.Types != nil
+}
+
+func (p *ListClustersFilter) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 2:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 3:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 4:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField4(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListClustersFilter[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ListClustersFilter) ReadField1(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.Ids = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		p.Ids = append(p.Ids, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ListClustersFilter) ReadField2(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.Names = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		p.Names = append(p.Names, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ListClustersFilter) ReadField3(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.Statuses = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		p.Statuses = append(p.Statuses, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ListClustersFilter) ReadField4(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.Types = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		p.Types = append(p.Types, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ListClustersFilter) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ListClustersFilter"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
+			goto WriteFieldError
+		}
+		if err = p.writeField4(oprot); err != nil {
+			fieldId = 4
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ListClustersFilter) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetIds() {
+		if err = oprot.WriteFieldBegin("Ids", thrift.LIST, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRING, len(p.Ids)); err != nil {
+			return err
+		}
+		for _, v := range p.Ids {
+			if err := oprot.WriteString(v); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ListClustersFilter) writeField2(oprot thrift.TProtocol) (err error) {
+	if p.IsSetNames() {
+		if err = oprot.WriteFieldBegin("Names", thrift.LIST, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRING, len(p.Names)); err != nil {
+			return err
+		}
+		for _, v := range p.Names {
+			if err := oprot.WriteString(v); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *ListClustersFilter) writeField3(oprot thrift.TProtocol) (err error) {
+	if p.IsSetStatuses() {
+		if err = oprot.WriteFieldBegin("Statuses", thrift.LIST, 3); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRING, len(p.Statuses)); err != nil {
+			return err
+		}
+		for _, v := range p.Statuses {
+			if err := oprot.WriteString(v); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
+}
+
+func (p *ListClustersFilter) writeField4(oprot thrift.TProtocol) (err error) {
+	if p.IsSetTypes() {
+		if err = oprot.WriteFieldBegin("Types", thrift.LIST, 4); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRING, len(p.Types)); err != nil {
+			return err
+		}
+		for _, v := range p.Types {
+			if err := oprot.WriteString(v); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
+}
+
+func (p *ListClustersFilter) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ListClustersFilter(%+v)", *p)
+}
+
+func (p *ListClustersFilter) DeepEqual(ano *ListClustersFilter) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Ids) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.Names) {
+		return false
+	}
+	if !p.Field3DeepEqual(ano.Statuses) {
+		return false
+	}
+	if !p.Field4DeepEqual(ano.Types) {
+		return false
+	}
+	return true
+}
+
+func (p *ListClustersFilter) Field1DeepEqual(src []string) bool {
+
+	if len(p.Ids) != len(src) {
+		return false
+	}
+	for i, v := range p.Ids {
+		_src := src[i]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
+	}
+	return true
+}
+func (p *ListClustersFilter) Field2DeepEqual(src []string) bool {
+
+	if len(p.Names) != len(src) {
+		return false
+	}
+	for i, v := range p.Names {
+		_src := src[i]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
+	}
+	return true
+}
+func (p *ListClustersFilter) Field3DeepEqual(src []string) bool {
+
+	if len(p.Statuses) != len(src) {
+		return false
+	}
+	for i, v := range p.Statuses {
+		_src := src[i]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
+	}
+	return true
+}
+func (p *ListClustersFilter) Field4DeepEqual(src []string) bool {
+
+	if len(p.Types) != len(src) {
+		return false
+	}
+	for i, v := range p.Types {
+		_src := src[i]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
+	}
+	return true
+}
+
+type ListClustersRequest struct {
+	PageNumber int32               `thrift:"PageNumber,1" json:"PageNumber" default:"1"`
+	PageSize   int32               `thrift:"PageSize,2" json:"PageSize" default:"100"`
+	Filter     *ListClustersFilter `thrift:"Filter,3" json:"Filter,omitempty"`
+	Top        *base.TopParam      `thrift:"Top,254,required" json:"Top"`
+	Base       *base.Base          `thrift:"Base,255" json:"Base,omitempty"`
+}
+
+func NewListClustersRequest() *ListClustersRequest {
+	return &ListClustersRequest{
+
+		PageNumber: 1,
+		PageSize:   100,
 	}
 }
 
-var ListClusterRequest_Start_DEFAULT int32 = 0
+var ListClustersRequest_PageNumber_DEFAULT int32 = 1
 
-func (p *ListClusterRequest) GetStart() (v int32) {
-	if !p.IsSetStart() {
-		return ListClusterRequest_Start_DEFAULT
+func (p *ListClustersRequest) GetPageNumber() (v int32) {
+	if !p.IsSetPageNumber() {
+		return ListClustersRequest_PageNumber_DEFAULT
 	}
-	return p.Start
+	return p.PageNumber
 }
 
-var ListClusterRequest_Limit_DEFAULT int32 = 10
+var ListClustersRequest_PageSize_DEFAULT int32 = 100
 
-func (p *ListClusterRequest) GetLimit() (v int32) {
-	if !p.IsSetLimit() {
-		return ListClusterRequest_Limit_DEFAULT
+func (p *ListClustersRequest) GetPageSize() (v int32) {
+	if !p.IsSetPageSize() {
+		return ListClustersRequest_PageSize_DEFAULT
 	}
-	return p.Limit
+	return p.PageSize
 }
 
-var ListClusterRequest_Filters_DEFAULT map[string][]string
+var ListClustersRequest_Filter_DEFAULT *ListClustersFilter
 
-func (p *ListClusterRequest) GetFilters() (v map[string][]string) {
-	if !p.IsSetFilters() {
-		return ListClusterRequest_Filters_DEFAULT
+func (p *ListClustersRequest) GetFilter() (v *ListClustersFilter) {
+	if !p.IsSetFilter() {
+		return ListClustersRequest_Filter_DEFAULT
 	}
-	return p.Filters
+	return p.Filter
 }
 
-var ListClusterRequest_Top_DEFAULT *base.TopParam
+var ListClustersRequest_Top_DEFAULT *base.TopParam
 
-func (p *ListClusterRequest) GetTop() (v *base.TopParam) {
+func (p *ListClustersRequest) GetTop() (v *base.TopParam) {
 	if !p.IsSetTop() {
-		return ListClusterRequest_Top_DEFAULT
+		return ListClustersRequest_Top_DEFAULT
 	}
 	return p.Top
 }
 
-var ListClusterRequest_Base_DEFAULT *base.Base
+var ListClustersRequest_Base_DEFAULT *base.Base
 
-func (p *ListClusterRequest) GetBase() (v *base.Base) {
+func (p *ListClustersRequest) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return ListClusterRequest_Base_DEFAULT
+		return ListClustersRequest_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *ListClusterRequest) SetStart(val int32) {
-	p.Start = val
+func (p *ListClustersRequest) SetPageNumber(val int32) {
+	p.PageNumber = val
 }
-func (p *ListClusterRequest) SetLimit(val int32) {
-	p.Limit = val
+func (p *ListClustersRequest) SetPageSize(val int32) {
+	p.PageSize = val
 }
-func (p *ListClusterRequest) SetFilters(val map[string][]string) {
-	p.Filters = val
+func (p *ListClustersRequest) SetFilter(val *ListClustersFilter) {
+	p.Filter = val
 }
-func (p *ListClusterRequest) SetTop(val *base.TopParam) {
+func (p *ListClustersRequest) SetTop(val *base.TopParam) {
 	p.Top = val
 }
-func (p *ListClusterRequest) SetBase(val *base.Base) {
+func (p *ListClustersRequest) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_ListClusterRequest = map[int16]string{
-	1:   "Start",
-	2:   "Limit",
-	3:   "Filters",
+var fieldIDToName_ListClustersRequest = map[int16]string{
+	1:   "PageNumber",
+	2:   "PageSize",
+	3:   "Filter",
 	254: "Top",
 	255: "Base",
 }
 
-func (p *ListClusterRequest) IsSetStart() bool {
-	return p.Start != ListClusterRequest_Start_DEFAULT
+func (p *ListClustersRequest) IsSetPageNumber() bool {
+	return p.PageNumber != ListClustersRequest_PageNumber_DEFAULT
 }
 
-func (p *ListClusterRequest) IsSetLimit() bool {
-	return p.Limit != ListClusterRequest_Limit_DEFAULT
+func (p *ListClustersRequest) IsSetPageSize() bool {
+	return p.PageSize != ListClustersRequest_PageSize_DEFAULT
 }
 
-func (p *ListClusterRequest) IsSetFilters() bool {
-	return p.Filters != nil
+func (p *ListClustersRequest) IsSetFilter() bool {
+	return p.Filter != nil
 }
 
-func (p *ListClusterRequest) IsSetTop() bool {
+func (p *ListClustersRequest) IsSetTop() bool {
 	return p.Top != nil
 }
 
-func (p *ListClusterRequest) IsSetBase() bool {
+func (p *ListClustersRequest) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *ListClusterRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *ListClustersRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -13296,7 +14164,7 @@ func (p *ListClusterRequest) Read(iprot thrift.TProtocol) (err error) {
 				}
 			}
 		case 3:
-			if fieldTypeId == thrift.MAP {
+			if fieldTypeId == thrift.STRUCT {
 				if err = p.ReadField3(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -13350,7 +14218,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListClusterRequest[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListClustersRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -13359,69 +14227,36 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListClusterRequest[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListClustersRequest[fieldId]))
 }
 
-func (p *ListClusterRequest) ReadField1(iprot thrift.TProtocol) error {
+func (p *ListClustersRequest) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
-		p.Start = v
+		p.PageNumber = v
 	}
 	return nil
 }
 
-func (p *ListClusterRequest) ReadField2(iprot thrift.TProtocol) error {
+func (p *ListClustersRequest) ReadField2(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
-		p.Limit = v
+		p.PageSize = v
 	}
 	return nil
 }
 
-func (p *ListClusterRequest) ReadField3(iprot thrift.TProtocol) error {
-	_, _, size, err := iprot.ReadMapBegin()
-	if err != nil {
-		return err
-	}
-	p.Filters = make(map[string][]string, size)
-	for i := 0; i < size; i++ {
-		var _key string
-		if v, err := iprot.ReadString(); err != nil {
-			return err
-		} else {
-			_key = v
-		}
-
-		_, size, err := iprot.ReadListBegin()
-		if err != nil {
-			return err
-		}
-		_val := make([]string, 0, size)
-		for i := 0; i < size; i++ {
-			var _elem string
-			if v, err := iprot.ReadString(); err != nil {
-				return err
-			} else {
-				_elem = v
-			}
-
-			_val = append(_val, _elem)
-		}
-		if err := iprot.ReadListEnd(); err != nil {
-			return err
-		}
-
-		p.Filters[_key] = _val
-	}
-	if err := iprot.ReadMapEnd(); err != nil {
+func (p *ListClustersRequest) ReadField3(iprot thrift.TProtocol) error {
+	p.Filter = NewListClustersFilter()
+	if err := p.Filter.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ListClusterRequest) ReadField254(iprot thrift.TProtocol) error {
+func (p *ListClustersRequest) ReadField254(iprot thrift.TProtocol) error {
 	p.Top = base.NewTopParam()
 	if err := p.Top.Read(iprot); err != nil {
 		return err
@@ -13429,7 +14264,7 @@ func (p *ListClusterRequest) ReadField254(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListClusterRequest) ReadField255(iprot thrift.TProtocol) error {
+func (p *ListClustersRequest) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -13437,9 +14272,9 @@ func (p *ListClusterRequest) ReadField255(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListClusterRequest) Write(oprot thrift.TProtocol) (err error) {
+func (p *ListClustersRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListClusterRequest"); err != nil {
+	if err = oprot.WriteStructBegin("ListClustersRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -13482,12 +14317,12 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ListClusterRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if p.IsSetStart() {
-		if err = oprot.WriteFieldBegin("Start", thrift.I32, 1); err != nil {
+func (p *ListClustersRequest) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetPageNumber() {
+		if err = oprot.WriteFieldBegin("PageNumber", thrift.I32, 1); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteI32(p.Start); err != nil {
+		if err := oprot.WriteI32(p.PageNumber); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -13501,12 +14336,12 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ListClusterRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if p.IsSetLimit() {
-		if err = oprot.WriteFieldBegin("Limit", thrift.I32, 2); err != nil {
+func (p *ListClustersRequest) writeField2(oprot thrift.TProtocol) (err error) {
+	if p.IsSetPageSize() {
+		if err = oprot.WriteFieldBegin("PageSize", thrift.I32, 2); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteI32(p.Limit); err != nil {
+		if err := oprot.WriteI32(p.PageSize); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -13520,33 +14355,12 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *ListClusterRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if p.IsSetFilters() {
-		if err = oprot.WriteFieldBegin("Filters", thrift.MAP, 3); err != nil {
+func (p *ListClustersRequest) writeField3(oprot thrift.TProtocol) (err error) {
+	if p.IsSetFilter() {
+		if err = oprot.WriteFieldBegin("Filter", thrift.STRUCT, 3); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteMapBegin(thrift.STRING, thrift.LIST, len(p.Filters)); err != nil {
-			return err
-		}
-		for k, v := range p.Filters {
-
-			if err := oprot.WriteString(k); err != nil {
-				return err
-			}
-
-			if err := oprot.WriteListBegin(thrift.STRING, len(v)); err != nil {
-				return err
-			}
-			for _, v := range v {
-				if err := oprot.WriteString(v); err != nil {
-					return err
-				}
-			}
-			if err := oprot.WriteListEnd(); err != nil {
-				return err
-			}
-		}
-		if err := oprot.WriteMapEnd(); err != nil {
+		if err := p.Filter.Write(oprot); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -13560,7 +14374,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
-func (p *ListClusterRequest) writeField254(oprot thrift.TProtocol) (err error) {
+func (p *ListClustersRequest) writeField254(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Top", thrift.STRUCT, 254); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -13577,7 +14391,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 254 end error: ", p), err)
 }
 
-func (p *ListClusterRequest) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *ListClustersRequest) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -13596,26 +14410,26 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *ListClusterRequest) String() string {
+func (p *ListClustersRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ListClusterRequest(%+v)", *p)
+	return fmt.Sprintf("ListClustersRequest(%+v)", *p)
 }
 
-func (p *ListClusterRequest) DeepEqual(ano *ListClusterRequest) bool {
+func (p *ListClustersRequest) DeepEqual(ano *ListClustersRequest) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.Start) {
+	if !p.Field1DeepEqual(ano.PageNumber) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.Limit) {
+	if !p.Field2DeepEqual(ano.PageSize) {
 		return false
 	}
-	if !p.Field3DeepEqual(ano.Filters) {
+	if !p.Field3DeepEqual(ano.Filter) {
 		return false
 	}
 	if !p.Field254DeepEqual(ano.Top) {
@@ -13627,47 +14441,35 @@ func (p *ListClusterRequest) DeepEqual(ano *ListClusterRequest) bool {
 	return true
 }
 
-func (p *ListClusterRequest) Field1DeepEqual(src int32) bool {
+func (p *ListClustersRequest) Field1DeepEqual(src int32) bool {
 
-	if p.Start != src {
+	if p.PageNumber != src {
 		return false
 	}
 	return true
 }
-func (p *ListClusterRequest) Field2DeepEqual(src int32) bool {
+func (p *ListClustersRequest) Field2DeepEqual(src int32) bool {
 
-	if p.Limit != src {
+	if p.PageSize != src {
 		return false
 	}
 	return true
 }
-func (p *ListClusterRequest) Field3DeepEqual(src map[string][]string) bool {
+func (p *ListClustersRequest) Field3DeepEqual(src *ListClustersFilter) bool {
 
-	if len(p.Filters) != len(src) {
+	if !p.Filter.DeepEqual(src) {
 		return false
-	}
-	for k, v := range p.Filters {
-		_src := src[k]
-		if len(v) != len(_src) {
-			return false
-		}
-		for i, v := range v {
-			_src1 := _src[i]
-			if strings.Compare(v, _src1) != 0 {
-				return false
-			}
-		}
 	}
 	return true
 }
-func (p *ListClusterRequest) Field254DeepEqual(src *base.TopParam) bool {
+func (p *ListClustersRequest) Field254DeepEqual(src *base.TopParam) bool {
 
 	if !p.Top.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ListClusterRequest) Field255DeepEqual(src *base.Base) bool {
+func (p *ListClustersRequest) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -13676,23 +14478,24 @@ func (p *ListClusterRequest) Field255DeepEqual(src *base.Base) bool {
 }
 
 type ClusterItem struct {
-	Id                   string              `thrift:"Id,1,required" json:"Id"`
-	Name                 string              `thrift:"Name,2,required" json:"Name"`
-	Type                 string              `thrift:"Type,3,required" json:"Type"`
-	KubernetesVersion    string              `thrift:"KubernetesVersion,4,required" json:"KubernetesVersion"`
-	AvaliableNode        int32               `thrift:"AvaliableNode,5,required" json:"AvaliableNode"`
-	TotalNode            int32               `thrift:"TotalNode,6,required" json:"TotalNode"`
-	ResourceStatistics   *ResourceStatistics `thrift:"ResourceStatistics,7,required" json:"ResourceStatistics"`
-	Labels               []*helper.Label     `thrift:"Labels,8,required" json:"Labels"`
-	DeleteProtection     bool                `thrift:"DeleteProtection,9,required" json:"DeleteProtection"`
-	Vpc                  *iaas.Vpc           `thrift:"Vpc,10,required" json:"Vpc"`
-	PodCidr              string              `thrift:"PodCidr,11,required" json:"PodCidr"`
-	MaxNodePodNum        int32               `thrift:"MaxNodePodNum,12,required" json:"MaxNodePodNum"`
-	CreateTime           string              `thrift:"CreateTime,13,required" json:"CreateTime"`
-	Status               string              `thrift:"Status,14,required" json:"Status"`
-	ErrorMessage         string              `thrift:"ErrorMessage,15,required" json:"ErrorMessage"`
-	RegisteredCloudType  *string             `thrift:"RegisteredCloudType,16" json:"RegisteredCloudType,omitempty"`
-	RegisteredImportType *string             `thrift:"RegisteredImportType,17" json:"RegisteredImportType,omitempty"`
+	Id                     string              `thrift:"Id,1,required" json:"Id"`
+	Name                   string              `thrift:"Name,2,required" json:"Name"`
+	Type                   string              `thrift:"Type,3,required" json:"Type"`
+	KubernetesVersion      string              `thrift:"KubernetesVersion,4,required" json:"KubernetesVersion"`
+	AvailableNodeAmount    int32               `thrift:"AvailableNodeAmount,5,required" json:"AvailableNodeAmount"`
+	TotalNode              int32               `thrift:"TotalNode,6,required" json:"TotalNode"`
+	ResourceStatistics     *ResourceStatistics `thrift:"ResourceStatistics,7,required" json:"ResourceStatistics"`
+	Labels                 []*helper.Label     `thrift:"Labels,8,required" json:"Labels"`
+	EnableDeleteProtection bool                `thrift:"EnableDeleteProtection,9,required" json:"EnableDeleteProtection"`
+	Vpc                    *iaas.Vpc           `thrift:"Vpc,10,required" json:"Vpc"`
+	PodCidr                string              `thrift:"PodCidr,11,required" json:"PodCidr"`
+	MaxNodePodNumber       int32               `thrift:"MaxNodePodNumber,12,required" json:"MaxNodePodNumber"`
+	CreateTime             string              `thrift:"CreateTime,13,required" json:"CreateTime"`
+	Status                 string              `thrift:"Status,14,required" json:"Status"`
+	ErrorMessage           string              `thrift:"ErrorMessage,15,required" json:"ErrorMessage"`
+	RegisteredCloudType    *string             `thrift:"RegisteredCloudType,16" json:"RegisteredCloudType,omitempty"`
+	RegisteredImportType   *string             `thrift:"RegisteredImportType,17" json:"RegisteredImportType,omitempty"`
+	NetworkType            *string             `thrift:"NetworkType,18" json:"NetworkType,omitempty"`
 }
 
 func NewClusterItem() *ClusterItem {
@@ -13715,8 +14518,8 @@ func (p *ClusterItem) GetKubernetesVersion() (v string) {
 	return p.KubernetesVersion
 }
 
-func (p *ClusterItem) GetAvaliableNode() (v int32) {
-	return p.AvaliableNode
+func (p *ClusterItem) GetAvailableNodeAmount() (v int32) {
+	return p.AvailableNodeAmount
 }
 
 func (p *ClusterItem) GetTotalNode() (v int32) {
@@ -13736,8 +14539,8 @@ func (p *ClusterItem) GetLabels() (v []*helper.Label) {
 	return p.Labels
 }
 
-func (p *ClusterItem) GetDeleteProtection() (v bool) {
-	return p.DeleteProtection
+func (p *ClusterItem) GetEnableDeleteProtection() (v bool) {
+	return p.EnableDeleteProtection
 }
 
 var ClusterItem_Vpc_DEFAULT *iaas.Vpc
@@ -13753,8 +14556,8 @@ func (p *ClusterItem) GetPodCidr() (v string) {
 	return p.PodCidr
 }
 
-func (p *ClusterItem) GetMaxNodePodNum() (v int32) {
-	return p.MaxNodePodNum
+func (p *ClusterItem) GetMaxNodePodNumber() (v int32) {
+	return p.MaxNodePodNumber
 }
 
 func (p *ClusterItem) GetCreateTime() (v string) {
@@ -13786,6 +14589,15 @@ func (p *ClusterItem) GetRegisteredImportType() (v string) {
 	}
 	return *p.RegisteredImportType
 }
+
+var ClusterItem_NetworkType_DEFAULT string
+
+func (p *ClusterItem) GetNetworkType() (v string) {
+	if !p.IsSetNetworkType() {
+		return ClusterItem_NetworkType_DEFAULT
+	}
+	return *p.NetworkType
+}
 func (p *ClusterItem) SetId(val string) {
 	p.Id = val
 }
@@ -13798,8 +14610,8 @@ func (p *ClusterItem) SetType(val string) {
 func (p *ClusterItem) SetKubernetesVersion(val string) {
 	p.KubernetesVersion = val
 }
-func (p *ClusterItem) SetAvaliableNode(val int32) {
-	p.AvaliableNode = val
+func (p *ClusterItem) SetAvailableNodeAmount(val int32) {
+	p.AvailableNodeAmount = val
 }
 func (p *ClusterItem) SetTotalNode(val int32) {
 	p.TotalNode = val
@@ -13810,8 +14622,8 @@ func (p *ClusterItem) SetResourceStatistics(val *ResourceStatistics) {
 func (p *ClusterItem) SetLabels(val []*helper.Label) {
 	p.Labels = val
 }
-func (p *ClusterItem) SetDeleteProtection(val bool) {
-	p.DeleteProtection = val
+func (p *ClusterItem) SetEnableDeleteProtection(val bool) {
+	p.EnableDeleteProtection = val
 }
 func (p *ClusterItem) SetVpc(val *iaas.Vpc) {
 	p.Vpc = val
@@ -13819,8 +14631,8 @@ func (p *ClusterItem) SetVpc(val *iaas.Vpc) {
 func (p *ClusterItem) SetPodCidr(val string) {
 	p.PodCidr = val
 }
-func (p *ClusterItem) SetMaxNodePodNum(val int32) {
-	p.MaxNodePodNum = val
+func (p *ClusterItem) SetMaxNodePodNumber(val int32) {
+	p.MaxNodePodNumber = val
 }
 func (p *ClusterItem) SetCreateTime(val string) {
 	p.CreateTime = val
@@ -13837,25 +14649,29 @@ func (p *ClusterItem) SetRegisteredCloudType(val *string) {
 func (p *ClusterItem) SetRegisteredImportType(val *string) {
 	p.RegisteredImportType = val
 }
+func (p *ClusterItem) SetNetworkType(val *string) {
+	p.NetworkType = val
+}
 
 var fieldIDToName_ClusterItem = map[int16]string{
 	1:  "Id",
 	2:  "Name",
 	3:  "Type",
 	4:  "KubernetesVersion",
-	5:  "AvaliableNode",
+	5:  "AvailableNodeAmount",
 	6:  "TotalNode",
 	7:  "ResourceStatistics",
 	8:  "Labels",
-	9:  "DeleteProtection",
+	9:  "EnableDeleteProtection",
 	10: "Vpc",
 	11: "PodCidr",
-	12: "MaxNodePodNum",
+	12: "MaxNodePodNumber",
 	13: "CreateTime",
 	14: "Status",
 	15: "ErrorMessage",
 	16: "RegisteredCloudType",
 	17: "RegisteredImportType",
+	18: "NetworkType",
 }
 
 func (p *ClusterItem) IsSetResourceStatistics() bool {
@@ -13874,6 +14690,10 @@ func (p *ClusterItem) IsSetRegisteredImportType() bool {
 	return p.RegisteredImportType != nil
 }
 
+func (p *ClusterItem) IsSetNetworkType() bool {
+	return p.NetworkType != nil
+}
+
 func (p *ClusterItem) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
@@ -13882,14 +14702,14 @@ func (p *ClusterItem) Read(iprot thrift.TProtocol) (err error) {
 	var issetName bool = false
 	var issetType bool = false
 	var issetKubernetesVersion bool = false
-	var issetAvaliableNode bool = false
+	var issetAvailableNodeAmount bool = false
 	var issetTotalNode bool = false
 	var issetResourceStatistics bool = false
 	var issetLabels bool = false
-	var issetDeleteProtection bool = false
+	var issetEnableDeleteProtection bool = false
 	var issetVpc bool = false
 	var issetPodCidr bool = false
-	var issetMaxNodePodNum bool = false
+	var issetMaxNodePodNumber bool = false
 	var issetCreateTime bool = false
 	var issetStatus bool = false
 	var issetErrorMessage bool = false
@@ -13957,7 +14777,7 @@ func (p *ClusterItem) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField5(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetAvaliableNode = true
+				issetAvailableNodeAmount = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -14001,7 +14821,7 @@ func (p *ClusterItem) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField9(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetDeleteProtection = true
+				issetEnableDeleteProtection = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -14034,7 +14854,7 @@ func (p *ClusterItem) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField12(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetMaxNodePodNum = true
+				issetMaxNodePodNumber = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -14093,6 +14913,16 @@ func (p *ClusterItem) Read(iprot thrift.TProtocol) (err error) {
 					goto SkipFieldError
 				}
 			}
+		case 18:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField18(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
 		default:
 			if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
@@ -14127,7 +14957,7 @@ func (p *ClusterItem) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetAvaliableNode {
+	if !issetAvailableNodeAmount {
 		fieldId = 5
 		goto RequiredFieldNotSetError
 	}
@@ -14147,7 +14977,7 @@ func (p *ClusterItem) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetDeleteProtection {
+	if !issetEnableDeleteProtection {
 		fieldId = 9
 		goto RequiredFieldNotSetError
 	}
@@ -14162,7 +14992,7 @@ func (p *ClusterItem) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetMaxNodePodNum {
+	if !issetMaxNodePodNumber {
 		fieldId = 12
 		goto RequiredFieldNotSetError
 	}
@@ -14239,7 +15069,7 @@ func (p *ClusterItem) ReadField5(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
-		p.AvaliableNode = v
+		p.AvailableNodeAmount = v
 	}
 	return nil
 }
@@ -14285,7 +15115,7 @@ func (p *ClusterItem) ReadField9(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadBool(); err != nil {
 		return err
 	} else {
-		p.DeleteProtection = v
+		p.EnableDeleteProtection = v
 	}
 	return nil
 }
@@ -14311,7 +15141,7 @@ func (p *ClusterItem) ReadField12(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
-		p.MaxNodePodNum = v
+		p.MaxNodePodNumber = v
 	}
 	return nil
 }
@@ -14357,6 +15187,15 @@ func (p *ClusterItem) ReadField17(iprot thrift.TProtocol) error {
 		return err
 	} else {
 		p.RegisteredImportType = &v
+	}
+	return nil
+}
+
+func (p *ClusterItem) ReadField18(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.NetworkType = &v
 	}
 	return nil
 }
@@ -14433,6 +15272,10 @@ func (p *ClusterItem) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField17(oprot); err != nil {
 			fieldId = 17
+			goto WriteFieldError
+		}
+		if err = p.writeField18(oprot); err != nil {
+			fieldId = 18
 			goto WriteFieldError
 		}
 
@@ -14523,10 +15366,10 @@ WriteFieldEndError:
 }
 
 func (p *ClusterItem) writeField5(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("AvaliableNode", thrift.I32, 5); err != nil {
+	if err = oprot.WriteFieldBegin("AvailableNodeAmount", thrift.I32, 5); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI32(p.AvaliableNode); err != nil {
+	if err := oprot.WriteI32(p.AvailableNodeAmount); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -14599,10 +15442,10 @@ WriteFieldEndError:
 }
 
 func (p *ClusterItem) writeField9(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("DeleteProtection", thrift.BOOL, 9); err != nil {
+	if err = oprot.WriteFieldBegin("EnableDeleteProtection", thrift.BOOL, 9); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteBool(p.DeleteProtection); err != nil {
+	if err := oprot.WriteBool(p.EnableDeleteProtection); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -14650,10 +15493,10 @@ WriteFieldEndError:
 }
 
 func (p *ClusterItem) writeField12(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("MaxNodePodNum", thrift.I32, 12); err != nil {
+	if err = oprot.WriteFieldBegin("MaxNodePodNumber", thrift.I32, 12); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI32(p.MaxNodePodNum); err != nil {
+	if err := oprot.WriteI32(p.MaxNodePodNumber); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -14755,6 +15598,25 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 17 end error: ", p), err)
 }
 
+func (p *ClusterItem) writeField18(oprot thrift.TProtocol) (err error) {
+	if p.IsSetNetworkType() {
+		if err = oprot.WriteFieldBegin("NetworkType", thrift.STRING, 18); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.NetworkType); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 18 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 18 end error: ", p), err)
+}
+
 func (p *ClusterItem) String() string {
 	if p == nil {
 		return "<nil>"
@@ -14780,7 +15642,7 @@ func (p *ClusterItem) DeepEqual(ano *ClusterItem) bool {
 	if !p.Field4DeepEqual(ano.KubernetesVersion) {
 		return false
 	}
-	if !p.Field5DeepEqual(ano.AvaliableNode) {
+	if !p.Field5DeepEqual(ano.AvailableNodeAmount) {
 		return false
 	}
 	if !p.Field6DeepEqual(ano.TotalNode) {
@@ -14792,7 +15654,7 @@ func (p *ClusterItem) DeepEqual(ano *ClusterItem) bool {
 	if !p.Field8DeepEqual(ano.Labels) {
 		return false
 	}
-	if !p.Field9DeepEqual(ano.DeleteProtection) {
+	if !p.Field9DeepEqual(ano.EnableDeleteProtection) {
 		return false
 	}
 	if !p.Field10DeepEqual(ano.Vpc) {
@@ -14801,7 +15663,7 @@ func (p *ClusterItem) DeepEqual(ano *ClusterItem) bool {
 	if !p.Field11DeepEqual(ano.PodCidr) {
 		return false
 	}
-	if !p.Field12DeepEqual(ano.MaxNodePodNum) {
+	if !p.Field12DeepEqual(ano.MaxNodePodNumber) {
 		return false
 	}
 	if !p.Field13DeepEqual(ano.CreateTime) {
@@ -14817,6 +15679,9 @@ func (p *ClusterItem) DeepEqual(ano *ClusterItem) bool {
 		return false
 	}
 	if !p.Field17DeepEqual(ano.RegisteredImportType) {
+		return false
+	}
+	if !p.Field18DeepEqual(ano.NetworkType) {
 		return false
 	}
 	return true
@@ -14852,7 +15717,7 @@ func (p *ClusterItem) Field4DeepEqual(src string) bool {
 }
 func (p *ClusterItem) Field5DeepEqual(src int32) bool {
 
-	if p.AvaliableNode != src {
+	if p.AvailableNodeAmount != src {
 		return false
 	}
 	return true
@@ -14886,7 +15751,7 @@ func (p *ClusterItem) Field8DeepEqual(src []*helper.Label) bool {
 }
 func (p *ClusterItem) Field9DeepEqual(src bool) bool {
 
-	if p.DeleteProtection != src {
+	if p.EnableDeleteProtection != src {
 		return false
 	}
 	return true
@@ -14907,7 +15772,7 @@ func (p *ClusterItem) Field11DeepEqual(src string) bool {
 }
 func (p *ClusterItem) Field12DeepEqual(src int32) bool {
 
-	if p.MaxNodePodNum != src {
+	if p.MaxNodePodNumber != src {
 		return false
 	}
 	return true
@@ -14957,54 +15822,66 @@ func (p *ClusterItem) Field17DeepEqual(src *string) bool {
 	}
 	return true
 }
+func (p *ClusterItem) Field18DeepEqual(src *string) bool {
 
-type ListClusterResponse struct {
+	if p.NetworkType == src {
+		return true
+	} else if p.NetworkType == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.NetworkType, *src) != 0 {
+		return false
+	}
+	return true
+}
+
+type ListClustersResponse struct {
 	Items []*ClusterItem `thrift:"Items,1,required" json:"Items"`
 	Total int32          `thrift:"Total,2,required" json:"Total"`
 	Base  *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewListClusterResponse() *ListClusterResponse {
-	return &ListClusterResponse{}
+func NewListClustersResponse() *ListClustersResponse {
+	return &ListClustersResponse{}
 }
 
-func (p *ListClusterResponse) GetItems() (v []*ClusterItem) {
+func (p *ListClustersResponse) GetItems() (v []*ClusterItem) {
 	return p.Items
 }
 
-func (p *ListClusterResponse) GetTotal() (v int32) {
+func (p *ListClustersResponse) GetTotal() (v int32) {
 	return p.Total
 }
 
-var ListClusterResponse_Base_DEFAULT *base.Base
+var ListClustersResponse_Base_DEFAULT *base.Base
 
-func (p *ListClusterResponse) GetBase() (v *base.Base) {
+func (p *ListClustersResponse) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return ListClusterResponse_Base_DEFAULT
+		return ListClustersResponse_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *ListClusterResponse) SetItems(val []*ClusterItem) {
+func (p *ListClustersResponse) SetItems(val []*ClusterItem) {
 	p.Items = val
 }
-func (p *ListClusterResponse) SetTotal(val int32) {
+func (p *ListClustersResponse) SetTotal(val int32) {
 	p.Total = val
 }
-func (p *ListClusterResponse) SetBase(val *base.Base) {
+func (p *ListClustersResponse) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_ListClusterResponse = map[int16]string{
+var fieldIDToName_ListClustersResponse = map[int16]string{
 	1:   "Items",
 	2:   "Total",
 	255: "Base",
 }
 
-func (p *ListClusterResponse) IsSetBase() bool {
+func (p *ListClustersResponse) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *ListClusterResponse) Read(iprot thrift.TProtocol) (err error) {
+func (p *ListClustersResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -15086,7 +15963,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListClusterResponse[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListClustersResponse[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -15095,10 +15972,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListClusterResponse[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListClustersResponse[fieldId]))
 }
 
-func (p *ListClusterResponse) ReadField1(iprot thrift.TProtocol) error {
+func (p *ListClustersResponse) ReadField1(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
@@ -15118,7 +15995,7 @@ func (p *ListClusterResponse) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListClusterResponse) ReadField2(iprot thrift.TProtocol) error {
+func (p *ListClustersResponse) ReadField2(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
@@ -15127,7 +16004,7 @@ func (p *ListClusterResponse) ReadField2(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListClusterResponse) ReadField255(iprot thrift.TProtocol) error {
+func (p *ListClustersResponse) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -15135,9 +16012,9 @@ func (p *ListClusterResponse) ReadField255(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListClusterResponse) Write(oprot thrift.TProtocol) (err error) {
+func (p *ListClustersResponse) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListClusterResponse"); err != nil {
+	if err = oprot.WriteStructBegin("ListClustersResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -15172,7 +16049,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ListClusterResponse) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ListClustersResponse) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Items", thrift.LIST, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -15197,7 +16074,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ListClusterResponse) writeField2(oprot thrift.TProtocol) (err error) {
+func (p *ListClustersResponse) writeField2(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Total", thrift.I32, 2); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -15214,7 +16091,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *ListClusterResponse) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *ListClustersResponse) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -15233,14 +16110,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *ListClusterResponse) String() string {
+func (p *ListClustersResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ListClusterResponse(%+v)", *p)
+	return fmt.Sprintf("ListClustersResponse(%+v)", *p)
 }
 
-func (p *ListClusterResponse) DeepEqual(ano *ListClusterResponse) bool {
+func (p *ListClustersResponse) DeepEqual(ano *ListClustersResponse) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -15258,7 +16135,7 @@ func (p *ListClusterResponse) DeepEqual(ano *ListClusterResponse) bool {
 	return true
 }
 
-func (p *ListClusterResponse) Field1DeepEqual(src []*ClusterItem) bool {
+func (p *ListClustersResponse) Field1DeepEqual(src []*ClusterItem) bool {
 
 	if len(p.Items) != len(src) {
 		return false
@@ -15271,14 +16148,14 @@ func (p *ListClusterResponse) Field1DeepEqual(src []*ClusterItem) bool {
 	}
 	return true
 }
-func (p *ListClusterResponse) Field2DeepEqual(src int32) bool {
+func (p *ListClustersResponse) Field2DeepEqual(src int32) bool {
 
 	if p.Total != src {
 		return false
 	}
 	return true
 }
-func (p *ListClusterResponse) Field255DeepEqual(src *base.Base) bool {
+func (p *ListClustersResponse) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -15287,18 +16164,18 @@ func (p *ListClusterResponse) Field255DeepEqual(src *base.Base) bool {
 }
 
 type GetKubeConfigRequest struct {
-	Id   string         `thrift:"Id,1,required" validate:"required,k8sName"`
-	Type string         `thrift:"Type,2,required" validate:"required,oneof=UserExternal UserInternal ServiceInternal Registered"`
-	Top  *base.TopParam `thrift:"Top,254,required" json:"Top"`
-	Base *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
+	ClusterId string         `thrift:"ClusterId,1,required" validate:"required,k8sName"`
+	Type      string         `thrift:"Type,2,required" validate:"required,oneof=UserExternal UserInternal ServiceInternal Registered"`
+	Top       *base.TopParam `thrift:"Top,254,required" json:"Top"`
+	Base      *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
 }
 
 func NewGetKubeConfigRequest() *GetKubeConfigRequest {
 	return &GetKubeConfigRequest{}
 }
 
-func (p *GetKubeConfigRequest) GetId() (v string) {
-	return p.Id
+func (p *GetKubeConfigRequest) GetClusterId() (v string) {
+	return p.ClusterId
 }
 
 func (p *GetKubeConfigRequest) GetType() (v string) {
@@ -15322,8 +16199,8 @@ func (p *GetKubeConfigRequest) GetBase() (v *base.Base) {
 	}
 	return p.Base
 }
-func (p *GetKubeConfigRequest) SetId(val string) {
-	p.Id = val
+func (p *GetKubeConfigRequest) SetClusterId(val string) {
+	p.ClusterId = val
 }
 func (p *GetKubeConfigRequest) SetType(val string) {
 	p.Type = val
@@ -15336,7 +16213,7 @@ func (p *GetKubeConfigRequest) SetBase(val *base.Base) {
 }
 
 var fieldIDToName_GetKubeConfigRequest = map[int16]string{
-	1:   "Id",
+	1:   "ClusterId",
 	2:   "Type",
 	254: "Top",
 	255: "Base",
@@ -15354,7 +16231,7 @@ func (p *GetKubeConfigRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetId bool = false
+	var issetClusterId bool = false
 	var issetType bool = false
 	var issetTop bool = false
 
@@ -15377,7 +16254,7 @@ func (p *GetKubeConfigRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetId = true
+				issetClusterId = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -15429,7 +16306,7 @@ func (p *GetKubeConfigRequest) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
-	if !issetId {
+	if !issetClusterId {
 		fieldId = 1
 		goto RequiredFieldNotSetError
 	}
@@ -15465,7 +16342,7 @@ func (p *GetKubeConfigRequest) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.Id = v
+		p.ClusterId = v
 	}
 	return nil
 }
@@ -15537,10 +16414,10 @@ WriteStructEndError:
 }
 
 func (p *GetKubeConfigRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("Id", thrift.STRING, 1); err != nil {
+	if err = oprot.WriteFieldBegin("ClusterId", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Id); err != nil {
+	if err := oprot.WriteString(p.ClusterId); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -15619,7 +16496,7 @@ func (p *GetKubeConfigRequest) DeepEqual(ano *GetKubeConfigRequest) bool {
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.Id) {
+	if !p.Field1DeepEqual(ano.ClusterId) {
 		return false
 	}
 	if !p.Field2DeepEqual(ano.Type) {
@@ -15636,7 +16513,7 @@ func (p *GetKubeConfigRequest) DeepEqual(ano *GetKubeConfigRequest) bool {
 
 func (p *GetKubeConfigRequest) Field1DeepEqual(src string) bool {
 
-	if strings.Compare(p.Id, src) != 0 {
+	if strings.Compare(p.ClusterId, src) != 0 {
 		return false
 	}
 	return true
@@ -15900,76 +16777,76 @@ func (p *GetKubeConfigResponse) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
-type RevokeKubeConfigRequest struct {
-	Id      string         `thrift:"Id,1,required" validate:"required,k8sName"`
-	UserIDs []string       `thrift:"UserIDs,2,required" validate:"required"`
-	Top     *base.TopParam `thrift:"Top,254,required" json:"Top"`
-	Base    *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
+type GetKubeconfigRequest struct {
+	ClusterId string         `thrift:"ClusterId,1,required" validate:"required,k8sName"`
+	Type      string         `thrift:"Type,2,required" validate:"required,oneof=UserExternal UserInternal ServiceInternal Registered"`
+	Top       *base.TopParam `thrift:"Top,254,required" json:"Top"`
+	Base      *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewRevokeKubeConfigRequest() *RevokeKubeConfigRequest {
-	return &RevokeKubeConfigRequest{}
+func NewGetKubeconfigRequest() *GetKubeconfigRequest {
+	return &GetKubeconfigRequest{}
 }
 
-func (p *RevokeKubeConfigRequest) GetId() (v string) {
-	return p.Id
+func (p *GetKubeconfigRequest) GetClusterId() (v string) {
+	return p.ClusterId
 }
 
-func (p *RevokeKubeConfigRequest) GetUserIDs() (v []string) {
-	return p.UserIDs
+func (p *GetKubeconfigRequest) GetType() (v string) {
+	return p.Type
 }
 
-var RevokeKubeConfigRequest_Top_DEFAULT *base.TopParam
+var GetKubeconfigRequest_Top_DEFAULT *base.TopParam
 
-func (p *RevokeKubeConfigRequest) GetTop() (v *base.TopParam) {
+func (p *GetKubeconfigRequest) GetTop() (v *base.TopParam) {
 	if !p.IsSetTop() {
-		return RevokeKubeConfigRequest_Top_DEFAULT
+		return GetKubeconfigRequest_Top_DEFAULT
 	}
 	return p.Top
 }
 
-var RevokeKubeConfigRequest_Base_DEFAULT *base.Base
+var GetKubeconfigRequest_Base_DEFAULT *base.Base
 
-func (p *RevokeKubeConfigRequest) GetBase() (v *base.Base) {
+func (p *GetKubeconfigRequest) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return RevokeKubeConfigRequest_Base_DEFAULT
+		return GetKubeconfigRequest_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *RevokeKubeConfigRequest) SetId(val string) {
-	p.Id = val
+func (p *GetKubeconfigRequest) SetClusterId(val string) {
+	p.ClusterId = val
 }
-func (p *RevokeKubeConfigRequest) SetUserIDs(val []string) {
-	p.UserIDs = val
+func (p *GetKubeconfigRequest) SetType(val string) {
+	p.Type = val
 }
-func (p *RevokeKubeConfigRequest) SetTop(val *base.TopParam) {
+func (p *GetKubeconfigRequest) SetTop(val *base.TopParam) {
 	p.Top = val
 }
-func (p *RevokeKubeConfigRequest) SetBase(val *base.Base) {
+func (p *GetKubeconfigRequest) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_RevokeKubeConfigRequest = map[int16]string{
-	1:   "Id",
-	2:   "UserIDs",
+var fieldIDToName_GetKubeconfigRequest = map[int16]string{
+	1:   "ClusterId",
+	2:   "Type",
 	254: "Top",
 	255: "Base",
 }
 
-func (p *RevokeKubeConfigRequest) IsSetTop() bool {
+func (p *GetKubeconfigRequest) IsSetTop() bool {
 	return p.Top != nil
 }
 
-func (p *RevokeKubeConfigRequest) IsSetBase() bool {
+func (p *GetKubeconfigRequest) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *RevokeKubeConfigRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *GetKubeconfigRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetId bool = false
-	var issetUserIDs bool = false
+	var issetClusterId bool = false
+	var issetType bool = false
 	var issetTop bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
@@ -15991,18 +16868,18 @@ func (p *RevokeKubeConfigRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetId = true
+				issetClusterId = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
 				}
 			}
 		case 2:
-			if fieldTypeId == thrift.LIST {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetUserIDs = true
+				issetType = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -16043,12 +16920,12 @@ func (p *RevokeKubeConfigRequest) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
-	if !issetId {
+	if !issetClusterId {
 		fieldId = 1
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetUserIDs {
+	if !issetType {
 		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
@@ -16063,7 +16940,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_RevokeKubeConfigRequest[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_GetKubeconfigRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -16072,41 +16949,28 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_RevokeKubeConfigRequest[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_GetKubeconfigRequest[fieldId]))
 }
 
-func (p *RevokeKubeConfigRequest) ReadField1(iprot thrift.TProtocol) error {
+func (p *GetKubeconfigRequest) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.Id = v
+		p.ClusterId = v
 	}
 	return nil
 }
 
-func (p *RevokeKubeConfigRequest) ReadField2(iprot thrift.TProtocol) error {
-	_, size, err := iprot.ReadListBegin()
-	if err != nil {
+func (p *GetKubeconfigRequest) ReadField2(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
 		return err
-	}
-	p.UserIDs = make([]string, 0, size)
-	for i := 0; i < size; i++ {
-		var _elem string
-		if v, err := iprot.ReadString(); err != nil {
-			return err
-		} else {
-			_elem = v
-		}
-
-		p.UserIDs = append(p.UserIDs, _elem)
-	}
-	if err := iprot.ReadListEnd(); err != nil {
-		return err
+	} else {
+		p.Type = v
 	}
 	return nil
 }
 
-func (p *RevokeKubeConfigRequest) ReadField254(iprot thrift.TProtocol) error {
+func (p *GetKubeconfigRequest) ReadField254(iprot thrift.TProtocol) error {
 	p.Top = base.NewTopParam()
 	if err := p.Top.Read(iprot); err != nil {
 		return err
@@ -16114,7 +16978,7 @@ func (p *RevokeKubeConfigRequest) ReadField254(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *RevokeKubeConfigRequest) ReadField255(iprot thrift.TProtocol) error {
+func (p *GetKubeconfigRequest) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -16122,9 +16986,9 @@ func (p *RevokeKubeConfigRequest) ReadField255(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *RevokeKubeConfigRequest) Write(oprot thrift.TProtocol) (err error) {
+func (p *GetKubeconfigRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("RevokeKubeConfigRequest"); err != nil {
+	if err = oprot.WriteStructBegin("GetKubeconfigRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -16163,11 +17027,11 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *RevokeKubeConfigRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("Id", thrift.STRING, 1); err != nil {
+func (p *GetKubeconfigRequest) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("ClusterId", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Id); err != nil {
+	if err := oprot.WriteString(p.ClusterId); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -16180,19 +17044,11 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *RevokeKubeConfigRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("UserIDs", thrift.LIST, 2); err != nil {
+func (p *GetKubeconfigRequest) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("Type", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteListBegin(thrift.STRING, len(p.UserIDs)); err != nil {
-		return err
-	}
-	for _, v := range p.UserIDs {
-		if err := oprot.WriteString(v); err != nil {
-			return err
-		}
-	}
-	if err := oprot.WriteListEnd(); err != nil {
+	if err := oprot.WriteString(p.Type); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -16205,7 +17061,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *RevokeKubeConfigRequest) writeField254(oprot thrift.TProtocol) (err error) {
+func (p *GetKubeconfigRequest) writeField254(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Top", thrift.STRUCT, 254); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -16222,7 +17078,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 254 end error: ", p), err)
 }
 
-func (p *RevokeKubeConfigRequest) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *GetKubeconfigRequest) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -16241,23 +17097,23 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *RevokeKubeConfigRequest) String() string {
+func (p *GetKubeconfigRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("RevokeKubeConfigRequest(%+v)", *p)
+	return fmt.Sprintf("GetKubeconfigRequest(%+v)", *p)
 }
 
-func (p *RevokeKubeConfigRequest) DeepEqual(ano *RevokeKubeConfigRequest) bool {
+func (p *GetKubeconfigRequest) DeepEqual(ano *GetKubeconfigRequest) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.Id) {
+	if !p.Field1DeepEqual(ano.ClusterId) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.UserIDs) {
+	if !p.Field2DeepEqual(ano.Type) {
 		return false
 	}
 	if !p.Field254DeepEqual(ano.Top) {
@@ -16269,34 +17125,28 @@ func (p *RevokeKubeConfigRequest) DeepEqual(ano *RevokeKubeConfigRequest) bool {
 	return true
 }
 
-func (p *RevokeKubeConfigRequest) Field1DeepEqual(src string) bool {
+func (p *GetKubeconfigRequest) Field1DeepEqual(src string) bool {
 
-	if strings.Compare(p.Id, src) != 0 {
+	if strings.Compare(p.ClusterId, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *RevokeKubeConfigRequest) Field2DeepEqual(src []string) bool {
+func (p *GetKubeconfigRequest) Field2DeepEqual(src string) bool {
 
-	if len(p.UserIDs) != len(src) {
+	if strings.Compare(p.Type, src) != 0 {
 		return false
-	}
-	for i, v := range p.UserIDs {
-		_src := src[i]
-		if strings.Compare(v, _src) != 0 {
-			return false
-		}
 	}
 	return true
 }
-func (p *RevokeKubeConfigRequest) Field254DeepEqual(src *base.TopParam) bool {
+func (p *GetKubeconfigRequest) Field254DeepEqual(src *base.TopParam) bool {
 
 	if !p.Top.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *RevokeKubeConfigRequest) Field255DeepEqual(src *base.Base) bool {
+func (p *GetKubeconfigRequest) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -16304,16 +17154,657 @@ func (p *RevokeKubeConfigRequest) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
-type RevokeKubeConfigResponse struct {
+type GetKubeconfigResponse struct {
+	Kubeconfig string     `thrift:"Kubeconfig,1,required" json:"Kubeconfig"`
+	Base       *base.Base `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewRevokeKubeConfigResponse() *RevokeKubeConfigResponse {
-	return &RevokeKubeConfigResponse{}
+func NewGetKubeconfigResponse() *GetKubeconfigResponse {
+	return &GetKubeconfigResponse{}
 }
 
-var fieldIDToName_RevokeKubeConfigResponse = map[int16]string{}
+func (p *GetKubeconfigResponse) GetKubeconfig() (v string) {
+	return p.Kubeconfig
+}
 
-func (p *RevokeKubeConfigResponse) Read(iprot thrift.TProtocol) (err error) {
+var GetKubeconfigResponse_Base_DEFAULT *base.Base
+
+func (p *GetKubeconfigResponse) GetBase() (v *base.Base) {
+	if !p.IsSetBase() {
+		return GetKubeconfigResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+func (p *GetKubeconfigResponse) SetKubeconfig(val string) {
+	p.Kubeconfig = val
+}
+func (p *GetKubeconfigResponse) SetBase(val *base.Base) {
+	p.Base = val
+}
+
+var fieldIDToName_GetKubeconfigResponse = map[int16]string{
+	1:   "Kubeconfig",
+	255: "Base",
+}
+
+func (p *GetKubeconfigResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *GetKubeconfigResponse) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	var issetKubeconfig bool = false
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetKubeconfig = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 255:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField255(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	if !issetKubeconfig {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_GetKubeconfigResponse[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_GetKubeconfigResponse[fieldId]))
+}
+
+func (p *GetKubeconfigResponse) ReadField1(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.Kubeconfig = v
+	}
+	return nil
+}
+
+func (p *GetKubeconfigResponse) ReadField255(iprot thrift.TProtocol) error {
+	p.Base = base.NewBase()
+	if err := p.Base.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *GetKubeconfigResponse) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("GetKubeconfigResponse"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField255(oprot); err != nil {
+			fieldId = 255
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *GetKubeconfigResponse) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("Kubeconfig", thrift.STRING, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Kubeconfig); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *GetKubeconfigResponse) writeField255(oprot thrift.TProtocol) (err error) {
+	if p.IsSetBase() {
+		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Base.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 255 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
+}
+
+func (p *GetKubeconfigResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetKubeconfigResponse(%+v)", *p)
+}
+
+func (p *GetKubeconfigResponse) DeepEqual(ano *GetKubeconfigResponse) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Kubeconfig) {
+		return false
+	}
+	if !p.Field255DeepEqual(ano.Base) {
+		return false
+	}
+	return true
+}
+
+func (p *GetKubeconfigResponse) Field1DeepEqual(src string) bool {
+
+	if strings.Compare(p.Kubeconfig, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *GetKubeconfigResponse) Field255DeepEqual(src *base.Base) bool {
+
+	if !p.Base.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type RevokeKubeconfigRequest struct {
+	ClusterId string         `thrift:"ClusterId,1,required" validate:"required,k8sName"`
+	UserIds   []string       `thrift:"UserIds,2,required" validate:"required"`
+	Top       *base.TopParam `thrift:"Top,254,required" json:"Top"`
+	Base      *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
+}
+
+func NewRevokeKubeconfigRequest() *RevokeKubeconfigRequest {
+	return &RevokeKubeconfigRequest{}
+}
+
+func (p *RevokeKubeconfigRequest) GetClusterId() (v string) {
+	return p.ClusterId
+}
+
+func (p *RevokeKubeconfigRequest) GetUserIds() (v []string) {
+	return p.UserIds
+}
+
+var RevokeKubeconfigRequest_Top_DEFAULT *base.TopParam
+
+func (p *RevokeKubeconfigRequest) GetTop() (v *base.TopParam) {
+	if !p.IsSetTop() {
+		return RevokeKubeconfigRequest_Top_DEFAULT
+	}
+	return p.Top
+}
+
+var RevokeKubeconfigRequest_Base_DEFAULT *base.Base
+
+func (p *RevokeKubeconfigRequest) GetBase() (v *base.Base) {
+	if !p.IsSetBase() {
+		return RevokeKubeconfigRequest_Base_DEFAULT
+	}
+	return p.Base
+}
+func (p *RevokeKubeconfigRequest) SetClusterId(val string) {
+	p.ClusterId = val
+}
+func (p *RevokeKubeconfigRequest) SetUserIds(val []string) {
+	p.UserIds = val
+}
+func (p *RevokeKubeconfigRequest) SetTop(val *base.TopParam) {
+	p.Top = val
+}
+func (p *RevokeKubeconfigRequest) SetBase(val *base.Base) {
+	p.Base = val
+}
+
+var fieldIDToName_RevokeKubeconfigRequest = map[int16]string{
+	1:   "ClusterId",
+	2:   "UserIds",
+	254: "Top",
+	255: "Base",
+}
+
+func (p *RevokeKubeconfigRequest) IsSetTop() bool {
+	return p.Top != nil
+}
+
+func (p *RevokeKubeconfigRequest) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *RevokeKubeconfigRequest) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	var issetClusterId bool = false
+	var issetUserIds bool = false
+	var issetTop bool = false
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetClusterId = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 2:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetUserIds = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 254:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField254(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetTop = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 255:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField255(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	if !issetClusterId {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetUserIds {
+		fieldId = 2
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetTop {
+		fieldId = 254
+		goto RequiredFieldNotSetError
+	}
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_RevokeKubeconfigRequest[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_RevokeKubeconfigRequest[fieldId]))
+}
+
+func (p *RevokeKubeconfigRequest) ReadField1(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.ClusterId = v
+	}
+	return nil
+}
+
+func (p *RevokeKubeconfigRequest) ReadField2(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.UserIds = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		p.UserIds = append(p.UserIds, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *RevokeKubeconfigRequest) ReadField254(iprot thrift.TProtocol) error {
+	p.Top = base.NewTopParam()
+	if err := p.Top.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *RevokeKubeconfigRequest) ReadField255(iprot thrift.TProtocol) error {
+	p.Base = base.NewBase()
+	if err := p.Base.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *RevokeKubeconfigRequest) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("RevokeKubeconfigRequest"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField254(oprot); err != nil {
+			fieldId = 254
+			goto WriteFieldError
+		}
+		if err = p.writeField255(oprot); err != nil {
+			fieldId = 255
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *RevokeKubeconfigRequest) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("ClusterId", thrift.STRING, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.ClusterId); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *RevokeKubeconfigRequest) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("UserIds", thrift.LIST, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteListBegin(thrift.STRING, len(p.UserIds)); err != nil {
+		return err
+	}
+	for _, v := range p.UserIds {
+		if err := oprot.WriteString(v); err != nil {
+			return err
+		}
+	}
+	if err := oprot.WriteListEnd(); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *RevokeKubeconfigRequest) writeField254(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("Top", thrift.STRUCT, 254); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Top.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 254 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 254 end error: ", p), err)
+}
+
+func (p *RevokeKubeconfigRequest) writeField255(oprot thrift.TProtocol) (err error) {
+	if p.IsSetBase() {
+		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Base.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 255 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
+}
+
+func (p *RevokeKubeconfigRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("RevokeKubeconfigRequest(%+v)", *p)
+}
+
+func (p *RevokeKubeconfigRequest) DeepEqual(ano *RevokeKubeconfigRequest) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.ClusterId) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.UserIds) {
+		return false
+	}
+	if !p.Field254DeepEqual(ano.Top) {
+		return false
+	}
+	if !p.Field255DeepEqual(ano.Base) {
+		return false
+	}
+	return true
+}
+
+func (p *RevokeKubeconfigRequest) Field1DeepEqual(src string) bool {
+
+	if strings.Compare(p.ClusterId, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *RevokeKubeconfigRequest) Field2DeepEqual(src []string) bool {
+
+	if len(p.UserIds) != len(src) {
+		return false
+	}
+	for i, v := range p.UserIds {
+		_src := src[i]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
+	}
+	return true
+}
+func (p *RevokeKubeconfigRequest) Field254DeepEqual(src *base.TopParam) bool {
+
+	if !p.Top.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+func (p *RevokeKubeconfigRequest) Field255DeepEqual(src *base.Base) bool {
+
+	if !p.Base.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type RevokeKubeconfigResponse struct {
+}
+
+func NewRevokeKubeconfigResponse() *RevokeKubeconfigResponse {
+	return &RevokeKubeconfigResponse{}
+}
+
+var fieldIDToName_RevokeKubeconfigResponse = map[int16]string{}
+
+func (p *RevokeKubeconfigResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -16356,8 +17847,8 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *RevokeKubeConfigResponse) Write(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteStructBegin("RevokeKubeConfigResponse"); err != nil {
+func (p *RevokeKubeconfigResponse) Write(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteStructBegin("RevokeKubeconfigResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -16378,14 +17869,14 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *RevokeKubeConfigResponse) String() string {
+func (p *RevokeKubeconfigResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("RevokeKubeConfigResponse(%+v)", *p)
+	return fmt.Sprintf("RevokeKubeconfigResponse(%+v)", *p)
 }
 
-func (p *RevokeKubeConfigResponse) DeepEqual(ano *RevokeKubeConfigResponse) bool {
+func (p *RevokeKubeconfigResponse) DeepEqual(ano *RevokeKubeconfigResponse) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -16394,106 +17885,106 @@ func (p *RevokeKubeConfigResponse) DeepEqual(ano *RevokeKubeConfigResponse) bool
 	return true
 }
 
-type ListKubeConfigRequest struct {
-	Id    string         `thrift:"Id,1,required" validate:"required,k8sName"`
-	Start int32          `thrift:"Start,2" validate:"gte=0"`
-	Limit int32          `thrift:"Limit,3" json:"Limit,omitempty"`
-	Top   *base.TopParam `thrift:"Top,254,required" json:"Top"`
-	Base  *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
+type ListKubeconfigUsersRequest struct {
+	ClusterId  string         `thrift:"ClusterId,1,required" validate:"required,k8sName"`
+	PageNumber int32          `thrift:"PageNumber,2" json:"PageNumber" default:"1"`
+	PageSize   int32          `thrift:"PageSize,3" json:"PageSize" default:"100"`
+	Top        *base.TopParam `thrift:"Top,254,required" json:"Top"`
+	Base       *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewListKubeConfigRequest() *ListKubeConfigRequest {
-	return &ListKubeConfigRequest{
+func NewListKubeconfigUsersRequest() *ListKubeconfigUsersRequest {
+	return &ListKubeconfigUsersRequest{
 
-		Start: 0,
-		Limit: 10,
+		PageNumber: 1,
+		PageSize:   100,
 	}
 }
 
-func (p *ListKubeConfigRequest) GetId() (v string) {
-	return p.Id
+func (p *ListKubeconfigUsersRequest) GetClusterId() (v string) {
+	return p.ClusterId
 }
 
-var ListKubeConfigRequest_Start_DEFAULT int32 = 0
+var ListKubeconfigUsersRequest_PageNumber_DEFAULT int32 = 1
 
-func (p *ListKubeConfigRequest) GetStart() (v int32) {
-	if !p.IsSetStart() {
-		return ListKubeConfigRequest_Start_DEFAULT
+func (p *ListKubeconfigUsersRequest) GetPageNumber() (v int32) {
+	if !p.IsSetPageNumber() {
+		return ListKubeconfigUsersRequest_PageNumber_DEFAULT
 	}
-	return p.Start
+	return p.PageNumber
 }
 
-var ListKubeConfigRequest_Limit_DEFAULT int32 = 10
+var ListKubeconfigUsersRequest_PageSize_DEFAULT int32 = 100
 
-func (p *ListKubeConfigRequest) GetLimit() (v int32) {
-	if !p.IsSetLimit() {
-		return ListKubeConfigRequest_Limit_DEFAULT
+func (p *ListKubeconfigUsersRequest) GetPageSize() (v int32) {
+	if !p.IsSetPageSize() {
+		return ListKubeconfigUsersRequest_PageSize_DEFAULT
 	}
-	return p.Limit
+	return p.PageSize
 }
 
-var ListKubeConfigRequest_Top_DEFAULT *base.TopParam
+var ListKubeconfigUsersRequest_Top_DEFAULT *base.TopParam
 
-func (p *ListKubeConfigRequest) GetTop() (v *base.TopParam) {
+func (p *ListKubeconfigUsersRequest) GetTop() (v *base.TopParam) {
 	if !p.IsSetTop() {
-		return ListKubeConfigRequest_Top_DEFAULT
+		return ListKubeconfigUsersRequest_Top_DEFAULT
 	}
 	return p.Top
 }
 
-var ListKubeConfigRequest_Base_DEFAULT *base.Base
+var ListKubeconfigUsersRequest_Base_DEFAULT *base.Base
 
-func (p *ListKubeConfigRequest) GetBase() (v *base.Base) {
+func (p *ListKubeconfigUsersRequest) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return ListKubeConfigRequest_Base_DEFAULT
+		return ListKubeconfigUsersRequest_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *ListKubeConfigRequest) SetId(val string) {
-	p.Id = val
+func (p *ListKubeconfigUsersRequest) SetClusterId(val string) {
+	p.ClusterId = val
 }
-func (p *ListKubeConfigRequest) SetStart(val int32) {
-	p.Start = val
+func (p *ListKubeconfigUsersRequest) SetPageNumber(val int32) {
+	p.PageNumber = val
 }
-func (p *ListKubeConfigRequest) SetLimit(val int32) {
-	p.Limit = val
+func (p *ListKubeconfigUsersRequest) SetPageSize(val int32) {
+	p.PageSize = val
 }
-func (p *ListKubeConfigRequest) SetTop(val *base.TopParam) {
+func (p *ListKubeconfigUsersRequest) SetTop(val *base.TopParam) {
 	p.Top = val
 }
-func (p *ListKubeConfigRequest) SetBase(val *base.Base) {
+func (p *ListKubeconfigUsersRequest) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_ListKubeConfigRequest = map[int16]string{
-	1:   "Id",
-	2:   "Start",
-	3:   "Limit",
+var fieldIDToName_ListKubeconfigUsersRequest = map[int16]string{
+	1:   "ClusterId",
+	2:   "PageNumber",
+	3:   "PageSize",
 	254: "Top",
 	255: "Base",
 }
 
-func (p *ListKubeConfigRequest) IsSetStart() bool {
-	return p.Start != ListKubeConfigRequest_Start_DEFAULT
+func (p *ListKubeconfigUsersRequest) IsSetPageNumber() bool {
+	return p.PageNumber != ListKubeconfigUsersRequest_PageNumber_DEFAULT
 }
 
-func (p *ListKubeConfigRequest) IsSetLimit() bool {
-	return p.Limit != ListKubeConfigRequest_Limit_DEFAULT
+func (p *ListKubeconfigUsersRequest) IsSetPageSize() bool {
+	return p.PageSize != ListKubeconfigUsersRequest_PageSize_DEFAULT
 }
 
-func (p *ListKubeConfigRequest) IsSetTop() bool {
+func (p *ListKubeconfigUsersRequest) IsSetTop() bool {
 	return p.Top != nil
 }
 
-func (p *ListKubeConfigRequest) IsSetBase() bool {
+func (p *ListKubeconfigUsersRequest) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *ListKubeConfigRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *ListKubeconfigUsersRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetId bool = false
+	var issetClusterId bool = false
 	var issetTop bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
@@ -16515,7 +18006,7 @@ func (p *ListKubeConfigRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetId = true
+				issetClusterId = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -16576,7 +18067,7 @@ func (p *ListKubeConfigRequest) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
-	if !issetId {
+	if !issetClusterId {
 		fieldId = 1
 		goto RequiredFieldNotSetError
 	}
@@ -16591,7 +18082,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListKubeConfigRequest[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListKubeconfigUsersRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -16600,37 +18091,37 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListKubeConfigRequest[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListKubeconfigUsersRequest[fieldId]))
 }
 
-func (p *ListKubeConfigRequest) ReadField1(iprot thrift.TProtocol) error {
+func (p *ListKubeconfigUsersRequest) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.Id = v
+		p.ClusterId = v
 	}
 	return nil
 }
 
-func (p *ListKubeConfigRequest) ReadField2(iprot thrift.TProtocol) error {
+func (p *ListKubeconfigUsersRequest) ReadField2(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
-		p.Start = v
+		p.PageNumber = v
 	}
 	return nil
 }
 
-func (p *ListKubeConfigRequest) ReadField3(iprot thrift.TProtocol) error {
+func (p *ListKubeconfigUsersRequest) ReadField3(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
-		p.Limit = v
+		p.PageSize = v
 	}
 	return nil
 }
 
-func (p *ListKubeConfigRequest) ReadField254(iprot thrift.TProtocol) error {
+func (p *ListKubeconfigUsersRequest) ReadField254(iprot thrift.TProtocol) error {
 	p.Top = base.NewTopParam()
 	if err := p.Top.Read(iprot); err != nil {
 		return err
@@ -16638,7 +18129,7 @@ func (p *ListKubeConfigRequest) ReadField254(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListKubeConfigRequest) ReadField255(iprot thrift.TProtocol) error {
+func (p *ListKubeconfigUsersRequest) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -16646,9 +18137,9 @@ func (p *ListKubeConfigRequest) ReadField255(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListKubeConfigRequest) Write(oprot thrift.TProtocol) (err error) {
+func (p *ListKubeconfigUsersRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListKubeConfigRequest"); err != nil {
+	if err = oprot.WriteStructBegin("ListKubeconfigUsersRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -16691,11 +18182,11 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ListKubeConfigRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("Id", thrift.STRING, 1); err != nil {
+func (p *ListKubeconfigUsersRequest) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("ClusterId", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Id); err != nil {
+	if err := oprot.WriteString(p.ClusterId); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -16708,12 +18199,12 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ListKubeConfigRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if p.IsSetStart() {
-		if err = oprot.WriteFieldBegin("Start", thrift.I32, 2); err != nil {
+func (p *ListKubeconfigUsersRequest) writeField2(oprot thrift.TProtocol) (err error) {
+	if p.IsSetPageNumber() {
+		if err = oprot.WriteFieldBegin("PageNumber", thrift.I32, 2); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteI32(p.Start); err != nil {
+		if err := oprot.WriteI32(p.PageNumber); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -16727,12 +18218,12 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *ListKubeConfigRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if p.IsSetLimit() {
-		if err = oprot.WriteFieldBegin("Limit", thrift.I32, 3); err != nil {
+func (p *ListKubeconfigUsersRequest) writeField3(oprot thrift.TProtocol) (err error) {
+	if p.IsSetPageSize() {
+		if err = oprot.WriteFieldBegin("PageSize", thrift.I32, 3); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteI32(p.Limit); err != nil {
+		if err := oprot.WriteI32(p.PageSize); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -16746,7 +18237,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
-func (p *ListKubeConfigRequest) writeField254(oprot thrift.TProtocol) (err error) {
+func (p *ListKubeconfigUsersRequest) writeField254(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Top", thrift.STRUCT, 254); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -16763,7 +18254,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 254 end error: ", p), err)
 }
 
-func (p *ListKubeConfigRequest) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *ListKubeconfigUsersRequest) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -16782,26 +18273,26 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *ListKubeConfigRequest) String() string {
+func (p *ListKubeconfigUsersRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ListKubeConfigRequest(%+v)", *p)
+	return fmt.Sprintf("ListKubeconfigUsersRequest(%+v)", *p)
 }
 
-func (p *ListKubeConfigRequest) DeepEqual(ano *ListKubeConfigRequest) bool {
+func (p *ListKubeconfigUsersRequest) DeepEqual(ano *ListKubeconfigUsersRequest) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.Id) {
+	if !p.Field1DeepEqual(ano.ClusterId) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.Start) {
+	if !p.Field2DeepEqual(ano.PageNumber) {
 		return false
 	}
-	if !p.Field3DeepEqual(ano.Limit) {
+	if !p.Field3DeepEqual(ano.PageSize) {
 		return false
 	}
 	if !p.Field254DeepEqual(ano.Top) {
@@ -16813,35 +18304,35 @@ func (p *ListKubeConfigRequest) DeepEqual(ano *ListKubeConfigRequest) bool {
 	return true
 }
 
-func (p *ListKubeConfigRequest) Field1DeepEqual(src string) bool {
+func (p *ListKubeconfigUsersRequest) Field1DeepEqual(src string) bool {
 
-	if strings.Compare(p.Id, src) != 0 {
+	if strings.Compare(p.ClusterId, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *ListKubeConfigRequest) Field2DeepEqual(src int32) bool {
+func (p *ListKubeconfigUsersRequest) Field2DeepEqual(src int32) bool {
 
-	if p.Start != src {
+	if p.PageNumber != src {
 		return false
 	}
 	return true
 }
-func (p *ListKubeConfigRequest) Field3DeepEqual(src int32) bool {
+func (p *ListKubeconfigUsersRequest) Field3DeepEqual(src int32) bool {
 
-	if p.Limit != src {
+	if p.PageSize != src {
 		return false
 	}
 	return true
 }
-func (p *ListKubeConfigRequest) Field254DeepEqual(src *base.TopParam) bool {
+func (p *ListKubeconfigUsersRequest) Field254DeepEqual(src *base.TopParam) bool {
 
 	if !p.Top.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ListKubeConfigRequest) Field255DeepEqual(src *base.Base) bool {
+func (p *ListKubeconfigUsersRequest) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -16849,39 +18340,39 @@ func (p *ListKubeConfigRequest) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
-type KubeConfig struct {
-	UserID     string `thrift:"UserID,1,required" json:"UserID"`
+type KubeconfigUser struct {
+	UserId     string `thrift:"UserId,1,required" json:"UserId"`
 	UpdateTime string `thrift:"UpdateTime,2,required" json:"UpdateTime"`
 }
 
-func NewKubeConfig() *KubeConfig {
-	return &KubeConfig{}
+func NewKubeconfigUser() *KubeconfigUser {
+	return &KubeconfigUser{}
 }
 
-func (p *KubeConfig) GetUserID() (v string) {
-	return p.UserID
+func (p *KubeconfigUser) GetUserId() (v string) {
+	return p.UserId
 }
 
-func (p *KubeConfig) GetUpdateTime() (v string) {
+func (p *KubeconfigUser) GetUpdateTime() (v string) {
 	return p.UpdateTime
 }
-func (p *KubeConfig) SetUserID(val string) {
-	p.UserID = val
+func (p *KubeconfigUser) SetUserId(val string) {
+	p.UserId = val
 }
-func (p *KubeConfig) SetUpdateTime(val string) {
+func (p *KubeconfigUser) SetUpdateTime(val string) {
 	p.UpdateTime = val
 }
 
-var fieldIDToName_KubeConfig = map[int16]string{
-	1: "UserID",
+var fieldIDToName_KubeconfigUser = map[int16]string{
+	1: "UserId",
 	2: "UpdateTime",
 }
 
-func (p *KubeConfig) Read(iprot thrift.TProtocol) (err error) {
+func (p *KubeconfigUser) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetUserID bool = false
+	var issetUserId bool = false
 	var issetUpdateTime bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
@@ -16903,7 +18394,7 @@ func (p *KubeConfig) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetUserID = true
+				issetUserId = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -16934,7 +18425,7 @@ func (p *KubeConfig) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
-	if !issetUserID {
+	if !issetUserId {
 		fieldId = 1
 		goto RequiredFieldNotSetError
 	}
@@ -16949,7 +18440,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_KubeConfig[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_KubeconfigUser[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -16958,19 +18449,19 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_KubeConfig[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_KubeconfigUser[fieldId]))
 }
 
-func (p *KubeConfig) ReadField1(iprot thrift.TProtocol) error {
+func (p *KubeconfigUser) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.UserID = v
+		p.UserId = v
 	}
 	return nil
 }
 
-func (p *KubeConfig) ReadField2(iprot thrift.TProtocol) error {
+func (p *KubeconfigUser) ReadField2(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -16979,9 +18470,9 @@ func (p *KubeConfig) ReadField2(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *KubeConfig) Write(oprot thrift.TProtocol) (err error) {
+func (p *KubeconfigUser) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("KubeConfig"); err != nil {
+	if err = oprot.WriteStructBegin("KubeconfigUser"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -17012,11 +18503,11 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *KubeConfig) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("UserID", thrift.STRING, 1); err != nil {
+func (p *KubeconfigUser) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("UserId", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.UserID); err != nil {
+	if err := oprot.WriteString(p.UserId); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -17029,7 +18520,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *KubeConfig) writeField2(oprot thrift.TProtocol) (err error) {
+func (p *KubeconfigUser) writeField2(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("UpdateTime", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -17046,20 +18537,20 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *KubeConfig) String() string {
+func (p *KubeconfigUser) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("KubeConfig(%+v)", *p)
+	return fmt.Sprintf("KubeconfigUser(%+v)", *p)
 }
 
-func (p *KubeConfig) DeepEqual(ano *KubeConfig) bool {
+func (p *KubeconfigUser) DeepEqual(ano *KubeconfigUser) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.UserID) {
+	if !p.Field1DeepEqual(ano.UserId) {
 		return false
 	}
 	if !p.Field2DeepEqual(ano.UpdateTime) {
@@ -17068,14 +18559,14 @@ func (p *KubeConfig) DeepEqual(ano *KubeConfig) bool {
 	return true
 }
 
-func (p *KubeConfig) Field1DeepEqual(src string) bool {
+func (p *KubeconfigUser) Field1DeepEqual(src string) bool {
 
-	if strings.Compare(p.UserID, src) != 0 {
+	if strings.Compare(p.UserId, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *KubeConfig) Field2DeepEqual(src string) bool {
+func (p *KubeconfigUser) Field2DeepEqual(src string) bool {
 
 	if strings.Compare(p.UpdateTime, src) != 0 {
 		return false
@@ -17083,53 +18574,53 @@ func (p *KubeConfig) Field2DeepEqual(src string) bool {
 	return true
 }
 
-type ListKubeConfigResponse struct {
-	Items []*KubeConfig `thrift:"Items,1,required" json:"Items"`
-	Total int32         `thrift:"Total,2,required" json:"Total"`
-	Base  *base.Base    `thrift:"Base,255" json:"Base,omitempty"`
+type ListKubeconfigUsersResponse struct {
+	Items []*KubeconfigUser `thrift:"Items,1,required" json:"Items"`
+	Total int32             `thrift:"Total,2,required" json:"Total"`
+	Base  *base.Base        `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewListKubeConfigResponse() *ListKubeConfigResponse {
-	return &ListKubeConfigResponse{}
+func NewListKubeconfigUsersResponse() *ListKubeconfigUsersResponse {
+	return &ListKubeconfigUsersResponse{}
 }
 
-func (p *ListKubeConfigResponse) GetItems() (v []*KubeConfig) {
+func (p *ListKubeconfigUsersResponse) GetItems() (v []*KubeconfigUser) {
 	return p.Items
 }
 
-func (p *ListKubeConfigResponse) GetTotal() (v int32) {
+func (p *ListKubeconfigUsersResponse) GetTotal() (v int32) {
 	return p.Total
 }
 
-var ListKubeConfigResponse_Base_DEFAULT *base.Base
+var ListKubeconfigUsersResponse_Base_DEFAULT *base.Base
 
-func (p *ListKubeConfigResponse) GetBase() (v *base.Base) {
+func (p *ListKubeconfigUsersResponse) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return ListKubeConfigResponse_Base_DEFAULT
+		return ListKubeconfigUsersResponse_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *ListKubeConfigResponse) SetItems(val []*KubeConfig) {
+func (p *ListKubeconfigUsersResponse) SetItems(val []*KubeconfigUser) {
 	p.Items = val
 }
-func (p *ListKubeConfigResponse) SetTotal(val int32) {
+func (p *ListKubeconfigUsersResponse) SetTotal(val int32) {
 	p.Total = val
 }
-func (p *ListKubeConfigResponse) SetBase(val *base.Base) {
+func (p *ListKubeconfigUsersResponse) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_ListKubeConfigResponse = map[int16]string{
+var fieldIDToName_ListKubeconfigUsersResponse = map[int16]string{
 	1:   "Items",
 	2:   "Total",
 	255: "Base",
 }
 
-func (p *ListKubeConfigResponse) IsSetBase() bool {
+func (p *ListKubeconfigUsersResponse) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *ListKubeConfigResponse) Read(iprot thrift.TProtocol) (err error) {
+func (p *ListKubeconfigUsersResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -17211,7 +18702,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListKubeConfigResponse[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListKubeconfigUsersResponse[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -17220,17 +18711,17 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListKubeConfigResponse[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListKubeconfigUsersResponse[fieldId]))
 }
 
-func (p *ListKubeConfigResponse) ReadField1(iprot thrift.TProtocol) error {
+func (p *ListKubeconfigUsersResponse) ReadField1(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
 	}
-	p.Items = make([]*KubeConfig, 0, size)
+	p.Items = make([]*KubeconfigUser, 0, size)
 	for i := 0; i < size; i++ {
-		_elem := NewKubeConfig()
+		_elem := NewKubeconfigUser()
 		if err := _elem.Read(iprot); err != nil {
 			return err
 		}
@@ -17243,7 +18734,7 @@ func (p *ListKubeConfigResponse) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListKubeConfigResponse) ReadField2(iprot thrift.TProtocol) error {
+func (p *ListKubeconfigUsersResponse) ReadField2(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
@@ -17252,7 +18743,7 @@ func (p *ListKubeConfigResponse) ReadField2(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListKubeConfigResponse) ReadField255(iprot thrift.TProtocol) error {
+func (p *ListKubeconfigUsersResponse) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -17260,9 +18751,9 @@ func (p *ListKubeConfigResponse) ReadField255(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListKubeConfigResponse) Write(oprot thrift.TProtocol) (err error) {
+func (p *ListKubeconfigUsersResponse) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListKubeConfigResponse"); err != nil {
+	if err = oprot.WriteStructBegin("ListKubeconfigUsersResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -17297,7 +18788,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ListKubeConfigResponse) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ListKubeconfigUsersResponse) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Items", thrift.LIST, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -17322,7 +18813,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ListKubeConfigResponse) writeField2(oprot thrift.TProtocol) (err error) {
+func (p *ListKubeconfigUsersResponse) writeField2(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Total", thrift.I32, 2); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -17339,7 +18830,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *ListKubeConfigResponse) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *ListKubeconfigUsersResponse) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -17358,14 +18849,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *ListKubeConfigResponse) String() string {
+func (p *ListKubeconfigUsersResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ListKubeConfigResponse(%+v)", *p)
+	return fmt.Sprintf("ListKubeconfigUsersResponse(%+v)", *p)
 }
 
-func (p *ListKubeConfigResponse) DeepEqual(ano *ListKubeConfigResponse) bool {
+func (p *ListKubeconfigUsersResponse) DeepEqual(ano *ListKubeconfigUsersResponse) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -17383,7 +18874,7 @@ func (p *ListKubeConfigResponse) DeepEqual(ano *ListKubeConfigResponse) bool {
 	return true
 }
 
-func (p *ListKubeConfigResponse) Field1DeepEqual(src []*KubeConfig) bool {
+func (p *ListKubeconfigUsersResponse) Field1DeepEqual(src []*KubeconfigUser) bool {
 
 	if len(p.Items) != len(src) {
 		return false
@@ -17396,14 +18887,14 @@ func (p *ListKubeConfigResponse) Field1DeepEqual(src []*KubeConfig) bool {
 	}
 	return true
 }
-func (p *ListKubeConfigResponse) Field2DeepEqual(src int32) bool {
+func (p *ListKubeconfigUsersResponse) Field2DeepEqual(src int32) bool {
 
 	if p.Total != src {
 		return false
 	}
 	return true
 }
-func (p *ListKubeConfigResponse) Field255DeepEqual(src *base.Base) bool {
+func (p *ListKubeconfigUsersResponse) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -18155,9 +19646,9 @@ func (p *ClusterDeployProgress) Field5DeepEqual(src string) bool {
 }
 
 type GetClusterDeployProgressResponse struct {
-	Items       []*ClusterDeployProgress `thrift:"Items,1,required" json:"Items"`
-	ProgressBar int32                    `thrift:"ProgressBar,2,required" json:"ProgressBar"`
-	Base        *base.Base               `thrift:"Base,255" json:"Base,omitempty"`
+	Items    []*ClusterDeployProgress `thrift:"Items,1,required" json:"Items"`
+	Progress int32                    `thrift:"Progress,2,required" json:"Progress"`
+	Base     *base.Base               `thrift:"Base,255" json:"Base,omitempty"`
 }
 
 func NewGetClusterDeployProgressResponse() *GetClusterDeployProgressResponse {
@@ -18168,8 +19659,8 @@ func (p *GetClusterDeployProgressResponse) GetItems() (v []*ClusterDeployProgres
 	return p.Items
 }
 
-func (p *GetClusterDeployProgressResponse) GetProgressBar() (v int32) {
-	return p.ProgressBar
+func (p *GetClusterDeployProgressResponse) GetProgress() (v int32) {
+	return p.Progress
 }
 
 var GetClusterDeployProgressResponse_Base_DEFAULT *base.Base
@@ -18183,8 +19674,8 @@ func (p *GetClusterDeployProgressResponse) GetBase() (v *base.Base) {
 func (p *GetClusterDeployProgressResponse) SetItems(val []*ClusterDeployProgress) {
 	p.Items = val
 }
-func (p *GetClusterDeployProgressResponse) SetProgressBar(val int32) {
-	p.ProgressBar = val
+func (p *GetClusterDeployProgressResponse) SetProgress(val int32) {
+	p.Progress = val
 }
 func (p *GetClusterDeployProgressResponse) SetBase(val *base.Base) {
 	p.Base = val
@@ -18192,7 +19683,7 @@ func (p *GetClusterDeployProgressResponse) SetBase(val *base.Base) {
 
 var fieldIDToName_GetClusterDeployProgressResponse = map[int16]string{
 	1:   "Items",
-	2:   "ProgressBar",
+	2:   "Progress",
 	255: "Base",
 }
 
@@ -18205,7 +19696,7 @@ func (p *GetClusterDeployProgressResponse) Read(iprot thrift.TProtocol) (err err
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetItems bool = false
-	var issetProgressBar bool = false
+	var issetProgress bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -18237,7 +19728,7 @@ func (p *GetClusterDeployProgressResponse) Read(iprot thrift.TProtocol) (err err
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetProgressBar = true
+				issetProgress = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -18272,7 +19763,7 @@ func (p *GetClusterDeployProgressResponse) Read(iprot thrift.TProtocol) (err err
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetProgressBar {
+	if !issetProgress {
 		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
@@ -18318,7 +19809,7 @@ func (p *GetClusterDeployProgressResponse) ReadField2(iprot thrift.TProtocol) er
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
-		p.ProgressBar = v
+		p.Progress = v
 	}
 	return nil
 }
@@ -18394,10 +19885,10 @@ WriteFieldEndError:
 }
 
 func (p *GetClusterDeployProgressResponse) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("ProgressBar", thrift.I32, 2); err != nil {
+	if err = oprot.WriteFieldBegin("Progress", thrift.I32, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI32(p.ProgressBar); err != nil {
+	if err := oprot.WriteI32(p.Progress); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -18445,7 +19936,7 @@ func (p *GetClusterDeployProgressResponse) DeepEqual(ano *GetClusterDeployProgre
 	if !p.Field1DeepEqual(ano.Items) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.ProgressBar) {
+	if !p.Field2DeepEqual(ano.Progress) {
 		return false
 	}
 	if !p.Field255DeepEqual(ano.Base) {
@@ -18469,7 +19960,7 @@ func (p *GetClusterDeployProgressResponse) Field1DeepEqual(src []*ClusterDeployP
 }
 func (p *GetClusterDeployProgressResponse) Field2DeepEqual(src int32) bool {
 
-	if p.ProgressBar != src {
+	if p.Progress != src {
 		return false
 	}
 	return true
@@ -18482,53 +19973,53 @@ func (p *GetClusterDeployProgressResponse) Field255DeepEqual(src *base.Base) boo
 	return true
 }
 
-type ListClusterKubernetesVersionRequest struct {
+type ListSupportedKubernetesVersionsRequest struct {
 	Top  *base.TopParam `thrift:"Top,254,required" json:"Top"`
 	Base *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewListClusterKubernetesVersionRequest() *ListClusterKubernetesVersionRequest {
-	return &ListClusterKubernetesVersionRequest{}
+func NewListSupportedKubernetesVersionsRequest() *ListSupportedKubernetesVersionsRequest {
+	return &ListSupportedKubernetesVersionsRequest{}
 }
 
-var ListClusterKubernetesVersionRequest_Top_DEFAULT *base.TopParam
+var ListSupportedKubernetesVersionsRequest_Top_DEFAULT *base.TopParam
 
-func (p *ListClusterKubernetesVersionRequest) GetTop() (v *base.TopParam) {
+func (p *ListSupportedKubernetesVersionsRequest) GetTop() (v *base.TopParam) {
 	if !p.IsSetTop() {
-		return ListClusterKubernetesVersionRequest_Top_DEFAULT
+		return ListSupportedKubernetesVersionsRequest_Top_DEFAULT
 	}
 	return p.Top
 }
 
-var ListClusterKubernetesVersionRequest_Base_DEFAULT *base.Base
+var ListSupportedKubernetesVersionsRequest_Base_DEFAULT *base.Base
 
-func (p *ListClusterKubernetesVersionRequest) GetBase() (v *base.Base) {
+func (p *ListSupportedKubernetesVersionsRequest) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return ListClusterKubernetesVersionRequest_Base_DEFAULT
+		return ListSupportedKubernetesVersionsRequest_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *ListClusterKubernetesVersionRequest) SetTop(val *base.TopParam) {
+func (p *ListSupportedKubernetesVersionsRequest) SetTop(val *base.TopParam) {
 	p.Top = val
 }
-func (p *ListClusterKubernetesVersionRequest) SetBase(val *base.Base) {
+func (p *ListSupportedKubernetesVersionsRequest) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_ListClusterKubernetesVersionRequest = map[int16]string{
+var fieldIDToName_ListSupportedKubernetesVersionsRequest = map[int16]string{
 	254: "Top",
 	255: "Base",
 }
 
-func (p *ListClusterKubernetesVersionRequest) IsSetTop() bool {
+func (p *ListSupportedKubernetesVersionsRequest) IsSetTop() bool {
 	return p.Top != nil
 }
 
-func (p *ListClusterKubernetesVersionRequest) IsSetBase() bool {
+func (p *ListSupportedKubernetesVersionsRequest) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *ListClusterKubernetesVersionRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *ListSupportedKubernetesVersionsRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -18593,7 +20084,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListClusterKubernetesVersionRequest[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListSupportedKubernetesVersionsRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -18602,10 +20093,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListClusterKubernetesVersionRequest[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListSupportedKubernetesVersionsRequest[fieldId]))
 }
 
-func (p *ListClusterKubernetesVersionRequest) ReadField254(iprot thrift.TProtocol) error {
+func (p *ListSupportedKubernetesVersionsRequest) ReadField254(iprot thrift.TProtocol) error {
 	p.Top = base.NewTopParam()
 	if err := p.Top.Read(iprot); err != nil {
 		return err
@@ -18613,7 +20104,7 @@ func (p *ListClusterKubernetesVersionRequest) ReadField254(iprot thrift.TProtoco
 	return nil
 }
 
-func (p *ListClusterKubernetesVersionRequest) ReadField255(iprot thrift.TProtocol) error {
+func (p *ListSupportedKubernetesVersionsRequest) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -18621,9 +20112,9 @@ func (p *ListClusterKubernetesVersionRequest) ReadField255(iprot thrift.TProtoco
 	return nil
 }
 
-func (p *ListClusterKubernetesVersionRequest) Write(oprot thrift.TProtocol) (err error) {
+func (p *ListSupportedKubernetesVersionsRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListClusterKubernetesVersionRequest"); err != nil {
+	if err = oprot.WriteStructBegin("ListSupportedKubernetesVersionsRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -18654,7 +20145,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ListClusterKubernetesVersionRequest) writeField254(oprot thrift.TProtocol) (err error) {
+func (p *ListSupportedKubernetesVersionsRequest) writeField254(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Top", thrift.STRUCT, 254); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -18671,7 +20162,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 254 end error: ", p), err)
 }
 
-func (p *ListClusterKubernetesVersionRequest) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *ListSupportedKubernetesVersionsRequest) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -18690,14 +20181,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *ListClusterKubernetesVersionRequest) String() string {
+func (p *ListSupportedKubernetesVersionsRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ListClusterKubernetesVersionRequest(%+v)", *p)
+	return fmt.Sprintf("ListSupportedKubernetesVersionsRequest(%+v)", *p)
 }
 
-func (p *ListClusterKubernetesVersionRequest) DeepEqual(ano *ListClusterKubernetesVersionRequest) bool {
+func (p *ListSupportedKubernetesVersionsRequest) DeepEqual(ano *ListSupportedKubernetesVersionsRequest) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -18712,14 +20203,14 @@ func (p *ListClusterKubernetesVersionRequest) DeepEqual(ano *ListClusterKubernet
 	return true
 }
 
-func (p *ListClusterKubernetesVersionRequest) Field254DeepEqual(src *base.TopParam) bool {
+func (p *ListSupportedKubernetesVersionsRequest) Field254DeepEqual(src *base.TopParam) bool {
 
 	if !p.Top.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ListClusterKubernetesVersionRequest) Field255DeepEqual(src *base.Base) bool {
+func (p *ListSupportedKubernetesVersionsRequest) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -18727,44 +20218,44 @@ func (p *ListClusterKubernetesVersionRequest) Field255DeepEqual(src *base.Base) 
 	return true
 }
 
-type ListClusterKubernetesVersionResponse struct {
+type ListSupportedKubernetesVersionsResponse struct {
 	Items []string   `thrift:"Items,1,required" json:"Items"`
 	Base  *base.Base `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewListClusterKubernetesVersionResponse() *ListClusterKubernetesVersionResponse {
-	return &ListClusterKubernetesVersionResponse{}
+func NewListSupportedKubernetesVersionsResponse() *ListSupportedKubernetesVersionsResponse {
+	return &ListSupportedKubernetesVersionsResponse{}
 }
 
-func (p *ListClusterKubernetesVersionResponse) GetItems() (v []string) {
+func (p *ListSupportedKubernetesVersionsResponse) GetItems() (v []string) {
 	return p.Items
 }
 
-var ListClusterKubernetesVersionResponse_Base_DEFAULT *base.Base
+var ListSupportedKubernetesVersionsResponse_Base_DEFAULT *base.Base
 
-func (p *ListClusterKubernetesVersionResponse) GetBase() (v *base.Base) {
+func (p *ListSupportedKubernetesVersionsResponse) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return ListClusterKubernetesVersionResponse_Base_DEFAULT
+		return ListSupportedKubernetesVersionsResponse_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *ListClusterKubernetesVersionResponse) SetItems(val []string) {
+func (p *ListSupportedKubernetesVersionsResponse) SetItems(val []string) {
 	p.Items = val
 }
-func (p *ListClusterKubernetesVersionResponse) SetBase(val *base.Base) {
+func (p *ListSupportedKubernetesVersionsResponse) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_ListClusterKubernetesVersionResponse = map[int16]string{
+var fieldIDToName_ListSupportedKubernetesVersionsResponse = map[int16]string{
 	1:   "Items",
 	255: "Base",
 }
 
-func (p *ListClusterKubernetesVersionResponse) IsSetBase() bool {
+func (p *ListSupportedKubernetesVersionsResponse) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *ListClusterKubernetesVersionResponse) Read(iprot thrift.TProtocol) (err error) {
+func (p *ListSupportedKubernetesVersionsResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -18829,7 +20320,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListClusterKubernetesVersionResponse[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListSupportedKubernetesVersionsResponse[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -18838,10 +20329,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListClusterKubernetesVersionResponse[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListSupportedKubernetesVersionsResponse[fieldId]))
 }
 
-func (p *ListClusterKubernetesVersionResponse) ReadField1(iprot thrift.TProtocol) error {
+func (p *ListSupportedKubernetesVersionsResponse) ReadField1(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
@@ -18863,7 +20354,7 @@ func (p *ListClusterKubernetesVersionResponse) ReadField1(iprot thrift.TProtocol
 	return nil
 }
 
-func (p *ListClusterKubernetesVersionResponse) ReadField255(iprot thrift.TProtocol) error {
+func (p *ListSupportedKubernetesVersionsResponse) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -18871,9 +20362,9 @@ func (p *ListClusterKubernetesVersionResponse) ReadField255(iprot thrift.TProtoc
 	return nil
 }
 
-func (p *ListClusterKubernetesVersionResponse) Write(oprot thrift.TProtocol) (err error) {
+func (p *ListSupportedKubernetesVersionsResponse) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListClusterKubernetesVersionResponse"); err != nil {
+	if err = oprot.WriteStructBegin("ListSupportedKubernetesVersionsResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -18904,7 +20395,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ListClusterKubernetesVersionResponse) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ListSupportedKubernetesVersionsResponse) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Items", thrift.LIST, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -18929,7 +20420,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ListClusterKubernetesVersionResponse) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *ListSupportedKubernetesVersionsResponse) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -18948,14 +20439,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *ListClusterKubernetesVersionResponse) String() string {
+func (p *ListSupportedKubernetesVersionsResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ListClusterKubernetesVersionResponse(%+v)", *p)
+	return fmt.Sprintf("ListSupportedKubernetesVersionsResponse(%+v)", *p)
 }
 
-func (p *ListClusterKubernetesVersionResponse) DeepEqual(ano *ListClusterKubernetesVersionResponse) bool {
+func (p *ListSupportedKubernetesVersionsResponse) DeepEqual(ano *ListSupportedKubernetesVersionsResponse) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -18970,7 +20461,7 @@ func (p *ListClusterKubernetesVersionResponse) DeepEqual(ano *ListClusterKuberne
 	return true
 }
 
-func (p *ListClusterKubernetesVersionResponse) Field1DeepEqual(src []string) bool {
+func (p *ListSupportedKubernetesVersionsResponse) Field1DeepEqual(src []string) bool {
 
 	if len(p.Items) != len(src) {
 		return false
@@ -18983,7 +20474,7 @@ func (p *ListClusterKubernetesVersionResponse) Field1DeepEqual(src []string) boo
 	}
 	return true
 }
-func (p *ListClusterKubernetesVersionResponse) Field255DeepEqual(src *base.Base) bool {
+func (p *ListSupportedKubernetesVersionsResponse) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -18991,62 +20482,62 @@ func (p *ListClusterKubernetesVersionResponse) Field255DeepEqual(src *base.Base)
 	return true
 }
 
-type ListClusterNetworkCidrRequest struct {
+type ListClusterNetworkCidrsRequest struct {
 	VpcId string         `thrift:"VpcId,1,required" validate:"required"`
 	Top   *base.TopParam `thrift:"Top,254,required" json:"Top"`
 	Base  *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewListClusterNetworkCidrRequest() *ListClusterNetworkCidrRequest {
-	return &ListClusterNetworkCidrRequest{}
+func NewListClusterNetworkCidrsRequest() *ListClusterNetworkCidrsRequest {
+	return &ListClusterNetworkCidrsRequest{}
 }
 
-func (p *ListClusterNetworkCidrRequest) GetVpcId() (v string) {
+func (p *ListClusterNetworkCidrsRequest) GetVpcId() (v string) {
 	return p.VpcId
 }
 
-var ListClusterNetworkCidrRequest_Top_DEFAULT *base.TopParam
+var ListClusterNetworkCidrsRequest_Top_DEFAULT *base.TopParam
 
-func (p *ListClusterNetworkCidrRequest) GetTop() (v *base.TopParam) {
+func (p *ListClusterNetworkCidrsRequest) GetTop() (v *base.TopParam) {
 	if !p.IsSetTop() {
-		return ListClusterNetworkCidrRequest_Top_DEFAULT
+		return ListClusterNetworkCidrsRequest_Top_DEFAULT
 	}
 	return p.Top
 }
 
-var ListClusterNetworkCidrRequest_Base_DEFAULT *base.Base
+var ListClusterNetworkCidrsRequest_Base_DEFAULT *base.Base
 
-func (p *ListClusterNetworkCidrRequest) GetBase() (v *base.Base) {
+func (p *ListClusterNetworkCidrsRequest) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return ListClusterNetworkCidrRequest_Base_DEFAULT
+		return ListClusterNetworkCidrsRequest_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *ListClusterNetworkCidrRequest) SetVpcId(val string) {
+func (p *ListClusterNetworkCidrsRequest) SetVpcId(val string) {
 	p.VpcId = val
 }
-func (p *ListClusterNetworkCidrRequest) SetTop(val *base.TopParam) {
+func (p *ListClusterNetworkCidrsRequest) SetTop(val *base.TopParam) {
 	p.Top = val
 }
-func (p *ListClusterNetworkCidrRequest) SetBase(val *base.Base) {
+func (p *ListClusterNetworkCidrsRequest) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_ListClusterNetworkCidrRequest = map[int16]string{
+var fieldIDToName_ListClusterNetworkCidrsRequest = map[int16]string{
 	1:   "VpcId",
 	254: "Top",
 	255: "Base",
 }
 
-func (p *ListClusterNetworkCidrRequest) IsSetTop() bool {
+func (p *ListClusterNetworkCidrsRequest) IsSetTop() bool {
 	return p.Top != nil
 }
 
-func (p *ListClusterNetworkCidrRequest) IsSetBase() bool {
+func (p *ListClusterNetworkCidrsRequest) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *ListClusterNetworkCidrRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *ListClusterNetworkCidrsRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -19128,7 +20619,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListClusterNetworkCidrRequest[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListClusterNetworkCidrsRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -19137,10 +20628,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListClusterNetworkCidrRequest[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListClusterNetworkCidrsRequest[fieldId]))
 }
 
-func (p *ListClusterNetworkCidrRequest) ReadField1(iprot thrift.TProtocol) error {
+func (p *ListClusterNetworkCidrsRequest) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -19149,7 +20640,7 @@ func (p *ListClusterNetworkCidrRequest) ReadField1(iprot thrift.TProtocol) error
 	return nil
 }
 
-func (p *ListClusterNetworkCidrRequest) ReadField254(iprot thrift.TProtocol) error {
+func (p *ListClusterNetworkCidrsRequest) ReadField254(iprot thrift.TProtocol) error {
 	p.Top = base.NewTopParam()
 	if err := p.Top.Read(iprot); err != nil {
 		return err
@@ -19157,7 +20648,7 @@ func (p *ListClusterNetworkCidrRequest) ReadField254(iprot thrift.TProtocol) err
 	return nil
 }
 
-func (p *ListClusterNetworkCidrRequest) ReadField255(iprot thrift.TProtocol) error {
+func (p *ListClusterNetworkCidrsRequest) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -19165,9 +20656,9 @@ func (p *ListClusterNetworkCidrRequest) ReadField255(iprot thrift.TProtocol) err
 	return nil
 }
 
-func (p *ListClusterNetworkCidrRequest) Write(oprot thrift.TProtocol) (err error) {
+func (p *ListClusterNetworkCidrsRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListClusterNetworkCidrRequest"); err != nil {
+	if err = oprot.WriteStructBegin("ListClusterNetworkCidrsRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -19202,7 +20693,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ListClusterNetworkCidrRequest) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ListClusterNetworkCidrsRequest) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("VpcId", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -19219,7 +20710,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ListClusterNetworkCidrRequest) writeField254(oprot thrift.TProtocol) (err error) {
+func (p *ListClusterNetworkCidrsRequest) writeField254(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Top", thrift.STRUCT, 254); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -19236,7 +20727,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 254 end error: ", p), err)
 }
 
-func (p *ListClusterNetworkCidrRequest) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *ListClusterNetworkCidrsRequest) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -19255,14 +20746,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *ListClusterNetworkCidrRequest) String() string {
+func (p *ListClusterNetworkCidrsRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ListClusterNetworkCidrRequest(%+v)", *p)
+	return fmt.Sprintf("ListClusterNetworkCidrsRequest(%+v)", *p)
 }
 
-func (p *ListClusterNetworkCidrRequest) DeepEqual(ano *ListClusterNetworkCidrRequest) bool {
+func (p *ListClusterNetworkCidrsRequest) DeepEqual(ano *ListClusterNetworkCidrsRequest) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -19280,21 +20771,21 @@ func (p *ListClusterNetworkCidrRequest) DeepEqual(ano *ListClusterNetworkCidrReq
 	return true
 }
 
-func (p *ListClusterNetworkCidrRequest) Field1DeepEqual(src string) bool {
+func (p *ListClusterNetworkCidrsRequest) Field1DeepEqual(src string) bool {
 
 	if strings.Compare(p.VpcId, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *ListClusterNetworkCidrRequest) Field254DeepEqual(src *base.TopParam) bool {
+func (p *ListClusterNetworkCidrsRequest) Field254DeepEqual(src *base.TopParam) bool {
 
 	if !p.Top.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ListClusterNetworkCidrRequest) Field255DeepEqual(src *base.Base) bool {
+func (p *ListClusterNetworkCidrsRequest) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -19302,44 +20793,44 @@ func (p *ListClusterNetworkCidrRequest) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
-type ListClusterNetworkCidrResponse struct {
-	Items []string   `thrift:"Items,1,required" json:"Items"`
+type ListClusterNetworkCidrsResponse struct {
+	Items []*Address `thrift:"Items,1,required" json:"Items"`
 	Base  *base.Base `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewListClusterNetworkCidrResponse() *ListClusterNetworkCidrResponse {
-	return &ListClusterNetworkCidrResponse{}
+func NewListClusterNetworkCidrsResponse() *ListClusterNetworkCidrsResponse {
+	return &ListClusterNetworkCidrsResponse{}
 }
 
-func (p *ListClusterNetworkCidrResponse) GetItems() (v []string) {
+func (p *ListClusterNetworkCidrsResponse) GetItems() (v []*Address) {
 	return p.Items
 }
 
-var ListClusterNetworkCidrResponse_Base_DEFAULT *base.Base
+var ListClusterNetworkCidrsResponse_Base_DEFAULT *base.Base
 
-func (p *ListClusterNetworkCidrResponse) GetBase() (v *base.Base) {
+func (p *ListClusterNetworkCidrsResponse) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return ListClusterNetworkCidrResponse_Base_DEFAULT
+		return ListClusterNetworkCidrsResponse_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *ListClusterNetworkCidrResponse) SetItems(val []string) {
+func (p *ListClusterNetworkCidrsResponse) SetItems(val []*Address) {
 	p.Items = val
 }
-func (p *ListClusterNetworkCidrResponse) SetBase(val *base.Base) {
+func (p *ListClusterNetworkCidrsResponse) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_ListClusterNetworkCidrResponse = map[int16]string{
+var fieldIDToName_ListClusterNetworkCidrsResponse = map[int16]string{
 	1:   "Items",
 	255: "Base",
 }
 
-func (p *ListClusterNetworkCidrResponse) IsSetBase() bool {
+func (p *ListClusterNetworkCidrsResponse) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *ListClusterNetworkCidrResponse) Read(iprot thrift.TProtocol) (err error) {
+func (p *ListClusterNetworkCidrsResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -19404,7 +20895,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListClusterNetworkCidrResponse[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListClusterNetworkCidrsResponse[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -19413,21 +20904,19 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListClusterNetworkCidrResponse[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListClusterNetworkCidrsResponse[fieldId]))
 }
 
-func (p *ListClusterNetworkCidrResponse) ReadField1(iprot thrift.TProtocol) error {
+func (p *ListClusterNetworkCidrsResponse) ReadField1(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
 	}
-	p.Items = make([]string, 0, size)
+	p.Items = make([]*Address, 0, size)
 	for i := 0; i < size; i++ {
-		var _elem string
-		if v, err := iprot.ReadString(); err != nil {
+		_elem := NewAddress()
+		if err := _elem.Read(iprot); err != nil {
 			return err
-		} else {
-			_elem = v
 		}
 
 		p.Items = append(p.Items, _elem)
@@ -19438,7 +20927,7 @@ func (p *ListClusterNetworkCidrResponse) ReadField1(iprot thrift.TProtocol) erro
 	return nil
 }
 
-func (p *ListClusterNetworkCidrResponse) ReadField255(iprot thrift.TProtocol) error {
+func (p *ListClusterNetworkCidrsResponse) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -19446,9 +20935,9 @@ func (p *ListClusterNetworkCidrResponse) ReadField255(iprot thrift.TProtocol) er
 	return nil
 }
 
-func (p *ListClusterNetworkCidrResponse) Write(oprot thrift.TProtocol) (err error) {
+func (p *ListClusterNetworkCidrsResponse) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListClusterNetworkCidrResponse"); err != nil {
+	if err = oprot.WriteStructBegin("ListClusterNetworkCidrsResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -19479,15 +20968,15 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ListClusterNetworkCidrResponse) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ListClusterNetworkCidrsResponse) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Items", thrift.LIST, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteListBegin(thrift.STRING, len(p.Items)); err != nil {
+	if err := oprot.WriteListBegin(thrift.STRUCT, len(p.Items)); err != nil {
 		return err
 	}
 	for _, v := range p.Items {
-		if err := oprot.WriteString(v); err != nil {
+		if err := v.Write(oprot); err != nil {
 			return err
 		}
 	}
@@ -19504,7 +20993,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ListClusterNetworkCidrResponse) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *ListClusterNetworkCidrsResponse) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -19523,14 +21012,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *ListClusterNetworkCidrResponse) String() string {
+func (p *ListClusterNetworkCidrsResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ListClusterNetworkCidrResponse(%+v)", *p)
+	return fmt.Sprintf("ListClusterNetworkCidrsResponse(%+v)", *p)
 }
 
-func (p *ListClusterNetworkCidrResponse) DeepEqual(ano *ListClusterNetworkCidrResponse) bool {
+func (p *ListClusterNetworkCidrsResponse) DeepEqual(ano *ListClusterNetworkCidrsResponse) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -19545,20 +21034,20 @@ func (p *ListClusterNetworkCidrResponse) DeepEqual(ano *ListClusterNetworkCidrRe
 	return true
 }
 
-func (p *ListClusterNetworkCidrResponse) Field1DeepEqual(src []string) bool {
+func (p *ListClusterNetworkCidrsResponse) Field1DeepEqual(src []*Address) bool {
 
 	if len(p.Items) != len(src) {
 		return false
 	}
 	for i, v := range p.Items {
 		_src := src[i]
-		if strings.Compare(v, _src) != 0 {
+		if !v.DeepEqual(_src) {
 			return false
 		}
 	}
 	return true
 }
-func (p *ListClusterNetworkCidrResponse) Field255DeepEqual(src *base.Base) bool {
+func (p *ListClusterNetworkCidrsResponse) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -19566,53 +21055,53 @@ func (p *ListClusterNetworkCidrResponse) Field255DeepEqual(src *base.Base) bool 
 	return true
 }
 
-type ListSupportGpuModelRequest struct {
+type ListSupportedGpuModelsRequest struct {
 	Top  *base.TopParam `thrift:"Top,254,required" json:"Top"`
 	Base *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewListSupportGpuModelRequest() *ListSupportGpuModelRequest {
-	return &ListSupportGpuModelRequest{}
+func NewListSupportedGpuModelsRequest() *ListSupportedGpuModelsRequest {
+	return &ListSupportedGpuModelsRequest{}
 }
 
-var ListSupportGpuModelRequest_Top_DEFAULT *base.TopParam
+var ListSupportedGpuModelsRequest_Top_DEFAULT *base.TopParam
 
-func (p *ListSupportGpuModelRequest) GetTop() (v *base.TopParam) {
+func (p *ListSupportedGpuModelsRequest) GetTop() (v *base.TopParam) {
 	if !p.IsSetTop() {
-		return ListSupportGpuModelRequest_Top_DEFAULT
+		return ListSupportedGpuModelsRequest_Top_DEFAULT
 	}
 	return p.Top
 }
 
-var ListSupportGpuModelRequest_Base_DEFAULT *base.Base
+var ListSupportedGpuModelsRequest_Base_DEFAULT *base.Base
 
-func (p *ListSupportGpuModelRequest) GetBase() (v *base.Base) {
+func (p *ListSupportedGpuModelsRequest) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return ListSupportGpuModelRequest_Base_DEFAULT
+		return ListSupportedGpuModelsRequest_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *ListSupportGpuModelRequest) SetTop(val *base.TopParam) {
+func (p *ListSupportedGpuModelsRequest) SetTop(val *base.TopParam) {
 	p.Top = val
 }
-func (p *ListSupportGpuModelRequest) SetBase(val *base.Base) {
+func (p *ListSupportedGpuModelsRequest) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_ListSupportGpuModelRequest = map[int16]string{
+var fieldIDToName_ListSupportedGpuModelsRequest = map[int16]string{
 	254: "Top",
 	255: "Base",
 }
 
-func (p *ListSupportGpuModelRequest) IsSetTop() bool {
+func (p *ListSupportedGpuModelsRequest) IsSetTop() bool {
 	return p.Top != nil
 }
 
-func (p *ListSupportGpuModelRequest) IsSetBase() bool {
+func (p *ListSupportedGpuModelsRequest) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *ListSupportGpuModelRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *ListSupportedGpuModelsRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -19677,7 +21166,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListSupportGpuModelRequest[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListSupportedGpuModelsRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -19686,10 +21175,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListSupportGpuModelRequest[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListSupportedGpuModelsRequest[fieldId]))
 }
 
-func (p *ListSupportGpuModelRequest) ReadField254(iprot thrift.TProtocol) error {
+func (p *ListSupportedGpuModelsRequest) ReadField254(iprot thrift.TProtocol) error {
 	p.Top = base.NewTopParam()
 	if err := p.Top.Read(iprot); err != nil {
 		return err
@@ -19697,7 +21186,7 @@ func (p *ListSupportGpuModelRequest) ReadField254(iprot thrift.TProtocol) error 
 	return nil
 }
 
-func (p *ListSupportGpuModelRequest) ReadField255(iprot thrift.TProtocol) error {
+func (p *ListSupportedGpuModelsRequest) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -19705,9 +21194,9 @@ func (p *ListSupportGpuModelRequest) ReadField255(iprot thrift.TProtocol) error 
 	return nil
 }
 
-func (p *ListSupportGpuModelRequest) Write(oprot thrift.TProtocol) (err error) {
+func (p *ListSupportedGpuModelsRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListSupportGpuModelRequest"); err != nil {
+	if err = oprot.WriteStructBegin("ListSupportedGpuModelsRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -19738,7 +21227,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ListSupportGpuModelRequest) writeField254(oprot thrift.TProtocol) (err error) {
+func (p *ListSupportedGpuModelsRequest) writeField254(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Top", thrift.STRUCT, 254); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -19755,7 +21244,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 254 end error: ", p), err)
 }
 
-func (p *ListSupportGpuModelRequest) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *ListSupportedGpuModelsRequest) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -19774,14 +21263,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *ListSupportGpuModelRequest) String() string {
+func (p *ListSupportedGpuModelsRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ListSupportGpuModelRequest(%+v)", *p)
+	return fmt.Sprintf("ListSupportedGpuModelsRequest(%+v)", *p)
 }
 
-func (p *ListSupportGpuModelRequest) DeepEqual(ano *ListSupportGpuModelRequest) bool {
+func (p *ListSupportedGpuModelsRequest) DeepEqual(ano *ListSupportedGpuModelsRequest) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -19796,14 +21285,14 @@ func (p *ListSupportGpuModelRequest) DeepEqual(ano *ListSupportGpuModelRequest) 
 	return true
 }
 
-func (p *ListSupportGpuModelRequest) Field254DeepEqual(src *base.TopParam) bool {
+func (p *ListSupportedGpuModelsRequest) Field254DeepEqual(src *base.TopParam) bool {
 
 	if !p.Top.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ListSupportGpuModelRequest) Field255DeepEqual(src *base.Base) bool {
+func (p *ListSupportedGpuModelsRequest) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -19811,44 +21300,44 @@ func (p *ListSupportGpuModelRequest) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
-type ListSupportGpuModelResponse struct {
+type ListSupportedGpuModelsResponse struct {
 	Items []string   `thrift:"Items,1,required" json:"Items"`
 	Base  *base.Base `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewListSupportGpuModelResponse() *ListSupportGpuModelResponse {
-	return &ListSupportGpuModelResponse{}
+func NewListSupportedGpuModelsResponse() *ListSupportedGpuModelsResponse {
+	return &ListSupportedGpuModelsResponse{}
 }
 
-func (p *ListSupportGpuModelResponse) GetItems() (v []string) {
+func (p *ListSupportedGpuModelsResponse) GetItems() (v []string) {
 	return p.Items
 }
 
-var ListSupportGpuModelResponse_Base_DEFAULT *base.Base
+var ListSupportedGpuModelsResponse_Base_DEFAULT *base.Base
 
-func (p *ListSupportGpuModelResponse) GetBase() (v *base.Base) {
+func (p *ListSupportedGpuModelsResponse) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return ListSupportGpuModelResponse_Base_DEFAULT
+		return ListSupportedGpuModelsResponse_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *ListSupportGpuModelResponse) SetItems(val []string) {
+func (p *ListSupportedGpuModelsResponse) SetItems(val []string) {
 	p.Items = val
 }
-func (p *ListSupportGpuModelResponse) SetBase(val *base.Base) {
+func (p *ListSupportedGpuModelsResponse) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_ListSupportGpuModelResponse = map[int16]string{
+var fieldIDToName_ListSupportedGpuModelsResponse = map[int16]string{
 	1:   "Items",
 	255: "Base",
 }
 
-func (p *ListSupportGpuModelResponse) IsSetBase() bool {
+func (p *ListSupportedGpuModelsResponse) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *ListSupportGpuModelResponse) Read(iprot thrift.TProtocol) (err error) {
+func (p *ListSupportedGpuModelsResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -19913,7 +21402,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListSupportGpuModelResponse[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListSupportedGpuModelsResponse[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -19922,10 +21411,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListSupportGpuModelResponse[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListSupportedGpuModelsResponse[fieldId]))
 }
 
-func (p *ListSupportGpuModelResponse) ReadField1(iprot thrift.TProtocol) error {
+func (p *ListSupportedGpuModelsResponse) ReadField1(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
@@ -19947,7 +21436,7 @@ func (p *ListSupportGpuModelResponse) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListSupportGpuModelResponse) ReadField255(iprot thrift.TProtocol) error {
+func (p *ListSupportedGpuModelsResponse) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -19955,9 +21444,9 @@ func (p *ListSupportGpuModelResponse) ReadField255(iprot thrift.TProtocol) error
 	return nil
 }
 
-func (p *ListSupportGpuModelResponse) Write(oprot thrift.TProtocol) (err error) {
+func (p *ListSupportedGpuModelsResponse) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListSupportGpuModelResponse"); err != nil {
+	if err = oprot.WriteStructBegin("ListSupportedGpuModelsResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -19988,7 +21477,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ListSupportGpuModelResponse) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ListSupportedGpuModelsResponse) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Items", thrift.LIST, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -20013,7 +21502,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ListSupportGpuModelResponse) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *ListSupportedGpuModelsResponse) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -20032,14 +21521,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *ListSupportGpuModelResponse) String() string {
+func (p *ListSupportedGpuModelsResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ListSupportGpuModelResponse(%+v)", *p)
+	return fmt.Sprintf("ListSupportedGpuModelsResponse(%+v)", *p)
 }
 
-func (p *ListSupportGpuModelResponse) DeepEqual(ano *ListSupportGpuModelResponse) bool {
+func (p *ListSupportedGpuModelsResponse) DeepEqual(ano *ListSupportedGpuModelsResponse) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -20054,7 +21543,7 @@ func (p *ListSupportGpuModelResponse) DeepEqual(ano *ListSupportGpuModelResponse
 	return true
 }
 
-func (p *ListSupportGpuModelResponse) Field1DeepEqual(src []string) bool {
+func (p *ListSupportedGpuModelsResponse) Field1DeepEqual(src []string) bool {
 
 	if len(p.Items) != len(src) {
 		return false
@@ -20067,7 +21556,7 @@ func (p *ListSupportGpuModelResponse) Field1DeepEqual(src []string) bool {
 	}
 	return true
 }
-func (p *ListSupportGpuModelResponse) Field255DeepEqual(src *base.Base) bool {
+func (p *ListSupportedGpuModelsResponse) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -20075,120 +21564,512 @@ func (p *ListSupportGpuModelResponse) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
-type ListClusterNodeRequest struct {
-	ClusterId string              `thrift:"ClusterId,1,required" json:"ClusterId"`
-	Start     int32               `thrift:"Start,2" validate:"gte=0"`
-	Limit     int32               `thrift:"Limit,3" json:"Limit,omitempty"`
-	Filters   map[string][]string `thrift:"Filters,4" json:"Filters,omitempty"`
-	Top       *base.TopParam      `thrift:"Top,254,required" json:"Top"`
-	Base      *base.Base          `thrift:"Base,255" json:"Base,omitempty"`
+type ListNodesFilter struct {
+	Ids      []string `thrift:"Ids,1" json:"Ids,omitempty"`
+	Names    []string `thrift:"Names,2" json:"Names,omitempty"`
+	Statuses []string `thrift:"Statuses,3" json:"Statuses,omitempty"`
 }
 
-func NewListClusterNodeRequest() *ListClusterNodeRequest {
-	return &ListClusterNodeRequest{
+func NewListNodesFilter() *ListNodesFilter {
+	return &ListNodesFilter{}
+}
 
-		Start: 0,
-		Limit: 10,
+var ListNodesFilter_Ids_DEFAULT []string
+
+func (p *ListNodesFilter) GetIds() (v []string) {
+	if !p.IsSetIds() {
+		return ListNodesFilter_Ids_DEFAULT
+	}
+	return p.Ids
+}
+
+var ListNodesFilter_Names_DEFAULT []string
+
+func (p *ListNodesFilter) GetNames() (v []string) {
+	if !p.IsSetNames() {
+		return ListNodesFilter_Names_DEFAULT
+	}
+	return p.Names
+}
+
+var ListNodesFilter_Statuses_DEFAULT []string
+
+func (p *ListNodesFilter) GetStatuses() (v []string) {
+	if !p.IsSetStatuses() {
+		return ListNodesFilter_Statuses_DEFAULT
+	}
+	return p.Statuses
+}
+func (p *ListNodesFilter) SetIds(val []string) {
+	p.Ids = val
+}
+func (p *ListNodesFilter) SetNames(val []string) {
+	p.Names = val
+}
+func (p *ListNodesFilter) SetStatuses(val []string) {
+	p.Statuses = val
+}
+
+var fieldIDToName_ListNodesFilter = map[int16]string{
+	1: "Ids",
+	2: "Names",
+	3: "Statuses",
+}
+
+func (p *ListNodesFilter) IsSetIds() bool {
+	return p.Ids != nil
+}
+
+func (p *ListNodesFilter) IsSetNames() bool {
+	return p.Names != nil
+}
+
+func (p *ListNodesFilter) IsSetStatuses() bool {
+	return p.Statuses != nil
+}
+
+func (p *ListNodesFilter) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 2:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 3:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListNodesFilter[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ListNodesFilter) ReadField1(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.Ids = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		p.Ids = append(p.Ids, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ListNodesFilter) ReadField2(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.Names = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		p.Names = append(p.Names, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ListNodesFilter) ReadField3(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.Statuses = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		p.Statuses = append(p.Statuses, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ListNodesFilter) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ListNodesFilter"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ListNodesFilter) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetIds() {
+		if err = oprot.WriteFieldBegin("Ids", thrift.LIST, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRING, len(p.Ids)); err != nil {
+			return err
+		}
+		for _, v := range p.Ids {
+			if err := oprot.WriteString(v); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ListNodesFilter) writeField2(oprot thrift.TProtocol) (err error) {
+	if p.IsSetNames() {
+		if err = oprot.WriteFieldBegin("Names", thrift.LIST, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRING, len(p.Names)); err != nil {
+			return err
+		}
+		for _, v := range p.Names {
+			if err := oprot.WriteString(v); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *ListNodesFilter) writeField3(oprot thrift.TProtocol) (err error) {
+	if p.IsSetStatuses() {
+		if err = oprot.WriteFieldBegin("Statuses", thrift.LIST, 3); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRING, len(p.Statuses)); err != nil {
+			return err
+		}
+		for _, v := range p.Statuses {
+			if err := oprot.WriteString(v); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
+}
+
+func (p *ListNodesFilter) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ListNodesFilter(%+v)", *p)
+}
+
+func (p *ListNodesFilter) DeepEqual(ano *ListNodesFilter) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Ids) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.Names) {
+		return false
+	}
+	if !p.Field3DeepEqual(ano.Statuses) {
+		return false
+	}
+	return true
+}
+
+func (p *ListNodesFilter) Field1DeepEqual(src []string) bool {
+
+	if len(p.Ids) != len(src) {
+		return false
+	}
+	for i, v := range p.Ids {
+		_src := src[i]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
+	}
+	return true
+}
+func (p *ListNodesFilter) Field2DeepEqual(src []string) bool {
+
+	if len(p.Names) != len(src) {
+		return false
+	}
+	for i, v := range p.Names {
+		_src := src[i]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
+	}
+	return true
+}
+func (p *ListNodesFilter) Field3DeepEqual(src []string) bool {
+
+	if len(p.Statuses) != len(src) {
+		return false
+	}
+	for i, v := range p.Statuses {
+		_src := src[i]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
+	}
+	return true
+}
+
+type ListNodesRequest struct {
+	ClusterId  string           `thrift:"ClusterId,1,required" json:"ClusterId"`
+	PageNumber int32            `thrift:"PageNumber,2" json:"PageNumber" default:"1"`
+	PageSize   int32            `thrift:"PageSize,3" json:"PageSize" default:"100"`
+	Filter     *ListNodesFilter `thrift:"Filter,4" json:"Filter,omitempty"`
+	Top        *base.TopParam   `thrift:"Top,254,required" json:"Top"`
+	Base       *base.Base       `thrift:"Base,255" json:"Base,omitempty"`
+}
+
+func NewListNodesRequest() *ListNodesRequest {
+	return &ListNodesRequest{
+
+		PageNumber: 1,
+		PageSize:   100,
 	}
 }
 
-func (p *ListClusterNodeRequest) GetClusterId() (v string) {
+func (p *ListNodesRequest) GetClusterId() (v string) {
 	return p.ClusterId
 }
 
-var ListClusterNodeRequest_Start_DEFAULT int32 = 0
+var ListNodesRequest_PageNumber_DEFAULT int32 = 1
 
-func (p *ListClusterNodeRequest) GetStart() (v int32) {
-	if !p.IsSetStart() {
-		return ListClusterNodeRequest_Start_DEFAULT
+func (p *ListNodesRequest) GetPageNumber() (v int32) {
+	if !p.IsSetPageNumber() {
+		return ListNodesRequest_PageNumber_DEFAULT
 	}
-	return p.Start
+	return p.PageNumber
 }
 
-var ListClusterNodeRequest_Limit_DEFAULT int32 = 10
+var ListNodesRequest_PageSize_DEFAULT int32 = 100
 
-func (p *ListClusterNodeRequest) GetLimit() (v int32) {
-	if !p.IsSetLimit() {
-		return ListClusterNodeRequest_Limit_DEFAULT
+func (p *ListNodesRequest) GetPageSize() (v int32) {
+	if !p.IsSetPageSize() {
+		return ListNodesRequest_PageSize_DEFAULT
 	}
-	return p.Limit
+	return p.PageSize
 }
 
-var ListClusterNodeRequest_Filters_DEFAULT map[string][]string
+var ListNodesRequest_Filter_DEFAULT *ListNodesFilter
 
-func (p *ListClusterNodeRequest) GetFilters() (v map[string][]string) {
-	if !p.IsSetFilters() {
-		return ListClusterNodeRequest_Filters_DEFAULT
+func (p *ListNodesRequest) GetFilter() (v *ListNodesFilter) {
+	if !p.IsSetFilter() {
+		return ListNodesRequest_Filter_DEFAULT
 	}
-	return p.Filters
+	return p.Filter
 }
 
-var ListClusterNodeRequest_Top_DEFAULT *base.TopParam
+var ListNodesRequest_Top_DEFAULT *base.TopParam
 
-func (p *ListClusterNodeRequest) GetTop() (v *base.TopParam) {
+func (p *ListNodesRequest) GetTop() (v *base.TopParam) {
 	if !p.IsSetTop() {
-		return ListClusterNodeRequest_Top_DEFAULT
+		return ListNodesRequest_Top_DEFAULT
 	}
 	return p.Top
 }
 
-var ListClusterNodeRequest_Base_DEFAULT *base.Base
+var ListNodesRequest_Base_DEFAULT *base.Base
 
-func (p *ListClusterNodeRequest) GetBase() (v *base.Base) {
+func (p *ListNodesRequest) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return ListClusterNodeRequest_Base_DEFAULT
+		return ListNodesRequest_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *ListClusterNodeRequest) SetClusterId(val string) {
+func (p *ListNodesRequest) SetClusterId(val string) {
 	p.ClusterId = val
 }
-func (p *ListClusterNodeRequest) SetStart(val int32) {
-	p.Start = val
+func (p *ListNodesRequest) SetPageNumber(val int32) {
+	p.PageNumber = val
 }
-func (p *ListClusterNodeRequest) SetLimit(val int32) {
-	p.Limit = val
+func (p *ListNodesRequest) SetPageSize(val int32) {
+	p.PageSize = val
 }
-func (p *ListClusterNodeRequest) SetFilters(val map[string][]string) {
-	p.Filters = val
+func (p *ListNodesRequest) SetFilter(val *ListNodesFilter) {
+	p.Filter = val
 }
-func (p *ListClusterNodeRequest) SetTop(val *base.TopParam) {
+func (p *ListNodesRequest) SetTop(val *base.TopParam) {
 	p.Top = val
 }
-func (p *ListClusterNodeRequest) SetBase(val *base.Base) {
+func (p *ListNodesRequest) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_ListClusterNodeRequest = map[int16]string{
+var fieldIDToName_ListNodesRequest = map[int16]string{
 	1:   "ClusterId",
-	2:   "Start",
-	3:   "Limit",
-	4:   "Filters",
+	2:   "PageNumber",
+	3:   "PageSize",
+	4:   "Filter",
 	254: "Top",
 	255: "Base",
 }
 
-func (p *ListClusterNodeRequest) IsSetStart() bool {
-	return p.Start != ListClusterNodeRequest_Start_DEFAULT
+func (p *ListNodesRequest) IsSetPageNumber() bool {
+	return p.PageNumber != ListNodesRequest_PageNumber_DEFAULT
 }
 
-func (p *ListClusterNodeRequest) IsSetLimit() bool {
-	return p.Limit != ListClusterNodeRequest_Limit_DEFAULT
+func (p *ListNodesRequest) IsSetPageSize() bool {
+	return p.PageSize != ListNodesRequest_PageSize_DEFAULT
 }
 
-func (p *ListClusterNodeRequest) IsSetFilters() bool {
-	return p.Filters != nil
+func (p *ListNodesRequest) IsSetFilter() bool {
+	return p.Filter != nil
 }
 
-func (p *ListClusterNodeRequest) IsSetTop() bool {
+func (p *ListNodesRequest) IsSetTop() bool {
 	return p.Top != nil
 }
 
-func (p *ListClusterNodeRequest) IsSetBase() bool {
+func (p *ListNodesRequest) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *ListClusterNodeRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *ListNodesRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -20241,7 +22122,7 @@ func (p *ListClusterNodeRequest) Read(iprot thrift.TProtocol) (err error) {
 				}
 			}
 		case 4:
-			if fieldTypeId == thrift.MAP {
+			if fieldTypeId == thrift.STRUCT {
 				if err = p.ReadField4(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -20300,7 +22181,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListClusterNodeRequest[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListNodesRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -20309,10 +22190,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListClusterNodeRequest[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListNodesRequest[fieldId]))
 }
 
-func (p *ListClusterNodeRequest) ReadField1(iprot thrift.TProtocol) error {
+func (p *ListNodesRequest) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -20321,66 +22202,33 @@ func (p *ListClusterNodeRequest) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListClusterNodeRequest) ReadField2(iprot thrift.TProtocol) error {
+func (p *ListNodesRequest) ReadField2(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
-		p.Start = v
+		p.PageNumber = v
 	}
 	return nil
 }
 
-func (p *ListClusterNodeRequest) ReadField3(iprot thrift.TProtocol) error {
+func (p *ListNodesRequest) ReadField3(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
-		p.Limit = v
+		p.PageSize = v
 	}
 	return nil
 }
 
-func (p *ListClusterNodeRequest) ReadField4(iprot thrift.TProtocol) error {
-	_, _, size, err := iprot.ReadMapBegin()
-	if err != nil {
-		return err
-	}
-	p.Filters = make(map[string][]string, size)
-	for i := 0; i < size; i++ {
-		var _key string
-		if v, err := iprot.ReadString(); err != nil {
-			return err
-		} else {
-			_key = v
-		}
-
-		_, size, err := iprot.ReadListBegin()
-		if err != nil {
-			return err
-		}
-		_val := make([]string, 0, size)
-		for i := 0; i < size; i++ {
-			var _elem string
-			if v, err := iprot.ReadString(); err != nil {
-				return err
-			} else {
-				_elem = v
-			}
-
-			_val = append(_val, _elem)
-		}
-		if err := iprot.ReadListEnd(); err != nil {
-			return err
-		}
-
-		p.Filters[_key] = _val
-	}
-	if err := iprot.ReadMapEnd(); err != nil {
+func (p *ListNodesRequest) ReadField4(iprot thrift.TProtocol) error {
+	p.Filter = NewListNodesFilter()
+	if err := p.Filter.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ListClusterNodeRequest) ReadField254(iprot thrift.TProtocol) error {
+func (p *ListNodesRequest) ReadField254(iprot thrift.TProtocol) error {
 	p.Top = base.NewTopParam()
 	if err := p.Top.Read(iprot); err != nil {
 		return err
@@ -20388,7 +22236,7 @@ func (p *ListClusterNodeRequest) ReadField254(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListClusterNodeRequest) ReadField255(iprot thrift.TProtocol) error {
+func (p *ListNodesRequest) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -20396,9 +22244,9 @@ func (p *ListClusterNodeRequest) ReadField255(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListClusterNodeRequest) Write(oprot thrift.TProtocol) (err error) {
+func (p *ListNodesRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListClusterNodeRequest"); err != nil {
+	if err = oprot.WriteStructBegin("ListNodesRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -20445,7 +22293,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ListClusterNodeRequest) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ListNodesRequest) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("ClusterId", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -20462,12 +22310,12 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ListClusterNodeRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if p.IsSetStart() {
-		if err = oprot.WriteFieldBegin("Start", thrift.I32, 2); err != nil {
+func (p *ListNodesRequest) writeField2(oprot thrift.TProtocol) (err error) {
+	if p.IsSetPageNumber() {
+		if err = oprot.WriteFieldBegin("PageNumber", thrift.I32, 2); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteI32(p.Start); err != nil {
+		if err := oprot.WriteI32(p.PageNumber); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -20481,12 +22329,12 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *ListClusterNodeRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if p.IsSetLimit() {
-		if err = oprot.WriteFieldBegin("Limit", thrift.I32, 3); err != nil {
+func (p *ListNodesRequest) writeField3(oprot thrift.TProtocol) (err error) {
+	if p.IsSetPageSize() {
+		if err = oprot.WriteFieldBegin("PageSize", thrift.I32, 3); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteI32(p.Limit); err != nil {
+		if err := oprot.WriteI32(p.PageSize); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -20500,33 +22348,12 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
-func (p *ListClusterNodeRequest) writeField4(oprot thrift.TProtocol) (err error) {
-	if p.IsSetFilters() {
-		if err = oprot.WriteFieldBegin("Filters", thrift.MAP, 4); err != nil {
+func (p *ListNodesRequest) writeField4(oprot thrift.TProtocol) (err error) {
+	if p.IsSetFilter() {
+		if err = oprot.WriteFieldBegin("Filter", thrift.STRUCT, 4); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteMapBegin(thrift.STRING, thrift.LIST, len(p.Filters)); err != nil {
-			return err
-		}
-		for k, v := range p.Filters {
-
-			if err := oprot.WriteString(k); err != nil {
-				return err
-			}
-
-			if err := oprot.WriteListBegin(thrift.STRING, len(v)); err != nil {
-				return err
-			}
-			for _, v := range v {
-				if err := oprot.WriteString(v); err != nil {
-					return err
-				}
-			}
-			if err := oprot.WriteListEnd(); err != nil {
-				return err
-			}
-		}
-		if err := oprot.WriteMapEnd(); err != nil {
+		if err := p.Filter.Write(oprot); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -20540,7 +22367,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
 }
 
-func (p *ListClusterNodeRequest) writeField254(oprot thrift.TProtocol) (err error) {
+func (p *ListNodesRequest) writeField254(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Top", thrift.STRUCT, 254); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -20557,7 +22384,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 254 end error: ", p), err)
 }
 
-func (p *ListClusterNodeRequest) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *ListNodesRequest) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -20576,14 +22403,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *ListClusterNodeRequest) String() string {
+func (p *ListNodesRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ListClusterNodeRequest(%+v)", *p)
+	return fmt.Sprintf("ListNodesRequest(%+v)", *p)
 }
 
-func (p *ListClusterNodeRequest) DeepEqual(ano *ListClusterNodeRequest) bool {
+func (p *ListNodesRequest) DeepEqual(ano *ListNodesRequest) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -20592,13 +22419,13 @@ func (p *ListClusterNodeRequest) DeepEqual(ano *ListClusterNodeRequest) bool {
 	if !p.Field1DeepEqual(ano.ClusterId) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.Start) {
+	if !p.Field2DeepEqual(ano.PageNumber) {
 		return false
 	}
-	if !p.Field3DeepEqual(ano.Limit) {
+	if !p.Field3DeepEqual(ano.PageSize) {
 		return false
 	}
-	if !p.Field4DeepEqual(ano.Filters) {
+	if !p.Field4DeepEqual(ano.Filter) {
 		return false
 	}
 	if !p.Field254DeepEqual(ano.Top) {
@@ -20610,54 +22437,42 @@ func (p *ListClusterNodeRequest) DeepEqual(ano *ListClusterNodeRequest) bool {
 	return true
 }
 
-func (p *ListClusterNodeRequest) Field1DeepEqual(src string) bool {
+func (p *ListNodesRequest) Field1DeepEqual(src string) bool {
 
 	if strings.Compare(p.ClusterId, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *ListClusterNodeRequest) Field2DeepEqual(src int32) bool {
+func (p *ListNodesRequest) Field2DeepEqual(src int32) bool {
 
-	if p.Start != src {
+	if p.PageNumber != src {
 		return false
 	}
 	return true
 }
-func (p *ListClusterNodeRequest) Field3DeepEqual(src int32) bool {
+func (p *ListNodesRequest) Field3DeepEqual(src int32) bool {
 
-	if p.Limit != src {
+	if p.PageSize != src {
 		return false
 	}
 	return true
 }
-func (p *ListClusterNodeRequest) Field4DeepEqual(src map[string][]string) bool {
+func (p *ListNodesRequest) Field4DeepEqual(src *ListNodesFilter) bool {
 
-	if len(p.Filters) != len(src) {
+	if !p.Filter.DeepEqual(src) {
 		return false
-	}
-	for k, v := range p.Filters {
-		_src := src[k]
-		if len(v) != len(_src) {
-			return false
-		}
-		for i, v := range v {
-			_src1 := _src[i]
-			if strings.Compare(v, _src1) != 0 {
-				return false
-			}
-		}
 	}
 	return true
 }
-func (p *ListClusterNodeRequest) Field254DeepEqual(src *base.TopParam) bool {
+func (p *ListNodesRequest) Field254DeepEqual(src *base.TopParam) bool {
 
 	if !p.Top.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ListClusterNodeRequest) Field255DeepEqual(src *base.Base) bool {
+func (p *ListNodesRequest) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -20672,7 +22487,7 @@ type ClusterNodeItem struct {
 	Role               string              `thrift:"Role,4,required" json:"Role"`
 	NodePoolId         string              `thrift:"NodePoolId,5,required" json:"NodePoolId"`
 	NodePoolName       string              `thrift:"NodePoolName,6,required" json:"NodePoolName"`
-	Specific           *NodeSpecific       `thrift:"Specific,7,required" json:"Specific"`
+	InstanceType       *InstanceType       `thrift:"InstanceType,7,required" json:"InstanceType"`
 	ResourceStatistics *ResourceStatistics `thrift:"ResourceStatistics,8,required" json:"ResourceStatistics"`
 	Zone               *iaas.Zone          `thrift:"Zone,9,required" json:"Zone"`
 	Instance           *iaas.Instance      `thrift:"Instance,10,required" json:"Instance"`
@@ -20680,7 +22495,8 @@ type ClusterNodeItem struct {
 	PrivateAddress     string              `thrift:"PrivateAddress,12,required" json:"PrivateAddress"`
 	ChargeType         string              `thrift:"ChargeType,13,required" json:"ChargeType"`
 	Status             string              `thrift:"Status,14,required" json:"Status"`
-	ErrorMessage       *string             `thrift:"ErrorMessage,15" json:"ErrorMessage,omitempty"`
+	ErrorMessage       string              `thrift:"ErrorMessage,15,required" json:"ErrorMessage"`
+	Type               string              `thrift:"Type,16,required" json:"Type"`
 }
 
 func NewClusterNodeItem() *ClusterNodeItem {
@@ -20719,13 +22535,13 @@ func (p *ClusterNodeItem) GetNodePoolName() (v string) {
 	return p.NodePoolName
 }
 
-var ClusterNodeItem_Specific_DEFAULT *NodeSpecific
+var ClusterNodeItem_InstanceType_DEFAULT *InstanceType
 
-func (p *ClusterNodeItem) GetSpecific() (v *NodeSpecific) {
-	if !p.IsSetSpecific() {
-		return ClusterNodeItem_Specific_DEFAULT
+func (p *ClusterNodeItem) GetInstanceType() (v *InstanceType) {
+	if !p.IsSetInstanceType() {
+		return ClusterNodeItem_InstanceType_DEFAULT
 	}
-	return p.Specific
+	return p.InstanceType
 }
 
 var ClusterNodeItem_ResourceStatistics_DEFAULT *ResourceStatistics
@@ -20771,13 +22587,12 @@ func (p *ClusterNodeItem) GetStatus() (v string) {
 	return p.Status
 }
 
-var ClusterNodeItem_ErrorMessage_DEFAULT string
-
 func (p *ClusterNodeItem) GetErrorMessage() (v string) {
-	if !p.IsSetErrorMessage() {
-		return ClusterNodeItem_ErrorMessage_DEFAULT
-	}
-	return *p.ErrorMessage
+	return p.ErrorMessage
+}
+
+func (p *ClusterNodeItem) GetType() (v string) {
+	return p.Type
 }
 func (p *ClusterNodeItem) SetId(val string) {
 	p.Id = val
@@ -20797,8 +22612,8 @@ func (p *ClusterNodeItem) SetNodePoolId(val string) {
 func (p *ClusterNodeItem) SetNodePoolName(val string) {
 	p.NodePoolName = val
 }
-func (p *ClusterNodeItem) SetSpecific(val *NodeSpecific) {
-	p.Specific = val
+func (p *ClusterNodeItem) SetInstanceType(val *InstanceType) {
+	p.InstanceType = val
 }
 func (p *ClusterNodeItem) SetResourceStatistics(val *ResourceStatistics) {
 	p.ResourceStatistics = val
@@ -20821,8 +22636,11 @@ func (p *ClusterNodeItem) SetChargeType(val string) {
 func (p *ClusterNodeItem) SetStatus(val string) {
 	p.Status = val
 }
-func (p *ClusterNodeItem) SetErrorMessage(val *string) {
+func (p *ClusterNodeItem) SetErrorMessage(val string) {
 	p.ErrorMessage = val
+}
+func (p *ClusterNodeItem) SetType(val string) {
+	p.Type = val
 }
 
 var fieldIDToName_ClusterNodeItem = map[int16]string{
@@ -20832,7 +22650,7 @@ var fieldIDToName_ClusterNodeItem = map[int16]string{
 	4:  "Role",
 	5:  "NodePoolId",
 	6:  "NodePoolName",
-	7:  "Specific",
+	7:  "InstanceType",
 	8:  "ResourceStatistics",
 	9:  "Zone",
 	10: "Instance",
@@ -20841,14 +22659,15 @@ var fieldIDToName_ClusterNodeItem = map[int16]string{
 	13: "ChargeType",
 	14: "Status",
 	15: "ErrorMessage",
+	16: "Type",
 }
 
 func (p *ClusterNodeItem) IsSetNodeName() bool {
 	return p.NodeName != ClusterNodeItem_NodeName_DEFAULT
 }
 
-func (p *ClusterNodeItem) IsSetSpecific() bool {
-	return p.Specific != nil
+func (p *ClusterNodeItem) IsSetInstanceType() bool {
+	return p.InstanceType != nil
 }
 
 func (p *ClusterNodeItem) IsSetResourceStatistics() bool {
@@ -20863,10 +22682,6 @@ func (p *ClusterNodeItem) IsSetInstance() bool {
 	return p.Instance != nil
 }
 
-func (p *ClusterNodeItem) IsSetErrorMessage() bool {
-	return p.ErrorMessage != nil
-}
-
 func (p *ClusterNodeItem) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
@@ -20876,7 +22691,7 @@ func (p *ClusterNodeItem) Read(iprot thrift.TProtocol) (err error) {
 	var issetRole bool = false
 	var issetNodePoolId bool = false
 	var issetNodePoolName bool = false
-	var issetSpecific bool = false
+	var issetInstanceType bool = false
 	var issetResourceStatistics bool = false
 	var issetZone bool = false
 	var issetInstance bool = false
@@ -20884,6 +22699,8 @@ func (p *ClusterNodeItem) Read(iprot thrift.TProtocol) (err error) {
 	var issetPrivateAddress bool = false
 	var issetChargeType bool = false
 	var issetStatus bool = false
+	var issetErrorMessage bool = false
+	var issetType bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -20969,7 +22786,7 @@ func (p *ClusterNodeItem) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField7(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetSpecific = true
+				issetInstanceType = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -21057,6 +22874,18 @@ func (p *ClusterNodeItem) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField15(iprot); err != nil {
 					goto ReadFieldError
 				}
+				issetErrorMessage = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 16:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField16(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetType = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -21101,7 +22930,7 @@ func (p *ClusterNodeItem) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetSpecific {
+	if !issetInstanceType {
 		fieldId = 7
 		goto RequiredFieldNotSetError
 	}
@@ -21138,6 +22967,16 @@ func (p *ClusterNodeItem) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetStatus {
 		fieldId = 14
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetErrorMessage {
+		fieldId = 15
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetType {
+		fieldId = 16
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -21213,8 +23052,8 @@ func (p *ClusterNodeItem) ReadField6(iprot thrift.TProtocol) error {
 }
 
 func (p *ClusterNodeItem) ReadField7(iprot thrift.TProtocol) error {
-	p.Specific = NewNodeSpecific()
-	if err := p.Specific.Read(iprot); err != nil {
+	p.InstanceType = NewInstanceType()
+	if err := p.InstanceType.Read(iprot); err != nil {
 		return err
 	}
 	return nil
@@ -21284,7 +23123,16 @@ func (p *ClusterNodeItem) ReadField15(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.ErrorMessage = &v
+		p.ErrorMessage = v
+	}
+	return nil
+}
+
+func (p *ClusterNodeItem) ReadField16(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.Type = v
 	}
 	return nil
 }
@@ -21353,6 +23201,10 @@ func (p *ClusterNodeItem) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField15(oprot); err != nil {
 			fieldId = 15
+			goto WriteFieldError
+		}
+		if err = p.writeField16(oprot); err != nil {
+			fieldId = 16
 			goto WriteFieldError
 		}
 
@@ -21479,10 +23331,10 @@ WriteFieldEndError:
 }
 
 func (p *ClusterNodeItem) writeField7(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("Specific", thrift.STRUCT, 7); err != nil {
+	if err = oprot.WriteFieldBegin("InstanceType", thrift.STRUCT, 7); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := p.Specific.Write(oprot); err != nil {
+	if err := p.InstanceType.Write(oprot); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -21615,22 +23467,37 @@ WriteFieldEndError:
 }
 
 func (p *ClusterNodeItem) writeField15(oprot thrift.TProtocol) (err error) {
-	if p.IsSetErrorMessage() {
-		if err = oprot.WriteFieldBegin("ErrorMessage", thrift.STRING, 15); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.ErrorMessage); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("ErrorMessage", thrift.STRING, 15); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.ErrorMessage); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 15 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 15 end error: ", p), err)
+}
+
+func (p *ClusterNodeItem) writeField16(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("Type", thrift.STRING, 16); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Type); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 16 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 16 end error: ", p), err)
 }
 
 func (p *ClusterNodeItem) String() string {
@@ -21664,7 +23531,7 @@ func (p *ClusterNodeItem) DeepEqual(ano *ClusterNodeItem) bool {
 	if !p.Field6DeepEqual(ano.NodePoolName) {
 		return false
 	}
-	if !p.Field7DeepEqual(ano.Specific) {
+	if !p.Field7DeepEqual(ano.InstanceType) {
 		return false
 	}
 	if !p.Field8DeepEqual(ano.ResourceStatistics) {
@@ -21689,6 +23556,9 @@ func (p *ClusterNodeItem) DeepEqual(ano *ClusterNodeItem) bool {
 		return false
 	}
 	if !p.Field15DeepEqual(ano.ErrorMessage) {
+		return false
+	}
+	if !p.Field16DeepEqual(ano.Type) {
 		return false
 	}
 	return true
@@ -21736,9 +23606,9 @@ func (p *ClusterNodeItem) Field6DeepEqual(src string) bool {
 	}
 	return true
 }
-func (p *ClusterNodeItem) Field7DeepEqual(src *NodeSpecific) bool {
+func (p *ClusterNodeItem) Field7DeepEqual(src *InstanceType) bool {
 
-	if !p.Specific.DeepEqual(src) {
+	if !p.InstanceType.DeepEqual(src) {
 		return false
 	}
 	return true
@@ -21792,66 +23662,68 @@ func (p *ClusterNodeItem) Field14DeepEqual(src string) bool {
 	}
 	return true
 }
-func (p *ClusterNodeItem) Field15DeepEqual(src *string) bool {
+func (p *ClusterNodeItem) Field15DeepEqual(src string) bool {
 
-	if p.ErrorMessage == src {
-		return true
-	} else if p.ErrorMessage == nil || src == nil {
+	if strings.Compare(p.ErrorMessage, src) != 0 {
 		return false
 	}
-	if strings.Compare(*p.ErrorMessage, *src) != 0 {
+	return true
+}
+func (p *ClusterNodeItem) Field16DeepEqual(src string) bool {
+
+	if strings.Compare(p.Type, src) != 0 {
 		return false
 	}
 	return true
 }
 
-type ListClusterNodeResponse struct {
+type ListNodesResponse struct {
 	Items []*ClusterNodeItem `thrift:"Items,1,required" json:"Items"`
 	Total int32              `thrift:"Total,2,required" json:"Total"`
 	Base  *base.Base         `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewListClusterNodeResponse() *ListClusterNodeResponse {
-	return &ListClusterNodeResponse{}
+func NewListNodesResponse() *ListNodesResponse {
+	return &ListNodesResponse{}
 }
 
-func (p *ListClusterNodeResponse) GetItems() (v []*ClusterNodeItem) {
+func (p *ListNodesResponse) GetItems() (v []*ClusterNodeItem) {
 	return p.Items
 }
 
-func (p *ListClusterNodeResponse) GetTotal() (v int32) {
+func (p *ListNodesResponse) GetTotal() (v int32) {
 	return p.Total
 }
 
-var ListClusterNodeResponse_Base_DEFAULT *base.Base
+var ListNodesResponse_Base_DEFAULT *base.Base
 
-func (p *ListClusterNodeResponse) GetBase() (v *base.Base) {
+func (p *ListNodesResponse) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return ListClusterNodeResponse_Base_DEFAULT
+		return ListNodesResponse_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *ListClusterNodeResponse) SetItems(val []*ClusterNodeItem) {
+func (p *ListNodesResponse) SetItems(val []*ClusterNodeItem) {
 	p.Items = val
 }
-func (p *ListClusterNodeResponse) SetTotal(val int32) {
+func (p *ListNodesResponse) SetTotal(val int32) {
 	p.Total = val
 }
-func (p *ListClusterNodeResponse) SetBase(val *base.Base) {
+func (p *ListNodesResponse) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_ListClusterNodeResponse = map[int16]string{
+var fieldIDToName_ListNodesResponse = map[int16]string{
 	1:   "Items",
 	2:   "Total",
 	255: "Base",
 }
 
-func (p *ListClusterNodeResponse) IsSetBase() bool {
+func (p *ListNodesResponse) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *ListClusterNodeResponse) Read(iprot thrift.TProtocol) (err error) {
+func (p *ListNodesResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -21933,7 +23805,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListClusterNodeResponse[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListNodesResponse[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -21942,10 +23814,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListClusterNodeResponse[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListNodesResponse[fieldId]))
 }
 
-func (p *ListClusterNodeResponse) ReadField1(iprot thrift.TProtocol) error {
+func (p *ListNodesResponse) ReadField1(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
@@ -21965,7 +23837,7 @@ func (p *ListClusterNodeResponse) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListClusterNodeResponse) ReadField2(iprot thrift.TProtocol) error {
+func (p *ListNodesResponse) ReadField2(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
@@ -21974,7 +23846,7 @@ func (p *ListClusterNodeResponse) ReadField2(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListClusterNodeResponse) ReadField255(iprot thrift.TProtocol) error {
+func (p *ListNodesResponse) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -21982,9 +23854,9 @@ func (p *ListClusterNodeResponse) ReadField255(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListClusterNodeResponse) Write(oprot thrift.TProtocol) (err error) {
+func (p *ListNodesResponse) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListClusterNodeResponse"); err != nil {
+	if err = oprot.WriteStructBegin("ListNodesResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -22019,7 +23891,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ListClusterNodeResponse) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ListNodesResponse) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Items", thrift.LIST, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -22044,7 +23916,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ListClusterNodeResponse) writeField2(oprot thrift.TProtocol) (err error) {
+func (p *ListNodesResponse) writeField2(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Total", thrift.I32, 2); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -22061,7 +23933,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *ListClusterNodeResponse) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *ListNodesResponse) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -22080,14 +23952,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *ListClusterNodeResponse) String() string {
+func (p *ListNodesResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ListClusterNodeResponse(%+v)", *p)
+	return fmt.Sprintf("ListNodesResponse(%+v)", *p)
 }
 
-func (p *ListClusterNodeResponse) DeepEqual(ano *ListClusterNodeResponse) bool {
+func (p *ListNodesResponse) DeepEqual(ano *ListNodesResponse) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -22105,7 +23977,7 @@ func (p *ListClusterNodeResponse) DeepEqual(ano *ListClusterNodeResponse) bool {
 	return true
 }
 
-func (p *ListClusterNodeResponse) Field1DeepEqual(src []*ClusterNodeItem) bool {
+func (p *ListNodesResponse) Field1DeepEqual(src []*ClusterNodeItem) bool {
 
 	if len(p.Items) != len(src) {
 		return false
@@ -22118,14 +23990,14 @@ func (p *ListClusterNodeResponse) Field1DeepEqual(src []*ClusterNodeItem) bool {
 	}
 	return true
 }
-func (p *ListClusterNodeResponse) Field2DeepEqual(src int32) bool {
+func (p *ListNodesResponse) Field2DeepEqual(src int32) bool {
 
 	if p.Total != src {
 		return false
 	}
 	return true
 }
-func (p *ListClusterNodeResponse) Field255DeepEqual(src *base.Base) bool {
+func (p *ListNodesResponse) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -22133,80 +24005,80 @@ func (p *ListClusterNodeResponse) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
-type AddClusterNodeRequest struct {
+type AddNodesRequest struct {
 	ClusterId  string             `thrift:"ClusterId,1,required" validate:"required"`
 	NodeConfig *ClusterNodeConfig `thrift:"NodeConfig,2,required" validate:"required"`
 	Top        *base.TopParam     `thrift:"Top,254,required" json:"Top"`
 	Base       *base.Base         `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewAddClusterNodeRequest() *AddClusterNodeRequest {
-	return &AddClusterNodeRequest{}
+func NewAddNodesRequest() *AddNodesRequest {
+	return &AddNodesRequest{}
 }
 
-func (p *AddClusterNodeRequest) GetClusterId() (v string) {
+func (p *AddNodesRequest) GetClusterId() (v string) {
 	return p.ClusterId
 }
 
-var AddClusterNodeRequest_NodeConfig_DEFAULT *ClusterNodeConfig
+var AddNodesRequest_NodeConfig_DEFAULT *ClusterNodeConfig
 
-func (p *AddClusterNodeRequest) GetNodeConfig() (v *ClusterNodeConfig) {
+func (p *AddNodesRequest) GetNodeConfig() (v *ClusterNodeConfig) {
 	if !p.IsSetNodeConfig() {
-		return AddClusterNodeRequest_NodeConfig_DEFAULT
+		return AddNodesRequest_NodeConfig_DEFAULT
 	}
 	return p.NodeConfig
 }
 
-var AddClusterNodeRequest_Top_DEFAULT *base.TopParam
+var AddNodesRequest_Top_DEFAULT *base.TopParam
 
-func (p *AddClusterNodeRequest) GetTop() (v *base.TopParam) {
+func (p *AddNodesRequest) GetTop() (v *base.TopParam) {
 	if !p.IsSetTop() {
-		return AddClusterNodeRequest_Top_DEFAULT
+		return AddNodesRequest_Top_DEFAULT
 	}
 	return p.Top
 }
 
-var AddClusterNodeRequest_Base_DEFAULT *base.Base
+var AddNodesRequest_Base_DEFAULT *base.Base
 
-func (p *AddClusterNodeRequest) GetBase() (v *base.Base) {
+func (p *AddNodesRequest) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return AddClusterNodeRequest_Base_DEFAULT
+		return AddNodesRequest_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *AddClusterNodeRequest) SetClusterId(val string) {
+func (p *AddNodesRequest) SetClusterId(val string) {
 	p.ClusterId = val
 }
-func (p *AddClusterNodeRequest) SetNodeConfig(val *ClusterNodeConfig) {
+func (p *AddNodesRequest) SetNodeConfig(val *ClusterNodeConfig) {
 	p.NodeConfig = val
 }
-func (p *AddClusterNodeRequest) SetTop(val *base.TopParam) {
+func (p *AddNodesRequest) SetTop(val *base.TopParam) {
 	p.Top = val
 }
-func (p *AddClusterNodeRequest) SetBase(val *base.Base) {
+func (p *AddNodesRequest) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_AddClusterNodeRequest = map[int16]string{
+var fieldIDToName_AddNodesRequest = map[int16]string{
 	1:   "ClusterId",
 	2:   "NodeConfig",
 	254: "Top",
 	255: "Base",
 }
 
-func (p *AddClusterNodeRequest) IsSetNodeConfig() bool {
+func (p *AddNodesRequest) IsSetNodeConfig() bool {
 	return p.NodeConfig != nil
 }
 
-func (p *AddClusterNodeRequest) IsSetTop() bool {
+func (p *AddNodesRequest) IsSetTop() bool {
 	return p.Top != nil
 }
 
-func (p *AddClusterNodeRequest) IsSetBase() bool {
+func (p *AddNodesRequest) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *AddClusterNodeRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *AddNodesRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -22305,7 +24177,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_AddClusterNodeRequest[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_AddNodesRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -22314,10 +24186,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_AddClusterNodeRequest[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_AddNodesRequest[fieldId]))
 }
 
-func (p *AddClusterNodeRequest) ReadField1(iprot thrift.TProtocol) error {
+func (p *AddNodesRequest) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -22326,7 +24198,7 @@ func (p *AddClusterNodeRequest) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *AddClusterNodeRequest) ReadField2(iprot thrift.TProtocol) error {
+func (p *AddNodesRequest) ReadField2(iprot thrift.TProtocol) error {
 	p.NodeConfig = NewClusterNodeConfig()
 	if err := p.NodeConfig.Read(iprot); err != nil {
 		return err
@@ -22334,7 +24206,7 @@ func (p *AddClusterNodeRequest) ReadField2(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *AddClusterNodeRequest) ReadField254(iprot thrift.TProtocol) error {
+func (p *AddNodesRequest) ReadField254(iprot thrift.TProtocol) error {
 	p.Top = base.NewTopParam()
 	if err := p.Top.Read(iprot); err != nil {
 		return err
@@ -22342,7 +24214,7 @@ func (p *AddClusterNodeRequest) ReadField254(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *AddClusterNodeRequest) ReadField255(iprot thrift.TProtocol) error {
+func (p *AddNodesRequest) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -22350,9 +24222,9 @@ func (p *AddClusterNodeRequest) ReadField255(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *AddClusterNodeRequest) Write(oprot thrift.TProtocol) (err error) {
+func (p *AddNodesRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("AddClusterNodeRequest"); err != nil {
+	if err = oprot.WriteStructBegin("AddNodesRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -22391,7 +24263,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *AddClusterNodeRequest) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *AddNodesRequest) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("ClusterId", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -22408,7 +24280,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *AddClusterNodeRequest) writeField2(oprot thrift.TProtocol) (err error) {
+func (p *AddNodesRequest) writeField2(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("NodeConfig", thrift.STRUCT, 2); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -22425,7 +24297,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *AddClusterNodeRequest) writeField254(oprot thrift.TProtocol) (err error) {
+func (p *AddNodesRequest) writeField254(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Top", thrift.STRUCT, 254); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -22442,7 +24314,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 254 end error: ", p), err)
 }
 
-func (p *AddClusterNodeRequest) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *AddNodesRequest) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -22461,14 +24333,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *AddClusterNodeRequest) String() string {
+func (p *AddNodesRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("AddClusterNodeRequest(%+v)", *p)
+	return fmt.Sprintf("AddNodesRequest(%+v)", *p)
 }
 
-func (p *AddClusterNodeRequest) DeepEqual(ano *AddClusterNodeRequest) bool {
+func (p *AddNodesRequest) DeepEqual(ano *AddNodesRequest) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -22489,28 +24361,28 @@ func (p *AddClusterNodeRequest) DeepEqual(ano *AddClusterNodeRequest) bool {
 	return true
 }
 
-func (p *AddClusterNodeRequest) Field1DeepEqual(src string) bool {
+func (p *AddNodesRequest) Field1DeepEqual(src string) bool {
 
 	if strings.Compare(p.ClusterId, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *AddClusterNodeRequest) Field2DeepEqual(src *ClusterNodeConfig) bool {
+func (p *AddNodesRequest) Field2DeepEqual(src *ClusterNodeConfig) bool {
 
 	if !p.NodeConfig.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *AddClusterNodeRequest) Field254DeepEqual(src *base.TopParam) bool {
+func (p *AddNodesRequest) Field254DeepEqual(src *base.TopParam) bool {
 
 	if !p.Top.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *AddClusterNodeRequest) Field255DeepEqual(src *base.Base) bool {
+func (p *AddNodesRequest) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -22518,44 +24390,44 @@ func (p *AddClusterNodeRequest) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
-type AddClusterNodeResponse struct {
+type AddNodesResponse struct {
 	Ids  []string   `thrift:"Ids,1,required" validate:"required"`
 	Base *base.Base `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewAddClusterNodeResponse() *AddClusterNodeResponse {
-	return &AddClusterNodeResponse{}
+func NewAddNodesResponse() *AddNodesResponse {
+	return &AddNodesResponse{}
 }
 
-func (p *AddClusterNodeResponse) GetIds() (v []string) {
+func (p *AddNodesResponse) GetIds() (v []string) {
 	return p.Ids
 }
 
-var AddClusterNodeResponse_Base_DEFAULT *base.Base
+var AddNodesResponse_Base_DEFAULT *base.Base
 
-func (p *AddClusterNodeResponse) GetBase() (v *base.Base) {
+func (p *AddNodesResponse) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return AddClusterNodeResponse_Base_DEFAULT
+		return AddNodesResponse_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *AddClusterNodeResponse) SetIds(val []string) {
+func (p *AddNodesResponse) SetIds(val []string) {
 	p.Ids = val
 }
-func (p *AddClusterNodeResponse) SetBase(val *base.Base) {
+func (p *AddNodesResponse) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_AddClusterNodeResponse = map[int16]string{
+var fieldIDToName_AddNodesResponse = map[int16]string{
 	1:   "Ids",
 	255: "Base",
 }
 
-func (p *AddClusterNodeResponse) IsSetBase() bool {
+func (p *AddNodesResponse) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *AddClusterNodeResponse) Read(iprot thrift.TProtocol) (err error) {
+func (p *AddNodesResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -22620,7 +24492,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_AddClusterNodeResponse[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_AddNodesResponse[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -22629,10 +24501,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_AddClusterNodeResponse[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_AddNodesResponse[fieldId]))
 }
 
-func (p *AddClusterNodeResponse) ReadField1(iprot thrift.TProtocol) error {
+func (p *AddNodesResponse) ReadField1(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
@@ -22654,7 +24526,7 @@ func (p *AddClusterNodeResponse) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *AddClusterNodeResponse) ReadField255(iprot thrift.TProtocol) error {
+func (p *AddNodesResponse) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -22662,9 +24534,9 @@ func (p *AddClusterNodeResponse) ReadField255(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *AddClusterNodeResponse) Write(oprot thrift.TProtocol) (err error) {
+func (p *AddNodesResponse) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("AddClusterNodeResponse"); err != nil {
+	if err = oprot.WriteStructBegin("AddNodesResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -22695,7 +24567,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *AddClusterNodeResponse) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *AddNodesResponse) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Ids", thrift.LIST, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -22720,7 +24592,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *AddClusterNodeResponse) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *AddNodesResponse) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -22739,14 +24611,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *AddClusterNodeResponse) String() string {
+func (p *AddNodesResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("AddClusterNodeResponse(%+v)", *p)
+	return fmt.Sprintf("AddNodesResponse(%+v)", *p)
 }
 
-func (p *AddClusterNodeResponse) DeepEqual(ano *AddClusterNodeResponse) bool {
+func (p *AddNodesResponse) DeepEqual(ano *AddNodesResponse) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -22761,7 +24633,7 @@ func (p *AddClusterNodeResponse) DeepEqual(ano *AddClusterNodeResponse) bool {
 	return true
 }
 
-func (p *AddClusterNodeResponse) Field1DeepEqual(src []string) bool {
+func (p *AddNodesResponse) Field1DeepEqual(src []string) bool {
 
 	if len(p.Ids) != len(src) {
 		return false
@@ -22774,7 +24646,7 @@ func (p *AddClusterNodeResponse) Field1DeepEqual(src []string) bool {
 	}
 	return true
 }
-func (p *AddClusterNodeResponse) Field255DeepEqual(src *base.Base) bool {
+func (p *AddNodesResponse) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -22782,7 +24654,7 @@ func (p *AddClusterNodeResponse) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
-type GetClusterNodeRequest struct {
+type GetNodeRequest struct {
 	ClusterId string         `thrift:"ClusterId,1,required" validate:"required"`
 	Id        *string        `thrift:"Id,2" json:"Id,omitempty"`
 	NodeIp    *string        `thrift:"NodeIp,3" json:"NodeIp,omitempty"`
@@ -22790,66 +24662,66 @@ type GetClusterNodeRequest struct {
 	Base      *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewGetClusterNodeRequest() *GetClusterNodeRequest {
-	return &GetClusterNodeRequest{}
+func NewGetNodeRequest() *GetNodeRequest {
+	return &GetNodeRequest{}
 }
 
-func (p *GetClusterNodeRequest) GetClusterId() (v string) {
+func (p *GetNodeRequest) GetClusterId() (v string) {
 	return p.ClusterId
 }
 
-var GetClusterNodeRequest_Id_DEFAULT string
+var GetNodeRequest_Id_DEFAULT string
 
-func (p *GetClusterNodeRequest) GetId() (v string) {
+func (p *GetNodeRequest) GetId() (v string) {
 	if !p.IsSetId() {
-		return GetClusterNodeRequest_Id_DEFAULT
+		return GetNodeRequest_Id_DEFAULT
 	}
 	return *p.Id
 }
 
-var GetClusterNodeRequest_NodeIp_DEFAULT string
+var GetNodeRequest_NodeIp_DEFAULT string
 
-func (p *GetClusterNodeRequest) GetNodeIp() (v string) {
+func (p *GetNodeRequest) GetNodeIp() (v string) {
 	if !p.IsSetNodeIp() {
-		return GetClusterNodeRequest_NodeIp_DEFAULT
+		return GetNodeRequest_NodeIp_DEFAULT
 	}
 	return *p.NodeIp
 }
 
-var GetClusterNodeRequest_Top_DEFAULT *base.TopParam
+var GetNodeRequest_Top_DEFAULT *base.TopParam
 
-func (p *GetClusterNodeRequest) GetTop() (v *base.TopParam) {
+func (p *GetNodeRequest) GetTop() (v *base.TopParam) {
 	if !p.IsSetTop() {
-		return GetClusterNodeRequest_Top_DEFAULT
+		return GetNodeRequest_Top_DEFAULT
 	}
 	return p.Top
 }
 
-var GetClusterNodeRequest_Base_DEFAULT *base.Base
+var GetNodeRequest_Base_DEFAULT *base.Base
 
-func (p *GetClusterNodeRequest) GetBase() (v *base.Base) {
+func (p *GetNodeRequest) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return GetClusterNodeRequest_Base_DEFAULT
+		return GetNodeRequest_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *GetClusterNodeRequest) SetClusterId(val string) {
+func (p *GetNodeRequest) SetClusterId(val string) {
 	p.ClusterId = val
 }
-func (p *GetClusterNodeRequest) SetId(val *string) {
+func (p *GetNodeRequest) SetId(val *string) {
 	p.Id = val
 }
-func (p *GetClusterNodeRequest) SetNodeIp(val *string) {
+func (p *GetNodeRequest) SetNodeIp(val *string) {
 	p.NodeIp = val
 }
-func (p *GetClusterNodeRequest) SetTop(val *base.TopParam) {
+func (p *GetNodeRequest) SetTop(val *base.TopParam) {
 	p.Top = val
 }
-func (p *GetClusterNodeRequest) SetBase(val *base.Base) {
+func (p *GetNodeRequest) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_GetClusterNodeRequest = map[int16]string{
+var fieldIDToName_GetNodeRequest = map[int16]string{
 	1:   "ClusterId",
 	2:   "Id",
 	3:   "NodeIp",
@@ -22857,23 +24729,23 @@ var fieldIDToName_GetClusterNodeRequest = map[int16]string{
 	255: "Base",
 }
 
-func (p *GetClusterNodeRequest) IsSetId() bool {
+func (p *GetNodeRequest) IsSetId() bool {
 	return p.Id != nil
 }
 
-func (p *GetClusterNodeRequest) IsSetNodeIp() bool {
+func (p *GetNodeRequest) IsSetNodeIp() bool {
 	return p.NodeIp != nil
 }
 
-func (p *GetClusterNodeRequest) IsSetTop() bool {
+func (p *GetNodeRequest) IsSetTop() bool {
 	return p.Top != nil
 }
 
-func (p *GetClusterNodeRequest) IsSetBase() bool {
+func (p *GetNodeRequest) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *GetClusterNodeRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *GetNodeRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -22975,7 +24847,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_GetClusterNodeRequest[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_GetNodeRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -22984,10 +24856,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_GetClusterNodeRequest[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_GetNodeRequest[fieldId]))
 }
 
-func (p *GetClusterNodeRequest) ReadField1(iprot thrift.TProtocol) error {
+func (p *GetNodeRequest) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -22996,7 +24868,7 @@ func (p *GetClusterNodeRequest) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetClusterNodeRequest) ReadField2(iprot thrift.TProtocol) error {
+func (p *GetNodeRequest) ReadField2(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -23005,7 +24877,7 @@ func (p *GetClusterNodeRequest) ReadField2(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetClusterNodeRequest) ReadField3(iprot thrift.TProtocol) error {
+func (p *GetNodeRequest) ReadField3(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -23014,7 +24886,7 @@ func (p *GetClusterNodeRequest) ReadField3(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetClusterNodeRequest) ReadField254(iprot thrift.TProtocol) error {
+func (p *GetNodeRequest) ReadField254(iprot thrift.TProtocol) error {
 	p.Top = base.NewTopParam()
 	if err := p.Top.Read(iprot); err != nil {
 		return err
@@ -23022,7 +24894,7 @@ func (p *GetClusterNodeRequest) ReadField254(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetClusterNodeRequest) ReadField255(iprot thrift.TProtocol) error {
+func (p *GetNodeRequest) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -23030,9 +24902,9 @@ func (p *GetClusterNodeRequest) ReadField255(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetClusterNodeRequest) Write(oprot thrift.TProtocol) (err error) {
+func (p *GetNodeRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("GetClusterNodeRequest"); err != nil {
+	if err = oprot.WriteStructBegin("GetNodeRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -23075,7 +24947,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *GetClusterNodeRequest) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *GetNodeRequest) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("ClusterId", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -23092,7 +24964,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *GetClusterNodeRequest) writeField2(oprot thrift.TProtocol) (err error) {
+func (p *GetNodeRequest) writeField2(oprot thrift.TProtocol) (err error) {
 	if p.IsSetId() {
 		if err = oprot.WriteFieldBegin("Id", thrift.STRING, 2); err != nil {
 			goto WriteFieldBeginError
@@ -23111,7 +24983,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *GetClusterNodeRequest) writeField3(oprot thrift.TProtocol) (err error) {
+func (p *GetNodeRequest) writeField3(oprot thrift.TProtocol) (err error) {
 	if p.IsSetNodeIp() {
 		if err = oprot.WriteFieldBegin("NodeIp", thrift.STRING, 3); err != nil {
 			goto WriteFieldBeginError
@@ -23130,7 +25002,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
-func (p *GetClusterNodeRequest) writeField254(oprot thrift.TProtocol) (err error) {
+func (p *GetNodeRequest) writeField254(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Top", thrift.STRUCT, 254); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -23147,7 +25019,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 254 end error: ", p), err)
 }
 
-func (p *GetClusterNodeRequest) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *GetNodeRequest) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -23166,14 +25038,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *GetClusterNodeRequest) String() string {
+func (p *GetNodeRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("GetClusterNodeRequest(%+v)", *p)
+	return fmt.Sprintf("GetNodeRequest(%+v)", *p)
 }
 
-func (p *GetClusterNodeRequest) DeepEqual(ano *GetClusterNodeRequest) bool {
+func (p *GetNodeRequest) DeepEqual(ano *GetNodeRequest) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -23197,14 +25069,14 @@ func (p *GetClusterNodeRequest) DeepEqual(ano *GetClusterNodeRequest) bool {
 	return true
 }
 
-func (p *GetClusterNodeRequest) Field1DeepEqual(src string) bool {
+func (p *GetNodeRequest) Field1DeepEqual(src string) bool {
 
 	if strings.Compare(p.ClusterId, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GetClusterNodeRequest) Field2DeepEqual(src *string) bool {
+func (p *GetNodeRequest) Field2DeepEqual(src *string) bool {
 
 	if p.Id == src {
 		return true
@@ -23216,7 +25088,7 @@ func (p *GetClusterNodeRequest) Field2DeepEqual(src *string) bool {
 	}
 	return true
 }
-func (p *GetClusterNodeRequest) Field3DeepEqual(src *string) bool {
+func (p *GetNodeRequest) Field3DeepEqual(src *string) bool {
 
 	if p.NodeIp == src {
 		return true
@@ -23228,14 +25100,14 @@ func (p *GetClusterNodeRequest) Field3DeepEqual(src *string) bool {
 	}
 	return true
 }
-func (p *GetClusterNodeRequest) Field254DeepEqual(src *base.TopParam) bool {
+func (p *GetNodeRequest) Field254DeepEqual(src *base.TopParam) bool {
 
 	if !p.Top.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *GetClusterNodeRequest) Field255DeepEqual(src *base.Base) bool {
+func (p *GetNodeRequest) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -24335,7 +26207,7 @@ func (p *GetClusterNodeResource) Field15DeepEqual(src string) bool {
 	return true
 }
 
-type GetClusterNodeResponse struct {
+type GetNodeResponse struct {
 	Id             string                  `thrift:"Id,1,required" json:"Id"`
 	Name           string                  `thrift:"Name,2,required" json:"Name"`
 	NodeName       string                  `thrift:"NodeName,3" json:"NodeName,omitempty"`
@@ -24345,7 +26217,7 @@ type GetClusterNodeResponse struct {
 	Zone           *iaas.Zone              `thrift:"Zone,7,required" json:"Zone"`
 	Subnet         *iaas.Subnet            `thrift:"Subnet,8,required" json:"Subnet"`
 	Instance       *iaas.Instance          `thrift:"Instance,9,required" json:"Instance"`
-	Specific       *NodeSpecific           `thrift:"Specific,10,required" json:"Specific"`
+	InstanceType   *InstanceType           `thrift:"InstanceType,10,required" json:"InstanceType"`
 	ChargeType     string                  `thrift:"ChargeType,11,required" json:"ChargeType"`
 	SecurityGroups []*iaas.SecurityGroup   `thrift:"SecurityGroups,12,required" json:"SecurityGroups"`
 	Resource       *GetClusterNodeResource `thrift:"Resource,13,required" json:"Resource"`
@@ -24358,228 +26230,236 @@ type GetClusterNodeResponse struct {
 	Taints         []*helper.Taint         `thrift:"Taints,20,required" json:"Taints"`
 	Status         string                  `thrift:"Status,21,required" json:"Status"`
 	ErrorMessage   *string                 `thrift:"ErrorMessage,22" json:"ErrorMessage,omitempty"`
+	Type           string                  `thrift:"Type,23,required" json:"Type"`
 	Base           *base.Base              `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewGetClusterNodeResponse() *GetClusterNodeResponse {
-	return &GetClusterNodeResponse{
+func NewGetNodeResponse() *GetNodeResponse {
+	return &GetNodeResponse{
 
 		NodeName: "",
 	}
 }
 
-func (p *GetClusterNodeResponse) GetId() (v string) {
+func (p *GetNodeResponse) GetId() (v string) {
 	return p.Id
 }
 
-func (p *GetClusterNodeResponse) GetName() (v string) {
+func (p *GetNodeResponse) GetName() (v string) {
 	return p.Name
 }
 
-var GetClusterNodeResponse_NodeName_DEFAULT string = ""
+var GetNodeResponse_NodeName_DEFAULT string = ""
 
-func (p *GetClusterNodeResponse) GetNodeName() (v string) {
+func (p *GetNodeResponse) GetNodeName() (v string) {
 	if !p.IsSetNodeName() {
-		return GetClusterNodeResponse_NodeName_DEFAULT
+		return GetNodeResponse_NodeName_DEFAULT
 	}
 	return p.NodeName
 }
 
-func (p *GetClusterNodeResponse) GetNodePoolId() (v string) {
+func (p *GetNodeResponse) GetNodePoolId() (v string) {
 	return p.NodePoolId
 }
 
-func (p *GetClusterNodeResponse) GetNodePoolName() (v string) {
+func (p *GetNodeResponse) GetNodePoolName() (v string) {
 	return p.NodePoolName
 }
 
-func (p *GetClusterNodeResponse) GetRole() (v string) {
+func (p *GetNodeResponse) GetRole() (v string) {
 	return p.Role
 }
 
-var GetClusterNodeResponse_Zone_DEFAULT *iaas.Zone
+var GetNodeResponse_Zone_DEFAULT *iaas.Zone
 
-func (p *GetClusterNodeResponse) GetZone() (v *iaas.Zone) {
+func (p *GetNodeResponse) GetZone() (v *iaas.Zone) {
 	if !p.IsSetZone() {
-		return GetClusterNodeResponse_Zone_DEFAULT
+		return GetNodeResponse_Zone_DEFAULT
 	}
 	return p.Zone
 }
 
-var GetClusterNodeResponse_Subnet_DEFAULT *iaas.Subnet
+var GetNodeResponse_Subnet_DEFAULT *iaas.Subnet
 
-func (p *GetClusterNodeResponse) GetSubnet() (v *iaas.Subnet) {
+func (p *GetNodeResponse) GetSubnet() (v *iaas.Subnet) {
 	if !p.IsSetSubnet() {
-		return GetClusterNodeResponse_Subnet_DEFAULT
+		return GetNodeResponse_Subnet_DEFAULT
 	}
 	return p.Subnet
 }
 
-var GetClusterNodeResponse_Instance_DEFAULT *iaas.Instance
+var GetNodeResponse_Instance_DEFAULT *iaas.Instance
 
-func (p *GetClusterNodeResponse) GetInstance() (v *iaas.Instance) {
+func (p *GetNodeResponse) GetInstance() (v *iaas.Instance) {
 	if !p.IsSetInstance() {
-		return GetClusterNodeResponse_Instance_DEFAULT
+		return GetNodeResponse_Instance_DEFAULT
 	}
 	return p.Instance
 }
 
-var GetClusterNodeResponse_Specific_DEFAULT *NodeSpecific
+var GetNodeResponse_InstanceType_DEFAULT *InstanceType
 
-func (p *GetClusterNodeResponse) GetSpecific() (v *NodeSpecific) {
-	if !p.IsSetSpecific() {
-		return GetClusterNodeResponse_Specific_DEFAULT
+func (p *GetNodeResponse) GetInstanceType() (v *InstanceType) {
+	if !p.IsSetInstanceType() {
+		return GetNodeResponse_InstanceType_DEFAULT
 	}
-	return p.Specific
+	return p.InstanceType
 }
 
-func (p *GetClusterNodeResponse) GetChargeType() (v string) {
+func (p *GetNodeResponse) GetChargeType() (v string) {
 	return p.ChargeType
 }
 
-func (p *GetClusterNodeResponse) GetSecurityGroups() (v []*iaas.SecurityGroup) {
+func (p *GetNodeResponse) GetSecurityGroups() (v []*iaas.SecurityGroup) {
 	return p.SecurityGroups
 }
 
-var GetClusterNodeResponse_Resource_DEFAULT *GetClusterNodeResource
+var GetNodeResponse_Resource_DEFAULT *GetClusterNodeResource
 
-func (p *GetClusterNodeResponse) GetResource() (v *GetClusterNodeResource) {
+func (p *GetNodeResponse) GetResource() (v *GetClusterNodeResource) {
 	if !p.IsSetResource() {
-		return GetClusterNodeResponse_Resource_DEFAULT
+		return GetNodeResponse_Resource_DEFAULT
 	}
 	return p.Resource
 }
 
-var GetClusterNodeResponse_System_DEFAULT *iaas.Image
+var GetNodeResponse_System_DEFAULT *iaas.Image
 
-func (p *GetClusterNodeResponse) GetSystem() (v *iaas.Image) {
+func (p *GetNodeResponse) GetSystem() (v *iaas.Image) {
 	if !p.IsSetSystem() {
-		return GetClusterNodeResponse_System_DEFAULT
+		return GetNodeResponse_System_DEFAULT
 	}
 	return p.System
 }
 
-var GetClusterNodeResponse_Kubernetes_DEFAULT *Kubernetes
+var GetNodeResponse_Kubernetes_DEFAULT *Kubernetes
 
-func (p *GetClusterNodeResponse) GetKubernetes() (v *Kubernetes) {
+func (p *GetNodeResponse) GetKubernetes() (v *Kubernetes) {
 	if !p.IsSetKubernetes() {
-		return GetClusterNodeResponse_Kubernetes_DEFAULT
+		return GetNodeResponse_Kubernetes_DEFAULT
 	}
 	return p.Kubernetes
 }
 
-func (p *GetClusterNodeResponse) GetCreateTime() (v string) {
+func (p *GetNodeResponse) GetCreateTime() (v string) {
 	return p.CreateTime
 }
 
-func (p *GetClusterNodeResponse) GetPublicAddress() (v string) {
+func (p *GetNodeResponse) GetPublicAddress() (v string) {
 	return p.PublicAddress
 }
 
-func (p *GetClusterNodeResponse) GetPrivateAddress() (v string) {
+func (p *GetNodeResponse) GetPrivateAddress() (v string) {
 	return p.PrivateAddress
 }
 
-func (p *GetClusterNodeResponse) GetLabels() (v []*helper.Label) {
+func (p *GetNodeResponse) GetLabels() (v []*helper.Label) {
 	return p.Labels
 }
 
-func (p *GetClusterNodeResponse) GetTaints() (v []*helper.Taint) {
+func (p *GetNodeResponse) GetTaints() (v []*helper.Taint) {
 	return p.Taints
 }
 
-func (p *GetClusterNodeResponse) GetStatus() (v string) {
+func (p *GetNodeResponse) GetStatus() (v string) {
 	return p.Status
 }
 
-var GetClusterNodeResponse_ErrorMessage_DEFAULT string
+var GetNodeResponse_ErrorMessage_DEFAULT string
 
-func (p *GetClusterNodeResponse) GetErrorMessage() (v string) {
+func (p *GetNodeResponse) GetErrorMessage() (v string) {
 	if !p.IsSetErrorMessage() {
-		return GetClusterNodeResponse_ErrorMessage_DEFAULT
+		return GetNodeResponse_ErrorMessage_DEFAULT
 	}
 	return *p.ErrorMessage
 }
 
-var GetClusterNodeResponse_Base_DEFAULT *base.Base
+func (p *GetNodeResponse) GetType() (v string) {
+	return p.Type
+}
 
-func (p *GetClusterNodeResponse) GetBase() (v *base.Base) {
+var GetNodeResponse_Base_DEFAULT *base.Base
+
+func (p *GetNodeResponse) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return GetClusterNodeResponse_Base_DEFAULT
+		return GetNodeResponse_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *GetClusterNodeResponse) SetId(val string) {
+func (p *GetNodeResponse) SetId(val string) {
 	p.Id = val
 }
-func (p *GetClusterNodeResponse) SetName(val string) {
+func (p *GetNodeResponse) SetName(val string) {
 	p.Name = val
 }
-func (p *GetClusterNodeResponse) SetNodeName(val string) {
+func (p *GetNodeResponse) SetNodeName(val string) {
 	p.NodeName = val
 }
-func (p *GetClusterNodeResponse) SetNodePoolId(val string) {
+func (p *GetNodeResponse) SetNodePoolId(val string) {
 	p.NodePoolId = val
 }
-func (p *GetClusterNodeResponse) SetNodePoolName(val string) {
+func (p *GetNodeResponse) SetNodePoolName(val string) {
 	p.NodePoolName = val
 }
-func (p *GetClusterNodeResponse) SetRole(val string) {
+func (p *GetNodeResponse) SetRole(val string) {
 	p.Role = val
 }
-func (p *GetClusterNodeResponse) SetZone(val *iaas.Zone) {
+func (p *GetNodeResponse) SetZone(val *iaas.Zone) {
 	p.Zone = val
 }
-func (p *GetClusterNodeResponse) SetSubnet(val *iaas.Subnet) {
+func (p *GetNodeResponse) SetSubnet(val *iaas.Subnet) {
 	p.Subnet = val
 }
-func (p *GetClusterNodeResponse) SetInstance(val *iaas.Instance) {
+func (p *GetNodeResponse) SetInstance(val *iaas.Instance) {
 	p.Instance = val
 }
-func (p *GetClusterNodeResponse) SetSpecific(val *NodeSpecific) {
-	p.Specific = val
+func (p *GetNodeResponse) SetInstanceType(val *InstanceType) {
+	p.InstanceType = val
 }
-func (p *GetClusterNodeResponse) SetChargeType(val string) {
+func (p *GetNodeResponse) SetChargeType(val string) {
 	p.ChargeType = val
 }
-func (p *GetClusterNodeResponse) SetSecurityGroups(val []*iaas.SecurityGroup) {
+func (p *GetNodeResponse) SetSecurityGroups(val []*iaas.SecurityGroup) {
 	p.SecurityGroups = val
 }
-func (p *GetClusterNodeResponse) SetResource(val *GetClusterNodeResource) {
+func (p *GetNodeResponse) SetResource(val *GetClusterNodeResource) {
 	p.Resource = val
 }
-func (p *GetClusterNodeResponse) SetSystem(val *iaas.Image) {
+func (p *GetNodeResponse) SetSystem(val *iaas.Image) {
 	p.System = val
 }
-func (p *GetClusterNodeResponse) SetKubernetes(val *Kubernetes) {
+func (p *GetNodeResponse) SetKubernetes(val *Kubernetes) {
 	p.Kubernetes = val
 }
-func (p *GetClusterNodeResponse) SetCreateTime(val string) {
+func (p *GetNodeResponse) SetCreateTime(val string) {
 	p.CreateTime = val
 }
-func (p *GetClusterNodeResponse) SetPublicAddress(val string) {
+func (p *GetNodeResponse) SetPublicAddress(val string) {
 	p.PublicAddress = val
 }
-func (p *GetClusterNodeResponse) SetPrivateAddress(val string) {
+func (p *GetNodeResponse) SetPrivateAddress(val string) {
 	p.PrivateAddress = val
 }
-func (p *GetClusterNodeResponse) SetLabels(val []*helper.Label) {
+func (p *GetNodeResponse) SetLabels(val []*helper.Label) {
 	p.Labels = val
 }
-func (p *GetClusterNodeResponse) SetTaints(val []*helper.Taint) {
+func (p *GetNodeResponse) SetTaints(val []*helper.Taint) {
 	p.Taints = val
 }
-func (p *GetClusterNodeResponse) SetStatus(val string) {
+func (p *GetNodeResponse) SetStatus(val string) {
 	p.Status = val
 }
-func (p *GetClusterNodeResponse) SetErrorMessage(val *string) {
+func (p *GetNodeResponse) SetErrorMessage(val *string) {
 	p.ErrorMessage = val
 }
-func (p *GetClusterNodeResponse) SetBase(val *base.Base) {
+func (p *GetNodeResponse) SetType(val string) {
+	p.Type = val
+}
+func (p *GetNodeResponse) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_GetClusterNodeResponse = map[int16]string{
+var fieldIDToName_GetNodeResponse = map[int16]string{
 	1:   "Id",
 	2:   "Name",
 	3:   "NodeName",
@@ -24589,7 +26469,7 @@ var fieldIDToName_GetClusterNodeResponse = map[int16]string{
 	7:   "Zone",
 	8:   "Subnet",
 	9:   "Instance",
-	10:  "Specific",
+	10:  "InstanceType",
 	11:  "ChargeType",
 	12:  "SecurityGroups",
 	13:  "Resource",
@@ -24602,50 +26482,51 @@ var fieldIDToName_GetClusterNodeResponse = map[int16]string{
 	20:  "Taints",
 	21:  "Status",
 	22:  "ErrorMessage",
+	23:  "Type",
 	255: "Base",
 }
 
-func (p *GetClusterNodeResponse) IsSetNodeName() bool {
-	return p.NodeName != GetClusterNodeResponse_NodeName_DEFAULT
+func (p *GetNodeResponse) IsSetNodeName() bool {
+	return p.NodeName != GetNodeResponse_NodeName_DEFAULT
 }
 
-func (p *GetClusterNodeResponse) IsSetZone() bool {
+func (p *GetNodeResponse) IsSetZone() bool {
 	return p.Zone != nil
 }
 
-func (p *GetClusterNodeResponse) IsSetSubnet() bool {
+func (p *GetNodeResponse) IsSetSubnet() bool {
 	return p.Subnet != nil
 }
 
-func (p *GetClusterNodeResponse) IsSetInstance() bool {
+func (p *GetNodeResponse) IsSetInstance() bool {
 	return p.Instance != nil
 }
 
-func (p *GetClusterNodeResponse) IsSetSpecific() bool {
-	return p.Specific != nil
+func (p *GetNodeResponse) IsSetInstanceType() bool {
+	return p.InstanceType != nil
 }
 
-func (p *GetClusterNodeResponse) IsSetResource() bool {
+func (p *GetNodeResponse) IsSetResource() bool {
 	return p.Resource != nil
 }
 
-func (p *GetClusterNodeResponse) IsSetSystem() bool {
+func (p *GetNodeResponse) IsSetSystem() bool {
 	return p.System != nil
 }
 
-func (p *GetClusterNodeResponse) IsSetKubernetes() bool {
+func (p *GetNodeResponse) IsSetKubernetes() bool {
 	return p.Kubernetes != nil
 }
 
-func (p *GetClusterNodeResponse) IsSetErrorMessage() bool {
+func (p *GetNodeResponse) IsSetErrorMessage() bool {
 	return p.ErrorMessage != nil
 }
 
-func (p *GetClusterNodeResponse) IsSetBase() bool {
+func (p *GetNodeResponse) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *GetClusterNodeResponse) Read(iprot thrift.TProtocol) (err error) {
+func (p *GetNodeResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -24657,7 +26538,7 @@ func (p *GetClusterNodeResponse) Read(iprot thrift.TProtocol) (err error) {
 	var issetZone bool = false
 	var issetSubnet bool = false
 	var issetInstance bool = false
-	var issetSpecific bool = false
+	var issetInstanceType bool = false
 	var issetChargeType bool = false
 	var issetSecurityGroups bool = false
 	var issetResource bool = false
@@ -24669,6 +26550,7 @@ func (p *GetClusterNodeResponse) Read(iprot thrift.TProtocol) (err error) {
 	var issetLabels bool = false
 	var issetTaints bool = false
 	var issetStatus bool = false
+	var issetType bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -24787,7 +26669,7 @@ func (p *GetClusterNodeResponse) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField10(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetSpecific = true
+				issetInstanceType = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -24924,6 +26806,17 @@ func (p *GetClusterNodeResponse) Read(iprot thrift.TProtocol) (err error) {
 					goto SkipFieldError
 				}
 			}
+		case 23:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField23(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetType = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
 		case 255:
 			if fieldTypeId == thrift.STRUCT {
 				if err = p.ReadField255(iprot); err != nil {
@@ -24988,7 +26881,7 @@ func (p *GetClusterNodeResponse) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetSpecific {
+	if !issetInstanceType {
 		fieldId = 10
 		goto RequiredFieldNotSetError
 	}
@@ -25047,13 +26940,18 @@ func (p *GetClusterNodeResponse) Read(iprot thrift.TProtocol) (err error) {
 		fieldId = 21
 		goto RequiredFieldNotSetError
 	}
+
+	if !issetType {
+		fieldId = 23
+		goto RequiredFieldNotSetError
+	}
 	return nil
 ReadStructBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_GetClusterNodeResponse[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_GetNodeResponse[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -25062,10 +26960,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_GetClusterNodeResponse[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_GetNodeResponse[fieldId]))
 }
 
-func (p *GetClusterNodeResponse) ReadField1(iprot thrift.TProtocol) error {
+func (p *GetNodeResponse) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -25074,7 +26972,7 @@ func (p *GetClusterNodeResponse) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetClusterNodeResponse) ReadField2(iprot thrift.TProtocol) error {
+func (p *GetNodeResponse) ReadField2(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -25083,7 +26981,7 @@ func (p *GetClusterNodeResponse) ReadField2(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetClusterNodeResponse) ReadField3(iprot thrift.TProtocol) error {
+func (p *GetNodeResponse) ReadField3(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -25092,7 +26990,7 @@ func (p *GetClusterNodeResponse) ReadField3(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetClusterNodeResponse) ReadField4(iprot thrift.TProtocol) error {
+func (p *GetNodeResponse) ReadField4(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -25101,7 +26999,7 @@ func (p *GetClusterNodeResponse) ReadField4(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetClusterNodeResponse) ReadField5(iprot thrift.TProtocol) error {
+func (p *GetNodeResponse) ReadField5(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -25110,7 +27008,7 @@ func (p *GetClusterNodeResponse) ReadField5(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetClusterNodeResponse) ReadField6(iprot thrift.TProtocol) error {
+func (p *GetNodeResponse) ReadField6(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -25119,7 +27017,7 @@ func (p *GetClusterNodeResponse) ReadField6(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetClusterNodeResponse) ReadField7(iprot thrift.TProtocol) error {
+func (p *GetNodeResponse) ReadField7(iprot thrift.TProtocol) error {
 	p.Zone = iaas.NewZone()
 	if err := p.Zone.Read(iprot); err != nil {
 		return err
@@ -25127,7 +27025,7 @@ func (p *GetClusterNodeResponse) ReadField7(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetClusterNodeResponse) ReadField8(iprot thrift.TProtocol) error {
+func (p *GetNodeResponse) ReadField8(iprot thrift.TProtocol) error {
 	p.Subnet = iaas.NewSubnet()
 	if err := p.Subnet.Read(iprot); err != nil {
 		return err
@@ -25135,7 +27033,7 @@ func (p *GetClusterNodeResponse) ReadField8(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetClusterNodeResponse) ReadField9(iprot thrift.TProtocol) error {
+func (p *GetNodeResponse) ReadField9(iprot thrift.TProtocol) error {
 	p.Instance = iaas.NewInstance()
 	if err := p.Instance.Read(iprot); err != nil {
 		return err
@@ -25143,15 +27041,15 @@ func (p *GetClusterNodeResponse) ReadField9(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetClusterNodeResponse) ReadField10(iprot thrift.TProtocol) error {
-	p.Specific = NewNodeSpecific()
-	if err := p.Specific.Read(iprot); err != nil {
+func (p *GetNodeResponse) ReadField10(iprot thrift.TProtocol) error {
+	p.InstanceType = NewInstanceType()
+	if err := p.InstanceType.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *GetClusterNodeResponse) ReadField11(iprot thrift.TProtocol) error {
+func (p *GetNodeResponse) ReadField11(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -25160,7 +27058,7 @@ func (p *GetClusterNodeResponse) ReadField11(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetClusterNodeResponse) ReadField12(iprot thrift.TProtocol) error {
+func (p *GetNodeResponse) ReadField12(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
@@ -25180,7 +27078,7 @@ func (p *GetClusterNodeResponse) ReadField12(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetClusterNodeResponse) ReadField13(iprot thrift.TProtocol) error {
+func (p *GetNodeResponse) ReadField13(iprot thrift.TProtocol) error {
 	p.Resource = NewGetClusterNodeResource()
 	if err := p.Resource.Read(iprot); err != nil {
 		return err
@@ -25188,7 +27086,7 @@ func (p *GetClusterNodeResponse) ReadField13(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetClusterNodeResponse) ReadField14(iprot thrift.TProtocol) error {
+func (p *GetNodeResponse) ReadField14(iprot thrift.TProtocol) error {
 	p.System = iaas.NewImage()
 	if err := p.System.Read(iprot); err != nil {
 		return err
@@ -25196,7 +27094,7 @@ func (p *GetClusterNodeResponse) ReadField14(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetClusterNodeResponse) ReadField15(iprot thrift.TProtocol) error {
+func (p *GetNodeResponse) ReadField15(iprot thrift.TProtocol) error {
 	p.Kubernetes = NewKubernetes()
 	if err := p.Kubernetes.Read(iprot); err != nil {
 		return err
@@ -25204,7 +27102,7 @@ func (p *GetClusterNodeResponse) ReadField15(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetClusterNodeResponse) ReadField16(iprot thrift.TProtocol) error {
+func (p *GetNodeResponse) ReadField16(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -25213,7 +27111,7 @@ func (p *GetClusterNodeResponse) ReadField16(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetClusterNodeResponse) ReadField17(iprot thrift.TProtocol) error {
+func (p *GetNodeResponse) ReadField17(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -25222,7 +27120,7 @@ func (p *GetClusterNodeResponse) ReadField17(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetClusterNodeResponse) ReadField18(iprot thrift.TProtocol) error {
+func (p *GetNodeResponse) ReadField18(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -25231,7 +27129,7 @@ func (p *GetClusterNodeResponse) ReadField18(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetClusterNodeResponse) ReadField19(iprot thrift.TProtocol) error {
+func (p *GetNodeResponse) ReadField19(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
@@ -25251,7 +27149,7 @@ func (p *GetClusterNodeResponse) ReadField19(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetClusterNodeResponse) ReadField20(iprot thrift.TProtocol) error {
+func (p *GetNodeResponse) ReadField20(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
@@ -25271,7 +27169,7 @@ func (p *GetClusterNodeResponse) ReadField20(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetClusterNodeResponse) ReadField21(iprot thrift.TProtocol) error {
+func (p *GetNodeResponse) ReadField21(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -25280,7 +27178,7 @@ func (p *GetClusterNodeResponse) ReadField21(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetClusterNodeResponse) ReadField22(iprot thrift.TProtocol) error {
+func (p *GetNodeResponse) ReadField22(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -25289,7 +27187,16 @@ func (p *GetClusterNodeResponse) ReadField22(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetClusterNodeResponse) ReadField255(iprot thrift.TProtocol) error {
+func (p *GetNodeResponse) ReadField23(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.Type = v
+	}
+	return nil
+}
+
+func (p *GetNodeResponse) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -25297,9 +27204,9 @@ func (p *GetClusterNodeResponse) ReadField255(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetClusterNodeResponse) Write(oprot thrift.TProtocol) (err error) {
+func (p *GetNodeResponse) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("GetClusterNodeResponse"); err != nil {
+	if err = oprot.WriteStructBegin("GetNodeResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -25391,6 +27298,10 @@ func (p *GetClusterNodeResponse) Write(oprot thrift.TProtocol) (err error) {
 			fieldId = 22
 			goto WriteFieldError
 		}
+		if err = p.writeField23(oprot); err != nil {
+			fieldId = 23
+			goto WriteFieldError
+		}
 		if err = p.writeField255(oprot); err != nil {
 			fieldId = 255
 			goto WriteFieldError
@@ -25414,7 +27325,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *GetClusterNodeResponse) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *GetNodeResponse) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Id", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -25431,7 +27342,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *GetClusterNodeResponse) writeField2(oprot thrift.TProtocol) (err error) {
+func (p *GetNodeResponse) writeField2(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Name", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -25448,7 +27359,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *GetClusterNodeResponse) writeField3(oprot thrift.TProtocol) (err error) {
+func (p *GetNodeResponse) writeField3(oprot thrift.TProtocol) (err error) {
 	if p.IsSetNodeName() {
 		if err = oprot.WriteFieldBegin("NodeName", thrift.STRING, 3); err != nil {
 			goto WriteFieldBeginError
@@ -25467,7 +27378,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
-func (p *GetClusterNodeResponse) writeField4(oprot thrift.TProtocol) (err error) {
+func (p *GetNodeResponse) writeField4(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("NodePoolId", thrift.STRING, 4); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -25484,7 +27395,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
 }
 
-func (p *GetClusterNodeResponse) writeField5(oprot thrift.TProtocol) (err error) {
+func (p *GetNodeResponse) writeField5(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("NodePoolName", thrift.STRING, 5); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -25501,7 +27412,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
 }
 
-func (p *GetClusterNodeResponse) writeField6(oprot thrift.TProtocol) (err error) {
+func (p *GetNodeResponse) writeField6(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Role", thrift.STRING, 6); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -25518,7 +27429,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
 }
 
-func (p *GetClusterNodeResponse) writeField7(oprot thrift.TProtocol) (err error) {
+func (p *GetNodeResponse) writeField7(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Zone", thrift.STRUCT, 7); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -25535,7 +27446,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 7 end error: ", p), err)
 }
 
-func (p *GetClusterNodeResponse) writeField8(oprot thrift.TProtocol) (err error) {
+func (p *GetNodeResponse) writeField8(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Subnet", thrift.STRUCT, 8); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -25552,7 +27463,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 8 end error: ", p), err)
 }
 
-func (p *GetClusterNodeResponse) writeField9(oprot thrift.TProtocol) (err error) {
+func (p *GetNodeResponse) writeField9(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Instance", thrift.STRUCT, 9); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -25569,11 +27480,11 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 9 end error: ", p), err)
 }
 
-func (p *GetClusterNodeResponse) writeField10(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("Specific", thrift.STRUCT, 10); err != nil {
+func (p *GetNodeResponse) writeField10(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("InstanceType", thrift.STRUCT, 10); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := p.Specific.Write(oprot); err != nil {
+	if err := p.InstanceType.Write(oprot); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -25586,7 +27497,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 10 end error: ", p), err)
 }
 
-func (p *GetClusterNodeResponse) writeField11(oprot thrift.TProtocol) (err error) {
+func (p *GetNodeResponse) writeField11(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("ChargeType", thrift.STRING, 11); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -25603,7 +27514,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 11 end error: ", p), err)
 }
 
-func (p *GetClusterNodeResponse) writeField12(oprot thrift.TProtocol) (err error) {
+func (p *GetNodeResponse) writeField12(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("SecurityGroups", thrift.LIST, 12); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -25628,7 +27539,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 12 end error: ", p), err)
 }
 
-func (p *GetClusterNodeResponse) writeField13(oprot thrift.TProtocol) (err error) {
+func (p *GetNodeResponse) writeField13(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Resource", thrift.STRUCT, 13); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -25645,7 +27556,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 13 end error: ", p), err)
 }
 
-func (p *GetClusterNodeResponse) writeField14(oprot thrift.TProtocol) (err error) {
+func (p *GetNodeResponse) writeField14(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("System", thrift.STRUCT, 14); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -25662,7 +27573,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 14 end error: ", p), err)
 }
 
-func (p *GetClusterNodeResponse) writeField15(oprot thrift.TProtocol) (err error) {
+func (p *GetNodeResponse) writeField15(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Kubernetes", thrift.STRUCT, 15); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -25679,7 +27590,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 15 end error: ", p), err)
 }
 
-func (p *GetClusterNodeResponse) writeField16(oprot thrift.TProtocol) (err error) {
+func (p *GetNodeResponse) writeField16(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("CreateTime", thrift.STRING, 16); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -25696,7 +27607,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 16 end error: ", p), err)
 }
 
-func (p *GetClusterNodeResponse) writeField17(oprot thrift.TProtocol) (err error) {
+func (p *GetNodeResponse) writeField17(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("PublicAddress", thrift.STRING, 17); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -25713,7 +27624,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 17 end error: ", p), err)
 }
 
-func (p *GetClusterNodeResponse) writeField18(oprot thrift.TProtocol) (err error) {
+func (p *GetNodeResponse) writeField18(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("PrivateAddress", thrift.STRING, 18); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -25730,7 +27641,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 18 end error: ", p), err)
 }
 
-func (p *GetClusterNodeResponse) writeField19(oprot thrift.TProtocol) (err error) {
+func (p *GetNodeResponse) writeField19(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Labels", thrift.LIST, 19); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -25755,7 +27666,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 19 end error: ", p), err)
 }
 
-func (p *GetClusterNodeResponse) writeField20(oprot thrift.TProtocol) (err error) {
+func (p *GetNodeResponse) writeField20(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Taints", thrift.LIST, 20); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -25780,7 +27691,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 20 end error: ", p), err)
 }
 
-func (p *GetClusterNodeResponse) writeField21(oprot thrift.TProtocol) (err error) {
+func (p *GetNodeResponse) writeField21(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Status", thrift.STRING, 21); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -25797,7 +27708,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 21 end error: ", p), err)
 }
 
-func (p *GetClusterNodeResponse) writeField22(oprot thrift.TProtocol) (err error) {
+func (p *GetNodeResponse) writeField22(oprot thrift.TProtocol) (err error) {
 	if p.IsSetErrorMessage() {
 		if err = oprot.WriteFieldBegin("ErrorMessage", thrift.STRING, 22); err != nil {
 			goto WriteFieldBeginError
@@ -25816,7 +27727,24 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 22 end error: ", p), err)
 }
 
-func (p *GetClusterNodeResponse) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *GetNodeResponse) writeField23(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("Type", thrift.STRING, 23); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Type); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 23 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 23 end error: ", p), err)
+}
+
+func (p *GetNodeResponse) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -25835,14 +27763,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *GetClusterNodeResponse) String() string {
+func (p *GetNodeResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("GetClusterNodeResponse(%+v)", *p)
+	return fmt.Sprintf("GetNodeResponse(%+v)", *p)
 }
 
-func (p *GetClusterNodeResponse) DeepEqual(ano *GetClusterNodeResponse) bool {
+func (p *GetNodeResponse) DeepEqual(ano *GetNodeResponse) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -25875,7 +27803,7 @@ func (p *GetClusterNodeResponse) DeepEqual(ano *GetClusterNodeResponse) bool {
 	if !p.Field9DeepEqual(ano.Instance) {
 		return false
 	}
-	if !p.Field10DeepEqual(ano.Specific) {
+	if !p.Field10DeepEqual(ano.InstanceType) {
 		return false
 	}
 	if !p.Field11DeepEqual(ano.ChargeType) {
@@ -25914,90 +27842,93 @@ func (p *GetClusterNodeResponse) DeepEqual(ano *GetClusterNodeResponse) bool {
 	if !p.Field22DeepEqual(ano.ErrorMessage) {
 		return false
 	}
+	if !p.Field23DeepEqual(ano.Type) {
+		return false
+	}
 	if !p.Field255DeepEqual(ano.Base) {
 		return false
 	}
 	return true
 }
 
-func (p *GetClusterNodeResponse) Field1DeepEqual(src string) bool {
+func (p *GetNodeResponse) Field1DeepEqual(src string) bool {
 
 	if strings.Compare(p.Id, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GetClusterNodeResponse) Field2DeepEqual(src string) bool {
+func (p *GetNodeResponse) Field2DeepEqual(src string) bool {
 
 	if strings.Compare(p.Name, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GetClusterNodeResponse) Field3DeepEqual(src string) bool {
+func (p *GetNodeResponse) Field3DeepEqual(src string) bool {
 
 	if strings.Compare(p.NodeName, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GetClusterNodeResponse) Field4DeepEqual(src string) bool {
+func (p *GetNodeResponse) Field4DeepEqual(src string) bool {
 
 	if strings.Compare(p.NodePoolId, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GetClusterNodeResponse) Field5DeepEqual(src string) bool {
+func (p *GetNodeResponse) Field5DeepEqual(src string) bool {
 
 	if strings.Compare(p.NodePoolName, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GetClusterNodeResponse) Field6DeepEqual(src string) bool {
+func (p *GetNodeResponse) Field6DeepEqual(src string) bool {
 
 	if strings.Compare(p.Role, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GetClusterNodeResponse) Field7DeepEqual(src *iaas.Zone) bool {
+func (p *GetNodeResponse) Field7DeepEqual(src *iaas.Zone) bool {
 
 	if !p.Zone.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *GetClusterNodeResponse) Field8DeepEqual(src *iaas.Subnet) bool {
+func (p *GetNodeResponse) Field8DeepEqual(src *iaas.Subnet) bool {
 
 	if !p.Subnet.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *GetClusterNodeResponse) Field9DeepEqual(src *iaas.Instance) bool {
+func (p *GetNodeResponse) Field9DeepEqual(src *iaas.Instance) bool {
 
 	if !p.Instance.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *GetClusterNodeResponse) Field10DeepEqual(src *NodeSpecific) bool {
+func (p *GetNodeResponse) Field10DeepEqual(src *InstanceType) bool {
 
-	if !p.Specific.DeepEqual(src) {
+	if !p.InstanceType.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *GetClusterNodeResponse) Field11DeepEqual(src string) bool {
+func (p *GetNodeResponse) Field11DeepEqual(src string) bool {
 
 	if strings.Compare(p.ChargeType, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GetClusterNodeResponse) Field12DeepEqual(src []*iaas.SecurityGroup) bool {
+func (p *GetNodeResponse) Field12DeepEqual(src []*iaas.SecurityGroup) bool {
 
 	if len(p.SecurityGroups) != len(src) {
 		return false
@@ -26010,49 +27941,49 @@ func (p *GetClusterNodeResponse) Field12DeepEqual(src []*iaas.SecurityGroup) boo
 	}
 	return true
 }
-func (p *GetClusterNodeResponse) Field13DeepEqual(src *GetClusterNodeResource) bool {
+func (p *GetNodeResponse) Field13DeepEqual(src *GetClusterNodeResource) bool {
 
 	if !p.Resource.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *GetClusterNodeResponse) Field14DeepEqual(src *iaas.Image) bool {
+func (p *GetNodeResponse) Field14DeepEqual(src *iaas.Image) bool {
 
 	if !p.System.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *GetClusterNodeResponse) Field15DeepEqual(src *Kubernetes) bool {
+func (p *GetNodeResponse) Field15DeepEqual(src *Kubernetes) bool {
 
 	if !p.Kubernetes.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *GetClusterNodeResponse) Field16DeepEqual(src string) bool {
+func (p *GetNodeResponse) Field16DeepEqual(src string) bool {
 
 	if strings.Compare(p.CreateTime, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GetClusterNodeResponse) Field17DeepEqual(src string) bool {
+func (p *GetNodeResponse) Field17DeepEqual(src string) bool {
 
 	if strings.Compare(p.PublicAddress, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GetClusterNodeResponse) Field18DeepEqual(src string) bool {
+func (p *GetNodeResponse) Field18DeepEqual(src string) bool {
 
 	if strings.Compare(p.PrivateAddress, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GetClusterNodeResponse) Field19DeepEqual(src []*helper.Label) bool {
+func (p *GetNodeResponse) Field19DeepEqual(src []*helper.Label) bool {
 
 	if len(p.Labels) != len(src) {
 		return false
@@ -26065,7 +27996,7 @@ func (p *GetClusterNodeResponse) Field19DeepEqual(src []*helper.Label) bool {
 	}
 	return true
 }
-func (p *GetClusterNodeResponse) Field20DeepEqual(src []*helper.Taint) bool {
+func (p *GetNodeResponse) Field20DeepEqual(src []*helper.Taint) bool {
 
 	if len(p.Taints) != len(src) {
 		return false
@@ -26078,14 +28009,14 @@ func (p *GetClusterNodeResponse) Field20DeepEqual(src []*helper.Taint) bool {
 	}
 	return true
 }
-func (p *GetClusterNodeResponse) Field21DeepEqual(src string) bool {
+func (p *GetNodeResponse) Field21DeepEqual(src string) bool {
 
 	if strings.Compare(p.Status, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GetClusterNodeResponse) Field22DeepEqual(src *string) bool {
+func (p *GetNodeResponse) Field22DeepEqual(src *string) bool {
 
 	if p.ErrorMessage == src {
 		return true
@@ -26097,7 +28028,14 @@ func (p *GetClusterNodeResponse) Field22DeepEqual(src *string) bool {
 	}
 	return true
 }
-func (p *GetClusterNodeResponse) Field255DeepEqual(src *base.Base) bool {
+func (p *GetNodeResponse) Field23DeepEqual(src string) bool {
+
+	if strings.Compare(p.Type, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *GetNodeResponse) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -26105,98 +28043,98 @@ func (p *GetClusterNodeResponse) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
-type DeleteClusterNodeRequest struct {
-	ClusterId  string         `thrift:"ClusterId,1,required" validate:"required"`
-	Ids        []string       `thrift:"Ids,2" json:"Ids,omitempty"`
-	DeleteFlag *bool          `thrift:"DeleteFlag,3" json:"DeleteFlag,omitempty"`
-	Top        *base.TopParam `thrift:"Top,254,required" json:"Top"`
-	Base       *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
+type DeleteNodesRequest struct {
+	ClusterId                string         `thrift:"ClusterId,1,required" validate:"required"`
+	Ids                      []string       `thrift:"Ids,2" json:"Ids,omitempty"`
+	CascadingDeleteResources []string       `thrift:"CascadingDeleteResources,3" json:"CascadingDeleteResources,omitempty"`
+	Top                      *base.TopParam `thrift:"Top,254,required" json:"Top"`
+	Base                     *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewDeleteClusterNodeRequest() *DeleteClusterNodeRequest {
-	return &DeleteClusterNodeRequest{}
+func NewDeleteNodesRequest() *DeleteNodesRequest {
+	return &DeleteNodesRequest{}
 }
 
-func (p *DeleteClusterNodeRequest) GetClusterId() (v string) {
+func (p *DeleteNodesRequest) GetClusterId() (v string) {
 	return p.ClusterId
 }
 
-var DeleteClusterNodeRequest_Ids_DEFAULT []string
+var DeleteNodesRequest_Ids_DEFAULT []string
 
-func (p *DeleteClusterNodeRequest) GetIds() (v []string) {
+func (p *DeleteNodesRequest) GetIds() (v []string) {
 	if !p.IsSetIds() {
-		return DeleteClusterNodeRequest_Ids_DEFAULT
+		return DeleteNodesRequest_Ids_DEFAULT
 	}
 	return p.Ids
 }
 
-var DeleteClusterNodeRequest_DeleteFlag_DEFAULT bool
+var DeleteNodesRequest_CascadingDeleteResources_DEFAULT []string
 
-func (p *DeleteClusterNodeRequest) GetDeleteFlag() (v bool) {
-	if !p.IsSetDeleteFlag() {
-		return DeleteClusterNodeRequest_DeleteFlag_DEFAULT
+func (p *DeleteNodesRequest) GetCascadingDeleteResources() (v []string) {
+	if !p.IsSetCascadingDeleteResources() {
+		return DeleteNodesRequest_CascadingDeleteResources_DEFAULT
 	}
-	return *p.DeleteFlag
+	return p.CascadingDeleteResources
 }
 
-var DeleteClusterNodeRequest_Top_DEFAULT *base.TopParam
+var DeleteNodesRequest_Top_DEFAULT *base.TopParam
 
-func (p *DeleteClusterNodeRequest) GetTop() (v *base.TopParam) {
+func (p *DeleteNodesRequest) GetTop() (v *base.TopParam) {
 	if !p.IsSetTop() {
-		return DeleteClusterNodeRequest_Top_DEFAULT
+		return DeleteNodesRequest_Top_DEFAULT
 	}
 	return p.Top
 }
 
-var DeleteClusterNodeRequest_Base_DEFAULT *base.Base
+var DeleteNodesRequest_Base_DEFAULT *base.Base
 
-func (p *DeleteClusterNodeRequest) GetBase() (v *base.Base) {
+func (p *DeleteNodesRequest) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return DeleteClusterNodeRequest_Base_DEFAULT
+		return DeleteNodesRequest_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *DeleteClusterNodeRequest) SetClusterId(val string) {
+func (p *DeleteNodesRequest) SetClusterId(val string) {
 	p.ClusterId = val
 }
-func (p *DeleteClusterNodeRequest) SetIds(val []string) {
+func (p *DeleteNodesRequest) SetIds(val []string) {
 	p.Ids = val
 }
-func (p *DeleteClusterNodeRequest) SetDeleteFlag(val *bool) {
-	p.DeleteFlag = val
+func (p *DeleteNodesRequest) SetCascadingDeleteResources(val []string) {
+	p.CascadingDeleteResources = val
 }
-func (p *DeleteClusterNodeRequest) SetTop(val *base.TopParam) {
+func (p *DeleteNodesRequest) SetTop(val *base.TopParam) {
 	p.Top = val
 }
-func (p *DeleteClusterNodeRequest) SetBase(val *base.Base) {
+func (p *DeleteNodesRequest) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_DeleteClusterNodeRequest = map[int16]string{
+var fieldIDToName_DeleteNodesRequest = map[int16]string{
 	1:   "ClusterId",
 	2:   "Ids",
-	3:   "DeleteFlag",
+	3:   "CascadingDeleteResources",
 	254: "Top",
 	255: "Base",
 }
 
-func (p *DeleteClusterNodeRequest) IsSetIds() bool {
+func (p *DeleteNodesRequest) IsSetIds() bool {
 	return p.Ids != nil
 }
 
-func (p *DeleteClusterNodeRequest) IsSetDeleteFlag() bool {
-	return p.DeleteFlag != nil
+func (p *DeleteNodesRequest) IsSetCascadingDeleteResources() bool {
+	return p.CascadingDeleteResources != nil
 }
 
-func (p *DeleteClusterNodeRequest) IsSetTop() bool {
+func (p *DeleteNodesRequest) IsSetTop() bool {
 	return p.Top != nil
 }
 
-func (p *DeleteClusterNodeRequest) IsSetBase() bool {
+func (p *DeleteNodesRequest) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *DeleteClusterNodeRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *DeleteNodesRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -26239,7 +28177,7 @@ func (p *DeleteClusterNodeRequest) Read(iprot thrift.TProtocol) (err error) {
 				}
 			}
 		case 3:
-			if fieldTypeId == thrift.BOOL {
+			if fieldTypeId == thrift.LIST {
 				if err = p.ReadField3(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -26298,7 +28236,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_DeleteClusterNodeRequest[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_DeleteNodesRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -26307,10 +28245,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_DeleteClusterNodeRequest[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_DeleteNodesRequest[fieldId]))
 }
 
-func (p *DeleteClusterNodeRequest) ReadField1(iprot thrift.TProtocol) error {
+func (p *DeleteNodesRequest) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -26319,7 +28257,7 @@ func (p *DeleteClusterNodeRequest) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *DeleteClusterNodeRequest) ReadField2(iprot thrift.TProtocol) error {
+func (p *DeleteNodesRequest) ReadField2(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
@@ -26341,16 +28279,29 @@ func (p *DeleteClusterNodeRequest) ReadField2(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *DeleteClusterNodeRequest) ReadField3(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadBool(); err != nil {
+func (p *DeleteNodesRequest) ReadField3(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
 		return err
-	} else {
-		p.DeleteFlag = &v
+	}
+	p.CascadingDeleteResources = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		p.CascadingDeleteResources = append(p.CascadingDeleteResources, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
 	}
 	return nil
 }
 
-func (p *DeleteClusterNodeRequest) ReadField254(iprot thrift.TProtocol) error {
+func (p *DeleteNodesRequest) ReadField254(iprot thrift.TProtocol) error {
 	p.Top = base.NewTopParam()
 	if err := p.Top.Read(iprot); err != nil {
 		return err
@@ -26358,7 +28309,7 @@ func (p *DeleteClusterNodeRequest) ReadField254(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *DeleteClusterNodeRequest) ReadField255(iprot thrift.TProtocol) error {
+func (p *DeleteNodesRequest) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -26366,9 +28317,9 @@ func (p *DeleteClusterNodeRequest) ReadField255(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *DeleteClusterNodeRequest) Write(oprot thrift.TProtocol) (err error) {
+func (p *DeleteNodesRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("DeleteClusterNodeRequest"); err != nil {
+	if err = oprot.WriteStructBegin("DeleteNodesRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -26411,7 +28362,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *DeleteClusterNodeRequest) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *DeleteNodesRequest) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("ClusterId", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -26428,7 +28379,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *DeleteClusterNodeRequest) writeField2(oprot thrift.TProtocol) (err error) {
+func (p *DeleteNodesRequest) writeField2(oprot thrift.TProtocol) (err error) {
 	if p.IsSetIds() {
 		if err = oprot.WriteFieldBegin("Ids", thrift.LIST, 2); err != nil {
 			goto WriteFieldBeginError
@@ -26455,12 +28406,20 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *DeleteClusterNodeRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if p.IsSetDeleteFlag() {
-		if err = oprot.WriteFieldBegin("DeleteFlag", thrift.BOOL, 3); err != nil {
+func (p *DeleteNodesRequest) writeField3(oprot thrift.TProtocol) (err error) {
+	if p.IsSetCascadingDeleteResources() {
+		if err = oprot.WriteFieldBegin("CascadingDeleteResources", thrift.LIST, 3); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteBool(*p.DeleteFlag); err != nil {
+		if err := oprot.WriteListBegin(thrift.STRING, len(p.CascadingDeleteResources)); err != nil {
+			return err
+		}
+		for _, v := range p.CascadingDeleteResources {
+			if err := oprot.WriteString(v); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -26474,7 +28433,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
-func (p *DeleteClusterNodeRequest) writeField254(oprot thrift.TProtocol) (err error) {
+func (p *DeleteNodesRequest) writeField254(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Top", thrift.STRUCT, 254); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -26491,7 +28450,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 254 end error: ", p), err)
 }
 
-func (p *DeleteClusterNodeRequest) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *DeleteNodesRequest) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -26510,14 +28469,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *DeleteClusterNodeRequest) String() string {
+func (p *DeleteNodesRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("DeleteClusterNodeRequest(%+v)", *p)
+	return fmt.Sprintf("DeleteNodesRequest(%+v)", *p)
 }
 
-func (p *DeleteClusterNodeRequest) DeepEqual(ano *DeleteClusterNodeRequest) bool {
+func (p *DeleteNodesRequest) DeepEqual(ano *DeleteNodesRequest) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -26529,7 +28488,7 @@ func (p *DeleteClusterNodeRequest) DeepEqual(ano *DeleteClusterNodeRequest) bool
 	if !p.Field2DeepEqual(ano.Ids) {
 		return false
 	}
-	if !p.Field3DeepEqual(ano.DeleteFlag) {
+	if !p.Field3DeepEqual(ano.CascadingDeleteResources) {
 		return false
 	}
 	if !p.Field254DeepEqual(ano.Top) {
@@ -26541,14 +28500,14 @@ func (p *DeleteClusterNodeRequest) DeepEqual(ano *DeleteClusterNodeRequest) bool
 	return true
 }
 
-func (p *DeleteClusterNodeRequest) Field1DeepEqual(src string) bool {
+func (p *DeleteNodesRequest) Field1DeepEqual(src string) bool {
 
 	if strings.Compare(p.ClusterId, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *DeleteClusterNodeRequest) Field2DeepEqual(src []string) bool {
+func (p *DeleteNodesRequest) Field2DeepEqual(src []string) bool {
 
 	if len(p.Ids) != len(src) {
 		return false
@@ -26561,26 +28520,27 @@ func (p *DeleteClusterNodeRequest) Field2DeepEqual(src []string) bool {
 	}
 	return true
 }
-func (p *DeleteClusterNodeRequest) Field3DeepEqual(src *bool) bool {
+func (p *DeleteNodesRequest) Field3DeepEqual(src []string) bool {
 
-	if p.DeleteFlag == src {
-		return true
-	} else if p.DeleteFlag == nil || src == nil {
+	if len(p.CascadingDeleteResources) != len(src) {
 		return false
 	}
-	if *p.DeleteFlag != *src {
-		return false
+	for i, v := range p.CascadingDeleteResources {
+		_src := src[i]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
 	}
 	return true
 }
-func (p *DeleteClusterNodeRequest) Field254DeepEqual(src *base.TopParam) bool {
+func (p *DeleteNodesRequest) Field254DeepEqual(src *base.TopParam) bool {
 
 	if !p.Top.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *DeleteClusterNodeRequest) Field255DeepEqual(src *base.Base) bool {
+func (p *DeleteNodesRequest) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -26588,16 +28548,16 @@ func (p *DeleteClusterNodeRequest) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
-type DeleteClusterNodeResponse struct {
+type DeleteNodesResponse struct {
 }
 
-func NewDeleteClusterNodeResponse() *DeleteClusterNodeResponse {
-	return &DeleteClusterNodeResponse{}
+func NewDeleteNodesResponse() *DeleteNodesResponse {
+	return &DeleteNodesResponse{}
 }
 
-var fieldIDToName_DeleteClusterNodeResponse = map[int16]string{}
+var fieldIDToName_DeleteNodesResponse = map[int16]string{}
 
-func (p *DeleteClusterNodeResponse) Read(iprot thrift.TProtocol) (err error) {
+func (p *DeleteNodesResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -26640,8 +28600,8 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *DeleteClusterNodeResponse) Write(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteStructBegin("DeleteClusterNodeResponse"); err != nil {
+func (p *DeleteNodesResponse) Write(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteStructBegin("DeleteNodesResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -26662,14 +28622,14 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *DeleteClusterNodeResponse) String() string {
+func (p *DeleteNodesResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("DeleteClusterNodeResponse(%+v)", *p)
+	return fmt.Sprintf("DeleteNodesResponse(%+v)", *p)
 }
 
-func (p *DeleteClusterNodeResponse) DeepEqual(ano *DeleteClusterNodeResponse) bool {
+func (p *DeleteNodesResponse) DeepEqual(ano *DeleteNodesResponse) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -26678,80 +28638,80 @@ func (p *DeleteClusterNodeResponse) DeepEqual(ano *DeleteClusterNodeResponse) bo
 	return true
 }
 
-type ListClusterNodeLabelRequest struct {
+type ListNodeLabelsRequest struct {
 	ClusterId string         `thrift:"ClusterId,1,required" validate:"required"`
 	Id        *string        `thrift:"Id,2" json:"Id,omitempty"`
 	Top       *base.TopParam `thrift:"Top,254,required" json:"Top"`
 	Base      *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewListClusterNodeLabelRequest() *ListClusterNodeLabelRequest {
-	return &ListClusterNodeLabelRequest{}
+func NewListNodeLabelsRequest() *ListNodeLabelsRequest {
+	return &ListNodeLabelsRequest{}
 }
 
-func (p *ListClusterNodeLabelRequest) GetClusterId() (v string) {
+func (p *ListNodeLabelsRequest) GetClusterId() (v string) {
 	return p.ClusterId
 }
 
-var ListClusterNodeLabelRequest_Id_DEFAULT string
+var ListNodeLabelsRequest_Id_DEFAULT string
 
-func (p *ListClusterNodeLabelRequest) GetId() (v string) {
+func (p *ListNodeLabelsRequest) GetId() (v string) {
 	if !p.IsSetId() {
-		return ListClusterNodeLabelRequest_Id_DEFAULT
+		return ListNodeLabelsRequest_Id_DEFAULT
 	}
 	return *p.Id
 }
 
-var ListClusterNodeLabelRequest_Top_DEFAULT *base.TopParam
+var ListNodeLabelsRequest_Top_DEFAULT *base.TopParam
 
-func (p *ListClusterNodeLabelRequest) GetTop() (v *base.TopParam) {
+func (p *ListNodeLabelsRequest) GetTop() (v *base.TopParam) {
 	if !p.IsSetTop() {
-		return ListClusterNodeLabelRequest_Top_DEFAULT
+		return ListNodeLabelsRequest_Top_DEFAULT
 	}
 	return p.Top
 }
 
-var ListClusterNodeLabelRequest_Base_DEFAULT *base.Base
+var ListNodeLabelsRequest_Base_DEFAULT *base.Base
 
-func (p *ListClusterNodeLabelRequest) GetBase() (v *base.Base) {
+func (p *ListNodeLabelsRequest) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return ListClusterNodeLabelRequest_Base_DEFAULT
+		return ListNodeLabelsRequest_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *ListClusterNodeLabelRequest) SetClusterId(val string) {
+func (p *ListNodeLabelsRequest) SetClusterId(val string) {
 	p.ClusterId = val
 }
-func (p *ListClusterNodeLabelRequest) SetId(val *string) {
+func (p *ListNodeLabelsRequest) SetId(val *string) {
 	p.Id = val
 }
-func (p *ListClusterNodeLabelRequest) SetTop(val *base.TopParam) {
+func (p *ListNodeLabelsRequest) SetTop(val *base.TopParam) {
 	p.Top = val
 }
-func (p *ListClusterNodeLabelRequest) SetBase(val *base.Base) {
+func (p *ListNodeLabelsRequest) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_ListClusterNodeLabelRequest = map[int16]string{
+var fieldIDToName_ListNodeLabelsRequest = map[int16]string{
 	1:   "ClusterId",
 	2:   "Id",
 	254: "Top",
 	255: "Base",
 }
 
-func (p *ListClusterNodeLabelRequest) IsSetId() bool {
+func (p *ListNodeLabelsRequest) IsSetId() bool {
 	return p.Id != nil
 }
 
-func (p *ListClusterNodeLabelRequest) IsSetTop() bool {
+func (p *ListNodeLabelsRequest) IsSetTop() bool {
 	return p.Top != nil
 }
 
-func (p *ListClusterNodeLabelRequest) IsSetBase() bool {
+func (p *ListNodeLabelsRequest) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *ListClusterNodeLabelRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *ListNodeLabelsRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -26843,7 +28803,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListClusterNodeLabelRequest[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListNodeLabelsRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -26852,10 +28812,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListClusterNodeLabelRequest[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListNodeLabelsRequest[fieldId]))
 }
 
-func (p *ListClusterNodeLabelRequest) ReadField1(iprot thrift.TProtocol) error {
+func (p *ListNodeLabelsRequest) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -26864,7 +28824,7 @@ func (p *ListClusterNodeLabelRequest) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListClusterNodeLabelRequest) ReadField2(iprot thrift.TProtocol) error {
+func (p *ListNodeLabelsRequest) ReadField2(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -26873,7 +28833,7 @@ func (p *ListClusterNodeLabelRequest) ReadField2(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListClusterNodeLabelRequest) ReadField254(iprot thrift.TProtocol) error {
+func (p *ListNodeLabelsRequest) ReadField254(iprot thrift.TProtocol) error {
 	p.Top = base.NewTopParam()
 	if err := p.Top.Read(iprot); err != nil {
 		return err
@@ -26881,7 +28841,7 @@ func (p *ListClusterNodeLabelRequest) ReadField254(iprot thrift.TProtocol) error
 	return nil
 }
 
-func (p *ListClusterNodeLabelRequest) ReadField255(iprot thrift.TProtocol) error {
+func (p *ListNodeLabelsRequest) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -26889,9 +28849,9 @@ func (p *ListClusterNodeLabelRequest) ReadField255(iprot thrift.TProtocol) error
 	return nil
 }
 
-func (p *ListClusterNodeLabelRequest) Write(oprot thrift.TProtocol) (err error) {
+func (p *ListNodeLabelsRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListClusterNodeLabelRequest"); err != nil {
+	if err = oprot.WriteStructBegin("ListNodeLabelsRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -26930,7 +28890,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ListClusterNodeLabelRequest) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ListNodeLabelsRequest) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("ClusterId", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -26947,7 +28907,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ListClusterNodeLabelRequest) writeField2(oprot thrift.TProtocol) (err error) {
+func (p *ListNodeLabelsRequest) writeField2(oprot thrift.TProtocol) (err error) {
 	if p.IsSetId() {
 		if err = oprot.WriteFieldBegin("Id", thrift.STRING, 2); err != nil {
 			goto WriteFieldBeginError
@@ -26966,7 +28926,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *ListClusterNodeLabelRequest) writeField254(oprot thrift.TProtocol) (err error) {
+func (p *ListNodeLabelsRequest) writeField254(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Top", thrift.STRUCT, 254); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -26983,7 +28943,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 254 end error: ", p), err)
 }
 
-func (p *ListClusterNodeLabelRequest) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *ListNodeLabelsRequest) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -27002,14 +28962,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *ListClusterNodeLabelRequest) String() string {
+func (p *ListNodeLabelsRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ListClusterNodeLabelRequest(%+v)", *p)
+	return fmt.Sprintf("ListNodeLabelsRequest(%+v)", *p)
 }
 
-func (p *ListClusterNodeLabelRequest) DeepEqual(ano *ListClusterNodeLabelRequest) bool {
+func (p *ListNodeLabelsRequest) DeepEqual(ano *ListNodeLabelsRequest) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -27030,14 +28990,14 @@ func (p *ListClusterNodeLabelRequest) DeepEqual(ano *ListClusterNodeLabelRequest
 	return true
 }
 
-func (p *ListClusterNodeLabelRequest) Field1DeepEqual(src string) bool {
+func (p *ListNodeLabelsRequest) Field1DeepEqual(src string) bool {
 
 	if strings.Compare(p.ClusterId, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *ListClusterNodeLabelRequest) Field2DeepEqual(src *string) bool {
+func (p *ListNodeLabelsRequest) Field2DeepEqual(src *string) bool {
 
 	if p.Id == src {
 		return true
@@ -27049,14 +29009,14 @@ func (p *ListClusterNodeLabelRequest) Field2DeepEqual(src *string) bool {
 	}
 	return true
 }
-func (p *ListClusterNodeLabelRequest) Field254DeepEqual(src *base.TopParam) bool {
+func (p *ListNodeLabelsRequest) Field254DeepEqual(src *base.TopParam) bool {
 
 	if !p.Top.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ListClusterNodeLabelRequest) Field255DeepEqual(src *base.Base) bool {
+func (p *ListNodeLabelsRequest) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -27064,44 +29024,44 @@ func (p *ListClusterNodeLabelRequest) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
-type ListClusterNodeLabelResponse struct {
+type ListNodeLabelsResponse struct {
 	Items []*helper.Label `thrift:"Items,1,required" json:"Items"`
 	Base  *base.Base      `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewListClusterNodeLabelResponse() *ListClusterNodeLabelResponse {
-	return &ListClusterNodeLabelResponse{}
+func NewListNodeLabelsResponse() *ListNodeLabelsResponse {
+	return &ListNodeLabelsResponse{}
 }
 
-func (p *ListClusterNodeLabelResponse) GetItems() (v []*helper.Label) {
+func (p *ListNodeLabelsResponse) GetItems() (v []*helper.Label) {
 	return p.Items
 }
 
-var ListClusterNodeLabelResponse_Base_DEFAULT *base.Base
+var ListNodeLabelsResponse_Base_DEFAULT *base.Base
 
-func (p *ListClusterNodeLabelResponse) GetBase() (v *base.Base) {
+func (p *ListNodeLabelsResponse) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return ListClusterNodeLabelResponse_Base_DEFAULT
+		return ListNodeLabelsResponse_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *ListClusterNodeLabelResponse) SetItems(val []*helper.Label) {
+func (p *ListNodeLabelsResponse) SetItems(val []*helper.Label) {
 	p.Items = val
 }
-func (p *ListClusterNodeLabelResponse) SetBase(val *base.Base) {
+func (p *ListNodeLabelsResponse) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_ListClusterNodeLabelResponse = map[int16]string{
+var fieldIDToName_ListNodeLabelsResponse = map[int16]string{
 	1:   "Items",
 	255: "Base",
 }
 
-func (p *ListClusterNodeLabelResponse) IsSetBase() bool {
+func (p *ListNodeLabelsResponse) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *ListClusterNodeLabelResponse) Read(iprot thrift.TProtocol) (err error) {
+func (p *ListNodeLabelsResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -27166,7 +29126,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListClusterNodeLabelResponse[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListNodeLabelsResponse[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -27175,10 +29135,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListClusterNodeLabelResponse[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListNodeLabelsResponse[fieldId]))
 }
 
-func (p *ListClusterNodeLabelResponse) ReadField1(iprot thrift.TProtocol) error {
+func (p *ListNodeLabelsResponse) ReadField1(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
@@ -27198,7 +29158,7 @@ func (p *ListClusterNodeLabelResponse) ReadField1(iprot thrift.TProtocol) error 
 	return nil
 }
 
-func (p *ListClusterNodeLabelResponse) ReadField255(iprot thrift.TProtocol) error {
+func (p *ListNodeLabelsResponse) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -27206,9 +29166,9 @@ func (p *ListClusterNodeLabelResponse) ReadField255(iprot thrift.TProtocol) erro
 	return nil
 }
 
-func (p *ListClusterNodeLabelResponse) Write(oprot thrift.TProtocol) (err error) {
+func (p *ListNodeLabelsResponse) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListClusterNodeLabelResponse"); err != nil {
+	if err = oprot.WriteStructBegin("ListNodeLabelsResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -27239,7 +29199,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ListClusterNodeLabelResponse) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ListNodeLabelsResponse) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Items", thrift.LIST, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -27264,7 +29224,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ListClusterNodeLabelResponse) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *ListNodeLabelsResponse) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -27283,14 +29243,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *ListClusterNodeLabelResponse) String() string {
+func (p *ListNodeLabelsResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ListClusterNodeLabelResponse(%+v)", *p)
+	return fmt.Sprintf("ListNodeLabelsResponse(%+v)", *p)
 }
 
-func (p *ListClusterNodeLabelResponse) DeepEqual(ano *ListClusterNodeLabelResponse) bool {
+func (p *ListNodeLabelsResponse) DeepEqual(ano *ListNodeLabelsResponse) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -27305,7 +29265,7 @@ func (p *ListClusterNodeLabelResponse) DeepEqual(ano *ListClusterNodeLabelRespon
 	return true
 }
 
-func (p *ListClusterNodeLabelResponse) Field1DeepEqual(src []*helper.Label) bool {
+func (p *ListNodeLabelsResponse) Field1DeepEqual(src []*helper.Label) bool {
 
 	if len(p.Items) != len(src) {
 		return false
@@ -27318,7 +29278,7 @@ func (p *ListClusterNodeLabelResponse) Field1DeepEqual(src []*helper.Label) bool
 	}
 	return true
 }
-func (p *ListClusterNodeLabelResponse) Field255DeepEqual(src *base.Base) bool {
+func (p *ListNodeLabelsResponse) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -27326,7 +29286,7 @@ func (p *ListClusterNodeLabelResponse) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
-type UpdateClusterNodeRequest struct {
+type UpdateNodeRequest struct {
 	ClusterId string          `thrift:"ClusterId,1,required" validate:"required"`
 	Id        string          `thrift:"Id,2,required" validate:"required"`
 	Labels    []*helper.Label `thrift:"Labels,3" validate:"k8sLabel"`
@@ -27337,97 +29297,97 @@ type UpdateClusterNodeRequest struct {
 	Base      *base.Base      `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewUpdateClusterNodeRequest() *UpdateClusterNodeRequest {
-	return &UpdateClusterNodeRequest{}
+func NewUpdateNodeRequest() *UpdateNodeRequest {
+	return &UpdateNodeRequest{}
 }
 
-func (p *UpdateClusterNodeRequest) GetClusterId() (v string) {
+func (p *UpdateNodeRequest) GetClusterId() (v string) {
 	return p.ClusterId
 }
 
-func (p *UpdateClusterNodeRequest) GetId() (v string) {
+func (p *UpdateNodeRequest) GetId() (v string) {
 	return p.Id
 }
 
-var UpdateClusterNodeRequest_Labels_DEFAULT []*helper.Label
+var UpdateNodeRequest_Labels_DEFAULT []*helper.Label
 
-func (p *UpdateClusterNodeRequest) GetLabels() (v []*helper.Label) {
+func (p *UpdateNodeRequest) GetLabels() (v []*helper.Label) {
 	if !p.IsSetLabels() {
-		return UpdateClusterNodeRequest_Labels_DEFAULT
+		return UpdateNodeRequest_Labels_DEFAULT
 	}
 	return p.Labels
 }
 
-var UpdateClusterNodeRequest_Taints_DEFAULT []*helper.Taint
+var UpdateNodeRequest_Taints_DEFAULT []*helper.Taint
 
-func (p *UpdateClusterNodeRequest) GetTaints() (v []*helper.Taint) {
+func (p *UpdateNodeRequest) GetTaints() (v []*helper.Taint) {
 	if !p.IsSetTaints() {
-		return UpdateClusterNodeRequest_Taints_DEFAULT
+		return UpdateNodeRequest_Taints_DEFAULT
 	}
 	return p.Taints
 }
 
-var UpdateClusterNodeRequest_Online_DEFAULT bool
+var UpdateNodeRequest_Online_DEFAULT bool
 
-func (p *UpdateClusterNodeRequest) GetOnline() (v bool) {
+func (p *UpdateNodeRequest) GetOnline() (v bool) {
 	if !p.IsSetOnline() {
-		return UpdateClusterNodeRequest_Online_DEFAULT
+		return UpdateNodeRequest_Online_DEFAULT
 	}
 	return *p.Online
 }
 
-var UpdateClusterNodeRequest_Cordon_DEFAULT bool
+var UpdateNodeRequest_Cordon_DEFAULT bool
 
-func (p *UpdateClusterNodeRequest) GetCordon() (v bool) {
+func (p *UpdateNodeRequest) GetCordon() (v bool) {
 	if !p.IsSetCordon() {
-		return UpdateClusterNodeRequest_Cordon_DEFAULT
+		return UpdateNodeRequest_Cordon_DEFAULT
 	}
 	return *p.Cordon
 }
 
-var UpdateClusterNodeRequest_Top_DEFAULT *base.TopParam
+var UpdateNodeRequest_Top_DEFAULT *base.TopParam
 
-func (p *UpdateClusterNodeRequest) GetTop() (v *base.TopParam) {
+func (p *UpdateNodeRequest) GetTop() (v *base.TopParam) {
 	if !p.IsSetTop() {
-		return UpdateClusterNodeRequest_Top_DEFAULT
+		return UpdateNodeRequest_Top_DEFAULT
 	}
 	return p.Top
 }
 
-var UpdateClusterNodeRequest_Base_DEFAULT *base.Base
+var UpdateNodeRequest_Base_DEFAULT *base.Base
 
-func (p *UpdateClusterNodeRequest) GetBase() (v *base.Base) {
+func (p *UpdateNodeRequest) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return UpdateClusterNodeRequest_Base_DEFAULT
+		return UpdateNodeRequest_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *UpdateClusterNodeRequest) SetClusterId(val string) {
+func (p *UpdateNodeRequest) SetClusterId(val string) {
 	p.ClusterId = val
 }
-func (p *UpdateClusterNodeRequest) SetId(val string) {
+func (p *UpdateNodeRequest) SetId(val string) {
 	p.Id = val
 }
-func (p *UpdateClusterNodeRequest) SetLabels(val []*helper.Label) {
+func (p *UpdateNodeRequest) SetLabels(val []*helper.Label) {
 	p.Labels = val
 }
-func (p *UpdateClusterNodeRequest) SetTaints(val []*helper.Taint) {
+func (p *UpdateNodeRequest) SetTaints(val []*helper.Taint) {
 	p.Taints = val
 }
-func (p *UpdateClusterNodeRequest) SetOnline(val *bool) {
+func (p *UpdateNodeRequest) SetOnline(val *bool) {
 	p.Online = val
 }
-func (p *UpdateClusterNodeRequest) SetCordon(val *bool) {
+func (p *UpdateNodeRequest) SetCordon(val *bool) {
 	p.Cordon = val
 }
-func (p *UpdateClusterNodeRequest) SetTop(val *base.TopParam) {
+func (p *UpdateNodeRequest) SetTop(val *base.TopParam) {
 	p.Top = val
 }
-func (p *UpdateClusterNodeRequest) SetBase(val *base.Base) {
+func (p *UpdateNodeRequest) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_UpdateClusterNodeRequest = map[int16]string{
+var fieldIDToName_UpdateNodeRequest = map[int16]string{
 	1:   "ClusterId",
 	2:   "Id",
 	3:   "Labels",
@@ -27438,31 +29398,31 @@ var fieldIDToName_UpdateClusterNodeRequest = map[int16]string{
 	255: "Base",
 }
 
-func (p *UpdateClusterNodeRequest) IsSetLabels() bool {
+func (p *UpdateNodeRequest) IsSetLabels() bool {
 	return p.Labels != nil
 }
 
-func (p *UpdateClusterNodeRequest) IsSetTaints() bool {
+func (p *UpdateNodeRequest) IsSetTaints() bool {
 	return p.Taints != nil
 }
 
-func (p *UpdateClusterNodeRequest) IsSetOnline() bool {
+func (p *UpdateNodeRequest) IsSetOnline() bool {
 	return p.Online != nil
 }
 
-func (p *UpdateClusterNodeRequest) IsSetCordon() bool {
+func (p *UpdateNodeRequest) IsSetCordon() bool {
 	return p.Cordon != nil
 }
 
-func (p *UpdateClusterNodeRequest) IsSetTop() bool {
+func (p *UpdateNodeRequest) IsSetTop() bool {
 	return p.Top != nil
 }
 
-func (p *UpdateClusterNodeRequest) IsSetBase() bool {
+func (p *UpdateNodeRequest) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *UpdateClusterNodeRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *UpdateNodeRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -27601,7 +29561,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UpdateClusterNodeRequest[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UpdateNodeRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -27610,10 +29570,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_UpdateClusterNodeRequest[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_UpdateNodeRequest[fieldId]))
 }
 
-func (p *UpdateClusterNodeRequest) ReadField1(iprot thrift.TProtocol) error {
+func (p *UpdateNodeRequest) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -27622,7 +29582,7 @@ func (p *UpdateClusterNodeRequest) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UpdateClusterNodeRequest) ReadField2(iprot thrift.TProtocol) error {
+func (p *UpdateNodeRequest) ReadField2(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -27631,7 +29591,7 @@ func (p *UpdateClusterNodeRequest) ReadField2(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UpdateClusterNodeRequest) ReadField3(iprot thrift.TProtocol) error {
+func (p *UpdateNodeRequest) ReadField3(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
@@ -27651,7 +29611,7 @@ func (p *UpdateClusterNodeRequest) ReadField3(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UpdateClusterNodeRequest) ReadField4(iprot thrift.TProtocol) error {
+func (p *UpdateNodeRequest) ReadField4(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
@@ -27671,7 +29631,7 @@ func (p *UpdateClusterNodeRequest) ReadField4(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UpdateClusterNodeRequest) ReadField5(iprot thrift.TProtocol) error {
+func (p *UpdateNodeRequest) ReadField5(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadBool(); err != nil {
 		return err
 	} else {
@@ -27680,7 +29640,7 @@ func (p *UpdateClusterNodeRequest) ReadField5(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UpdateClusterNodeRequest) ReadField6(iprot thrift.TProtocol) error {
+func (p *UpdateNodeRequest) ReadField6(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadBool(); err != nil {
 		return err
 	} else {
@@ -27689,7 +29649,7 @@ func (p *UpdateClusterNodeRequest) ReadField6(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UpdateClusterNodeRequest) ReadField254(iprot thrift.TProtocol) error {
+func (p *UpdateNodeRequest) ReadField254(iprot thrift.TProtocol) error {
 	p.Top = base.NewTopParam()
 	if err := p.Top.Read(iprot); err != nil {
 		return err
@@ -27697,7 +29657,7 @@ func (p *UpdateClusterNodeRequest) ReadField254(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UpdateClusterNodeRequest) ReadField255(iprot thrift.TProtocol) error {
+func (p *UpdateNodeRequest) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -27705,9 +29665,9 @@ func (p *UpdateClusterNodeRequest) ReadField255(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UpdateClusterNodeRequest) Write(oprot thrift.TProtocol) (err error) {
+func (p *UpdateNodeRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("UpdateClusterNodeRequest"); err != nil {
+	if err = oprot.WriteStructBegin("UpdateNodeRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -27762,7 +29722,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UpdateClusterNodeRequest) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *UpdateNodeRequest) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("ClusterId", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -27779,7 +29739,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *UpdateClusterNodeRequest) writeField2(oprot thrift.TProtocol) (err error) {
+func (p *UpdateNodeRequest) writeField2(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Id", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -27796,7 +29756,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *UpdateClusterNodeRequest) writeField3(oprot thrift.TProtocol) (err error) {
+func (p *UpdateNodeRequest) writeField3(oprot thrift.TProtocol) (err error) {
 	if p.IsSetLabels() {
 		if err = oprot.WriteFieldBegin("Labels", thrift.LIST, 3); err != nil {
 			goto WriteFieldBeginError
@@ -27823,7 +29783,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
-func (p *UpdateClusterNodeRequest) writeField4(oprot thrift.TProtocol) (err error) {
+func (p *UpdateNodeRequest) writeField4(oprot thrift.TProtocol) (err error) {
 	if p.IsSetTaints() {
 		if err = oprot.WriteFieldBegin("Taints", thrift.LIST, 4); err != nil {
 			goto WriteFieldBeginError
@@ -27850,7 +29810,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
 }
 
-func (p *UpdateClusterNodeRequest) writeField5(oprot thrift.TProtocol) (err error) {
+func (p *UpdateNodeRequest) writeField5(oprot thrift.TProtocol) (err error) {
 	if p.IsSetOnline() {
 		if err = oprot.WriteFieldBegin("Online", thrift.BOOL, 5); err != nil {
 			goto WriteFieldBeginError
@@ -27869,7 +29829,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
 }
 
-func (p *UpdateClusterNodeRequest) writeField6(oprot thrift.TProtocol) (err error) {
+func (p *UpdateNodeRequest) writeField6(oprot thrift.TProtocol) (err error) {
 	if p.IsSetCordon() {
 		if err = oprot.WriteFieldBegin("Cordon", thrift.BOOL, 6); err != nil {
 			goto WriteFieldBeginError
@@ -27888,7 +29848,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
 }
 
-func (p *UpdateClusterNodeRequest) writeField254(oprot thrift.TProtocol) (err error) {
+func (p *UpdateNodeRequest) writeField254(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Top", thrift.STRUCT, 254); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -27905,7 +29865,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 254 end error: ", p), err)
 }
 
-func (p *UpdateClusterNodeRequest) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *UpdateNodeRequest) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -27924,14 +29884,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *UpdateClusterNodeRequest) String() string {
+func (p *UpdateNodeRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UpdateClusterNodeRequest(%+v)", *p)
+	return fmt.Sprintf("UpdateNodeRequest(%+v)", *p)
 }
 
-func (p *UpdateClusterNodeRequest) DeepEqual(ano *UpdateClusterNodeRequest) bool {
+func (p *UpdateNodeRequest) DeepEqual(ano *UpdateNodeRequest) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -27964,21 +29924,21 @@ func (p *UpdateClusterNodeRequest) DeepEqual(ano *UpdateClusterNodeRequest) bool
 	return true
 }
 
-func (p *UpdateClusterNodeRequest) Field1DeepEqual(src string) bool {
+func (p *UpdateNodeRequest) Field1DeepEqual(src string) bool {
 
 	if strings.Compare(p.ClusterId, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *UpdateClusterNodeRequest) Field2DeepEqual(src string) bool {
+func (p *UpdateNodeRequest) Field2DeepEqual(src string) bool {
 
 	if strings.Compare(p.Id, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *UpdateClusterNodeRequest) Field3DeepEqual(src []*helper.Label) bool {
+func (p *UpdateNodeRequest) Field3DeepEqual(src []*helper.Label) bool {
 
 	if len(p.Labels) != len(src) {
 		return false
@@ -27991,7 +29951,7 @@ func (p *UpdateClusterNodeRequest) Field3DeepEqual(src []*helper.Label) bool {
 	}
 	return true
 }
-func (p *UpdateClusterNodeRequest) Field4DeepEqual(src []*helper.Taint) bool {
+func (p *UpdateNodeRequest) Field4DeepEqual(src []*helper.Taint) bool {
 
 	if len(p.Taints) != len(src) {
 		return false
@@ -28004,7 +29964,7 @@ func (p *UpdateClusterNodeRequest) Field4DeepEqual(src []*helper.Taint) bool {
 	}
 	return true
 }
-func (p *UpdateClusterNodeRequest) Field5DeepEqual(src *bool) bool {
+func (p *UpdateNodeRequest) Field5DeepEqual(src *bool) bool {
 
 	if p.Online == src {
 		return true
@@ -28016,7 +29976,7 @@ func (p *UpdateClusterNodeRequest) Field5DeepEqual(src *bool) bool {
 	}
 	return true
 }
-func (p *UpdateClusterNodeRequest) Field6DeepEqual(src *bool) bool {
+func (p *UpdateNodeRequest) Field6DeepEqual(src *bool) bool {
 
 	if p.Cordon == src {
 		return true
@@ -28028,14 +29988,14 @@ func (p *UpdateClusterNodeRequest) Field6DeepEqual(src *bool) bool {
 	}
 	return true
 }
-func (p *UpdateClusterNodeRequest) Field254DeepEqual(src *base.TopParam) bool {
+func (p *UpdateNodeRequest) Field254DeepEqual(src *base.TopParam) bool {
 
 	if !p.Top.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *UpdateClusterNodeRequest) Field255DeepEqual(src *base.Base) bool {
+func (p *UpdateNodeRequest) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -28043,44 +30003,44 @@ func (p *UpdateClusterNodeRequest) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
-type UpdateClusterNodeResponse struct {
+type UpdateNodeResponse struct {
 	Id   string     `thrift:"Id,1,required" json:"Id"`
 	Base *base.Base `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewUpdateClusterNodeResponse() *UpdateClusterNodeResponse {
-	return &UpdateClusterNodeResponse{}
+func NewUpdateNodeResponse() *UpdateNodeResponse {
+	return &UpdateNodeResponse{}
 }
 
-func (p *UpdateClusterNodeResponse) GetId() (v string) {
+func (p *UpdateNodeResponse) GetId() (v string) {
 	return p.Id
 }
 
-var UpdateClusterNodeResponse_Base_DEFAULT *base.Base
+var UpdateNodeResponse_Base_DEFAULT *base.Base
 
-func (p *UpdateClusterNodeResponse) GetBase() (v *base.Base) {
+func (p *UpdateNodeResponse) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return UpdateClusterNodeResponse_Base_DEFAULT
+		return UpdateNodeResponse_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *UpdateClusterNodeResponse) SetId(val string) {
+func (p *UpdateNodeResponse) SetId(val string) {
 	p.Id = val
 }
-func (p *UpdateClusterNodeResponse) SetBase(val *base.Base) {
+func (p *UpdateNodeResponse) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_UpdateClusterNodeResponse = map[int16]string{
+var fieldIDToName_UpdateNodeResponse = map[int16]string{
 	1:   "Id",
 	255: "Base",
 }
 
-func (p *UpdateClusterNodeResponse) IsSetBase() bool {
+func (p *UpdateNodeResponse) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *UpdateClusterNodeResponse) Read(iprot thrift.TProtocol) (err error) {
+func (p *UpdateNodeResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -28145,7 +30105,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UpdateClusterNodeResponse[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UpdateNodeResponse[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -28154,10 +30114,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_UpdateClusterNodeResponse[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_UpdateNodeResponse[fieldId]))
 }
 
-func (p *UpdateClusterNodeResponse) ReadField1(iprot thrift.TProtocol) error {
+func (p *UpdateNodeResponse) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -28166,7 +30126,7 @@ func (p *UpdateClusterNodeResponse) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UpdateClusterNodeResponse) ReadField255(iprot thrift.TProtocol) error {
+func (p *UpdateNodeResponse) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -28174,9 +30134,9 @@ func (p *UpdateClusterNodeResponse) ReadField255(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UpdateClusterNodeResponse) Write(oprot thrift.TProtocol) (err error) {
+func (p *UpdateNodeResponse) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("UpdateClusterNodeResponse"); err != nil {
+	if err = oprot.WriteStructBegin("UpdateNodeResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -28207,7 +30167,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UpdateClusterNodeResponse) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *UpdateNodeResponse) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Id", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -28224,7 +30184,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *UpdateClusterNodeResponse) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *UpdateNodeResponse) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -28243,14 +30203,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *UpdateClusterNodeResponse) String() string {
+func (p *UpdateNodeResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UpdateClusterNodeResponse(%+v)", *p)
+	return fmt.Sprintf("UpdateNodeResponse(%+v)", *p)
 }
 
-func (p *UpdateClusterNodeResponse) DeepEqual(ano *UpdateClusterNodeResponse) bool {
+func (p *UpdateNodeResponse) DeepEqual(ano *UpdateNodeResponse) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -28265,14 +30225,14 @@ func (p *UpdateClusterNodeResponse) DeepEqual(ano *UpdateClusterNodeResponse) bo
 	return true
 }
 
-func (p *UpdateClusterNodeResponse) Field1DeepEqual(src string) bool {
+func (p *UpdateNodeResponse) Field1DeepEqual(src string) bool {
 
 	if strings.Compare(p.Id, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *UpdateClusterNodeResponse) Field255DeepEqual(src *base.Base) bool {
+func (p *UpdateNodeResponse) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -28748,62 +30708,62 @@ func (p *Rule) Field2DeepEqual(src string) bool {
 	return true
 }
 
-type GetAutoScalingRuleRequest struct {
-	ClusterId string         `thrift:"ClusterId,1,required" validate:"required"`
+type GetClusterAutoScalingRuleRequest struct {
+	ClusterId string         `thrift:"ClusterId,1,required" validate:"required,k8sName"`
 	Top       *base.TopParam `thrift:"Top,254,required" json:"Top"`
 	Base      *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewGetAutoScalingRuleRequest() *GetAutoScalingRuleRequest {
-	return &GetAutoScalingRuleRequest{}
+func NewGetClusterAutoScalingRuleRequest() *GetClusterAutoScalingRuleRequest {
+	return &GetClusterAutoScalingRuleRequest{}
 }
 
-func (p *GetAutoScalingRuleRequest) GetClusterId() (v string) {
+func (p *GetClusterAutoScalingRuleRequest) GetClusterId() (v string) {
 	return p.ClusterId
 }
 
-var GetAutoScalingRuleRequest_Top_DEFAULT *base.TopParam
+var GetClusterAutoScalingRuleRequest_Top_DEFAULT *base.TopParam
 
-func (p *GetAutoScalingRuleRequest) GetTop() (v *base.TopParam) {
+func (p *GetClusterAutoScalingRuleRequest) GetTop() (v *base.TopParam) {
 	if !p.IsSetTop() {
-		return GetAutoScalingRuleRequest_Top_DEFAULT
+		return GetClusterAutoScalingRuleRequest_Top_DEFAULT
 	}
 	return p.Top
 }
 
-var GetAutoScalingRuleRequest_Base_DEFAULT *base.Base
+var GetClusterAutoScalingRuleRequest_Base_DEFAULT *base.Base
 
-func (p *GetAutoScalingRuleRequest) GetBase() (v *base.Base) {
+func (p *GetClusterAutoScalingRuleRequest) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return GetAutoScalingRuleRequest_Base_DEFAULT
+		return GetClusterAutoScalingRuleRequest_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *GetAutoScalingRuleRequest) SetClusterId(val string) {
+func (p *GetClusterAutoScalingRuleRequest) SetClusterId(val string) {
 	p.ClusterId = val
 }
-func (p *GetAutoScalingRuleRequest) SetTop(val *base.TopParam) {
+func (p *GetClusterAutoScalingRuleRequest) SetTop(val *base.TopParam) {
 	p.Top = val
 }
-func (p *GetAutoScalingRuleRequest) SetBase(val *base.Base) {
+func (p *GetClusterAutoScalingRuleRequest) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_GetAutoScalingRuleRequest = map[int16]string{
+var fieldIDToName_GetClusterAutoScalingRuleRequest = map[int16]string{
 	1:   "ClusterId",
 	254: "Top",
 	255: "Base",
 }
 
-func (p *GetAutoScalingRuleRequest) IsSetTop() bool {
+func (p *GetClusterAutoScalingRuleRequest) IsSetTop() bool {
 	return p.Top != nil
 }
 
-func (p *GetAutoScalingRuleRequest) IsSetBase() bool {
+func (p *GetClusterAutoScalingRuleRequest) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *GetAutoScalingRuleRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *GetClusterAutoScalingRuleRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -28885,7 +30845,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_GetAutoScalingRuleRequest[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_GetClusterAutoScalingRuleRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -28894,10 +30854,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_GetAutoScalingRuleRequest[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_GetClusterAutoScalingRuleRequest[fieldId]))
 }
 
-func (p *GetAutoScalingRuleRequest) ReadField1(iprot thrift.TProtocol) error {
+func (p *GetClusterAutoScalingRuleRequest) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -28906,7 +30866,7 @@ func (p *GetAutoScalingRuleRequest) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetAutoScalingRuleRequest) ReadField254(iprot thrift.TProtocol) error {
+func (p *GetClusterAutoScalingRuleRequest) ReadField254(iprot thrift.TProtocol) error {
 	p.Top = base.NewTopParam()
 	if err := p.Top.Read(iprot); err != nil {
 		return err
@@ -28914,7 +30874,7 @@ func (p *GetAutoScalingRuleRequest) ReadField254(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetAutoScalingRuleRequest) ReadField255(iprot thrift.TProtocol) error {
+func (p *GetClusterAutoScalingRuleRequest) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -28922,9 +30882,9 @@ func (p *GetAutoScalingRuleRequest) ReadField255(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetAutoScalingRuleRequest) Write(oprot thrift.TProtocol) (err error) {
+func (p *GetClusterAutoScalingRuleRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("GetAutoScalingRuleRequest"); err != nil {
+	if err = oprot.WriteStructBegin("GetClusterAutoScalingRuleRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -28959,7 +30919,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *GetAutoScalingRuleRequest) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *GetClusterAutoScalingRuleRequest) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("ClusterId", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -28976,7 +30936,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *GetAutoScalingRuleRequest) writeField254(oprot thrift.TProtocol) (err error) {
+func (p *GetClusterAutoScalingRuleRequest) writeField254(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Top", thrift.STRUCT, 254); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -28993,7 +30953,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 254 end error: ", p), err)
 }
 
-func (p *GetAutoScalingRuleRequest) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *GetClusterAutoScalingRuleRequest) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -29012,14 +30972,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *GetAutoScalingRuleRequest) String() string {
+func (p *GetClusterAutoScalingRuleRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("GetAutoScalingRuleRequest(%+v)", *p)
+	return fmt.Sprintf("GetClusterAutoScalingRuleRequest(%+v)", *p)
 }
 
-func (p *GetAutoScalingRuleRequest) DeepEqual(ano *GetAutoScalingRuleRequest) bool {
+func (p *GetClusterAutoScalingRuleRequest) DeepEqual(ano *GetClusterAutoScalingRuleRequest) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -29037,21 +30997,21 @@ func (p *GetAutoScalingRuleRequest) DeepEqual(ano *GetAutoScalingRuleRequest) bo
 	return true
 }
 
-func (p *GetAutoScalingRuleRequest) Field1DeepEqual(src string) bool {
+func (p *GetClusterAutoScalingRuleRequest) Field1DeepEqual(src string) bool {
 
 	if strings.Compare(p.ClusterId, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GetAutoScalingRuleRequest) Field254DeepEqual(src *base.TopParam) bool {
+func (p *GetClusterAutoScalingRuleRequest) Field254DeepEqual(src *base.TopParam) bool {
 
 	if !p.Top.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *GetAutoScalingRuleRequest) Field255DeepEqual(src *base.Base) bool {
+func (p *GetClusterAutoScalingRuleRequest) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -29059,11 +31019,11 @@ func (p *GetAutoScalingRuleRequest) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
-type GetAutoScalingRuleResponse struct {
+type GetClusterAutoScalingRuleResponse struct {
 	ClusterId                     string     `thrift:"ClusterId,1,required" json:"ClusterId"`
 	ClusterName                   string     `thrift:"ClusterName,2,required" json:"ClusterName"`
 	Expander                      string     `thrift:"Expander,3,required" json:"Expander"`
-	ScaleDownEnabled              bool       `thrift:"ScaleDownEnabled,4,required" json:"ScaleDownEnabled"`
+	EnableScaleDown               bool       `thrift:"EnableScaleDown,4,required" json:"EnableScaleDown"`
 	ScaleDownUtilizationThreshold int32      `thrift:"ScaleDownUtilizationThreshold,5,required" json:"ScaleDownUtilizationThreshold"`
 	ScaleDownUnneededTime         int32      `thrift:"ScaleDownUnneededTime,6,required" json:"ScaleDownUnneededTime"`
 	ScaleDownDelayAfterAdd        int32      `thrift:"ScaleDownDelayAfterAdd,7,required" json:"ScaleDownDelayAfterAdd"`
@@ -29074,104 +31034,104 @@ type GetAutoScalingRuleResponse struct {
 	Base                          *base.Base `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewGetAutoScalingRuleResponse() *GetAutoScalingRuleResponse {
-	return &GetAutoScalingRuleResponse{}
+func NewGetClusterAutoScalingRuleResponse() *GetClusterAutoScalingRuleResponse {
+	return &GetClusterAutoScalingRuleResponse{}
 }
 
-func (p *GetAutoScalingRuleResponse) GetClusterId() (v string) {
+func (p *GetClusterAutoScalingRuleResponse) GetClusterId() (v string) {
 	return p.ClusterId
 }
 
-func (p *GetAutoScalingRuleResponse) GetClusterName() (v string) {
+func (p *GetClusterAutoScalingRuleResponse) GetClusterName() (v string) {
 	return p.ClusterName
 }
 
-func (p *GetAutoScalingRuleResponse) GetExpander() (v string) {
+func (p *GetClusterAutoScalingRuleResponse) GetExpander() (v string) {
 	return p.Expander
 }
 
-func (p *GetAutoScalingRuleResponse) GetScaleDownEnabled() (v bool) {
-	return p.ScaleDownEnabled
+func (p *GetClusterAutoScalingRuleResponse) GetEnableScaleDown() (v bool) {
+	return p.EnableScaleDown
 }
 
-func (p *GetAutoScalingRuleResponse) GetScaleDownUtilizationThreshold() (v int32) {
+func (p *GetClusterAutoScalingRuleResponse) GetScaleDownUtilizationThreshold() (v int32) {
 	return p.ScaleDownUtilizationThreshold
 }
 
-func (p *GetAutoScalingRuleResponse) GetScaleDownUnneededTime() (v int32) {
+func (p *GetClusterAutoScalingRuleResponse) GetScaleDownUnneededTime() (v int32) {
 	return p.ScaleDownUnneededTime
 }
 
-func (p *GetAutoScalingRuleResponse) GetScaleDownDelayAfterAdd() (v int32) {
+func (p *GetClusterAutoScalingRuleResponse) GetScaleDownDelayAfterAdd() (v int32) {
 	return p.ScaleDownDelayAfterAdd
 }
 
-func (p *GetAutoScalingRuleResponse) GetScaleDownDelayAfterFailure() (v int32) {
+func (p *GetClusterAutoScalingRuleResponse) GetScaleDownDelayAfterFailure() (v int32) {
 	return p.ScaleDownDelayAfterFailure
 }
 
-func (p *GetAutoScalingRuleResponse) GetMaxEmptyBulkDelete() (v int32) {
+func (p *GetClusterAutoScalingRuleResponse) GetMaxEmptyBulkDelete() (v int32) {
 	return p.MaxEmptyBulkDelete
 }
 
-func (p *GetAutoScalingRuleResponse) GetSkipNodesWithLocalStorage() (v bool) {
+func (p *GetClusterAutoScalingRuleResponse) GetSkipNodesWithLocalStorage() (v bool) {
 	return p.SkipNodesWithLocalStorage
 }
 
-func (p *GetAutoScalingRuleResponse) GetSkipNodesWithSystemPods() (v bool) {
+func (p *GetClusterAutoScalingRuleResponse) GetSkipNodesWithSystemPods() (v bool) {
 	return p.SkipNodesWithSystemPods
 }
 
-var GetAutoScalingRuleResponse_Base_DEFAULT *base.Base
+var GetClusterAutoScalingRuleResponse_Base_DEFAULT *base.Base
 
-func (p *GetAutoScalingRuleResponse) GetBase() (v *base.Base) {
+func (p *GetClusterAutoScalingRuleResponse) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return GetAutoScalingRuleResponse_Base_DEFAULT
+		return GetClusterAutoScalingRuleResponse_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *GetAutoScalingRuleResponse) SetClusterId(val string) {
+func (p *GetClusterAutoScalingRuleResponse) SetClusterId(val string) {
 	p.ClusterId = val
 }
-func (p *GetAutoScalingRuleResponse) SetClusterName(val string) {
+func (p *GetClusterAutoScalingRuleResponse) SetClusterName(val string) {
 	p.ClusterName = val
 }
-func (p *GetAutoScalingRuleResponse) SetExpander(val string) {
+func (p *GetClusterAutoScalingRuleResponse) SetExpander(val string) {
 	p.Expander = val
 }
-func (p *GetAutoScalingRuleResponse) SetScaleDownEnabled(val bool) {
-	p.ScaleDownEnabled = val
+func (p *GetClusterAutoScalingRuleResponse) SetEnableScaleDown(val bool) {
+	p.EnableScaleDown = val
 }
-func (p *GetAutoScalingRuleResponse) SetScaleDownUtilizationThreshold(val int32) {
+func (p *GetClusterAutoScalingRuleResponse) SetScaleDownUtilizationThreshold(val int32) {
 	p.ScaleDownUtilizationThreshold = val
 }
-func (p *GetAutoScalingRuleResponse) SetScaleDownUnneededTime(val int32) {
+func (p *GetClusterAutoScalingRuleResponse) SetScaleDownUnneededTime(val int32) {
 	p.ScaleDownUnneededTime = val
 }
-func (p *GetAutoScalingRuleResponse) SetScaleDownDelayAfterAdd(val int32) {
+func (p *GetClusterAutoScalingRuleResponse) SetScaleDownDelayAfterAdd(val int32) {
 	p.ScaleDownDelayAfterAdd = val
 }
-func (p *GetAutoScalingRuleResponse) SetScaleDownDelayAfterFailure(val int32) {
+func (p *GetClusterAutoScalingRuleResponse) SetScaleDownDelayAfterFailure(val int32) {
 	p.ScaleDownDelayAfterFailure = val
 }
-func (p *GetAutoScalingRuleResponse) SetMaxEmptyBulkDelete(val int32) {
+func (p *GetClusterAutoScalingRuleResponse) SetMaxEmptyBulkDelete(val int32) {
 	p.MaxEmptyBulkDelete = val
 }
-func (p *GetAutoScalingRuleResponse) SetSkipNodesWithLocalStorage(val bool) {
+func (p *GetClusterAutoScalingRuleResponse) SetSkipNodesWithLocalStorage(val bool) {
 	p.SkipNodesWithLocalStorage = val
 }
-func (p *GetAutoScalingRuleResponse) SetSkipNodesWithSystemPods(val bool) {
+func (p *GetClusterAutoScalingRuleResponse) SetSkipNodesWithSystemPods(val bool) {
 	p.SkipNodesWithSystemPods = val
 }
-func (p *GetAutoScalingRuleResponse) SetBase(val *base.Base) {
+func (p *GetClusterAutoScalingRuleResponse) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_GetAutoScalingRuleResponse = map[int16]string{
+var fieldIDToName_GetClusterAutoScalingRuleResponse = map[int16]string{
 	1:   "ClusterId",
 	2:   "ClusterName",
 	3:   "Expander",
-	4:   "ScaleDownEnabled",
+	4:   "EnableScaleDown",
 	5:   "ScaleDownUtilizationThreshold",
 	6:   "ScaleDownUnneededTime",
 	7:   "ScaleDownDelayAfterAdd",
@@ -29182,18 +31142,18 @@ var fieldIDToName_GetAutoScalingRuleResponse = map[int16]string{
 	255: "Base",
 }
 
-func (p *GetAutoScalingRuleResponse) IsSetBase() bool {
+func (p *GetClusterAutoScalingRuleResponse) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *GetAutoScalingRuleResponse) Read(iprot thrift.TProtocol) (err error) {
+func (p *GetClusterAutoScalingRuleResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetClusterId bool = false
 	var issetClusterName bool = false
 	var issetExpander bool = false
-	var issetScaleDownEnabled bool = false
+	var issetEnableScaleDown bool = false
 	var issetScaleDownUtilizationThreshold bool = false
 	var issetScaleDownUnneededTime bool = false
 	var issetScaleDownDelayAfterAdd bool = false
@@ -29254,7 +31214,7 @@ func (p *GetAutoScalingRuleResponse) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField4(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetScaleDownEnabled = true
+				issetEnableScaleDown = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -29376,7 +31336,7 @@ func (p *GetAutoScalingRuleResponse) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetScaleDownEnabled {
+	if !issetEnableScaleDown {
 		fieldId = 4
 		goto RequiredFieldNotSetError
 	}
@@ -29421,7 +31381,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_GetAutoScalingRuleResponse[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_GetClusterAutoScalingRuleResponse[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -29430,10 +31390,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_GetAutoScalingRuleResponse[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_GetClusterAutoScalingRuleResponse[fieldId]))
 }
 
-func (p *GetAutoScalingRuleResponse) ReadField1(iprot thrift.TProtocol) error {
+func (p *GetClusterAutoScalingRuleResponse) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -29442,7 +31402,7 @@ func (p *GetAutoScalingRuleResponse) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetAutoScalingRuleResponse) ReadField2(iprot thrift.TProtocol) error {
+func (p *GetClusterAutoScalingRuleResponse) ReadField2(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -29451,7 +31411,7 @@ func (p *GetAutoScalingRuleResponse) ReadField2(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetAutoScalingRuleResponse) ReadField3(iprot thrift.TProtocol) error {
+func (p *GetClusterAutoScalingRuleResponse) ReadField3(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -29460,16 +31420,16 @@ func (p *GetAutoScalingRuleResponse) ReadField3(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetAutoScalingRuleResponse) ReadField4(iprot thrift.TProtocol) error {
+func (p *GetClusterAutoScalingRuleResponse) ReadField4(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadBool(); err != nil {
 		return err
 	} else {
-		p.ScaleDownEnabled = v
+		p.EnableScaleDown = v
 	}
 	return nil
 }
 
-func (p *GetAutoScalingRuleResponse) ReadField5(iprot thrift.TProtocol) error {
+func (p *GetClusterAutoScalingRuleResponse) ReadField5(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
@@ -29478,7 +31438,7 @@ func (p *GetAutoScalingRuleResponse) ReadField5(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetAutoScalingRuleResponse) ReadField6(iprot thrift.TProtocol) error {
+func (p *GetClusterAutoScalingRuleResponse) ReadField6(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
@@ -29487,7 +31447,7 @@ func (p *GetAutoScalingRuleResponse) ReadField6(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetAutoScalingRuleResponse) ReadField7(iprot thrift.TProtocol) error {
+func (p *GetClusterAutoScalingRuleResponse) ReadField7(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
@@ -29496,7 +31456,7 @@ func (p *GetAutoScalingRuleResponse) ReadField7(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetAutoScalingRuleResponse) ReadField8(iprot thrift.TProtocol) error {
+func (p *GetClusterAutoScalingRuleResponse) ReadField8(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
@@ -29505,7 +31465,7 @@ func (p *GetAutoScalingRuleResponse) ReadField8(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetAutoScalingRuleResponse) ReadField9(iprot thrift.TProtocol) error {
+func (p *GetClusterAutoScalingRuleResponse) ReadField9(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
@@ -29514,7 +31474,7 @@ func (p *GetAutoScalingRuleResponse) ReadField9(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetAutoScalingRuleResponse) ReadField10(iprot thrift.TProtocol) error {
+func (p *GetClusterAutoScalingRuleResponse) ReadField10(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadBool(); err != nil {
 		return err
 	} else {
@@ -29523,7 +31483,7 @@ func (p *GetAutoScalingRuleResponse) ReadField10(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetAutoScalingRuleResponse) ReadField11(iprot thrift.TProtocol) error {
+func (p *GetClusterAutoScalingRuleResponse) ReadField11(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadBool(); err != nil {
 		return err
 	} else {
@@ -29532,7 +31492,7 @@ func (p *GetAutoScalingRuleResponse) ReadField11(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetAutoScalingRuleResponse) ReadField255(iprot thrift.TProtocol) error {
+func (p *GetClusterAutoScalingRuleResponse) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -29540,9 +31500,9 @@ func (p *GetAutoScalingRuleResponse) ReadField255(iprot thrift.TProtocol) error 
 	return nil
 }
 
-func (p *GetAutoScalingRuleResponse) Write(oprot thrift.TProtocol) (err error) {
+func (p *GetClusterAutoScalingRuleResponse) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("GetAutoScalingRuleResponse"); err != nil {
+	if err = oprot.WriteStructBegin("GetClusterAutoScalingRuleResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -29613,7 +31573,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *GetAutoScalingRuleResponse) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *GetClusterAutoScalingRuleResponse) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("ClusterId", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -29630,7 +31590,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *GetAutoScalingRuleResponse) writeField2(oprot thrift.TProtocol) (err error) {
+func (p *GetClusterAutoScalingRuleResponse) writeField2(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("ClusterName", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -29647,7 +31607,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *GetAutoScalingRuleResponse) writeField3(oprot thrift.TProtocol) (err error) {
+func (p *GetClusterAutoScalingRuleResponse) writeField3(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Expander", thrift.STRING, 3); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -29664,11 +31624,11 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
-func (p *GetAutoScalingRuleResponse) writeField4(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("ScaleDownEnabled", thrift.BOOL, 4); err != nil {
+func (p *GetClusterAutoScalingRuleResponse) writeField4(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("EnableScaleDown", thrift.BOOL, 4); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteBool(p.ScaleDownEnabled); err != nil {
+	if err := oprot.WriteBool(p.EnableScaleDown); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -29681,7 +31641,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
 }
 
-func (p *GetAutoScalingRuleResponse) writeField5(oprot thrift.TProtocol) (err error) {
+func (p *GetClusterAutoScalingRuleResponse) writeField5(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("ScaleDownUtilizationThreshold", thrift.I32, 5); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -29698,7 +31658,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
 }
 
-func (p *GetAutoScalingRuleResponse) writeField6(oprot thrift.TProtocol) (err error) {
+func (p *GetClusterAutoScalingRuleResponse) writeField6(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("ScaleDownUnneededTime", thrift.I32, 6); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -29715,7 +31675,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
 }
 
-func (p *GetAutoScalingRuleResponse) writeField7(oprot thrift.TProtocol) (err error) {
+func (p *GetClusterAutoScalingRuleResponse) writeField7(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("ScaleDownDelayAfterAdd", thrift.I32, 7); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -29732,7 +31692,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 7 end error: ", p), err)
 }
 
-func (p *GetAutoScalingRuleResponse) writeField8(oprot thrift.TProtocol) (err error) {
+func (p *GetClusterAutoScalingRuleResponse) writeField8(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("ScaleDownDelayAfterFailure", thrift.I32, 8); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -29749,7 +31709,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 8 end error: ", p), err)
 }
 
-func (p *GetAutoScalingRuleResponse) writeField9(oprot thrift.TProtocol) (err error) {
+func (p *GetClusterAutoScalingRuleResponse) writeField9(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("MaxEmptyBulkDelete", thrift.I32, 9); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -29766,7 +31726,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 9 end error: ", p), err)
 }
 
-func (p *GetAutoScalingRuleResponse) writeField10(oprot thrift.TProtocol) (err error) {
+func (p *GetClusterAutoScalingRuleResponse) writeField10(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("SkipNodesWithLocalStorage", thrift.BOOL, 10); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -29783,7 +31743,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 10 end error: ", p), err)
 }
 
-func (p *GetAutoScalingRuleResponse) writeField11(oprot thrift.TProtocol) (err error) {
+func (p *GetClusterAutoScalingRuleResponse) writeField11(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("SkipNodesWithSystemPods", thrift.BOOL, 11); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -29800,7 +31760,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 11 end error: ", p), err)
 }
 
-func (p *GetAutoScalingRuleResponse) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *GetClusterAutoScalingRuleResponse) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -29819,14 +31779,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *GetAutoScalingRuleResponse) String() string {
+func (p *GetClusterAutoScalingRuleResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("GetAutoScalingRuleResponse(%+v)", *p)
+	return fmt.Sprintf("GetClusterAutoScalingRuleResponse(%+v)", *p)
 }
 
-func (p *GetAutoScalingRuleResponse) DeepEqual(ano *GetAutoScalingRuleResponse) bool {
+func (p *GetClusterAutoScalingRuleResponse) DeepEqual(ano *GetClusterAutoScalingRuleResponse) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -29841,7 +31801,7 @@ func (p *GetAutoScalingRuleResponse) DeepEqual(ano *GetAutoScalingRuleResponse) 
 	if !p.Field3DeepEqual(ano.Expander) {
 		return false
 	}
-	if !p.Field4DeepEqual(ano.ScaleDownEnabled) {
+	if !p.Field4DeepEqual(ano.EnableScaleDown) {
 		return false
 	}
 	if !p.Field5DeepEqual(ano.ScaleDownUtilizationThreshold) {
@@ -29871,84 +31831,84 @@ func (p *GetAutoScalingRuleResponse) DeepEqual(ano *GetAutoScalingRuleResponse) 
 	return true
 }
 
-func (p *GetAutoScalingRuleResponse) Field1DeepEqual(src string) bool {
+func (p *GetClusterAutoScalingRuleResponse) Field1DeepEqual(src string) bool {
 
 	if strings.Compare(p.ClusterId, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GetAutoScalingRuleResponse) Field2DeepEqual(src string) bool {
+func (p *GetClusterAutoScalingRuleResponse) Field2DeepEqual(src string) bool {
 
 	if strings.Compare(p.ClusterName, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GetAutoScalingRuleResponse) Field3DeepEqual(src string) bool {
+func (p *GetClusterAutoScalingRuleResponse) Field3DeepEqual(src string) bool {
 
 	if strings.Compare(p.Expander, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GetAutoScalingRuleResponse) Field4DeepEqual(src bool) bool {
+func (p *GetClusterAutoScalingRuleResponse) Field4DeepEqual(src bool) bool {
 
-	if p.ScaleDownEnabled != src {
+	if p.EnableScaleDown != src {
 		return false
 	}
 	return true
 }
-func (p *GetAutoScalingRuleResponse) Field5DeepEqual(src int32) bool {
+func (p *GetClusterAutoScalingRuleResponse) Field5DeepEqual(src int32) bool {
 
 	if p.ScaleDownUtilizationThreshold != src {
 		return false
 	}
 	return true
 }
-func (p *GetAutoScalingRuleResponse) Field6DeepEqual(src int32) bool {
+func (p *GetClusterAutoScalingRuleResponse) Field6DeepEqual(src int32) bool {
 
 	if p.ScaleDownUnneededTime != src {
 		return false
 	}
 	return true
 }
-func (p *GetAutoScalingRuleResponse) Field7DeepEqual(src int32) bool {
+func (p *GetClusterAutoScalingRuleResponse) Field7DeepEqual(src int32) bool {
 
 	if p.ScaleDownDelayAfterAdd != src {
 		return false
 	}
 	return true
 }
-func (p *GetAutoScalingRuleResponse) Field8DeepEqual(src int32) bool {
+func (p *GetClusterAutoScalingRuleResponse) Field8DeepEqual(src int32) bool {
 
 	if p.ScaleDownDelayAfterFailure != src {
 		return false
 	}
 	return true
 }
-func (p *GetAutoScalingRuleResponse) Field9DeepEqual(src int32) bool {
+func (p *GetClusterAutoScalingRuleResponse) Field9DeepEqual(src int32) bool {
 
 	if p.MaxEmptyBulkDelete != src {
 		return false
 	}
 	return true
 }
-func (p *GetAutoScalingRuleResponse) Field10DeepEqual(src bool) bool {
+func (p *GetClusterAutoScalingRuleResponse) Field10DeepEqual(src bool) bool {
 
 	if p.SkipNodesWithLocalStorage != src {
 		return false
 	}
 	return true
 }
-func (p *GetAutoScalingRuleResponse) Field11DeepEqual(src bool) bool {
+func (p *GetClusterAutoScalingRuleResponse) Field11DeepEqual(src bool) bool {
 
 	if p.SkipNodesWithSystemPods != src {
 		return false
 	}
 	return true
 }
-func (p *GetAutoScalingRuleResponse) Field255DeepEqual(src *base.Base) bool {
+func (p *GetClusterAutoScalingRuleResponse) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -29956,10 +31916,10 @@ func (p *GetAutoScalingRuleResponse) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
-type UpdateAutoScalingRuleRequest struct {
-	ClusterId                     string         `thrift:"ClusterId,1,required" validate:"required"`
+type UpdateClusterAutoScalingRuleRequest struct {
+	ClusterId                     string         `thrift:"ClusterId,1,required" validate:"required,k8sName"`
 	Expander                      *string        `thrift:"Expander,2" json:"Expander,omitempty"`
-	ScaleDownEnabled              *bool          `thrift:"ScaleDownEnabled,3" json:"ScaleDownEnabled,omitempty"`
+	EnableScaleDown               *bool          `thrift:"EnableScaleDown,3" json:"EnableScaleDown,omitempty"`
 	ScaleDownUtilizationThreshold *int32         `thrift:"ScaleDownUtilizationThreshold,4" json:"ScaleDownUtilizationThreshold,omitempty"`
 	ScaleDownUnneededTime         *int32         `thrift:"ScaleDownUnneededTime,5" json:"ScaleDownUnneededTime,omitempty"`
 	ScaleDownDelayAfterAdd        *int32         `thrift:"ScaleDownDelayAfterAdd,6" json:"ScaleDownDelayAfterAdd,omitempty"`
@@ -29971,153 +31931,153 @@ type UpdateAutoScalingRuleRequest struct {
 	Base                          *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewUpdateAutoScalingRuleRequest() *UpdateAutoScalingRuleRequest {
-	return &UpdateAutoScalingRuleRequest{}
+func NewUpdateClusterAutoScalingRuleRequest() *UpdateClusterAutoScalingRuleRequest {
+	return &UpdateClusterAutoScalingRuleRequest{}
 }
 
-func (p *UpdateAutoScalingRuleRequest) GetClusterId() (v string) {
+func (p *UpdateClusterAutoScalingRuleRequest) GetClusterId() (v string) {
 	return p.ClusterId
 }
 
-var UpdateAutoScalingRuleRequest_Expander_DEFAULT string
+var UpdateClusterAutoScalingRuleRequest_Expander_DEFAULT string
 
-func (p *UpdateAutoScalingRuleRequest) GetExpander() (v string) {
+func (p *UpdateClusterAutoScalingRuleRequest) GetExpander() (v string) {
 	if !p.IsSetExpander() {
-		return UpdateAutoScalingRuleRequest_Expander_DEFAULT
+		return UpdateClusterAutoScalingRuleRequest_Expander_DEFAULT
 	}
 	return *p.Expander
 }
 
-var UpdateAutoScalingRuleRequest_ScaleDownEnabled_DEFAULT bool
+var UpdateClusterAutoScalingRuleRequest_EnableScaleDown_DEFAULT bool
 
-func (p *UpdateAutoScalingRuleRequest) GetScaleDownEnabled() (v bool) {
-	if !p.IsSetScaleDownEnabled() {
-		return UpdateAutoScalingRuleRequest_ScaleDownEnabled_DEFAULT
+func (p *UpdateClusterAutoScalingRuleRequest) GetEnableScaleDown() (v bool) {
+	if !p.IsSetEnableScaleDown() {
+		return UpdateClusterAutoScalingRuleRequest_EnableScaleDown_DEFAULT
 	}
-	return *p.ScaleDownEnabled
+	return *p.EnableScaleDown
 }
 
-var UpdateAutoScalingRuleRequest_ScaleDownUtilizationThreshold_DEFAULT int32
+var UpdateClusterAutoScalingRuleRequest_ScaleDownUtilizationThreshold_DEFAULT int32
 
-func (p *UpdateAutoScalingRuleRequest) GetScaleDownUtilizationThreshold() (v int32) {
+func (p *UpdateClusterAutoScalingRuleRequest) GetScaleDownUtilizationThreshold() (v int32) {
 	if !p.IsSetScaleDownUtilizationThreshold() {
-		return UpdateAutoScalingRuleRequest_ScaleDownUtilizationThreshold_DEFAULT
+		return UpdateClusterAutoScalingRuleRequest_ScaleDownUtilizationThreshold_DEFAULT
 	}
 	return *p.ScaleDownUtilizationThreshold
 }
 
-var UpdateAutoScalingRuleRequest_ScaleDownUnneededTime_DEFAULT int32
+var UpdateClusterAutoScalingRuleRequest_ScaleDownUnneededTime_DEFAULT int32
 
-func (p *UpdateAutoScalingRuleRequest) GetScaleDownUnneededTime() (v int32) {
+func (p *UpdateClusterAutoScalingRuleRequest) GetScaleDownUnneededTime() (v int32) {
 	if !p.IsSetScaleDownUnneededTime() {
-		return UpdateAutoScalingRuleRequest_ScaleDownUnneededTime_DEFAULT
+		return UpdateClusterAutoScalingRuleRequest_ScaleDownUnneededTime_DEFAULT
 	}
 	return *p.ScaleDownUnneededTime
 }
 
-var UpdateAutoScalingRuleRequest_ScaleDownDelayAfterAdd_DEFAULT int32
+var UpdateClusterAutoScalingRuleRequest_ScaleDownDelayAfterAdd_DEFAULT int32
 
-func (p *UpdateAutoScalingRuleRequest) GetScaleDownDelayAfterAdd() (v int32) {
+func (p *UpdateClusterAutoScalingRuleRequest) GetScaleDownDelayAfterAdd() (v int32) {
 	if !p.IsSetScaleDownDelayAfterAdd() {
-		return UpdateAutoScalingRuleRequest_ScaleDownDelayAfterAdd_DEFAULT
+		return UpdateClusterAutoScalingRuleRequest_ScaleDownDelayAfterAdd_DEFAULT
 	}
 	return *p.ScaleDownDelayAfterAdd
 }
 
-var UpdateAutoScalingRuleRequest_ScaleDownDelayAfterFailure_DEFAULT int32
+var UpdateClusterAutoScalingRuleRequest_ScaleDownDelayAfterFailure_DEFAULT int32
 
-func (p *UpdateAutoScalingRuleRequest) GetScaleDownDelayAfterFailure() (v int32) {
+func (p *UpdateClusterAutoScalingRuleRequest) GetScaleDownDelayAfterFailure() (v int32) {
 	if !p.IsSetScaleDownDelayAfterFailure() {
-		return UpdateAutoScalingRuleRequest_ScaleDownDelayAfterFailure_DEFAULT
+		return UpdateClusterAutoScalingRuleRequest_ScaleDownDelayAfterFailure_DEFAULT
 	}
 	return *p.ScaleDownDelayAfterFailure
 }
 
-var UpdateAutoScalingRuleRequest_MaxEmptyBulkDelete_DEFAULT int32
+var UpdateClusterAutoScalingRuleRequest_MaxEmptyBulkDelete_DEFAULT int32
 
-func (p *UpdateAutoScalingRuleRequest) GetMaxEmptyBulkDelete() (v int32) {
+func (p *UpdateClusterAutoScalingRuleRequest) GetMaxEmptyBulkDelete() (v int32) {
 	if !p.IsSetMaxEmptyBulkDelete() {
-		return UpdateAutoScalingRuleRequest_MaxEmptyBulkDelete_DEFAULT
+		return UpdateClusterAutoScalingRuleRequest_MaxEmptyBulkDelete_DEFAULT
 	}
 	return *p.MaxEmptyBulkDelete
 }
 
-var UpdateAutoScalingRuleRequest_SkipNodesWithLocalStorage_DEFAULT bool
+var UpdateClusterAutoScalingRuleRequest_SkipNodesWithLocalStorage_DEFAULT bool
 
-func (p *UpdateAutoScalingRuleRequest) GetSkipNodesWithLocalStorage() (v bool) {
+func (p *UpdateClusterAutoScalingRuleRequest) GetSkipNodesWithLocalStorage() (v bool) {
 	if !p.IsSetSkipNodesWithLocalStorage() {
-		return UpdateAutoScalingRuleRequest_SkipNodesWithLocalStorage_DEFAULT
+		return UpdateClusterAutoScalingRuleRequest_SkipNodesWithLocalStorage_DEFAULT
 	}
 	return *p.SkipNodesWithLocalStorage
 }
 
-var UpdateAutoScalingRuleRequest_SkipNodesWithSystemPods_DEFAULT bool
+var UpdateClusterAutoScalingRuleRequest_SkipNodesWithSystemPods_DEFAULT bool
 
-func (p *UpdateAutoScalingRuleRequest) GetSkipNodesWithSystemPods() (v bool) {
+func (p *UpdateClusterAutoScalingRuleRequest) GetSkipNodesWithSystemPods() (v bool) {
 	if !p.IsSetSkipNodesWithSystemPods() {
-		return UpdateAutoScalingRuleRequest_SkipNodesWithSystemPods_DEFAULT
+		return UpdateClusterAutoScalingRuleRequest_SkipNodesWithSystemPods_DEFAULT
 	}
 	return *p.SkipNodesWithSystemPods
 }
 
-var UpdateAutoScalingRuleRequest_Top_DEFAULT *base.TopParam
+var UpdateClusterAutoScalingRuleRequest_Top_DEFAULT *base.TopParam
 
-func (p *UpdateAutoScalingRuleRequest) GetTop() (v *base.TopParam) {
+func (p *UpdateClusterAutoScalingRuleRequest) GetTop() (v *base.TopParam) {
 	if !p.IsSetTop() {
-		return UpdateAutoScalingRuleRequest_Top_DEFAULT
+		return UpdateClusterAutoScalingRuleRequest_Top_DEFAULT
 	}
 	return p.Top
 }
 
-var UpdateAutoScalingRuleRequest_Base_DEFAULT *base.Base
+var UpdateClusterAutoScalingRuleRequest_Base_DEFAULT *base.Base
 
-func (p *UpdateAutoScalingRuleRequest) GetBase() (v *base.Base) {
+func (p *UpdateClusterAutoScalingRuleRequest) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return UpdateAutoScalingRuleRequest_Base_DEFAULT
+		return UpdateClusterAutoScalingRuleRequest_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *UpdateAutoScalingRuleRequest) SetClusterId(val string) {
+func (p *UpdateClusterAutoScalingRuleRequest) SetClusterId(val string) {
 	p.ClusterId = val
 }
-func (p *UpdateAutoScalingRuleRequest) SetExpander(val *string) {
+func (p *UpdateClusterAutoScalingRuleRequest) SetExpander(val *string) {
 	p.Expander = val
 }
-func (p *UpdateAutoScalingRuleRequest) SetScaleDownEnabled(val *bool) {
-	p.ScaleDownEnabled = val
+func (p *UpdateClusterAutoScalingRuleRequest) SetEnableScaleDown(val *bool) {
+	p.EnableScaleDown = val
 }
-func (p *UpdateAutoScalingRuleRequest) SetScaleDownUtilizationThreshold(val *int32) {
+func (p *UpdateClusterAutoScalingRuleRequest) SetScaleDownUtilizationThreshold(val *int32) {
 	p.ScaleDownUtilizationThreshold = val
 }
-func (p *UpdateAutoScalingRuleRequest) SetScaleDownUnneededTime(val *int32) {
+func (p *UpdateClusterAutoScalingRuleRequest) SetScaleDownUnneededTime(val *int32) {
 	p.ScaleDownUnneededTime = val
 }
-func (p *UpdateAutoScalingRuleRequest) SetScaleDownDelayAfterAdd(val *int32) {
+func (p *UpdateClusterAutoScalingRuleRequest) SetScaleDownDelayAfterAdd(val *int32) {
 	p.ScaleDownDelayAfterAdd = val
 }
-func (p *UpdateAutoScalingRuleRequest) SetScaleDownDelayAfterFailure(val *int32) {
+func (p *UpdateClusterAutoScalingRuleRequest) SetScaleDownDelayAfterFailure(val *int32) {
 	p.ScaleDownDelayAfterFailure = val
 }
-func (p *UpdateAutoScalingRuleRequest) SetMaxEmptyBulkDelete(val *int32) {
+func (p *UpdateClusterAutoScalingRuleRequest) SetMaxEmptyBulkDelete(val *int32) {
 	p.MaxEmptyBulkDelete = val
 }
-func (p *UpdateAutoScalingRuleRequest) SetSkipNodesWithLocalStorage(val *bool) {
+func (p *UpdateClusterAutoScalingRuleRequest) SetSkipNodesWithLocalStorage(val *bool) {
 	p.SkipNodesWithLocalStorage = val
 }
-func (p *UpdateAutoScalingRuleRequest) SetSkipNodesWithSystemPods(val *bool) {
+func (p *UpdateClusterAutoScalingRuleRequest) SetSkipNodesWithSystemPods(val *bool) {
 	p.SkipNodesWithSystemPods = val
 }
-func (p *UpdateAutoScalingRuleRequest) SetTop(val *base.TopParam) {
+func (p *UpdateClusterAutoScalingRuleRequest) SetTop(val *base.TopParam) {
 	p.Top = val
 }
-func (p *UpdateAutoScalingRuleRequest) SetBase(val *base.Base) {
+func (p *UpdateClusterAutoScalingRuleRequest) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_UpdateAutoScalingRuleRequest = map[int16]string{
+var fieldIDToName_UpdateClusterAutoScalingRuleRequest = map[int16]string{
 	1:   "ClusterId",
 	2:   "Expander",
-	3:   "ScaleDownEnabled",
+	3:   "EnableScaleDown",
 	4:   "ScaleDownUtilizationThreshold",
 	5:   "ScaleDownUnneededTime",
 	6:   "ScaleDownDelayAfterAdd",
@@ -30129,51 +32089,51 @@ var fieldIDToName_UpdateAutoScalingRuleRequest = map[int16]string{
 	255: "Base",
 }
 
-func (p *UpdateAutoScalingRuleRequest) IsSetExpander() bool {
+func (p *UpdateClusterAutoScalingRuleRequest) IsSetExpander() bool {
 	return p.Expander != nil
 }
 
-func (p *UpdateAutoScalingRuleRequest) IsSetScaleDownEnabled() bool {
-	return p.ScaleDownEnabled != nil
+func (p *UpdateClusterAutoScalingRuleRequest) IsSetEnableScaleDown() bool {
+	return p.EnableScaleDown != nil
 }
 
-func (p *UpdateAutoScalingRuleRequest) IsSetScaleDownUtilizationThreshold() bool {
+func (p *UpdateClusterAutoScalingRuleRequest) IsSetScaleDownUtilizationThreshold() bool {
 	return p.ScaleDownUtilizationThreshold != nil
 }
 
-func (p *UpdateAutoScalingRuleRequest) IsSetScaleDownUnneededTime() bool {
+func (p *UpdateClusterAutoScalingRuleRequest) IsSetScaleDownUnneededTime() bool {
 	return p.ScaleDownUnneededTime != nil
 }
 
-func (p *UpdateAutoScalingRuleRequest) IsSetScaleDownDelayAfterAdd() bool {
+func (p *UpdateClusterAutoScalingRuleRequest) IsSetScaleDownDelayAfterAdd() bool {
 	return p.ScaleDownDelayAfterAdd != nil
 }
 
-func (p *UpdateAutoScalingRuleRequest) IsSetScaleDownDelayAfterFailure() bool {
+func (p *UpdateClusterAutoScalingRuleRequest) IsSetScaleDownDelayAfterFailure() bool {
 	return p.ScaleDownDelayAfterFailure != nil
 }
 
-func (p *UpdateAutoScalingRuleRequest) IsSetMaxEmptyBulkDelete() bool {
+func (p *UpdateClusterAutoScalingRuleRequest) IsSetMaxEmptyBulkDelete() bool {
 	return p.MaxEmptyBulkDelete != nil
 }
 
-func (p *UpdateAutoScalingRuleRequest) IsSetSkipNodesWithLocalStorage() bool {
+func (p *UpdateClusterAutoScalingRuleRequest) IsSetSkipNodesWithLocalStorage() bool {
 	return p.SkipNodesWithLocalStorage != nil
 }
 
-func (p *UpdateAutoScalingRuleRequest) IsSetSkipNodesWithSystemPods() bool {
+func (p *UpdateClusterAutoScalingRuleRequest) IsSetSkipNodesWithSystemPods() bool {
 	return p.SkipNodesWithSystemPods != nil
 }
 
-func (p *UpdateAutoScalingRuleRequest) IsSetTop() bool {
+func (p *UpdateClusterAutoScalingRuleRequest) IsSetTop() bool {
 	return p.Top != nil
 }
 
-func (p *UpdateAutoScalingRuleRequest) IsSetBase() bool {
+func (p *UpdateClusterAutoScalingRuleRequest) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *UpdateAutoScalingRuleRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *UpdateClusterAutoScalingRuleRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -30345,7 +32305,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UpdateAutoScalingRuleRequest[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UpdateClusterAutoScalingRuleRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -30354,10 +32314,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_UpdateAutoScalingRuleRequest[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_UpdateClusterAutoScalingRuleRequest[fieldId]))
 }
 
-func (p *UpdateAutoScalingRuleRequest) ReadField1(iprot thrift.TProtocol) error {
+func (p *UpdateClusterAutoScalingRuleRequest) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -30366,7 +32326,7 @@ func (p *UpdateAutoScalingRuleRequest) ReadField1(iprot thrift.TProtocol) error 
 	return nil
 }
 
-func (p *UpdateAutoScalingRuleRequest) ReadField2(iprot thrift.TProtocol) error {
+func (p *UpdateClusterAutoScalingRuleRequest) ReadField2(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -30375,16 +32335,16 @@ func (p *UpdateAutoScalingRuleRequest) ReadField2(iprot thrift.TProtocol) error 
 	return nil
 }
 
-func (p *UpdateAutoScalingRuleRequest) ReadField3(iprot thrift.TProtocol) error {
+func (p *UpdateClusterAutoScalingRuleRequest) ReadField3(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadBool(); err != nil {
 		return err
 	} else {
-		p.ScaleDownEnabled = &v
+		p.EnableScaleDown = &v
 	}
 	return nil
 }
 
-func (p *UpdateAutoScalingRuleRequest) ReadField4(iprot thrift.TProtocol) error {
+func (p *UpdateClusterAutoScalingRuleRequest) ReadField4(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
@@ -30393,7 +32353,7 @@ func (p *UpdateAutoScalingRuleRequest) ReadField4(iprot thrift.TProtocol) error 
 	return nil
 }
 
-func (p *UpdateAutoScalingRuleRequest) ReadField5(iprot thrift.TProtocol) error {
+func (p *UpdateClusterAutoScalingRuleRequest) ReadField5(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
@@ -30402,7 +32362,7 @@ func (p *UpdateAutoScalingRuleRequest) ReadField5(iprot thrift.TProtocol) error 
 	return nil
 }
 
-func (p *UpdateAutoScalingRuleRequest) ReadField6(iprot thrift.TProtocol) error {
+func (p *UpdateClusterAutoScalingRuleRequest) ReadField6(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
@@ -30411,7 +32371,7 @@ func (p *UpdateAutoScalingRuleRequest) ReadField6(iprot thrift.TProtocol) error 
 	return nil
 }
 
-func (p *UpdateAutoScalingRuleRequest) ReadField7(iprot thrift.TProtocol) error {
+func (p *UpdateClusterAutoScalingRuleRequest) ReadField7(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
@@ -30420,7 +32380,7 @@ func (p *UpdateAutoScalingRuleRequest) ReadField7(iprot thrift.TProtocol) error 
 	return nil
 }
 
-func (p *UpdateAutoScalingRuleRequest) ReadField8(iprot thrift.TProtocol) error {
+func (p *UpdateClusterAutoScalingRuleRequest) ReadField8(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
@@ -30429,7 +32389,7 @@ func (p *UpdateAutoScalingRuleRequest) ReadField8(iprot thrift.TProtocol) error 
 	return nil
 }
 
-func (p *UpdateAutoScalingRuleRequest) ReadField9(iprot thrift.TProtocol) error {
+func (p *UpdateClusterAutoScalingRuleRequest) ReadField9(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadBool(); err != nil {
 		return err
 	} else {
@@ -30438,7 +32398,7 @@ func (p *UpdateAutoScalingRuleRequest) ReadField9(iprot thrift.TProtocol) error 
 	return nil
 }
 
-func (p *UpdateAutoScalingRuleRequest) ReadField10(iprot thrift.TProtocol) error {
+func (p *UpdateClusterAutoScalingRuleRequest) ReadField10(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadBool(); err != nil {
 		return err
 	} else {
@@ -30447,7 +32407,7 @@ func (p *UpdateAutoScalingRuleRequest) ReadField10(iprot thrift.TProtocol) error
 	return nil
 }
 
-func (p *UpdateAutoScalingRuleRequest) ReadField254(iprot thrift.TProtocol) error {
+func (p *UpdateClusterAutoScalingRuleRequest) ReadField254(iprot thrift.TProtocol) error {
 	p.Top = base.NewTopParam()
 	if err := p.Top.Read(iprot); err != nil {
 		return err
@@ -30455,7 +32415,7 @@ func (p *UpdateAutoScalingRuleRequest) ReadField254(iprot thrift.TProtocol) erro
 	return nil
 }
 
-func (p *UpdateAutoScalingRuleRequest) ReadField255(iprot thrift.TProtocol) error {
+func (p *UpdateClusterAutoScalingRuleRequest) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -30463,9 +32423,9 @@ func (p *UpdateAutoScalingRuleRequest) ReadField255(iprot thrift.TProtocol) erro
 	return nil
 }
 
-func (p *UpdateAutoScalingRuleRequest) Write(oprot thrift.TProtocol) (err error) {
+func (p *UpdateClusterAutoScalingRuleRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("UpdateAutoScalingRuleRequest"); err != nil {
+	if err = oprot.WriteStructBegin("UpdateClusterAutoScalingRuleRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -30536,7 +32496,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UpdateAutoScalingRuleRequest) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *UpdateClusterAutoScalingRuleRequest) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("ClusterId", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -30553,7 +32513,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *UpdateAutoScalingRuleRequest) writeField2(oprot thrift.TProtocol) (err error) {
+func (p *UpdateClusterAutoScalingRuleRequest) writeField2(oprot thrift.TProtocol) (err error) {
 	if p.IsSetExpander() {
 		if err = oprot.WriteFieldBegin("Expander", thrift.STRING, 2); err != nil {
 			goto WriteFieldBeginError
@@ -30572,12 +32532,12 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *UpdateAutoScalingRuleRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if p.IsSetScaleDownEnabled() {
-		if err = oprot.WriteFieldBegin("ScaleDownEnabled", thrift.BOOL, 3); err != nil {
+func (p *UpdateClusterAutoScalingRuleRequest) writeField3(oprot thrift.TProtocol) (err error) {
+	if p.IsSetEnableScaleDown() {
+		if err = oprot.WriteFieldBegin("EnableScaleDown", thrift.BOOL, 3); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteBool(*p.ScaleDownEnabled); err != nil {
+		if err := oprot.WriteBool(*p.EnableScaleDown); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -30591,7 +32551,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
-func (p *UpdateAutoScalingRuleRequest) writeField4(oprot thrift.TProtocol) (err error) {
+func (p *UpdateClusterAutoScalingRuleRequest) writeField4(oprot thrift.TProtocol) (err error) {
 	if p.IsSetScaleDownUtilizationThreshold() {
 		if err = oprot.WriteFieldBegin("ScaleDownUtilizationThreshold", thrift.I32, 4); err != nil {
 			goto WriteFieldBeginError
@@ -30610,7 +32570,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
 }
 
-func (p *UpdateAutoScalingRuleRequest) writeField5(oprot thrift.TProtocol) (err error) {
+func (p *UpdateClusterAutoScalingRuleRequest) writeField5(oprot thrift.TProtocol) (err error) {
 	if p.IsSetScaleDownUnneededTime() {
 		if err = oprot.WriteFieldBegin("ScaleDownUnneededTime", thrift.I32, 5); err != nil {
 			goto WriteFieldBeginError
@@ -30629,7 +32589,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
 }
 
-func (p *UpdateAutoScalingRuleRequest) writeField6(oprot thrift.TProtocol) (err error) {
+func (p *UpdateClusterAutoScalingRuleRequest) writeField6(oprot thrift.TProtocol) (err error) {
 	if p.IsSetScaleDownDelayAfterAdd() {
 		if err = oprot.WriteFieldBegin("ScaleDownDelayAfterAdd", thrift.I32, 6); err != nil {
 			goto WriteFieldBeginError
@@ -30648,7 +32608,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
 }
 
-func (p *UpdateAutoScalingRuleRequest) writeField7(oprot thrift.TProtocol) (err error) {
+func (p *UpdateClusterAutoScalingRuleRequest) writeField7(oprot thrift.TProtocol) (err error) {
 	if p.IsSetScaleDownDelayAfterFailure() {
 		if err = oprot.WriteFieldBegin("ScaleDownDelayAfterFailure", thrift.I32, 7); err != nil {
 			goto WriteFieldBeginError
@@ -30667,7 +32627,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 7 end error: ", p), err)
 }
 
-func (p *UpdateAutoScalingRuleRequest) writeField8(oprot thrift.TProtocol) (err error) {
+func (p *UpdateClusterAutoScalingRuleRequest) writeField8(oprot thrift.TProtocol) (err error) {
 	if p.IsSetMaxEmptyBulkDelete() {
 		if err = oprot.WriteFieldBegin("MaxEmptyBulkDelete", thrift.I32, 8); err != nil {
 			goto WriteFieldBeginError
@@ -30686,7 +32646,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 8 end error: ", p), err)
 }
 
-func (p *UpdateAutoScalingRuleRequest) writeField9(oprot thrift.TProtocol) (err error) {
+func (p *UpdateClusterAutoScalingRuleRequest) writeField9(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSkipNodesWithLocalStorage() {
 		if err = oprot.WriteFieldBegin("SkipNodesWithLocalStorage", thrift.BOOL, 9); err != nil {
 			goto WriteFieldBeginError
@@ -30705,7 +32665,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 9 end error: ", p), err)
 }
 
-func (p *UpdateAutoScalingRuleRequest) writeField10(oprot thrift.TProtocol) (err error) {
+func (p *UpdateClusterAutoScalingRuleRequest) writeField10(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSkipNodesWithSystemPods() {
 		if err = oprot.WriteFieldBegin("SkipNodesWithSystemPods", thrift.BOOL, 10); err != nil {
 			goto WriteFieldBeginError
@@ -30724,7 +32684,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 10 end error: ", p), err)
 }
 
-func (p *UpdateAutoScalingRuleRequest) writeField254(oprot thrift.TProtocol) (err error) {
+func (p *UpdateClusterAutoScalingRuleRequest) writeField254(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Top", thrift.STRUCT, 254); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -30741,7 +32701,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 254 end error: ", p), err)
 }
 
-func (p *UpdateAutoScalingRuleRequest) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *UpdateClusterAutoScalingRuleRequest) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -30760,14 +32720,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *UpdateAutoScalingRuleRequest) String() string {
+func (p *UpdateClusterAutoScalingRuleRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UpdateAutoScalingRuleRequest(%+v)", *p)
+	return fmt.Sprintf("UpdateClusterAutoScalingRuleRequest(%+v)", *p)
 }
 
-func (p *UpdateAutoScalingRuleRequest) DeepEqual(ano *UpdateAutoScalingRuleRequest) bool {
+func (p *UpdateClusterAutoScalingRuleRequest) DeepEqual(ano *UpdateClusterAutoScalingRuleRequest) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -30779,7 +32739,7 @@ func (p *UpdateAutoScalingRuleRequest) DeepEqual(ano *UpdateAutoScalingRuleReque
 	if !p.Field2DeepEqual(ano.Expander) {
 		return false
 	}
-	if !p.Field3DeepEqual(ano.ScaleDownEnabled) {
+	if !p.Field3DeepEqual(ano.EnableScaleDown) {
 		return false
 	}
 	if !p.Field4DeepEqual(ano.ScaleDownUtilizationThreshold) {
@@ -30812,14 +32772,14 @@ func (p *UpdateAutoScalingRuleRequest) DeepEqual(ano *UpdateAutoScalingRuleReque
 	return true
 }
 
-func (p *UpdateAutoScalingRuleRequest) Field1DeepEqual(src string) bool {
+func (p *UpdateClusterAutoScalingRuleRequest) Field1DeepEqual(src string) bool {
 
 	if strings.Compare(p.ClusterId, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *UpdateAutoScalingRuleRequest) Field2DeepEqual(src *string) bool {
+func (p *UpdateClusterAutoScalingRuleRequest) Field2DeepEqual(src *string) bool {
 
 	if p.Expander == src {
 		return true
@@ -30831,19 +32791,19 @@ func (p *UpdateAutoScalingRuleRequest) Field2DeepEqual(src *string) bool {
 	}
 	return true
 }
-func (p *UpdateAutoScalingRuleRequest) Field3DeepEqual(src *bool) bool {
+func (p *UpdateClusterAutoScalingRuleRequest) Field3DeepEqual(src *bool) bool {
 
-	if p.ScaleDownEnabled == src {
+	if p.EnableScaleDown == src {
 		return true
-	} else if p.ScaleDownEnabled == nil || src == nil {
+	} else if p.EnableScaleDown == nil || src == nil {
 		return false
 	}
-	if *p.ScaleDownEnabled != *src {
+	if *p.EnableScaleDown != *src {
 		return false
 	}
 	return true
 }
-func (p *UpdateAutoScalingRuleRequest) Field4DeepEqual(src *int32) bool {
+func (p *UpdateClusterAutoScalingRuleRequest) Field4DeepEqual(src *int32) bool {
 
 	if p.ScaleDownUtilizationThreshold == src {
 		return true
@@ -30855,7 +32815,7 @@ func (p *UpdateAutoScalingRuleRequest) Field4DeepEqual(src *int32) bool {
 	}
 	return true
 }
-func (p *UpdateAutoScalingRuleRequest) Field5DeepEqual(src *int32) bool {
+func (p *UpdateClusterAutoScalingRuleRequest) Field5DeepEqual(src *int32) bool {
 
 	if p.ScaleDownUnneededTime == src {
 		return true
@@ -30867,7 +32827,7 @@ func (p *UpdateAutoScalingRuleRequest) Field5DeepEqual(src *int32) bool {
 	}
 	return true
 }
-func (p *UpdateAutoScalingRuleRequest) Field6DeepEqual(src *int32) bool {
+func (p *UpdateClusterAutoScalingRuleRequest) Field6DeepEqual(src *int32) bool {
 
 	if p.ScaleDownDelayAfterAdd == src {
 		return true
@@ -30879,7 +32839,7 @@ func (p *UpdateAutoScalingRuleRequest) Field6DeepEqual(src *int32) bool {
 	}
 	return true
 }
-func (p *UpdateAutoScalingRuleRequest) Field7DeepEqual(src *int32) bool {
+func (p *UpdateClusterAutoScalingRuleRequest) Field7DeepEqual(src *int32) bool {
 
 	if p.ScaleDownDelayAfterFailure == src {
 		return true
@@ -30891,7 +32851,7 @@ func (p *UpdateAutoScalingRuleRequest) Field7DeepEqual(src *int32) bool {
 	}
 	return true
 }
-func (p *UpdateAutoScalingRuleRequest) Field8DeepEqual(src *int32) bool {
+func (p *UpdateClusterAutoScalingRuleRequest) Field8DeepEqual(src *int32) bool {
 
 	if p.MaxEmptyBulkDelete == src {
 		return true
@@ -30903,7 +32863,7 @@ func (p *UpdateAutoScalingRuleRequest) Field8DeepEqual(src *int32) bool {
 	}
 	return true
 }
-func (p *UpdateAutoScalingRuleRequest) Field9DeepEqual(src *bool) bool {
+func (p *UpdateClusterAutoScalingRuleRequest) Field9DeepEqual(src *bool) bool {
 
 	if p.SkipNodesWithLocalStorage == src {
 		return true
@@ -30915,7 +32875,7 @@ func (p *UpdateAutoScalingRuleRequest) Field9DeepEqual(src *bool) bool {
 	}
 	return true
 }
-func (p *UpdateAutoScalingRuleRequest) Field10DeepEqual(src *bool) bool {
+func (p *UpdateClusterAutoScalingRuleRequest) Field10DeepEqual(src *bool) bool {
 
 	if p.SkipNodesWithSystemPods == src {
 		return true
@@ -30927,14 +32887,14 @@ func (p *UpdateAutoScalingRuleRequest) Field10DeepEqual(src *bool) bool {
 	}
 	return true
 }
-func (p *UpdateAutoScalingRuleRequest) Field254DeepEqual(src *base.TopParam) bool {
+func (p *UpdateClusterAutoScalingRuleRequest) Field254DeepEqual(src *base.TopParam) bool {
 
 	if !p.Top.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *UpdateAutoScalingRuleRequest) Field255DeepEqual(src *base.Base) bool {
+func (p *UpdateClusterAutoScalingRuleRequest) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -30942,35 +32902,35 @@ func (p *UpdateAutoScalingRuleRequest) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
-type UpdateAutoScalingRuleResponse struct {
+type UpdateClusterAutoScalingRuleResponse struct {
 	Base *base.Base `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewUpdateAutoScalingRuleResponse() *UpdateAutoScalingRuleResponse {
-	return &UpdateAutoScalingRuleResponse{}
+func NewUpdateClusterAutoScalingRuleResponse() *UpdateClusterAutoScalingRuleResponse {
+	return &UpdateClusterAutoScalingRuleResponse{}
 }
 
-var UpdateAutoScalingRuleResponse_Base_DEFAULT *base.Base
+var UpdateClusterAutoScalingRuleResponse_Base_DEFAULT *base.Base
 
-func (p *UpdateAutoScalingRuleResponse) GetBase() (v *base.Base) {
+func (p *UpdateClusterAutoScalingRuleResponse) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return UpdateAutoScalingRuleResponse_Base_DEFAULT
+		return UpdateClusterAutoScalingRuleResponse_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *UpdateAutoScalingRuleResponse) SetBase(val *base.Base) {
+func (p *UpdateClusterAutoScalingRuleResponse) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_UpdateAutoScalingRuleResponse = map[int16]string{
+var fieldIDToName_UpdateClusterAutoScalingRuleResponse = map[int16]string{
 	255: "Base",
 }
 
-func (p *UpdateAutoScalingRuleResponse) IsSetBase() bool {
+func (p *UpdateClusterAutoScalingRuleResponse) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *UpdateAutoScalingRuleResponse) Read(iprot thrift.TProtocol) (err error) {
+func (p *UpdateClusterAutoScalingRuleResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -31019,7 +32979,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UpdateAutoScalingRuleResponse[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UpdateClusterAutoScalingRuleResponse[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -31029,7 +32989,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *UpdateAutoScalingRuleResponse) ReadField255(iprot thrift.TProtocol) error {
+func (p *UpdateClusterAutoScalingRuleResponse) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -31037,9 +32997,9 @@ func (p *UpdateAutoScalingRuleResponse) ReadField255(iprot thrift.TProtocol) err
 	return nil
 }
 
-func (p *UpdateAutoScalingRuleResponse) Write(oprot thrift.TProtocol) (err error) {
+func (p *UpdateClusterAutoScalingRuleResponse) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("UpdateAutoScalingRuleResponse"); err != nil {
+	if err = oprot.WriteStructBegin("UpdateClusterAutoScalingRuleResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -31066,7 +33026,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UpdateAutoScalingRuleResponse) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *UpdateClusterAutoScalingRuleResponse) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -31085,14 +33045,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *UpdateAutoScalingRuleResponse) String() string {
+func (p *UpdateClusterAutoScalingRuleResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UpdateAutoScalingRuleResponse(%+v)", *p)
+	return fmt.Sprintf("UpdateClusterAutoScalingRuleResponse(%+v)", *p)
 }
 
-func (p *UpdateAutoScalingRuleResponse) DeepEqual(ano *UpdateAutoScalingRuleResponse) bool {
+func (p *UpdateClusterAutoScalingRuleResponse) DeepEqual(ano *UpdateClusterAutoScalingRuleResponse) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -31104,7 +33064,7 @@ func (p *UpdateAutoScalingRuleResponse) DeepEqual(ano *UpdateAutoScalingRuleResp
 	return true
 }
 
-func (p *UpdateAutoScalingRuleResponse) Field255DeepEqual(src *base.Base) bool {
+func (p *UpdateClusterAutoScalingRuleResponse) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -31112,86 +33072,86 @@ func (p *UpdateAutoScalingRuleResponse) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
-type NodePoolScaleUpRequest struct {
+type ScaleUpNodePoolRequest struct {
 	ClusterId string         `thrift:"ClusterId,1,required" json:"ClusterId"`
 	Id        string         `thrift:"Id,2,required" json:"Id"`
-	Count     int32          `thrift:"Count,3,required" json:"Count"`
+	Amount    int32          `thrift:"Amount,3,required" json:"Amount"`
 	Top       *base.TopParam `thrift:"Top,254,required" json:"Top"`
 	Base      *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewNodePoolScaleUpRequest() *NodePoolScaleUpRequest {
-	return &NodePoolScaleUpRequest{}
+func NewScaleUpNodePoolRequest() *ScaleUpNodePoolRequest {
+	return &ScaleUpNodePoolRequest{}
 }
 
-func (p *NodePoolScaleUpRequest) GetClusterId() (v string) {
+func (p *ScaleUpNodePoolRequest) GetClusterId() (v string) {
 	return p.ClusterId
 }
 
-func (p *NodePoolScaleUpRequest) GetId() (v string) {
+func (p *ScaleUpNodePoolRequest) GetId() (v string) {
 	return p.Id
 }
 
-func (p *NodePoolScaleUpRequest) GetCount() (v int32) {
-	return p.Count
+func (p *ScaleUpNodePoolRequest) GetAmount() (v int32) {
+	return p.Amount
 }
 
-var NodePoolScaleUpRequest_Top_DEFAULT *base.TopParam
+var ScaleUpNodePoolRequest_Top_DEFAULT *base.TopParam
 
-func (p *NodePoolScaleUpRequest) GetTop() (v *base.TopParam) {
+func (p *ScaleUpNodePoolRequest) GetTop() (v *base.TopParam) {
 	if !p.IsSetTop() {
-		return NodePoolScaleUpRequest_Top_DEFAULT
+		return ScaleUpNodePoolRequest_Top_DEFAULT
 	}
 	return p.Top
 }
 
-var NodePoolScaleUpRequest_Base_DEFAULT *base.Base
+var ScaleUpNodePoolRequest_Base_DEFAULT *base.Base
 
-func (p *NodePoolScaleUpRequest) GetBase() (v *base.Base) {
+func (p *ScaleUpNodePoolRequest) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return NodePoolScaleUpRequest_Base_DEFAULT
+		return ScaleUpNodePoolRequest_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *NodePoolScaleUpRequest) SetClusterId(val string) {
+func (p *ScaleUpNodePoolRequest) SetClusterId(val string) {
 	p.ClusterId = val
 }
-func (p *NodePoolScaleUpRequest) SetId(val string) {
+func (p *ScaleUpNodePoolRequest) SetId(val string) {
 	p.Id = val
 }
-func (p *NodePoolScaleUpRequest) SetCount(val int32) {
-	p.Count = val
+func (p *ScaleUpNodePoolRequest) SetAmount(val int32) {
+	p.Amount = val
 }
-func (p *NodePoolScaleUpRequest) SetTop(val *base.TopParam) {
+func (p *ScaleUpNodePoolRequest) SetTop(val *base.TopParam) {
 	p.Top = val
 }
-func (p *NodePoolScaleUpRequest) SetBase(val *base.Base) {
+func (p *ScaleUpNodePoolRequest) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_NodePoolScaleUpRequest = map[int16]string{
+var fieldIDToName_ScaleUpNodePoolRequest = map[int16]string{
 	1:   "ClusterId",
 	2:   "Id",
-	3:   "Count",
+	3:   "Amount",
 	254: "Top",
 	255: "Base",
 }
 
-func (p *NodePoolScaleUpRequest) IsSetTop() bool {
+func (p *ScaleUpNodePoolRequest) IsSetTop() bool {
 	return p.Top != nil
 }
 
-func (p *NodePoolScaleUpRequest) IsSetBase() bool {
+func (p *ScaleUpNodePoolRequest) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *NodePoolScaleUpRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *ScaleUpNodePoolRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetClusterId bool = false
 	var issetId bool = false
-	var issetCount bool = false
+	var issetAmount bool = false
 	var issetTop bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
@@ -31235,7 +33195,7 @@ func (p *NodePoolScaleUpRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField3(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetCount = true
+				issetAmount = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -31286,7 +33246,7 @@ func (p *NodePoolScaleUpRequest) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetCount {
+	if !issetAmount {
 		fieldId = 3
 		goto RequiredFieldNotSetError
 	}
@@ -31301,7 +33261,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_NodePoolScaleUpRequest[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ScaleUpNodePoolRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -31310,10 +33270,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_NodePoolScaleUpRequest[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ScaleUpNodePoolRequest[fieldId]))
 }
 
-func (p *NodePoolScaleUpRequest) ReadField1(iprot thrift.TProtocol) error {
+func (p *ScaleUpNodePoolRequest) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -31322,7 +33282,7 @@ func (p *NodePoolScaleUpRequest) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *NodePoolScaleUpRequest) ReadField2(iprot thrift.TProtocol) error {
+func (p *ScaleUpNodePoolRequest) ReadField2(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -31331,16 +33291,16 @@ func (p *NodePoolScaleUpRequest) ReadField2(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *NodePoolScaleUpRequest) ReadField3(iprot thrift.TProtocol) error {
+func (p *ScaleUpNodePoolRequest) ReadField3(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
-		p.Count = v
+		p.Amount = v
 	}
 	return nil
 }
 
-func (p *NodePoolScaleUpRequest) ReadField254(iprot thrift.TProtocol) error {
+func (p *ScaleUpNodePoolRequest) ReadField254(iprot thrift.TProtocol) error {
 	p.Top = base.NewTopParam()
 	if err := p.Top.Read(iprot); err != nil {
 		return err
@@ -31348,7 +33308,7 @@ func (p *NodePoolScaleUpRequest) ReadField254(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *NodePoolScaleUpRequest) ReadField255(iprot thrift.TProtocol) error {
+func (p *ScaleUpNodePoolRequest) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -31356,9 +33316,9 @@ func (p *NodePoolScaleUpRequest) ReadField255(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *NodePoolScaleUpRequest) Write(oprot thrift.TProtocol) (err error) {
+func (p *ScaleUpNodePoolRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("NodePoolScaleUpRequest"); err != nil {
+	if err = oprot.WriteStructBegin("ScaleUpNodePoolRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -31401,7 +33361,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *NodePoolScaleUpRequest) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ScaleUpNodePoolRequest) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("ClusterId", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -31418,7 +33378,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *NodePoolScaleUpRequest) writeField2(oprot thrift.TProtocol) (err error) {
+func (p *ScaleUpNodePoolRequest) writeField2(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Id", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -31435,11 +33395,11 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *NodePoolScaleUpRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("Count", thrift.I32, 3); err != nil {
+func (p *ScaleUpNodePoolRequest) writeField3(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("Amount", thrift.I32, 3); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI32(p.Count); err != nil {
+	if err := oprot.WriteI32(p.Amount); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -31452,7 +33412,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
-func (p *NodePoolScaleUpRequest) writeField254(oprot thrift.TProtocol) (err error) {
+func (p *ScaleUpNodePoolRequest) writeField254(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Top", thrift.STRUCT, 254); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -31469,7 +33429,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 254 end error: ", p), err)
 }
 
-func (p *NodePoolScaleUpRequest) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *ScaleUpNodePoolRequest) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -31488,14 +33448,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *NodePoolScaleUpRequest) String() string {
+func (p *ScaleUpNodePoolRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("NodePoolScaleUpRequest(%+v)", *p)
+	return fmt.Sprintf("ScaleUpNodePoolRequest(%+v)", *p)
 }
 
-func (p *NodePoolScaleUpRequest) DeepEqual(ano *NodePoolScaleUpRequest) bool {
+func (p *ScaleUpNodePoolRequest) DeepEqual(ano *ScaleUpNodePoolRequest) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -31507,7 +33467,7 @@ func (p *NodePoolScaleUpRequest) DeepEqual(ano *NodePoolScaleUpRequest) bool {
 	if !p.Field2DeepEqual(ano.Id) {
 		return false
 	}
-	if !p.Field3DeepEqual(ano.Count) {
+	if !p.Field3DeepEqual(ano.Amount) {
 		return false
 	}
 	if !p.Field254DeepEqual(ano.Top) {
@@ -31519,35 +33479,35 @@ func (p *NodePoolScaleUpRequest) DeepEqual(ano *NodePoolScaleUpRequest) bool {
 	return true
 }
 
-func (p *NodePoolScaleUpRequest) Field1DeepEqual(src string) bool {
+func (p *ScaleUpNodePoolRequest) Field1DeepEqual(src string) bool {
 
 	if strings.Compare(p.ClusterId, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *NodePoolScaleUpRequest) Field2DeepEqual(src string) bool {
+func (p *ScaleUpNodePoolRequest) Field2DeepEqual(src string) bool {
 
 	if strings.Compare(p.Id, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *NodePoolScaleUpRequest) Field3DeepEqual(src int32) bool {
+func (p *ScaleUpNodePoolRequest) Field3DeepEqual(src int32) bool {
 
-	if p.Count != src {
+	if p.Amount != src {
 		return false
 	}
 	return true
 }
-func (p *NodePoolScaleUpRequest) Field254DeepEqual(src *base.TopParam) bool {
+func (p *ScaleUpNodePoolRequest) Field254DeepEqual(src *base.TopParam) bool {
 
 	if !p.Top.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *NodePoolScaleUpRequest) Field255DeepEqual(src *base.Base) bool {
+func (p *ScaleUpNodePoolRequest) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -31555,35 +33515,35 @@ func (p *NodePoolScaleUpRequest) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
-type NodePoolScaleUpResponse struct {
+type ScaleUpNodePoolResponse struct {
 	Base *base.Base `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewNodePoolScaleUpResponse() *NodePoolScaleUpResponse {
-	return &NodePoolScaleUpResponse{}
+func NewScaleUpNodePoolResponse() *ScaleUpNodePoolResponse {
+	return &ScaleUpNodePoolResponse{}
 }
 
-var NodePoolScaleUpResponse_Base_DEFAULT *base.Base
+var ScaleUpNodePoolResponse_Base_DEFAULT *base.Base
 
-func (p *NodePoolScaleUpResponse) GetBase() (v *base.Base) {
+func (p *ScaleUpNodePoolResponse) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return NodePoolScaleUpResponse_Base_DEFAULT
+		return ScaleUpNodePoolResponse_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *NodePoolScaleUpResponse) SetBase(val *base.Base) {
+func (p *ScaleUpNodePoolResponse) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_NodePoolScaleUpResponse = map[int16]string{
+var fieldIDToName_ScaleUpNodePoolResponse = map[int16]string{
 	255: "Base",
 }
 
-func (p *NodePoolScaleUpResponse) IsSetBase() bool {
+func (p *ScaleUpNodePoolResponse) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *NodePoolScaleUpResponse) Read(iprot thrift.TProtocol) (err error) {
+func (p *ScaleUpNodePoolResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -31632,7 +33592,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_NodePoolScaleUpResponse[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ScaleUpNodePoolResponse[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -31642,7 +33602,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *NodePoolScaleUpResponse) ReadField255(iprot thrift.TProtocol) error {
+func (p *ScaleUpNodePoolResponse) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -31650,9 +33610,9 @@ func (p *NodePoolScaleUpResponse) ReadField255(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *NodePoolScaleUpResponse) Write(oprot thrift.TProtocol) (err error) {
+func (p *ScaleUpNodePoolResponse) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("NodePoolScaleUpResponse"); err != nil {
+	if err = oprot.WriteStructBegin("ScaleUpNodePoolResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -31679,7 +33639,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *NodePoolScaleUpResponse) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *ScaleUpNodePoolResponse) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -31698,14 +33658,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *NodePoolScaleUpResponse) String() string {
+func (p *ScaleUpNodePoolResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("NodePoolScaleUpResponse(%+v)", *p)
+	return fmt.Sprintf("ScaleUpNodePoolResponse(%+v)", *p)
 }
 
-func (p *NodePoolScaleUpResponse) DeepEqual(ano *NodePoolScaleUpResponse) bool {
+func (p *ScaleUpNodePoolResponse) DeepEqual(ano *ScaleUpNodePoolResponse) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -31717,7 +33677,7 @@ func (p *NodePoolScaleUpResponse) DeepEqual(ano *NodePoolScaleUpResponse) bool {
 	return true
 }
 
-func (p *NodePoolScaleUpResponse) Field255DeepEqual(src *base.Base) bool {
+func (p *ScaleUpNodePoolResponse) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -31725,7 +33685,7 @@ func (p *NodePoolScaleUpResponse) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
-type NodePoolScaleDownRequest struct {
+type ScaleDownNodePoolRequest struct {
 	ClusterId string         `thrift:"ClusterId,1,required" json:"ClusterId"`
 	Id        string         `thrift:"Id,2,required" json:"Id"`
 	NodeIds   []string       `thrift:"NodeIds,3,required" json:"NodeIds"`
@@ -31733,56 +33693,56 @@ type NodePoolScaleDownRequest struct {
 	Base      *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewNodePoolScaleDownRequest() *NodePoolScaleDownRequest {
-	return &NodePoolScaleDownRequest{}
+func NewScaleDownNodePoolRequest() *ScaleDownNodePoolRequest {
+	return &ScaleDownNodePoolRequest{}
 }
 
-func (p *NodePoolScaleDownRequest) GetClusterId() (v string) {
+func (p *ScaleDownNodePoolRequest) GetClusterId() (v string) {
 	return p.ClusterId
 }
 
-func (p *NodePoolScaleDownRequest) GetId() (v string) {
+func (p *ScaleDownNodePoolRequest) GetId() (v string) {
 	return p.Id
 }
 
-func (p *NodePoolScaleDownRequest) GetNodeIds() (v []string) {
+func (p *ScaleDownNodePoolRequest) GetNodeIds() (v []string) {
 	return p.NodeIds
 }
 
-var NodePoolScaleDownRequest_Top_DEFAULT *base.TopParam
+var ScaleDownNodePoolRequest_Top_DEFAULT *base.TopParam
 
-func (p *NodePoolScaleDownRequest) GetTop() (v *base.TopParam) {
+func (p *ScaleDownNodePoolRequest) GetTop() (v *base.TopParam) {
 	if !p.IsSetTop() {
-		return NodePoolScaleDownRequest_Top_DEFAULT
+		return ScaleDownNodePoolRequest_Top_DEFAULT
 	}
 	return p.Top
 }
 
-var NodePoolScaleDownRequest_Base_DEFAULT *base.Base
+var ScaleDownNodePoolRequest_Base_DEFAULT *base.Base
 
-func (p *NodePoolScaleDownRequest) GetBase() (v *base.Base) {
+func (p *ScaleDownNodePoolRequest) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return NodePoolScaleDownRequest_Base_DEFAULT
+		return ScaleDownNodePoolRequest_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *NodePoolScaleDownRequest) SetClusterId(val string) {
+func (p *ScaleDownNodePoolRequest) SetClusterId(val string) {
 	p.ClusterId = val
 }
-func (p *NodePoolScaleDownRequest) SetId(val string) {
+func (p *ScaleDownNodePoolRequest) SetId(val string) {
 	p.Id = val
 }
-func (p *NodePoolScaleDownRequest) SetNodeIds(val []string) {
+func (p *ScaleDownNodePoolRequest) SetNodeIds(val []string) {
 	p.NodeIds = val
 }
-func (p *NodePoolScaleDownRequest) SetTop(val *base.TopParam) {
+func (p *ScaleDownNodePoolRequest) SetTop(val *base.TopParam) {
 	p.Top = val
 }
-func (p *NodePoolScaleDownRequest) SetBase(val *base.Base) {
+func (p *ScaleDownNodePoolRequest) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_NodePoolScaleDownRequest = map[int16]string{
+var fieldIDToName_ScaleDownNodePoolRequest = map[int16]string{
 	1:   "ClusterId",
 	2:   "Id",
 	3:   "NodeIds",
@@ -31790,15 +33750,15 @@ var fieldIDToName_NodePoolScaleDownRequest = map[int16]string{
 	255: "Base",
 }
 
-func (p *NodePoolScaleDownRequest) IsSetTop() bool {
+func (p *ScaleDownNodePoolRequest) IsSetTop() bool {
 	return p.Top != nil
 }
 
-func (p *NodePoolScaleDownRequest) IsSetBase() bool {
+func (p *ScaleDownNodePoolRequest) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *NodePoolScaleDownRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *ScaleDownNodePoolRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -31914,7 +33874,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_NodePoolScaleDownRequest[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ScaleDownNodePoolRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -31923,10 +33883,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_NodePoolScaleDownRequest[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ScaleDownNodePoolRequest[fieldId]))
 }
 
-func (p *NodePoolScaleDownRequest) ReadField1(iprot thrift.TProtocol) error {
+func (p *ScaleDownNodePoolRequest) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -31935,7 +33895,7 @@ func (p *NodePoolScaleDownRequest) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *NodePoolScaleDownRequest) ReadField2(iprot thrift.TProtocol) error {
+func (p *ScaleDownNodePoolRequest) ReadField2(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -31944,7 +33904,7 @@ func (p *NodePoolScaleDownRequest) ReadField2(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *NodePoolScaleDownRequest) ReadField3(iprot thrift.TProtocol) error {
+func (p *ScaleDownNodePoolRequest) ReadField3(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
@@ -31966,7 +33926,7 @@ func (p *NodePoolScaleDownRequest) ReadField3(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *NodePoolScaleDownRequest) ReadField254(iprot thrift.TProtocol) error {
+func (p *ScaleDownNodePoolRequest) ReadField254(iprot thrift.TProtocol) error {
 	p.Top = base.NewTopParam()
 	if err := p.Top.Read(iprot); err != nil {
 		return err
@@ -31974,7 +33934,7 @@ func (p *NodePoolScaleDownRequest) ReadField254(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *NodePoolScaleDownRequest) ReadField255(iprot thrift.TProtocol) error {
+func (p *ScaleDownNodePoolRequest) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -31982,9 +33942,9 @@ func (p *NodePoolScaleDownRequest) ReadField255(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *NodePoolScaleDownRequest) Write(oprot thrift.TProtocol) (err error) {
+func (p *ScaleDownNodePoolRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("NodePoolScaleDownRequest"); err != nil {
+	if err = oprot.WriteStructBegin("ScaleDownNodePoolRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -32027,7 +33987,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *NodePoolScaleDownRequest) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ScaleDownNodePoolRequest) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("ClusterId", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -32044,7 +34004,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *NodePoolScaleDownRequest) writeField2(oprot thrift.TProtocol) (err error) {
+func (p *ScaleDownNodePoolRequest) writeField2(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Id", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -32061,7 +34021,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *NodePoolScaleDownRequest) writeField3(oprot thrift.TProtocol) (err error) {
+func (p *ScaleDownNodePoolRequest) writeField3(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("NodeIds", thrift.LIST, 3); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -32086,7 +34046,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
-func (p *NodePoolScaleDownRequest) writeField254(oprot thrift.TProtocol) (err error) {
+func (p *ScaleDownNodePoolRequest) writeField254(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Top", thrift.STRUCT, 254); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -32103,7 +34063,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 254 end error: ", p), err)
 }
 
-func (p *NodePoolScaleDownRequest) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *ScaleDownNodePoolRequest) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -32122,14 +34082,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *NodePoolScaleDownRequest) String() string {
+func (p *ScaleDownNodePoolRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("NodePoolScaleDownRequest(%+v)", *p)
+	return fmt.Sprintf("ScaleDownNodePoolRequest(%+v)", *p)
 }
 
-func (p *NodePoolScaleDownRequest) DeepEqual(ano *NodePoolScaleDownRequest) bool {
+func (p *ScaleDownNodePoolRequest) DeepEqual(ano *ScaleDownNodePoolRequest) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -32153,21 +34113,21 @@ func (p *NodePoolScaleDownRequest) DeepEqual(ano *NodePoolScaleDownRequest) bool
 	return true
 }
 
-func (p *NodePoolScaleDownRequest) Field1DeepEqual(src string) bool {
+func (p *ScaleDownNodePoolRequest) Field1DeepEqual(src string) bool {
 
 	if strings.Compare(p.ClusterId, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *NodePoolScaleDownRequest) Field2DeepEqual(src string) bool {
+func (p *ScaleDownNodePoolRequest) Field2DeepEqual(src string) bool {
 
 	if strings.Compare(p.Id, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *NodePoolScaleDownRequest) Field3DeepEqual(src []string) bool {
+func (p *ScaleDownNodePoolRequest) Field3DeepEqual(src []string) bool {
 
 	if len(p.NodeIds) != len(src) {
 		return false
@@ -32180,14 +34140,14 @@ func (p *NodePoolScaleDownRequest) Field3DeepEqual(src []string) bool {
 	}
 	return true
 }
-func (p *NodePoolScaleDownRequest) Field254DeepEqual(src *base.TopParam) bool {
+func (p *ScaleDownNodePoolRequest) Field254DeepEqual(src *base.TopParam) bool {
 
 	if !p.Top.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *NodePoolScaleDownRequest) Field255DeepEqual(src *base.Base) bool {
+func (p *ScaleDownNodePoolRequest) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -32195,35 +34155,35 @@ func (p *NodePoolScaleDownRequest) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
-type NodePoolScaleDownResponse struct {
+type ScaleDownNodePoolResponse struct {
 	Base *base.Base `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewNodePoolScaleDownResponse() *NodePoolScaleDownResponse {
-	return &NodePoolScaleDownResponse{}
+func NewScaleDownNodePoolResponse() *ScaleDownNodePoolResponse {
+	return &ScaleDownNodePoolResponse{}
 }
 
-var NodePoolScaleDownResponse_Base_DEFAULT *base.Base
+var ScaleDownNodePoolResponse_Base_DEFAULT *base.Base
 
-func (p *NodePoolScaleDownResponse) GetBase() (v *base.Base) {
+func (p *ScaleDownNodePoolResponse) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return NodePoolScaleDownResponse_Base_DEFAULT
+		return ScaleDownNodePoolResponse_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *NodePoolScaleDownResponse) SetBase(val *base.Base) {
+func (p *ScaleDownNodePoolResponse) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_NodePoolScaleDownResponse = map[int16]string{
+var fieldIDToName_ScaleDownNodePoolResponse = map[int16]string{
 	255: "Base",
 }
 
-func (p *NodePoolScaleDownResponse) IsSetBase() bool {
+func (p *ScaleDownNodePoolResponse) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *NodePoolScaleDownResponse) Read(iprot thrift.TProtocol) (err error) {
+func (p *ScaleDownNodePoolResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -32272,7 +34232,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_NodePoolScaleDownResponse[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ScaleDownNodePoolResponse[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -32282,7 +34242,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *NodePoolScaleDownResponse) ReadField255(iprot thrift.TProtocol) error {
+func (p *ScaleDownNodePoolResponse) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -32290,9 +34250,9 @@ func (p *NodePoolScaleDownResponse) ReadField255(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *NodePoolScaleDownResponse) Write(oprot thrift.TProtocol) (err error) {
+func (p *ScaleDownNodePoolResponse) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("NodePoolScaleDownResponse"); err != nil {
+	if err = oprot.WriteStructBegin("ScaleDownNodePoolResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -32319,7 +34279,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *NodePoolScaleDownResponse) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *ScaleDownNodePoolResponse) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -32338,14 +34298,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *NodePoolScaleDownResponse) String() string {
+func (p *ScaleDownNodePoolResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("NodePoolScaleDownResponse(%+v)", *p)
+	return fmt.Sprintf("ScaleDownNodePoolResponse(%+v)", *p)
 }
 
-func (p *NodePoolScaleDownResponse) DeepEqual(ano *NodePoolScaleDownResponse) bool {
+func (p *ScaleDownNodePoolResponse) DeepEqual(ano *ScaleDownNodePoolResponse) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -32357,7 +34317,7 @@ func (p *NodePoolScaleDownResponse) DeepEqual(ano *NodePoolScaleDownResponse) bo
 	return true
 }
 
-func (p *NodePoolScaleDownResponse) Field255DeepEqual(src *base.Base) bool {
+func (p *ScaleDownNodePoolResponse) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -32366,44 +34326,44 @@ func (p *NodePoolScaleDownResponse) Field255DeepEqual(src *base.Base) bool {
 }
 
 type NodePoolNodeAutoscaling struct {
-	Enabled      bool   `thrift:"Enabled,1" json:"Enabled,omitempty"`
-	MinInstances *int32 `thrift:"MinInstances,2" json:"MinInstances,omitempty"`
-	MaxInstances *int32 `thrift:"MaxInstances,3" json:"MaxInstances,omitempty"`
-	Priority     *int32 `thrift:"Priority,4" json:"Priority,omitempty"`
+	Enable      bool   `thrift:"Enable,1" json:"Enable,omitempty"`
+	MinReplicas *int32 `thrift:"MinReplicas,2" json:"MinReplicas,omitempty"`
+	MaxReplicas *int32 `thrift:"MaxReplicas,3" json:"MaxReplicas,omitempty"`
+	Priority    *int32 `thrift:"Priority,4" json:"Priority,omitempty"`
 }
 
 func NewNodePoolNodeAutoscaling() *NodePoolNodeAutoscaling {
 	return &NodePoolNodeAutoscaling{
 
-		Enabled: false,
+		Enable: false,
 	}
 }
 
-var NodePoolNodeAutoscaling_Enabled_DEFAULT bool = false
+var NodePoolNodeAutoscaling_Enable_DEFAULT bool = false
 
-func (p *NodePoolNodeAutoscaling) GetEnabled() (v bool) {
-	if !p.IsSetEnabled() {
-		return NodePoolNodeAutoscaling_Enabled_DEFAULT
+func (p *NodePoolNodeAutoscaling) GetEnable() (v bool) {
+	if !p.IsSetEnable() {
+		return NodePoolNodeAutoscaling_Enable_DEFAULT
 	}
-	return p.Enabled
+	return p.Enable
 }
 
-var NodePoolNodeAutoscaling_MinInstances_DEFAULT int32
+var NodePoolNodeAutoscaling_MinReplicas_DEFAULT int32
 
-func (p *NodePoolNodeAutoscaling) GetMinInstances() (v int32) {
-	if !p.IsSetMinInstances() {
-		return NodePoolNodeAutoscaling_MinInstances_DEFAULT
+func (p *NodePoolNodeAutoscaling) GetMinReplicas() (v int32) {
+	if !p.IsSetMinReplicas() {
+		return NodePoolNodeAutoscaling_MinReplicas_DEFAULT
 	}
-	return *p.MinInstances
+	return *p.MinReplicas
 }
 
-var NodePoolNodeAutoscaling_MaxInstances_DEFAULT int32
+var NodePoolNodeAutoscaling_MaxReplicas_DEFAULT int32
 
-func (p *NodePoolNodeAutoscaling) GetMaxInstances() (v int32) {
-	if !p.IsSetMaxInstances() {
-		return NodePoolNodeAutoscaling_MaxInstances_DEFAULT
+func (p *NodePoolNodeAutoscaling) GetMaxReplicas() (v int32) {
+	if !p.IsSetMaxReplicas() {
+		return NodePoolNodeAutoscaling_MaxReplicas_DEFAULT
 	}
-	return *p.MaxInstances
+	return *p.MaxReplicas
 }
 
 var NodePoolNodeAutoscaling_Priority_DEFAULT int32
@@ -32414,36 +34374,36 @@ func (p *NodePoolNodeAutoscaling) GetPriority() (v int32) {
 	}
 	return *p.Priority
 }
-func (p *NodePoolNodeAutoscaling) SetEnabled(val bool) {
-	p.Enabled = val
+func (p *NodePoolNodeAutoscaling) SetEnable(val bool) {
+	p.Enable = val
 }
-func (p *NodePoolNodeAutoscaling) SetMinInstances(val *int32) {
-	p.MinInstances = val
+func (p *NodePoolNodeAutoscaling) SetMinReplicas(val *int32) {
+	p.MinReplicas = val
 }
-func (p *NodePoolNodeAutoscaling) SetMaxInstances(val *int32) {
-	p.MaxInstances = val
+func (p *NodePoolNodeAutoscaling) SetMaxReplicas(val *int32) {
+	p.MaxReplicas = val
 }
 func (p *NodePoolNodeAutoscaling) SetPriority(val *int32) {
 	p.Priority = val
 }
 
 var fieldIDToName_NodePoolNodeAutoscaling = map[int16]string{
-	1: "Enabled",
-	2: "MinInstances",
-	3: "MaxInstances",
+	1: "Enable",
+	2: "MinReplicas",
+	3: "MaxReplicas",
 	4: "Priority",
 }
 
-func (p *NodePoolNodeAutoscaling) IsSetEnabled() bool {
-	return p.Enabled != NodePoolNodeAutoscaling_Enabled_DEFAULT
+func (p *NodePoolNodeAutoscaling) IsSetEnable() bool {
+	return p.Enable != NodePoolNodeAutoscaling_Enable_DEFAULT
 }
 
-func (p *NodePoolNodeAutoscaling) IsSetMinInstances() bool {
-	return p.MinInstances != nil
+func (p *NodePoolNodeAutoscaling) IsSetMinReplicas() bool {
+	return p.MinReplicas != nil
 }
 
-func (p *NodePoolNodeAutoscaling) IsSetMaxInstances() bool {
-	return p.MaxInstances != nil
+func (p *NodePoolNodeAutoscaling) IsSetMaxReplicas() bool {
+	return p.MaxReplicas != nil
 }
 
 func (p *NodePoolNodeAutoscaling) IsSetPriority() bool {
@@ -32543,7 +34503,7 @@ func (p *NodePoolNodeAutoscaling) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadBool(); err != nil {
 		return err
 	} else {
-		p.Enabled = v
+		p.Enable = v
 	}
 	return nil
 }
@@ -32552,7 +34512,7 @@ func (p *NodePoolNodeAutoscaling) ReadField2(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
-		p.MinInstances = &v
+		p.MinReplicas = &v
 	}
 	return nil
 }
@@ -32561,7 +34521,7 @@ func (p *NodePoolNodeAutoscaling) ReadField3(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
-		p.MaxInstances = &v
+		p.MaxReplicas = &v
 	}
 	return nil
 }
@@ -32617,11 +34577,11 @@ WriteStructEndError:
 }
 
 func (p *NodePoolNodeAutoscaling) writeField1(oprot thrift.TProtocol) (err error) {
-	if p.IsSetEnabled() {
-		if err = oprot.WriteFieldBegin("Enabled", thrift.BOOL, 1); err != nil {
+	if p.IsSetEnable() {
+		if err = oprot.WriteFieldBegin("Enable", thrift.BOOL, 1); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteBool(p.Enabled); err != nil {
+		if err := oprot.WriteBool(p.Enable); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -32636,11 +34596,11 @@ WriteFieldEndError:
 }
 
 func (p *NodePoolNodeAutoscaling) writeField2(oprot thrift.TProtocol) (err error) {
-	if p.IsSetMinInstances() {
-		if err = oprot.WriteFieldBegin("MinInstances", thrift.I32, 2); err != nil {
+	if p.IsSetMinReplicas() {
+		if err = oprot.WriteFieldBegin("MinReplicas", thrift.I32, 2); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteI32(*p.MinInstances); err != nil {
+		if err := oprot.WriteI32(*p.MinReplicas); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -32655,11 +34615,11 @@ WriteFieldEndError:
 }
 
 func (p *NodePoolNodeAutoscaling) writeField3(oprot thrift.TProtocol) (err error) {
-	if p.IsSetMaxInstances() {
-		if err = oprot.WriteFieldBegin("MaxInstances", thrift.I32, 3); err != nil {
+	if p.IsSetMaxReplicas() {
+		if err = oprot.WriteFieldBegin("MaxReplicas", thrift.I32, 3); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteI32(*p.MaxInstances); err != nil {
+		if err := oprot.WriteI32(*p.MaxReplicas); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -32705,13 +34665,13 @@ func (p *NodePoolNodeAutoscaling) DeepEqual(ano *NodePoolNodeAutoscaling) bool {
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.Enabled) {
+	if !p.Field1DeepEqual(ano.Enable) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.MinInstances) {
+	if !p.Field2DeepEqual(ano.MinReplicas) {
 		return false
 	}
-	if !p.Field3DeepEqual(ano.MaxInstances) {
+	if !p.Field3DeepEqual(ano.MaxReplicas) {
 		return false
 	}
 	if !p.Field4DeepEqual(ano.Priority) {
@@ -32722,31 +34682,31 @@ func (p *NodePoolNodeAutoscaling) DeepEqual(ano *NodePoolNodeAutoscaling) bool {
 
 func (p *NodePoolNodeAutoscaling) Field1DeepEqual(src bool) bool {
 
-	if p.Enabled != src {
+	if p.Enable != src {
 		return false
 	}
 	return true
 }
 func (p *NodePoolNodeAutoscaling) Field2DeepEqual(src *int32) bool {
 
-	if p.MinInstances == src {
+	if p.MinReplicas == src {
 		return true
-	} else if p.MinInstances == nil || src == nil {
+	} else if p.MinReplicas == nil || src == nil {
 		return false
 	}
-	if *p.MinInstances != *src {
+	if *p.MinReplicas != *src {
 		return false
 	}
 	return true
 }
 func (p *NodePoolNodeAutoscaling) Field3DeepEqual(src *int32) bool {
 
-	if p.MaxInstances == src {
+	if p.MaxReplicas == src {
 		return true
-	} else if p.MaxInstances == nil || src == nil {
+	} else if p.MaxReplicas == nil || src == nil {
 		return false
 	}
-	if *p.MaxInstances != *src {
+	if *p.MaxReplicas != *src {
 		return false
 	}
 	return true
@@ -32764,138 +34724,587 @@ func (p *NodePoolNodeAutoscaling) Field4DeepEqual(src *int32) bool {
 	return true
 }
 
-type ListNodePoolRequest struct {
-	ClusterId          string              `thrift:"ClusterId,1,required" validate:"required"`
-	Start              int32               `thrift:"Start,2" validate:"gte=0"`
-	Limit              int32               `thrift:"Limit,3" json:"Limit,omitempty"`
-	Filters            map[string][]string `thrift:"Filters,4" json:"Filters,omitempty"`
-	AutoScalingEnabled *bool               `thrift:"AutoScalingEnabled,5" json:"AutoScalingEnabled,omitempty"`
-	Top                *base.TopParam      `thrift:"Top,254,required" json:"Top"`
-	Base               *base.Base          `thrift:"Base,255" json:"Base,omitempty"`
+type ListNodePoolsFilter struct {
+	Ids               []string `thrift:"Ids,1" json:"Ids,omitempty"`
+	Names             []string `thrift:"Names,2" json:"Names,omitempty"`
+	Statuses          []string `thrift:"Statuses,3" json:"Statuses,omitempty"`
+	EnableAutoScaling *bool    `thrift:"EnableAutoScaling,4" json:"EnableAutoScaling,omitempty"`
 }
 
-func NewListNodePoolRequest() *ListNodePoolRequest {
-	return &ListNodePoolRequest{
+func NewListNodePoolsFilter() *ListNodePoolsFilter {
+	return &ListNodePoolsFilter{}
+}
 
-		Start: 0,
-		Limit: 10,
+var ListNodePoolsFilter_Ids_DEFAULT []string
+
+func (p *ListNodePoolsFilter) GetIds() (v []string) {
+	if !p.IsSetIds() {
+		return ListNodePoolsFilter_Ids_DEFAULT
+	}
+	return p.Ids
+}
+
+var ListNodePoolsFilter_Names_DEFAULT []string
+
+func (p *ListNodePoolsFilter) GetNames() (v []string) {
+	if !p.IsSetNames() {
+		return ListNodePoolsFilter_Names_DEFAULT
+	}
+	return p.Names
+}
+
+var ListNodePoolsFilter_Statuses_DEFAULT []string
+
+func (p *ListNodePoolsFilter) GetStatuses() (v []string) {
+	if !p.IsSetStatuses() {
+		return ListNodePoolsFilter_Statuses_DEFAULT
+	}
+	return p.Statuses
+}
+
+var ListNodePoolsFilter_EnableAutoScaling_DEFAULT bool
+
+func (p *ListNodePoolsFilter) GetEnableAutoScaling() (v bool) {
+	if !p.IsSetEnableAutoScaling() {
+		return ListNodePoolsFilter_EnableAutoScaling_DEFAULT
+	}
+	return *p.EnableAutoScaling
+}
+func (p *ListNodePoolsFilter) SetIds(val []string) {
+	p.Ids = val
+}
+func (p *ListNodePoolsFilter) SetNames(val []string) {
+	p.Names = val
+}
+func (p *ListNodePoolsFilter) SetStatuses(val []string) {
+	p.Statuses = val
+}
+func (p *ListNodePoolsFilter) SetEnableAutoScaling(val *bool) {
+	p.EnableAutoScaling = val
+}
+
+var fieldIDToName_ListNodePoolsFilter = map[int16]string{
+	1: "Ids",
+	2: "Names",
+	3: "Statuses",
+	4: "EnableAutoScaling",
+}
+
+func (p *ListNodePoolsFilter) IsSetIds() bool {
+	return p.Ids != nil
+}
+
+func (p *ListNodePoolsFilter) IsSetNames() bool {
+	return p.Names != nil
+}
+
+func (p *ListNodePoolsFilter) IsSetStatuses() bool {
+	return p.Statuses != nil
+}
+
+func (p *ListNodePoolsFilter) IsSetEnableAutoScaling() bool {
+	return p.EnableAutoScaling != nil
+}
+
+func (p *ListNodePoolsFilter) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 2:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 3:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 4:
+			if fieldTypeId == thrift.BOOL {
+				if err = p.ReadField4(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListNodePoolsFilter[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ListNodePoolsFilter) ReadField1(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.Ids = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		p.Ids = append(p.Ids, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ListNodePoolsFilter) ReadField2(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.Names = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		p.Names = append(p.Names, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ListNodePoolsFilter) ReadField3(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.Statuses = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		p.Statuses = append(p.Statuses, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ListNodePoolsFilter) ReadField4(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadBool(); err != nil {
+		return err
+	} else {
+		p.EnableAutoScaling = &v
+	}
+	return nil
+}
+
+func (p *ListNodePoolsFilter) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ListNodePoolsFilter"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
+			goto WriteFieldError
+		}
+		if err = p.writeField4(oprot); err != nil {
+			fieldId = 4
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ListNodePoolsFilter) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetIds() {
+		if err = oprot.WriteFieldBegin("Ids", thrift.LIST, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRING, len(p.Ids)); err != nil {
+			return err
+		}
+		for _, v := range p.Ids {
+			if err := oprot.WriteString(v); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ListNodePoolsFilter) writeField2(oprot thrift.TProtocol) (err error) {
+	if p.IsSetNames() {
+		if err = oprot.WriteFieldBegin("Names", thrift.LIST, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRING, len(p.Names)); err != nil {
+			return err
+		}
+		for _, v := range p.Names {
+			if err := oprot.WriteString(v); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *ListNodePoolsFilter) writeField3(oprot thrift.TProtocol) (err error) {
+	if p.IsSetStatuses() {
+		if err = oprot.WriteFieldBegin("Statuses", thrift.LIST, 3); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRING, len(p.Statuses)); err != nil {
+			return err
+		}
+		for _, v := range p.Statuses {
+			if err := oprot.WriteString(v); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
+}
+
+func (p *ListNodePoolsFilter) writeField4(oprot thrift.TProtocol) (err error) {
+	if p.IsSetEnableAutoScaling() {
+		if err = oprot.WriteFieldBegin("EnableAutoScaling", thrift.BOOL, 4); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteBool(*p.EnableAutoScaling); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
+}
+
+func (p *ListNodePoolsFilter) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ListNodePoolsFilter(%+v)", *p)
+}
+
+func (p *ListNodePoolsFilter) DeepEqual(ano *ListNodePoolsFilter) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Ids) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.Names) {
+		return false
+	}
+	if !p.Field3DeepEqual(ano.Statuses) {
+		return false
+	}
+	if !p.Field4DeepEqual(ano.EnableAutoScaling) {
+		return false
+	}
+	return true
+}
+
+func (p *ListNodePoolsFilter) Field1DeepEqual(src []string) bool {
+
+	if len(p.Ids) != len(src) {
+		return false
+	}
+	for i, v := range p.Ids {
+		_src := src[i]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
+	}
+	return true
+}
+func (p *ListNodePoolsFilter) Field2DeepEqual(src []string) bool {
+
+	if len(p.Names) != len(src) {
+		return false
+	}
+	for i, v := range p.Names {
+		_src := src[i]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
+	}
+	return true
+}
+func (p *ListNodePoolsFilter) Field3DeepEqual(src []string) bool {
+
+	if len(p.Statuses) != len(src) {
+		return false
+	}
+	for i, v := range p.Statuses {
+		_src := src[i]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
+	}
+	return true
+}
+func (p *ListNodePoolsFilter) Field4DeepEqual(src *bool) bool {
+
+	if p.EnableAutoScaling == src {
+		return true
+	} else if p.EnableAutoScaling == nil || src == nil {
+		return false
+	}
+	if *p.EnableAutoScaling != *src {
+		return false
+	}
+	return true
+}
+
+type ListNodePoolsRequest struct {
+	ClusterId  string               `thrift:"ClusterId,1,required" validate:"required"`
+	PageNumber int32                `thrift:"PageNumber,2" json:"PageNumber" default:"1"`
+	PageSize   int32                `thrift:"PageSize,3" json:"PageSize" default:"100"`
+	Filter     *ListNodePoolsFilter `thrift:"Filter,4" json:"Filter,omitempty"`
+	Top        *base.TopParam       `thrift:"Top,254,required" json:"Top"`
+	Base       *base.Base           `thrift:"Base,255" json:"Base,omitempty"`
+}
+
+func NewListNodePoolsRequest() *ListNodePoolsRequest {
+	return &ListNodePoolsRequest{
+
+		PageNumber: 1,
+		PageSize:   100,
 	}
 }
 
-func (p *ListNodePoolRequest) GetClusterId() (v string) {
+func (p *ListNodePoolsRequest) GetClusterId() (v string) {
 	return p.ClusterId
 }
 
-var ListNodePoolRequest_Start_DEFAULT int32 = 0
+var ListNodePoolsRequest_PageNumber_DEFAULT int32 = 1
 
-func (p *ListNodePoolRequest) GetStart() (v int32) {
-	if !p.IsSetStart() {
-		return ListNodePoolRequest_Start_DEFAULT
+func (p *ListNodePoolsRequest) GetPageNumber() (v int32) {
+	if !p.IsSetPageNumber() {
+		return ListNodePoolsRequest_PageNumber_DEFAULT
 	}
-	return p.Start
+	return p.PageNumber
 }
 
-var ListNodePoolRequest_Limit_DEFAULT int32 = 10
+var ListNodePoolsRequest_PageSize_DEFAULT int32 = 100
 
-func (p *ListNodePoolRequest) GetLimit() (v int32) {
-	if !p.IsSetLimit() {
-		return ListNodePoolRequest_Limit_DEFAULT
+func (p *ListNodePoolsRequest) GetPageSize() (v int32) {
+	if !p.IsSetPageSize() {
+		return ListNodePoolsRequest_PageSize_DEFAULT
 	}
-	return p.Limit
+	return p.PageSize
 }
 
-var ListNodePoolRequest_Filters_DEFAULT map[string][]string
+var ListNodePoolsRequest_Filter_DEFAULT *ListNodePoolsFilter
 
-func (p *ListNodePoolRequest) GetFilters() (v map[string][]string) {
-	if !p.IsSetFilters() {
-		return ListNodePoolRequest_Filters_DEFAULT
+func (p *ListNodePoolsRequest) GetFilter() (v *ListNodePoolsFilter) {
+	if !p.IsSetFilter() {
+		return ListNodePoolsRequest_Filter_DEFAULT
 	}
-	return p.Filters
+	return p.Filter
 }
 
-var ListNodePoolRequest_AutoScalingEnabled_DEFAULT bool
+var ListNodePoolsRequest_Top_DEFAULT *base.TopParam
 
-func (p *ListNodePoolRequest) GetAutoScalingEnabled() (v bool) {
-	if !p.IsSetAutoScalingEnabled() {
-		return ListNodePoolRequest_AutoScalingEnabled_DEFAULT
-	}
-	return *p.AutoScalingEnabled
-}
-
-var ListNodePoolRequest_Top_DEFAULT *base.TopParam
-
-func (p *ListNodePoolRequest) GetTop() (v *base.TopParam) {
+func (p *ListNodePoolsRequest) GetTop() (v *base.TopParam) {
 	if !p.IsSetTop() {
-		return ListNodePoolRequest_Top_DEFAULT
+		return ListNodePoolsRequest_Top_DEFAULT
 	}
 	return p.Top
 }
 
-var ListNodePoolRequest_Base_DEFAULT *base.Base
+var ListNodePoolsRequest_Base_DEFAULT *base.Base
 
-func (p *ListNodePoolRequest) GetBase() (v *base.Base) {
+func (p *ListNodePoolsRequest) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return ListNodePoolRequest_Base_DEFAULT
+		return ListNodePoolsRequest_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *ListNodePoolRequest) SetClusterId(val string) {
+func (p *ListNodePoolsRequest) SetClusterId(val string) {
 	p.ClusterId = val
 }
-func (p *ListNodePoolRequest) SetStart(val int32) {
-	p.Start = val
+func (p *ListNodePoolsRequest) SetPageNumber(val int32) {
+	p.PageNumber = val
 }
-func (p *ListNodePoolRequest) SetLimit(val int32) {
-	p.Limit = val
+func (p *ListNodePoolsRequest) SetPageSize(val int32) {
+	p.PageSize = val
 }
-func (p *ListNodePoolRequest) SetFilters(val map[string][]string) {
-	p.Filters = val
+func (p *ListNodePoolsRequest) SetFilter(val *ListNodePoolsFilter) {
+	p.Filter = val
 }
-func (p *ListNodePoolRequest) SetAutoScalingEnabled(val *bool) {
-	p.AutoScalingEnabled = val
-}
-func (p *ListNodePoolRequest) SetTop(val *base.TopParam) {
+func (p *ListNodePoolsRequest) SetTop(val *base.TopParam) {
 	p.Top = val
 }
-func (p *ListNodePoolRequest) SetBase(val *base.Base) {
+func (p *ListNodePoolsRequest) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_ListNodePoolRequest = map[int16]string{
+var fieldIDToName_ListNodePoolsRequest = map[int16]string{
 	1:   "ClusterId",
-	2:   "Start",
-	3:   "Limit",
-	4:   "Filters",
-	5:   "AutoScalingEnabled",
+	2:   "PageNumber",
+	3:   "PageSize",
+	4:   "Filter",
 	254: "Top",
 	255: "Base",
 }
 
-func (p *ListNodePoolRequest) IsSetStart() bool {
-	return p.Start != ListNodePoolRequest_Start_DEFAULT
+func (p *ListNodePoolsRequest) IsSetPageNumber() bool {
+	return p.PageNumber != ListNodePoolsRequest_PageNumber_DEFAULT
 }
 
-func (p *ListNodePoolRequest) IsSetLimit() bool {
-	return p.Limit != ListNodePoolRequest_Limit_DEFAULT
+func (p *ListNodePoolsRequest) IsSetPageSize() bool {
+	return p.PageSize != ListNodePoolsRequest_PageSize_DEFAULT
 }
 
-func (p *ListNodePoolRequest) IsSetFilters() bool {
-	return p.Filters != nil
+func (p *ListNodePoolsRequest) IsSetFilter() bool {
+	return p.Filter != nil
 }
 
-func (p *ListNodePoolRequest) IsSetAutoScalingEnabled() bool {
-	return p.AutoScalingEnabled != nil
-}
-
-func (p *ListNodePoolRequest) IsSetTop() bool {
+func (p *ListNodePoolsRequest) IsSetTop() bool {
 	return p.Top != nil
 }
 
-func (p *ListNodePoolRequest) IsSetBase() bool {
+func (p *ListNodePoolsRequest) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *ListNodePoolRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *ListNodePoolsRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -32948,18 +35357,8 @@ func (p *ListNodePoolRequest) Read(iprot thrift.TProtocol) (err error) {
 				}
 			}
 		case 4:
-			if fieldTypeId == thrift.MAP {
+			if fieldTypeId == thrift.STRUCT {
 				if err = p.ReadField4(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else {
-				if err = iprot.Skip(fieldTypeId); err != nil {
-					goto SkipFieldError
-				}
-			}
-		case 5:
-			if fieldTypeId == thrift.BOOL {
-				if err = p.ReadField5(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else {
@@ -33017,7 +35416,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListNodePoolRequest[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListNodePoolsRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -33026,10 +35425,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListNodePoolRequest[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListNodePoolsRequest[fieldId]))
 }
 
-func (p *ListNodePoolRequest) ReadField1(iprot thrift.TProtocol) error {
+func (p *ListNodePoolsRequest) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -33038,75 +35437,33 @@ func (p *ListNodePoolRequest) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListNodePoolRequest) ReadField2(iprot thrift.TProtocol) error {
+func (p *ListNodePoolsRequest) ReadField2(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
-		p.Start = v
+		p.PageNumber = v
 	}
 	return nil
 }
 
-func (p *ListNodePoolRequest) ReadField3(iprot thrift.TProtocol) error {
+func (p *ListNodePoolsRequest) ReadField3(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
-		p.Limit = v
+		p.PageSize = v
 	}
 	return nil
 }
 
-func (p *ListNodePoolRequest) ReadField4(iprot thrift.TProtocol) error {
-	_, _, size, err := iprot.ReadMapBegin()
-	if err != nil {
-		return err
-	}
-	p.Filters = make(map[string][]string, size)
-	for i := 0; i < size; i++ {
-		var _key string
-		if v, err := iprot.ReadString(); err != nil {
-			return err
-		} else {
-			_key = v
-		}
-
-		_, size, err := iprot.ReadListBegin()
-		if err != nil {
-			return err
-		}
-		_val := make([]string, 0, size)
-		for i := 0; i < size; i++ {
-			var _elem string
-			if v, err := iprot.ReadString(); err != nil {
-				return err
-			} else {
-				_elem = v
-			}
-
-			_val = append(_val, _elem)
-		}
-		if err := iprot.ReadListEnd(); err != nil {
-			return err
-		}
-
-		p.Filters[_key] = _val
-	}
-	if err := iprot.ReadMapEnd(); err != nil {
+func (p *ListNodePoolsRequest) ReadField4(iprot thrift.TProtocol) error {
+	p.Filter = NewListNodePoolsFilter()
+	if err := p.Filter.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ListNodePoolRequest) ReadField5(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadBool(); err != nil {
-		return err
-	} else {
-		p.AutoScalingEnabled = &v
-	}
-	return nil
-}
-
-func (p *ListNodePoolRequest) ReadField254(iprot thrift.TProtocol) error {
+func (p *ListNodePoolsRequest) ReadField254(iprot thrift.TProtocol) error {
 	p.Top = base.NewTopParam()
 	if err := p.Top.Read(iprot); err != nil {
 		return err
@@ -33114,7 +35471,7 @@ func (p *ListNodePoolRequest) ReadField254(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListNodePoolRequest) ReadField255(iprot thrift.TProtocol) error {
+func (p *ListNodePoolsRequest) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -33122,9 +35479,9 @@ func (p *ListNodePoolRequest) ReadField255(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListNodePoolRequest) Write(oprot thrift.TProtocol) (err error) {
+func (p *ListNodePoolsRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListNodePoolRequest"); err != nil {
+	if err = oprot.WriteStructBegin("ListNodePoolsRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -33142,10 +35499,6 @@ func (p *ListNodePoolRequest) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField4(oprot); err != nil {
 			fieldId = 4
-			goto WriteFieldError
-		}
-		if err = p.writeField5(oprot); err != nil {
-			fieldId = 5
 			goto WriteFieldError
 		}
 		if err = p.writeField254(oprot); err != nil {
@@ -33175,7 +35528,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ListNodePoolRequest) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ListNodePoolsRequest) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("ClusterId", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -33192,12 +35545,12 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ListNodePoolRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if p.IsSetStart() {
-		if err = oprot.WriteFieldBegin("Start", thrift.I32, 2); err != nil {
+func (p *ListNodePoolsRequest) writeField2(oprot thrift.TProtocol) (err error) {
+	if p.IsSetPageNumber() {
+		if err = oprot.WriteFieldBegin("PageNumber", thrift.I32, 2); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteI32(p.Start); err != nil {
+		if err := oprot.WriteI32(p.PageNumber); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -33211,12 +35564,12 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *ListNodePoolRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if p.IsSetLimit() {
-		if err = oprot.WriteFieldBegin("Limit", thrift.I32, 3); err != nil {
+func (p *ListNodePoolsRequest) writeField3(oprot thrift.TProtocol) (err error) {
+	if p.IsSetPageSize() {
+		if err = oprot.WriteFieldBegin("PageSize", thrift.I32, 3); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteI32(p.Limit); err != nil {
+		if err := oprot.WriteI32(p.PageSize); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -33230,33 +35583,12 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
-func (p *ListNodePoolRequest) writeField4(oprot thrift.TProtocol) (err error) {
-	if p.IsSetFilters() {
-		if err = oprot.WriteFieldBegin("Filters", thrift.MAP, 4); err != nil {
+func (p *ListNodePoolsRequest) writeField4(oprot thrift.TProtocol) (err error) {
+	if p.IsSetFilter() {
+		if err = oprot.WriteFieldBegin("Filter", thrift.STRUCT, 4); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteMapBegin(thrift.STRING, thrift.LIST, len(p.Filters)); err != nil {
-			return err
-		}
-		for k, v := range p.Filters {
-
-			if err := oprot.WriteString(k); err != nil {
-				return err
-			}
-
-			if err := oprot.WriteListBegin(thrift.STRING, len(v)); err != nil {
-				return err
-			}
-			for _, v := range v {
-				if err := oprot.WriteString(v); err != nil {
-					return err
-				}
-			}
-			if err := oprot.WriteListEnd(); err != nil {
-				return err
-			}
-		}
-		if err := oprot.WriteMapEnd(); err != nil {
+		if err := p.Filter.Write(oprot); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -33270,26 +35602,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
 }
 
-func (p *ListNodePoolRequest) writeField5(oprot thrift.TProtocol) (err error) {
-	if p.IsSetAutoScalingEnabled() {
-		if err = oprot.WriteFieldBegin("AutoScalingEnabled", thrift.BOOL, 5); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteBool(*p.AutoScalingEnabled); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 5 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
-}
-
-func (p *ListNodePoolRequest) writeField254(oprot thrift.TProtocol) (err error) {
+func (p *ListNodePoolsRequest) writeField254(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Top", thrift.STRUCT, 254); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -33306,7 +35619,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 254 end error: ", p), err)
 }
 
-func (p *ListNodePoolRequest) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *ListNodePoolsRequest) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -33325,14 +35638,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *ListNodePoolRequest) String() string {
+func (p *ListNodePoolsRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ListNodePoolRequest(%+v)", *p)
+	return fmt.Sprintf("ListNodePoolsRequest(%+v)", *p)
 }
 
-func (p *ListNodePoolRequest) DeepEqual(ano *ListNodePoolRequest) bool {
+func (p *ListNodePoolsRequest) DeepEqual(ano *ListNodePoolsRequest) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -33341,16 +35654,13 @@ func (p *ListNodePoolRequest) DeepEqual(ano *ListNodePoolRequest) bool {
 	if !p.Field1DeepEqual(ano.ClusterId) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.Start) {
+	if !p.Field2DeepEqual(ano.PageNumber) {
 		return false
 	}
-	if !p.Field3DeepEqual(ano.Limit) {
+	if !p.Field3DeepEqual(ano.PageSize) {
 		return false
 	}
-	if !p.Field4DeepEqual(ano.Filters) {
-		return false
-	}
-	if !p.Field5DeepEqual(ano.AutoScalingEnabled) {
+	if !p.Field4DeepEqual(ano.Filter) {
 		return false
 	}
 	if !p.Field254DeepEqual(ano.Top) {
@@ -33362,66 +35672,42 @@ func (p *ListNodePoolRequest) DeepEqual(ano *ListNodePoolRequest) bool {
 	return true
 }
 
-func (p *ListNodePoolRequest) Field1DeepEqual(src string) bool {
+func (p *ListNodePoolsRequest) Field1DeepEqual(src string) bool {
 
 	if strings.Compare(p.ClusterId, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *ListNodePoolRequest) Field2DeepEqual(src int32) bool {
+func (p *ListNodePoolsRequest) Field2DeepEqual(src int32) bool {
 
-	if p.Start != src {
+	if p.PageNumber != src {
 		return false
 	}
 	return true
 }
-func (p *ListNodePoolRequest) Field3DeepEqual(src int32) bool {
+func (p *ListNodePoolsRequest) Field3DeepEqual(src int32) bool {
 
-	if p.Limit != src {
+	if p.PageSize != src {
 		return false
 	}
 	return true
 }
-func (p *ListNodePoolRequest) Field4DeepEqual(src map[string][]string) bool {
+func (p *ListNodePoolsRequest) Field4DeepEqual(src *ListNodePoolsFilter) bool {
 
-	if len(p.Filters) != len(src) {
-		return false
-	}
-	for k, v := range p.Filters {
-		_src := src[k]
-		if len(v) != len(_src) {
-			return false
-		}
-		for i, v := range v {
-			_src1 := _src[i]
-			if strings.Compare(v, _src1) != 0 {
-				return false
-			}
-		}
-	}
-	return true
-}
-func (p *ListNodePoolRequest) Field5DeepEqual(src *bool) bool {
-
-	if p.AutoScalingEnabled == src {
-		return true
-	} else if p.AutoScalingEnabled == nil || src == nil {
-		return false
-	}
-	if *p.AutoScalingEnabled != *src {
+	if !p.Filter.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ListNodePoolRequest) Field254DeepEqual(src *base.TopParam) bool {
+func (p *ListNodePoolsRequest) Field254DeepEqual(src *base.TopParam) bool {
 
 	if !p.Top.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ListNodePoolRequest) Field255DeepEqual(src *base.Base) bool {
+func (p *ListNodePoolsRequest) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -33430,16 +35716,17 @@ func (p *ListNodePoolRequest) Field255DeepEqual(src *base.Base) bool {
 }
 
 type NodePoolItem struct {
-	Id              string                   `thrift:"Id,1,required" json:"Id"`
-	Name            string                   `thrift:"Name,2,required" json:"Name"`
-	NodeAutoscaling *NodePoolNodeAutoscaling `thrift:"NodeAutoscaling,3,required" json:"NodeAutoscaling"`
-	ChargeType      string                   `thrift:"ChargeType,4,required" validate:"required,oneof=PostPaid"`
-	Image           *iaas.Image              `thrift:"Image,5,required" json:"Image"`
-	NodeSpecific    *NodeSpecific            `thrift:"NodeSpecific,6,required" json:"NodeSpecific"`
-	TotalNode       int32                    `thrift:"TotalNode,7,required" json:"TotalNode"`
-	AvaliableNode   int32                    `thrift:"AvaliableNode,8,required" json:"AvaliableNode"`
-	Status          string                   `thrift:"Status,9,required" json:"Status"`
-	ErrorMessage    string                   `thrift:"ErrorMessage,10,required" json:"ErrorMessage"`
+	Id                  string                   `thrift:"Id,1,required" json:"Id"`
+	Name                string                   `thrift:"Name,2,required" json:"Name"`
+	NodeAutoscaling     *NodePoolNodeAutoscaling `thrift:"NodeAutoscaling,3,required" json:"NodeAutoscaling"`
+	ChargeType          string                   `thrift:"ChargeType,4,required" validate:"required,oneof=PostPaid"`
+	Image               *iaas.Image              `thrift:"Image,5,required" json:"Image"`
+	InstanceType        *InstanceType            `thrift:"InstanceType,6,required" json:"InstanceType"`
+	TotalNode           int32                    `thrift:"TotalNode,7,required" json:"TotalNode"`
+	AvailableNodeAmount int32                    `thrift:"AvailableNodeAmount,8,required" json:"AvailableNodeAmount"`
+	Status              string                   `thrift:"Status,9,required" json:"Status"`
+	ErrorMessage        string                   `thrift:"ErrorMessage,10,required" json:"ErrorMessage"`
+	EnableFullSync      bool                     `thrift:"EnableFullSync,11,required" json:"EnableFullSync"`
 }
 
 func NewNodePoolItem() *NodePoolItem {
@@ -33476,21 +35763,21 @@ func (p *NodePoolItem) GetImage() (v *iaas.Image) {
 	return p.Image
 }
 
-var NodePoolItem_NodeSpecific_DEFAULT *NodeSpecific
+var NodePoolItem_InstanceType_DEFAULT *InstanceType
 
-func (p *NodePoolItem) GetNodeSpecific() (v *NodeSpecific) {
-	if !p.IsSetNodeSpecific() {
-		return NodePoolItem_NodeSpecific_DEFAULT
+func (p *NodePoolItem) GetInstanceType() (v *InstanceType) {
+	if !p.IsSetInstanceType() {
+		return NodePoolItem_InstanceType_DEFAULT
 	}
-	return p.NodeSpecific
+	return p.InstanceType
 }
 
 func (p *NodePoolItem) GetTotalNode() (v int32) {
 	return p.TotalNode
 }
 
-func (p *NodePoolItem) GetAvaliableNode() (v int32) {
-	return p.AvaliableNode
+func (p *NodePoolItem) GetAvailableNodeAmount() (v int32) {
+	return p.AvailableNodeAmount
 }
 
 func (p *NodePoolItem) GetStatus() (v string) {
@@ -33499,6 +35786,10 @@ func (p *NodePoolItem) GetStatus() (v string) {
 
 func (p *NodePoolItem) GetErrorMessage() (v string) {
 	return p.ErrorMessage
+}
+
+func (p *NodePoolItem) GetEnableFullSync() (v bool) {
+	return p.EnableFullSync
 }
 func (p *NodePoolItem) SetId(val string) {
 	p.Id = val
@@ -33515,20 +35806,23 @@ func (p *NodePoolItem) SetChargeType(val string) {
 func (p *NodePoolItem) SetImage(val *iaas.Image) {
 	p.Image = val
 }
-func (p *NodePoolItem) SetNodeSpecific(val *NodeSpecific) {
-	p.NodeSpecific = val
+func (p *NodePoolItem) SetInstanceType(val *InstanceType) {
+	p.InstanceType = val
 }
 func (p *NodePoolItem) SetTotalNode(val int32) {
 	p.TotalNode = val
 }
-func (p *NodePoolItem) SetAvaliableNode(val int32) {
-	p.AvaliableNode = val
+func (p *NodePoolItem) SetAvailableNodeAmount(val int32) {
+	p.AvailableNodeAmount = val
 }
 func (p *NodePoolItem) SetStatus(val string) {
 	p.Status = val
 }
 func (p *NodePoolItem) SetErrorMessage(val string) {
 	p.ErrorMessage = val
+}
+func (p *NodePoolItem) SetEnableFullSync(val bool) {
+	p.EnableFullSync = val
 }
 
 var fieldIDToName_NodePoolItem = map[int16]string{
@@ -33537,11 +35831,12 @@ var fieldIDToName_NodePoolItem = map[int16]string{
 	3:  "NodeAutoscaling",
 	4:  "ChargeType",
 	5:  "Image",
-	6:  "NodeSpecific",
+	6:  "InstanceType",
 	7:  "TotalNode",
-	8:  "AvaliableNode",
+	8:  "AvailableNodeAmount",
 	9:  "Status",
 	10: "ErrorMessage",
+	11: "EnableFullSync",
 }
 
 func (p *NodePoolItem) IsSetNodeAutoscaling() bool {
@@ -33552,8 +35847,8 @@ func (p *NodePoolItem) IsSetImage() bool {
 	return p.Image != nil
 }
 
-func (p *NodePoolItem) IsSetNodeSpecific() bool {
-	return p.NodeSpecific != nil
+func (p *NodePoolItem) IsSetInstanceType() bool {
+	return p.InstanceType != nil
 }
 
 func (p *NodePoolItem) Read(iprot thrift.TProtocol) (err error) {
@@ -33565,11 +35860,12 @@ func (p *NodePoolItem) Read(iprot thrift.TProtocol) (err error) {
 	var issetNodeAutoscaling bool = false
 	var issetChargeType bool = false
 	var issetImage bool = false
-	var issetNodeSpecific bool = false
+	var issetInstanceType bool = false
 	var issetTotalNode bool = false
-	var issetAvaliableNode bool = false
+	var issetAvailableNodeAmount bool = false
 	var issetStatus bool = false
 	var issetErrorMessage bool = false
+	var issetEnableFullSync bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -33645,7 +35941,7 @@ func (p *NodePoolItem) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField6(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetNodeSpecific = true
+				issetInstanceType = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -33667,7 +35963,7 @@ func (p *NodePoolItem) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField8(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetAvaliableNode = true
+				issetAvailableNodeAmount = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -33690,6 +35986,17 @@ func (p *NodePoolItem) Read(iprot thrift.TProtocol) (err error) {
 					goto ReadFieldError
 				}
 				issetErrorMessage = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 11:
+			if fieldTypeId == thrift.BOOL {
+				if err = p.ReadField11(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetEnableFullSync = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -33734,7 +36041,7 @@ func (p *NodePoolItem) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetNodeSpecific {
+	if !issetInstanceType {
 		fieldId = 6
 		goto RequiredFieldNotSetError
 	}
@@ -33744,7 +36051,7 @@ func (p *NodePoolItem) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetAvaliableNode {
+	if !issetAvailableNodeAmount {
 		fieldId = 8
 		goto RequiredFieldNotSetError
 	}
@@ -33756,6 +36063,11 @@ func (p *NodePoolItem) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetErrorMessage {
 		fieldId = 10
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetEnableFullSync {
+		fieldId = 11
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -33820,8 +36132,8 @@ func (p *NodePoolItem) ReadField5(iprot thrift.TProtocol) error {
 }
 
 func (p *NodePoolItem) ReadField6(iprot thrift.TProtocol) error {
-	p.NodeSpecific = NewNodeSpecific()
-	if err := p.NodeSpecific.Read(iprot); err != nil {
+	p.InstanceType = NewInstanceType()
+	if err := p.InstanceType.Read(iprot); err != nil {
 		return err
 	}
 	return nil
@@ -33840,7 +36152,7 @@ func (p *NodePoolItem) ReadField8(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
-		p.AvaliableNode = v
+		p.AvailableNodeAmount = v
 	}
 	return nil
 }
@@ -33859,6 +36171,15 @@ func (p *NodePoolItem) ReadField10(iprot thrift.TProtocol) error {
 		return err
 	} else {
 		p.ErrorMessage = v
+	}
+	return nil
+}
+
+func (p *NodePoolItem) ReadField11(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadBool(); err != nil {
+		return err
+	} else {
+		p.EnableFullSync = v
 	}
 	return nil
 }
@@ -33907,6 +36228,10 @@ func (p *NodePoolItem) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField10(oprot); err != nil {
 			fieldId = 10
+			goto WriteFieldError
+		}
+		if err = p.writeField11(oprot); err != nil {
+			fieldId = 11
 			goto WriteFieldError
 		}
 
@@ -34014,10 +36339,10 @@ WriteFieldEndError:
 }
 
 func (p *NodePoolItem) writeField6(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("NodeSpecific", thrift.STRUCT, 6); err != nil {
+	if err = oprot.WriteFieldBegin("InstanceType", thrift.STRUCT, 6); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := p.NodeSpecific.Write(oprot); err != nil {
+	if err := p.InstanceType.Write(oprot); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -34048,10 +36373,10 @@ WriteFieldEndError:
 }
 
 func (p *NodePoolItem) writeField8(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("AvaliableNode", thrift.I32, 8); err != nil {
+	if err = oprot.WriteFieldBegin("AvailableNodeAmount", thrift.I32, 8); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI32(p.AvaliableNode); err != nil {
+	if err := oprot.WriteI32(p.AvailableNodeAmount); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -34098,6 +36423,23 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 10 end error: ", p), err)
 }
 
+func (p *NodePoolItem) writeField11(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("EnableFullSync", thrift.BOOL, 11); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteBool(p.EnableFullSync); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 11 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 11 end error: ", p), err)
+}
+
 func (p *NodePoolItem) String() string {
 	if p == nil {
 		return "<nil>"
@@ -34126,19 +36468,22 @@ func (p *NodePoolItem) DeepEqual(ano *NodePoolItem) bool {
 	if !p.Field5DeepEqual(ano.Image) {
 		return false
 	}
-	if !p.Field6DeepEqual(ano.NodeSpecific) {
+	if !p.Field6DeepEqual(ano.InstanceType) {
 		return false
 	}
 	if !p.Field7DeepEqual(ano.TotalNode) {
 		return false
 	}
-	if !p.Field8DeepEqual(ano.AvaliableNode) {
+	if !p.Field8DeepEqual(ano.AvailableNodeAmount) {
 		return false
 	}
 	if !p.Field9DeepEqual(ano.Status) {
 		return false
 	}
 	if !p.Field10DeepEqual(ano.ErrorMessage) {
+		return false
+	}
+	if !p.Field11DeepEqual(ano.EnableFullSync) {
 		return false
 	}
 	return true
@@ -34179,9 +36524,9 @@ func (p *NodePoolItem) Field5DeepEqual(src *iaas.Image) bool {
 	}
 	return true
 }
-func (p *NodePoolItem) Field6DeepEqual(src *NodeSpecific) bool {
+func (p *NodePoolItem) Field6DeepEqual(src *InstanceType) bool {
 
-	if !p.NodeSpecific.DeepEqual(src) {
+	if !p.InstanceType.DeepEqual(src) {
 		return false
 	}
 	return true
@@ -34195,7 +36540,7 @@ func (p *NodePoolItem) Field7DeepEqual(src int32) bool {
 }
 func (p *NodePoolItem) Field8DeepEqual(src int32) bool {
 
-	if p.AvaliableNode != src {
+	if p.AvailableNodeAmount != src {
 		return false
 	}
 	return true
@@ -34214,54 +36559,61 @@ func (p *NodePoolItem) Field10DeepEqual(src string) bool {
 	}
 	return true
 }
+func (p *NodePoolItem) Field11DeepEqual(src bool) bool {
 
-type ListNodePoolResponse struct {
+	if p.EnableFullSync != src {
+		return false
+	}
+	return true
+}
+
+type ListNodePoolsResponse struct {
 	Items []*NodePoolItem `thrift:"Items,1,required" json:"Items"`
 	Total int32           `thrift:"Total,2,required" json:"Total"`
 	Base  *base.Base      `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewListNodePoolResponse() *ListNodePoolResponse {
-	return &ListNodePoolResponse{}
+func NewListNodePoolsResponse() *ListNodePoolsResponse {
+	return &ListNodePoolsResponse{}
 }
 
-func (p *ListNodePoolResponse) GetItems() (v []*NodePoolItem) {
+func (p *ListNodePoolsResponse) GetItems() (v []*NodePoolItem) {
 	return p.Items
 }
 
-func (p *ListNodePoolResponse) GetTotal() (v int32) {
+func (p *ListNodePoolsResponse) GetTotal() (v int32) {
 	return p.Total
 }
 
-var ListNodePoolResponse_Base_DEFAULT *base.Base
+var ListNodePoolsResponse_Base_DEFAULT *base.Base
 
-func (p *ListNodePoolResponse) GetBase() (v *base.Base) {
+func (p *ListNodePoolsResponse) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return ListNodePoolResponse_Base_DEFAULT
+		return ListNodePoolsResponse_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *ListNodePoolResponse) SetItems(val []*NodePoolItem) {
+func (p *ListNodePoolsResponse) SetItems(val []*NodePoolItem) {
 	p.Items = val
 }
-func (p *ListNodePoolResponse) SetTotal(val int32) {
+func (p *ListNodePoolsResponse) SetTotal(val int32) {
 	p.Total = val
 }
-func (p *ListNodePoolResponse) SetBase(val *base.Base) {
+func (p *ListNodePoolsResponse) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_ListNodePoolResponse = map[int16]string{
+var fieldIDToName_ListNodePoolsResponse = map[int16]string{
 	1:   "Items",
 	2:   "Total",
 	255: "Base",
 }
 
-func (p *ListNodePoolResponse) IsSetBase() bool {
+func (p *ListNodePoolsResponse) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *ListNodePoolResponse) Read(iprot thrift.TProtocol) (err error) {
+func (p *ListNodePoolsResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -34343,7 +36695,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListNodePoolResponse[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListNodePoolsResponse[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -34352,10 +36704,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListNodePoolResponse[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListNodePoolsResponse[fieldId]))
 }
 
-func (p *ListNodePoolResponse) ReadField1(iprot thrift.TProtocol) error {
+func (p *ListNodePoolsResponse) ReadField1(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
@@ -34375,7 +36727,7 @@ func (p *ListNodePoolResponse) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListNodePoolResponse) ReadField2(iprot thrift.TProtocol) error {
+func (p *ListNodePoolsResponse) ReadField2(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
@@ -34384,7 +36736,7 @@ func (p *ListNodePoolResponse) ReadField2(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListNodePoolResponse) ReadField255(iprot thrift.TProtocol) error {
+func (p *ListNodePoolsResponse) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -34392,9 +36744,9 @@ func (p *ListNodePoolResponse) ReadField255(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListNodePoolResponse) Write(oprot thrift.TProtocol) (err error) {
+func (p *ListNodePoolsResponse) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListNodePoolResponse"); err != nil {
+	if err = oprot.WriteStructBegin("ListNodePoolsResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -34429,7 +36781,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ListNodePoolResponse) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ListNodePoolsResponse) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Items", thrift.LIST, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -34454,7 +36806,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ListNodePoolResponse) writeField2(oprot thrift.TProtocol) (err error) {
+func (p *ListNodePoolsResponse) writeField2(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Total", thrift.I32, 2); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -34471,7 +36823,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *ListNodePoolResponse) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *ListNodePoolsResponse) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -34490,14 +36842,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *ListNodePoolResponse) String() string {
+func (p *ListNodePoolsResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ListNodePoolResponse(%+v)", *p)
+	return fmt.Sprintf("ListNodePoolsResponse(%+v)", *p)
 }
 
-func (p *ListNodePoolResponse) DeepEqual(ano *ListNodePoolResponse) bool {
+func (p *ListNodePoolsResponse) DeepEqual(ano *ListNodePoolsResponse) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -34515,7 +36867,7 @@ func (p *ListNodePoolResponse) DeepEqual(ano *ListNodePoolResponse) bool {
 	return true
 }
 
-func (p *ListNodePoolResponse) Field1DeepEqual(src []*NodePoolItem) bool {
+func (p *ListNodePoolsResponse) Field1DeepEqual(src []*NodePoolItem) bool {
 
 	if len(p.Items) != len(src) {
 		return false
@@ -34528,14 +36880,14 @@ func (p *ListNodePoolResponse) Field1DeepEqual(src []*NodePoolItem) bool {
 	}
 	return true
 }
-func (p *ListNodePoolResponse) Field2DeepEqual(src int32) bool {
+func (p *ListNodePoolsResponse) Field2DeepEqual(src int32) bool {
 
 	if p.Total != src {
 		return false
 	}
 	return true
 }
-func (p *ListNodePoolResponse) Field255DeepEqual(src *base.Base) bool {
+func (p *ListNodePoolsResponse) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -34544,50 +36896,61 @@ func (p *ListNodePoolResponse) Field255DeepEqual(src *base.Base) bool {
 }
 
 type NodePoolNodeConfig struct {
-	ZoneId           string          `thrift:"ZoneId,1,required" json:"ZoneId"`
-	SubnetId         string          `thrift:"SubnetId,2,required" json:"SubnetId"`
-	Specific         *NodeSpecific   `thrift:"Specific,3,required" json:"Specific"`
-	ImageId          string          `thrift:"ImageId,4,required" json:"ImageId"`
-	RootVolume       *Volume         `thrift:"RootVolume,5,required" json:"RootVolume"`
-	DataVolume       []*Volume       `thrift:"DataVolume,6" json:"DataVolume,omitempty"`
-	Login            *Login          `thrift:"Login,7,required" json:"Login"`
-	SecurityGroups   []string        `thrift:"SecurityGroups,8,required" json:"SecurityGroups"`
-	Labels           []*helper.Label `thrift:"Labels,9" validate:"k8sLabel"`
-	Taints           []*helper.Taint `thrift:"Taints,10" json:"Taints,omitempty"`
-	Cordon           bool            `thrift:"Cordon,11" json:"Cordon,omitempty"`
-	PreScript        *string         `thrift:"PreScript,12" json:"PreScript,omitempty"`
-	PostScript       *string         `thrift:"PostScript,13" json:"PostScript,omitempty"`
-	SecurityStrategy bool            `thrift:"SecurityStrategy,14" json:"SecurityStrategy,omitempty"`
-	NamePrefix       *string         `thrift:"NamePrefix,15" json:"NamePrefix,omitempty"`
-	Count            *int32          `thrift:"Count,16" json:"Count,omitempty"`
+	ZoneId             *string         `thrift:"ZoneId,1" json:"ZoneId,omitempty"`
+	SubnetId           *string         `thrift:"SubnetId,2" json:"SubnetId,omitempty"`
+	InstanceTypeId     string          `thrift:"InstanceTypeId,3,required" validate:"required"`
+	ImageId            string          `thrift:"ImageId,4" json:"ImageId" validate:"oneof=Velinux-VKE" default:"Velinux-VKE"`
+	RootVolume         *Volume         `thrift:"RootVolume,5,required" validate:"required"`
+	DataVolumes        []*Volume       `thrift:"DataVolumes,6" json:"DataVolumes,omitempty"`
+	Login              *Login          `thrift:"Login,7,required" validate:"required"`
+	SecurityGroups     []string        `thrift:"SecurityGroups,8,required" validate:"gt=0"`
+	Labels             []*helper.Label `thrift:"Labels,9" validate:"k8sLabel"`
+	Taints             []*helper.Taint `thrift:"Taints,10" json:"Taints,omitempty"`
+	Cordon             bool            `thrift:"Cordon,11" json:"Cordon,omitempty"`
+	PreScript          *string         `thrift:"PreScript,12" json:"PreScript,omitempty"`
+	PostScript         *string         `thrift:"PostScript,13" json:"PostScript,omitempty"`
+	SecurityStrategies []string        `thrift:"SecurityStrategies,14" json:"SecurityStrategies,omitempty"`
+	NamePrefix         *string         `thrift:"NamePrefix,15" json:"NamePrefix,omitempty"`
+	Amount             *int32          `thrift:"Amount,16" json:"Amount,omitempty"`
+	SubnetIds          []string        `thrift:"SubnetIds,17" json:"SubnetIds,omitempty"`
 }
 
 func NewNodePoolNodeConfig() *NodePoolNodeConfig {
 	return &NodePoolNodeConfig{
 
-		Cordon:           false,
-		SecurityStrategy: false,
+		ImageId: "Velinux-VKE",
+		Cordon:  false,
 	}
 }
+
+var NodePoolNodeConfig_ZoneId_DEFAULT string
 
 func (p *NodePoolNodeConfig) GetZoneId() (v string) {
-	return p.ZoneId
+	if !p.IsSetZoneId() {
+		return NodePoolNodeConfig_ZoneId_DEFAULT
+	}
+	return *p.ZoneId
 }
+
+var NodePoolNodeConfig_SubnetId_DEFAULT string
 
 func (p *NodePoolNodeConfig) GetSubnetId() (v string) {
-	return p.SubnetId
-}
-
-var NodePoolNodeConfig_Specific_DEFAULT *NodeSpecific
-
-func (p *NodePoolNodeConfig) GetSpecific() (v *NodeSpecific) {
-	if !p.IsSetSpecific() {
-		return NodePoolNodeConfig_Specific_DEFAULT
+	if !p.IsSetSubnetId() {
+		return NodePoolNodeConfig_SubnetId_DEFAULT
 	}
-	return p.Specific
+	return *p.SubnetId
 }
+
+func (p *NodePoolNodeConfig) GetInstanceTypeId() (v string) {
+	return p.InstanceTypeId
+}
+
+var NodePoolNodeConfig_ImageId_DEFAULT string = "Velinux-VKE"
 
 func (p *NodePoolNodeConfig) GetImageId() (v string) {
+	if !p.IsSetImageId() {
+		return NodePoolNodeConfig_ImageId_DEFAULT
+	}
 	return p.ImageId
 }
 
@@ -34600,13 +36963,13 @@ func (p *NodePoolNodeConfig) GetRootVolume() (v *Volume) {
 	return p.RootVolume
 }
 
-var NodePoolNodeConfig_DataVolume_DEFAULT []*Volume
+var NodePoolNodeConfig_DataVolumes_DEFAULT []*Volume
 
-func (p *NodePoolNodeConfig) GetDataVolume() (v []*Volume) {
-	if !p.IsSetDataVolume() {
-		return NodePoolNodeConfig_DataVolume_DEFAULT
+func (p *NodePoolNodeConfig) GetDataVolumes() (v []*Volume) {
+	if !p.IsSetDataVolumes() {
+		return NodePoolNodeConfig_DataVolumes_DEFAULT
 	}
-	return p.DataVolume
+	return p.DataVolumes
 }
 
 var NodePoolNodeConfig_Login_DEFAULT *Login
@@ -34667,13 +37030,13 @@ func (p *NodePoolNodeConfig) GetPostScript() (v string) {
 	return *p.PostScript
 }
 
-var NodePoolNodeConfig_SecurityStrategy_DEFAULT bool = false
+var NodePoolNodeConfig_SecurityStrategies_DEFAULT []string
 
-func (p *NodePoolNodeConfig) GetSecurityStrategy() (v bool) {
-	if !p.IsSetSecurityStrategy() {
-		return NodePoolNodeConfig_SecurityStrategy_DEFAULT
+func (p *NodePoolNodeConfig) GetSecurityStrategies() (v []string) {
+	if !p.IsSetSecurityStrategies() {
+		return NodePoolNodeConfig_SecurityStrategies_DEFAULT
 	}
-	return p.SecurityStrategy
+	return p.SecurityStrategies
 }
 
 var NodePoolNodeConfig_NamePrefix_DEFAULT string
@@ -34685,22 +37048,31 @@ func (p *NodePoolNodeConfig) GetNamePrefix() (v string) {
 	return *p.NamePrefix
 }
 
-var NodePoolNodeConfig_Count_DEFAULT int32
+var NodePoolNodeConfig_Amount_DEFAULT int32
 
-func (p *NodePoolNodeConfig) GetCount() (v int32) {
-	if !p.IsSetCount() {
-		return NodePoolNodeConfig_Count_DEFAULT
+func (p *NodePoolNodeConfig) GetAmount() (v int32) {
+	if !p.IsSetAmount() {
+		return NodePoolNodeConfig_Amount_DEFAULT
 	}
-	return *p.Count
+	return *p.Amount
 }
-func (p *NodePoolNodeConfig) SetZoneId(val string) {
+
+var NodePoolNodeConfig_SubnetIds_DEFAULT []string
+
+func (p *NodePoolNodeConfig) GetSubnetIds() (v []string) {
+	if !p.IsSetSubnetIds() {
+		return NodePoolNodeConfig_SubnetIds_DEFAULT
+	}
+	return p.SubnetIds
+}
+func (p *NodePoolNodeConfig) SetZoneId(val *string) {
 	p.ZoneId = val
 }
-func (p *NodePoolNodeConfig) SetSubnetId(val string) {
+func (p *NodePoolNodeConfig) SetSubnetId(val *string) {
 	p.SubnetId = val
 }
-func (p *NodePoolNodeConfig) SetSpecific(val *NodeSpecific) {
-	p.Specific = val
+func (p *NodePoolNodeConfig) SetInstanceTypeId(val string) {
+	p.InstanceTypeId = val
 }
 func (p *NodePoolNodeConfig) SetImageId(val string) {
 	p.ImageId = val
@@ -34708,8 +37080,8 @@ func (p *NodePoolNodeConfig) SetImageId(val string) {
 func (p *NodePoolNodeConfig) SetRootVolume(val *Volume) {
 	p.RootVolume = val
 }
-func (p *NodePoolNodeConfig) SetDataVolume(val []*Volume) {
-	p.DataVolume = val
+func (p *NodePoolNodeConfig) SetDataVolumes(val []*Volume) {
+	p.DataVolumes = val
 }
 func (p *NodePoolNodeConfig) SetLogin(val *Login) {
 	p.Login = val
@@ -34732,23 +37104,26 @@ func (p *NodePoolNodeConfig) SetPreScript(val *string) {
 func (p *NodePoolNodeConfig) SetPostScript(val *string) {
 	p.PostScript = val
 }
-func (p *NodePoolNodeConfig) SetSecurityStrategy(val bool) {
-	p.SecurityStrategy = val
+func (p *NodePoolNodeConfig) SetSecurityStrategies(val []string) {
+	p.SecurityStrategies = val
 }
 func (p *NodePoolNodeConfig) SetNamePrefix(val *string) {
 	p.NamePrefix = val
 }
-func (p *NodePoolNodeConfig) SetCount(val *int32) {
-	p.Count = val
+func (p *NodePoolNodeConfig) SetAmount(val *int32) {
+	p.Amount = val
+}
+func (p *NodePoolNodeConfig) SetSubnetIds(val []string) {
+	p.SubnetIds = val
 }
 
 var fieldIDToName_NodePoolNodeConfig = map[int16]string{
 	1:  "ZoneId",
 	2:  "SubnetId",
-	3:  "Specific",
+	3:  "InstanceTypeId",
 	4:  "ImageId",
 	5:  "RootVolume",
-	6:  "DataVolume",
+	6:  "DataVolumes",
 	7:  "Login",
 	8:  "SecurityGroups",
 	9:  "Labels",
@@ -34756,21 +37131,30 @@ var fieldIDToName_NodePoolNodeConfig = map[int16]string{
 	11: "Cordon",
 	12: "PreScript",
 	13: "PostScript",
-	14: "SecurityStrategy",
+	14: "SecurityStrategies",
 	15: "NamePrefix",
-	16: "Count",
+	16: "Amount",
+	17: "SubnetIds",
 }
 
-func (p *NodePoolNodeConfig) IsSetSpecific() bool {
-	return p.Specific != nil
+func (p *NodePoolNodeConfig) IsSetZoneId() bool {
+	return p.ZoneId != nil
+}
+
+func (p *NodePoolNodeConfig) IsSetSubnetId() bool {
+	return p.SubnetId != nil
+}
+
+func (p *NodePoolNodeConfig) IsSetImageId() bool {
+	return p.ImageId != NodePoolNodeConfig_ImageId_DEFAULT
 }
 
 func (p *NodePoolNodeConfig) IsSetRootVolume() bool {
 	return p.RootVolume != nil
 }
 
-func (p *NodePoolNodeConfig) IsSetDataVolume() bool {
-	return p.DataVolume != nil
+func (p *NodePoolNodeConfig) IsSetDataVolumes() bool {
+	return p.DataVolumes != nil
 }
 
 func (p *NodePoolNodeConfig) IsSetLogin() bool {
@@ -34797,26 +37181,27 @@ func (p *NodePoolNodeConfig) IsSetPostScript() bool {
 	return p.PostScript != nil
 }
 
-func (p *NodePoolNodeConfig) IsSetSecurityStrategy() bool {
-	return p.SecurityStrategy != NodePoolNodeConfig_SecurityStrategy_DEFAULT
+func (p *NodePoolNodeConfig) IsSetSecurityStrategies() bool {
+	return p.SecurityStrategies != nil
 }
 
 func (p *NodePoolNodeConfig) IsSetNamePrefix() bool {
 	return p.NamePrefix != nil
 }
 
-func (p *NodePoolNodeConfig) IsSetCount() bool {
-	return p.Count != nil
+func (p *NodePoolNodeConfig) IsSetAmount() bool {
+	return p.Amount != nil
+}
+
+func (p *NodePoolNodeConfig) IsSetSubnetIds() bool {
+	return p.SubnetIds != nil
 }
 
 func (p *NodePoolNodeConfig) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetZoneId bool = false
-	var issetSubnetId bool = false
-	var issetSpecific bool = false
-	var issetImageId bool = false
+	var issetInstanceTypeId bool = false
 	var issetRootVolume bool = false
 	var issetLogin bool = false
 	var issetSecurityGroups bool = false
@@ -34840,7 +37225,6 @@ func (p *NodePoolNodeConfig) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetZoneId = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -34851,18 +37235,17 @@ func (p *NodePoolNodeConfig) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetSubnetId = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
 				}
 			}
 		case 3:
-			if fieldTypeId == thrift.STRUCT {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField3(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetSpecific = true
+				issetInstanceTypeId = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -34873,7 +37256,6 @@ func (p *NodePoolNodeConfig) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField4(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetImageId = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -34973,7 +37355,7 @@ func (p *NodePoolNodeConfig) Read(iprot thrift.TProtocol) (err error) {
 				}
 			}
 		case 14:
-			if fieldTypeId == thrift.BOOL {
+			if fieldTypeId == thrift.LIST {
 				if err = p.ReadField14(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -35002,6 +37384,16 @@ func (p *NodePoolNodeConfig) Read(iprot thrift.TProtocol) (err error) {
 					goto SkipFieldError
 				}
 			}
+		case 17:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField17(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
 		default:
 			if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
@@ -35016,23 +37408,8 @@ func (p *NodePoolNodeConfig) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
-	if !issetZoneId {
-		fieldId = 1
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetSubnetId {
-		fieldId = 2
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetSpecific {
+	if !issetInstanceTypeId {
 		fieldId = 3
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetImageId {
-		fieldId = 4
 		goto RequiredFieldNotSetError
 	}
 
@@ -35072,7 +37449,7 @@ func (p *NodePoolNodeConfig) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.ZoneId = v
+		p.ZoneId = &v
 	}
 	return nil
 }
@@ -35081,15 +37458,16 @@ func (p *NodePoolNodeConfig) ReadField2(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.SubnetId = v
+		p.SubnetId = &v
 	}
 	return nil
 }
 
 func (p *NodePoolNodeConfig) ReadField3(iprot thrift.TProtocol) error {
-	p.Specific = NewNodeSpecific()
-	if err := p.Specific.Read(iprot); err != nil {
+	if v, err := iprot.ReadString(); err != nil {
 		return err
+	} else {
+		p.InstanceTypeId = v
 	}
 	return nil
 }
@@ -35116,14 +37494,14 @@ func (p *NodePoolNodeConfig) ReadField6(iprot thrift.TProtocol) error {
 	if err != nil {
 		return err
 	}
-	p.DataVolume = make([]*Volume, 0, size)
+	p.DataVolumes = make([]*Volume, 0, size)
 	for i := 0; i < size; i++ {
 		_elem := NewVolume()
 		if err := _elem.Read(iprot); err != nil {
 			return err
 		}
 
-		p.DataVolume = append(p.DataVolume, _elem)
+		p.DataVolumes = append(p.DataVolumes, _elem)
 	}
 	if err := iprot.ReadListEnd(); err != nil {
 		return err
@@ -35229,10 +37607,23 @@ func (p *NodePoolNodeConfig) ReadField13(iprot thrift.TProtocol) error {
 }
 
 func (p *NodePoolNodeConfig) ReadField14(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadBool(); err != nil {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
 		return err
-	} else {
-		p.SecurityStrategy = v
+	}
+	p.SecurityStrategies = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		p.SecurityStrategies = append(p.SecurityStrategies, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
 	}
 	return nil
 }
@@ -35250,7 +37641,29 @@ func (p *NodePoolNodeConfig) ReadField16(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
-		p.Count = &v
+		p.Amount = &v
+	}
+	return nil
+}
+
+func (p *NodePoolNodeConfig) ReadField17(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.SubnetIds = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		p.SubnetIds = append(p.SubnetIds, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
 	}
 	return nil
 }
@@ -35325,6 +37738,10 @@ func (p *NodePoolNodeConfig) Write(oprot thrift.TProtocol) (err error) {
 			fieldId = 16
 			goto WriteFieldError
 		}
+		if err = p.writeField17(oprot); err != nil {
+			fieldId = 17
+			goto WriteFieldError
+		}
 
 	}
 	if err = oprot.WriteFieldStop(); err != nil {
@@ -35345,14 +37762,16 @@ WriteStructEndError:
 }
 
 func (p *NodePoolNodeConfig) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("ZoneId", thrift.STRING, 1); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.ZoneId); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+	if p.IsSetZoneId() {
+		if err = oprot.WriteFieldBegin("ZoneId", thrift.STRING, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.ZoneId); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:
@@ -35362,14 +37781,16 @@ WriteFieldEndError:
 }
 
 func (p *NodePoolNodeConfig) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("SubnetId", thrift.STRING, 2); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.SubnetId); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+	if p.IsSetSubnetId() {
+		if err = oprot.WriteFieldBegin("SubnetId", thrift.STRING, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.SubnetId); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:
@@ -35379,10 +37800,10 @@ WriteFieldEndError:
 }
 
 func (p *NodePoolNodeConfig) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("Specific", thrift.STRUCT, 3); err != nil {
+	if err = oprot.WriteFieldBegin("InstanceTypeId", thrift.STRING, 3); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := p.Specific.Write(oprot); err != nil {
+	if err := oprot.WriteString(p.InstanceTypeId); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -35396,14 +37817,16 @@ WriteFieldEndError:
 }
 
 func (p *NodePoolNodeConfig) writeField4(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("ImageId", thrift.STRING, 4); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.ImageId); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+	if p.IsSetImageId() {
+		if err = oprot.WriteFieldBegin("ImageId", thrift.STRING, 4); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(p.ImageId); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:
@@ -35430,14 +37853,14 @@ WriteFieldEndError:
 }
 
 func (p *NodePoolNodeConfig) writeField6(oprot thrift.TProtocol) (err error) {
-	if p.IsSetDataVolume() {
-		if err = oprot.WriteFieldBegin("DataVolume", thrift.LIST, 6); err != nil {
+	if p.IsSetDataVolumes() {
+		if err = oprot.WriteFieldBegin("DataVolumes", thrift.LIST, 6); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteListBegin(thrift.STRUCT, len(p.DataVolume)); err != nil {
+		if err := oprot.WriteListBegin(thrift.STRUCT, len(p.DataVolumes)); err != nil {
 			return err
 		}
-		for _, v := range p.DataVolume {
+		for _, v := range p.DataVolumes {
 			if err := v.Write(oprot); err != nil {
 				return err
 			}
@@ -35610,11 +38033,19 @@ WriteFieldEndError:
 }
 
 func (p *NodePoolNodeConfig) writeField14(oprot thrift.TProtocol) (err error) {
-	if p.IsSetSecurityStrategy() {
-		if err = oprot.WriteFieldBegin("SecurityStrategy", thrift.BOOL, 14); err != nil {
+	if p.IsSetSecurityStrategies() {
+		if err = oprot.WriteFieldBegin("SecurityStrategies", thrift.LIST, 14); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteBool(p.SecurityStrategy); err != nil {
+		if err := oprot.WriteListBegin(thrift.STRING, len(p.SecurityStrategies)); err != nil {
+			return err
+		}
+		for _, v := range p.SecurityStrategies {
+			if err := oprot.WriteString(v); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -35648,11 +38079,11 @@ WriteFieldEndError:
 }
 
 func (p *NodePoolNodeConfig) writeField16(oprot thrift.TProtocol) (err error) {
-	if p.IsSetCount() {
-		if err = oprot.WriteFieldBegin("Count", thrift.I32, 16); err != nil {
+	if p.IsSetAmount() {
+		if err = oprot.WriteFieldBegin("Amount", thrift.I32, 16); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteI32(*p.Count); err != nil {
+		if err := oprot.WriteI32(*p.Amount); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -35664,6 +38095,33 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 16 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 16 end error: ", p), err)
+}
+
+func (p *NodePoolNodeConfig) writeField17(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSubnetIds() {
+		if err = oprot.WriteFieldBegin("SubnetIds", thrift.LIST, 17); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRING, len(p.SubnetIds)); err != nil {
+			return err
+		}
+		for _, v := range p.SubnetIds {
+			if err := oprot.WriteString(v); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 17 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 17 end error: ", p), err)
 }
 
 func (p *NodePoolNodeConfig) String() string {
@@ -35685,7 +38143,7 @@ func (p *NodePoolNodeConfig) DeepEqual(ano *NodePoolNodeConfig) bool {
 	if !p.Field2DeepEqual(ano.SubnetId) {
 		return false
 	}
-	if !p.Field3DeepEqual(ano.Specific) {
+	if !p.Field3DeepEqual(ano.InstanceTypeId) {
 		return false
 	}
 	if !p.Field4DeepEqual(ano.ImageId) {
@@ -35694,7 +38152,7 @@ func (p *NodePoolNodeConfig) DeepEqual(ano *NodePoolNodeConfig) bool {
 	if !p.Field5DeepEqual(ano.RootVolume) {
 		return false
 	}
-	if !p.Field6DeepEqual(ano.DataVolume) {
+	if !p.Field6DeepEqual(ano.DataVolumes) {
 		return false
 	}
 	if !p.Field7DeepEqual(ano.Login) {
@@ -35718,35 +38176,48 @@ func (p *NodePoolNodeConfig) DeepEqual(ano *NodePoolNodeConfig) bool {
 	if !p.Field13DeepEqual(ano.PostScript) {
 		return false
 	}
-	if !p.Field14DeepEqual(ano.SecurityStrategy) {
+	if !p.Field14DeepEqual(ano.SecurityStrategies) {
 		return false
 	}
 	if !p.Field15DeepEqual(ano.NamePrefix) {
 		return false
 	}
-	if !p.Field16DeepEqual(ano.Count) {
+	if !p.Field16DeepEqual(ano.Amount) {
+		return false
+	}
+	if !p.Field17DeepEqual(ano.SubnetIds) {
 		return false
 	}
 	return true
 }
 
-func (p *NodePoolNodeConfig) Field1DeepEqual(src string) bool {
+func (p *NodePoolNodeConfig) Field1DeepEqual(src *string) bool {
 
-	if strings.Compare(p.ZoneId, src) != 0 {
+	if p.ZoneId == src {
+		return true
+	} else if p.ZoneId == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.ZoneId, *src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *NodePoolNodeConfig) Field2DeepEqual(src string) bool {
+func (p *NodePoolNodeConfig) Field2DeepEqual(src *string) bool {
 
-	if strings.Compare(p.SubnetId, src) != 0 {
+	if p.SubnetId == src {
+		return true
+	} else if p.SubnetId == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.SubnetId, *src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *NodePoolNodeConfig) Field3DeepEqual(src *NodeSpecific) bool {
+func (p *NodePoolNodeConfig) Field3DeepEqual(src string) bool {
 
-	if !p.Specific.DeepEqual(src) {
+	if strings.Compare(p.InstanceTypeId, src) != 0 {
 		return false
 	}
 	return true
@@ -35767,10 +38238,10 @@ func (p *NodePoolNodeConfig) Field5DeepEqual(src *Volume) bool {
 }
 func (p *NodePoolNodeConfig) Field6DeepEqual(src []*Volume) bool {
 
-	if len(p.DataVolume) != len(src) {
+	if len(p.DataVolumes) != len(src) {
 		return false
 	}
-	for i, v := range p.DataVolume {
+	for i, v := range p.DataVolumes {
 		_src := src[i]
 		if !v.DeepEqual(_src) {
 			return false
@@ -35855,10 +38326,16 @@ func (p *NodePoolNodeConfig) Field13DeepEqual(src *string) bool {
 	}
 	return true
 }
-func (p *NodePoolNodeConfig) Field14DeepEqual(src bool) bool {
+func (p *NodePoolNodeConfig) Field14DeepEqual(src []string) bool {
 
-	if p.SecurityStrategy != src {
+	if len(p.SecurityStrategies) != len(src) {
 		return false
+	}
+	for i, v := range p.SecurityStrategies {
+		_src := src[i]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
 	}
 	return true
 }
@@ -35876,30 +38353,45 @@ func (p *NodePoolNodeConfig) Field15DeepEqual(src *string) bool {
 }
 func (p *NodePoolNodeConfig) Field16DeepEqual(src *int32) bool {
 
-	if p.Count == src {
+	if p.Amount == src {
 		return true
-	} else if p.Count == nil || src == nil {
+	} else if p.Amount == nil || src == nil {
 		return false
 	}
-	if *p.Count != *src {
+	if *p.Amount != *src {
 		return false
+	}
+	return true
+}
+func (p *NodePoolNodeConfig) Field17DeepEqual(src []string) bool {
+
+	if len(p.SubnetIds) != len(src) {
+		return false
+	}
+	for i, v := range p.SubnetIds {
+		_src := src[i]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
 	}
 	return true
 }
 
 type NodePoolNode struct {
 	Region         *iaas.Region          `thrift:"Region,1,required" json:"Region"`
-	Zone           *iaas.Zone            `thrift:"Zone,2,required" json:"Zone"`
+	Zone           *iaas.Zone            `thrift:"Zone,2" json:"Zone,omitempty"`
 	Vpc            *iaas.Vpc             `thrift:"Vpc,3,required" json:"Vpc"`
-	Subnet         *iaas.Subnet          `thrift:"Subnet,4,required" json:"Subnet"`
-	Specific       *NodeSpecific         `thrift:"Specific,5,required" json:"Specific"`
+	Subnet         *iaas.Subnet          `thrift:"Subnet,4" json:"Subnet,omitempty"`
+	InstanceType   *InstanceType         `thrift:"InstanceType,5,required" json:"InstanceType"`
 	Image          *iaas.Image           `thrift:"Image,6,required" json:"Image"`
 	RootVolume     *Volume               `thrift:"RootVolume,7,required" json:"RootVolume"`
-	DataVolume     []*Volume             `thrift:"DataVolume,8" json:"DataVolume,omitempty"`
+	DataVolumes    []*Volume             `thrift:"DataVolumes,8,required" json:"DataVolumes"`
 	Login          *Login                `thrift:"Login,9,required" json:"Login"`
 	SecurityGroups []*iaas.SecurityGroup `thrift:"SecurityGroups,10,required" json:"SecurityGroups"`
 	Labels         []*helper.Label       `thrift:"Labels,11,required" validate:"k8sLabel"`
 	Taints         []*helper.Taint       `thrift:"Taints,12,required" json:"Taints"`
+	Zones          []*iaas.Zone          `thrift:"Zones,13" json:"Zones,omitempty"`
+	Subnets        []*iaas.Subnet        `thrift:"Subnets,14" json:"Subnets,omitempty"`
 }
 
 func NewNodePoolNode() *NodePoolNode {
@@ -35942,13 +38434,13 @@ func (p *NodePoolNode) GetSubnet() (v *iaas.Subnet) {
 	return p.Subnet
 }
 
-var NodePoolNode_Specific_DEFAULT *NodeSpecific
+var NodePoolNode_InstanceType_DEFAULT *InstanceType
 
-func (p *NodePoolNode) GetSpecific() (v *NodeSpecific) {
-	if !p.IsSetSpecific() {
-		return NodePoolNode_Specific_DEFAULT
+func (p *NodePoolNode) GetInstanceType() (v *InstanceType) {
+	if !p.IsSetInstanceType() {
+		return NodePoolNode_InstanceType_DEFAULT
 	}
-	return p.Specific
+	return p.InstanceType
 }
 
 var NodePoolNode_Image_DEFAULT *iaas.Image
@@ -35969,13 +38461,8 @@ func (p *NodePoolNode) GetRootVolume() (v *Volume) {
 	return p.RootVolume
 }
 
-var NodePoolNode_DataVolume_DEFAULT []*Volume
-
-func (p *NodePoolNode) GetDataVolume() (v []*Volume) {
-	if !p.IsSetDataVolume() {
-		return NodePoolNode_DataVolume_DEFAULT
-	}
-	return p.DataVolume
+func (p *NodePoolNode) GetDataVolumes() (v []*Volume) {
+	return p.DataVolumes
 }
 
 var NodePoolNode_Login_DEFAULT *Login
@@ -35998,6 +38485,24 @@ func (p *NodePoolNode) GetLabels() (v []*helper.Label) {
 func (p *NodePoolNode) GetTaints() (v []*helper.Taint) {
 	return p.Taints
 }
+
+var NodePoolNode_Zones_DEFAULT []*iaas.Zone
+
+func (p *NodePoolNode) GetZones() (v []*iaas.Zone) {
+	if !p.IsSetZones() {
+		return NodePoolNode_Zones_DEFAULT
+	}
+	return p.Zones
+}
+
+var NodePoolNode_Subnets_DEFAULT []*iaas.Subnet
+
+func (p *NodePoolNode) GetSubnets() (v []*iaas.Subnet) {
+	if !p.IsSetSubnets() {
+		return NodePoolNode_Subnets_DEFAULT
+	}
+	return p.Subnets
+}
 func (p *NodePoolNode) SetRegion(val *iaas.Region) {
 	p.Region = val
 }
@@ -36010,8 +38515,8 @@ func (p *NodePoolNode) SetVpc(val *iaas.Vpc) {
 func (p *NodePoolNode) SetSubnet(val *iaas.Subnet) {
 	p.Subnet = val
 }
-func (p *NodePoolNode) SetSpecific(val *NodeSpecific) {
-	p.Specific = val
+func (p *NodePoolNode) SetInstanceType(val *InstanceType) {
+	p.InstanceType = val
 }
 func (p *NodePoolNode) SetImage(val *iaas.Image) {
 	p.Image = val
@@ -36019,8 +38524,8 @@ func (p *NodePoolNode) SetImage(val *iaas.Image) {
 func (p *NodePoolNode) SetRootVolume(val *Volume) {
 	p.RootVolume = val
 }
-func (p *NodePoolNode) SetDataVolume(val []*Volume) {
-	p.DataVolume = val
+func (p *NodePoolNode) SetDataVolumes(val []*Volume) {
+	p.DataVolumes = val
 }
 func (p *NodePoolNode) SetLogin(val *Login) {
 	p.Login = val
@@ -36034,20 +38539,28 @@ func (p *NodePoolNode) SetLabels(val []*helper.Label) {
 func (p *NodePoolNode) SetTaints(val []*helper.Taint) {
 	p.Taints = val
 }
+func (p *NodePoolNode) SetZones(val []*iaas.Zone) {
+	p.Zones = val
+}
+func (p *NodePoolNode) SetSubnets(val []*iaas.Subnet) {
+	p.Subnets = val
+}
 
 var fieldIDToName_NodePoolNode = map[int16]string{
 	1:  "Region",
 	2:  "Zone",
 	3:  "Vpc",
 	4:  "Subnet",
-	5:  "Specific",
+	5:  "InstanceType",
 	6:  "Image",
 	7:  "RootVolume",
-	8:  "DataVolume",
+	8:  "DataVolumes",
 	9:  "Login",
 	10: "SecurityGroups",
 	11: "Labels",
 	12: "Taints",
+	13: "Zones",
+	14: "Subnets",
 }
 
 func (p *NodePoolNode) IsSetRegion() bool {
@@ -36066,8 +38579,8 @@ func (p *NodePoolNode) IsSetSubnet() bool {
 	return p.Subnet != nil
 }
 
-func (p *NodePoolNode) IsSetSpecific() bool {
-	return p.Specific != nil
+func (p *NodePoolNode) IsSetInstanceType() bool {
+	return p.InstanceType != nil
 }
 
 func (p *NodePoolNode) IsSetImage() bool {
@@ -36078,12 +38591,16 @@ func (p *NodePoolNode) IsSetRootVolume() bool {
 	return p.RootVolume != nil
 }
 
-func (p *NodePoolNode) IsSetDataVolume() bool {
-	return p.DataVolume != nil
-}
-
 func (p *NodePoolNode) IsSetLogin() bool {
 	return p.Login != nil
+}
+
+func (p *NodePoolNode) IsSetZones() bool {
+	return p.Zones != nil
+}
+
+func (p *NodePoolNode) IsSetSubnets() bool {
+	return p.Subnets != nil
 }
 
 func (p *NodePoolNode) Read(iprot thrift.TProtocol) (err error) {
@@ -36091,12 +38608,11 @@ func (p *NodePoolNode) Read(iprot thrift.TProtocol) (err error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetRegion bool = false
-	var issetZone bool = false
 	var issetVpc bool = false
-	var issetSubnet bool = false
-	var issetSpecific bool = false
+	var issetInstanceType bool = false
 	var issetImage bool = false
 	var issetRootVolume bool = false
+	var issetDataVolumes bool = false
 	var issetLogin bool = false
 	var issetSecurityGroups bool = false
 	var issetLabels bool = false
@@ -36132,7 +38648,6 @@ func (p *NodePoolNode) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetZone = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -36154,7 +38669,6 @@ func (p *NodePoolNode) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField4(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetSubnet = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -36165,7 +38679,7 @@ func (p *NodePoolNode) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField5(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetSpecific = true
+				issetInstanceType = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -36198,6 +38712,7 @@ func (p *NodePoolNode) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField8(iprot); err != nil {
 					goto ReadFieldError
 				}
+				issetDataVolumes = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -36247,6 +38762,26 @@ func (p *NodePoolNode) Read(iprot thrift.TProtocol) (err error) {
 					goto SkipFieldError
 				}
 			}
+		case 13:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField13(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 14:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField14(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
 		default:
 			if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
@@ -36266,22 +38801,12 @@ func (p *NodePoolNode) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetZone {
-		fieldId = 2
-		goto RequiredFieldNotSetError
-	}
-
 	if !issetVpc {
 		fieldId = 3
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetSubnet {
-		fieldId = 4
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetSpecific {
+	if !issetInstanceType {
 		fieldId = 5
 		goto RequiredFieldNotSetError
 	}
@@ -36293,6 +38818,11 @@ func (p *NodePoolNode) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetRootVolume {
 		fieldId = 7
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetDataVolumes {
+		fieldId = 8
 		goto RequiredFieldNotSetError
 	}
 
@@ -36366,8 +38896,8 @@ func (p *NodePoolNode) ReadField4(iprot thrift.TProtocol) error {
 }
 
 func (p *NodePoolNode) ReadField5(iprot thrift.TProtocol) error {
-	p.Specific = NewNodeSpecific()
-	if err := p.Specific.Read(iprot); err != nil {
+	p.InstanceType = NewInstanceType()
+	if err := p.InstanceType.Read(iprot); err != nil {
 		return err
 	}
 	return nil
@@ -36394,14 +38924,14 @@ func (p *NodePoolNode) ReadField8(iprot thrift.TProtocol) error {
 	if err != nil {
 		return err
 	}
-	p.DataVolume = make([]*Volume, 0, size)
+	p.DataVolumes = make([]*Volume, 0, size)
 	for i := 0; i < size; i++ {
 		_elem := NewVolume()
 		if err := _elem.Read(iprot); err != nil {
 			return err
 		}
 
-		p.DataVolume = append(p.DataVolume, _elem)
+		p.DataVolumes = append(p.DataVolumes, _elem)
 	}
 	if err := iprot.ReadListEnd(); err != nil {
 		return err
@@ -36477,6 +39007,46 @@ func (p *NodePoolNode) ReadField12(iprot thrift.TProtocol) error {
 	return nil
 }
 
+func (p *NodePoolNode) ReadField13(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.Zones = make([]*iaas.Zone, 0, size)
+	for i := 0; i < size; i++ {
+		_elem := iaas.NewZone()
+		if err := _elem.Read(iprot); err != nil {
+			return err
+		}
+
+		p.Zones = append(p.Zones, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *NodePoolNode) ReadField14(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.Subnets = make([]*iaas.Subnet, 0, size)
+	for i := 0; i < size; i++ {
+		_elem := iaas.NewSubnet()
+		if err := _elem.Read(iprot); err != nil {
+			return err
+		}
+
+		p.Subnets = append(p.Subnets, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (p *NodePoolNode) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
 	if err = oprot.WriteStructBegin("NodePoolNode"); err != nil {
@@ -36531,6 +39101,14 @@ func (p *NodePoolNode) Write(oprot thrift.TProtocol) (err error) {
 			fieldId = 12
 			goto WriteFieldError
 		}
+		if err = p.writeField13(oprot); err != nil {
+			fieldId = 13
+			goto WriteFieldError
+		}
+		if err = p.writeField14(oprot); err != nil {
+			fieldId = 14
+			goto WriteFieldError
+		}
 
 	}
 	if err = oprot.WriteFieldStop(); err != nil {
@@ -36568,14 +39146,16 @@ WriteFieldEndError:
 }
 
 func (p *NodePoolNode) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("Zone", thrift.STRUCT, 2); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := p.Zone.Write(oprot); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+	if p.IsSetZone() {
+		if err = oprot.WriteFieldBegin("Zone", thrift.STRUCT, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Zone.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:
@@ -36602,14 +39182,16 @@ WriteFieldEndError:
 }
 
 func (p *NodePoolNode) writeField4(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("Subnet", thrift.STRUCT, 4); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := p.Subnet.Write(oprot); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+	if p.IsSetSubnet() {
+		if err = oprot.WriteFieldBegin("Subnet", thrift.STRUCT, 4); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Subnet.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:
@@ -36619,10 +39201,10 @@ WriteFieldEndError:
 }
 
 func (p *NodePoolNode) writeField5(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("Specific", thrift.STRUCT, 5); err != nil {
+	if err = oprot.WriteFieldBegin("InstanceType", thrift.STRUCT, 5); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := p.Specific.Write(oprot); err != nil {
+	if err := p.InstanceType.Write(oprot); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -36670,24 +39252,22 @@ WriteFieldEndError:
 }
 
 func (p *NodePoolNode) writeField8(oprot thrift.TProtocol) (err error) {
-	if p.IsSetDataVolume() {
-		if err = oprot.WriteFieldBegin("DataVolume", thrift.LIST, 8); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteListBegin(thrift.STRUCT, len(p.DataVolume)); err != nil {
+	if err = oprot.WriteFieldBegin("DataVolumes", thrift.LIST, 8); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteListBegin(thrift.STRUCT, len(p.DataVolumes)); err != nil {
+		return err
+	}
+	for _, v := range p.DataVolumes {
+		if err := v.Write(oprot); err != nil {
 			return err
 		}
-		for _, v := range p.DataVolume {
-			if err := v.Write(oprot); err != nil {
-				return err
-			}
-		}
-		if err := oprot.WriteListEnd(); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	}
+	if err := oprot.WriteListEnd(); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -36788,6 +39368,60 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 12 end error: ", p), err)
 }
 
+func (p *NodePoolNode) writeField13(oprot thrift.TProtocol) (err error) {
+	if p.IsSetZones() {
+		if err = oprot.WriteFieldBegin("Zones", thrift.LIST, 13); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRUCT, len(p.Zones)); err != nil {
+			return err
+		}
+		for _, v := range p.Zones {
+			if err := v.Write(oprot); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 13 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 13 end error: ", p), err)
+}
+
+func (p *NodePoolNode) writeField14(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSubnets() {
+		if err = oprot.WriteFieldBegin("Subnets", thrift.LIST, 14); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRUCT, len(p.Subnets)); err != nil {
+			return err
+		}
+		for _, v := range p.Subnets {
+			if err := v.Write(oprot); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 14 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 14 end error: ", p), err)
+}
+
 func (p *NodePoolNode) String() string {
 	if p == nil {
 		return "<nil>"
@@ -36813,7 +39447,7 @@ func (p *NodePoolNode) DeepEqual(ano *NodePoolNode) bool {
 	if !p.Field4DeepEqual(ano.Subnet) {
 		return false
 	}
-	if !p.Field5DeepEqual(ano.Specific) {
+	if !p.Field5DeepEqual(ano.InstanceType) {
 		return false
 	}
 	if !p.Field6DeepEqual(ano.Image) {
@@ -36822,7 +39456,7 @@ func (p *NodePoolNode) DeepEqual(ano *NodePoolNode) bool {
 	if !p.Field7DeepEqual(ano.RootVolume) {
 		return false
 	}
-	if !p.Field8DeepEqual(ano.DataVolume) {
+	if !p.Field8DeepEqual(ano.DataVolumes) {
 		return false
 	}
 	if !p.Field9DeepEqual(ano.Login) {
@@ -36835,6 +39469,12 @@ func (p *NodePoolNode) DeepEqual(ano *NodePoolNode) bool {
 		return false
 	}
 	if !p.Field12DeepEqual(ano.Taints) {
+		return false
+	}
+	if !p.Field13DeepEqual(ano.Zones) {
+		return false
+	}
+	if !p.Field14DeepEqual(ano.Subnets) {
 		return false
 	}
 	return true
@@ -36868,9 +39508,9 @@ func (p *NodePoolNode) Field4DeepEqual(src *iaas.Subnet) bool {
 	}
 	return true
 }
-func (p *NodePoolNode) Field5DeepEqual(src *NodeSpecific) bool {
+func (p *NodePoolNode) Field5DeepEqual(src *InstanceType) bool {
 
-	if !p.Specific.DeepEqual(src) {
+	if !p.InstanceType.DeepEqual(src) {
 		return false
 	}
 	return true
@@ -36891,10 +39531,10 @@ func (p *NodePoolNode) Field7DeepEqual(src *Volume) bool {
 }
 func (p *NodePoolNode) Field8DeepEqual(src []*Volume) bool {
 
-	if len(p.DataVolume) != len(src) {
+	if len(p.DataVolumes) != len(src) {
 		return false
 	}
-	for i, v := range p.DataVolume {
+	for i, v := range p.DataVolumes {
 		_src := src[i]
 		if !v.DeepEqual(_src) {
 			return false
@@ -36948,13 +39588,39 @@ func (p *NodePoolNode) Field12DeepEqual(src []*helper.Taint) bool {
 	}
 	return true
 }
+func (p *NodePoolNode) Field13DeepEqual(src []*iaas.Zone) bool {
+
+	if len(p.Zones) != len(src) {
+		return false
+	}
+	for i, v := range p.Zones {
+		_src := src[i]
+		if !v.DeepEqual(_src) {
+			return false
+		}
+	}
+	return true
+}
+func (p *NodePoolNode) Field14DeepEqual(src []*iaas.Subnet) bool {
+
+	if len(p.Subnets) != len(src) {
+		return false
+	}
+	for i, v := range p.Subnets {
+		_src := src[i]
+		if !v.DeepEqual(_src) {
+			return false
+		}
+	}
+	return true
+}
 
 type CreateNodePoolRequest struct {
 	ClusterId       string                   `thrift:"ClusterId,1,required" validate:"required"`
 	Name            string                   `thrift:"Name,2,required" validate:"required,k8sAlias"`
-	ChargeType      string                   `thrift:"ChargeType,3,required" validate:"required,oneof=PostPaid"`
+	ChargeType      *string                  `thrift:"ChargeType,3" json:"ChargeType" validate:"oneof=PostPaid" default:"PostPaid"`
 	NodeAutoscaling *NodePoolNodeAutoscaling `thrift:"NodeAutoscaling,4" json:"NodeAutoscaling,omitempty"`
-	NodeTemplate    *NodePoolNodeConfig      `thrift:"NodeTemplate,5,required" json:"NodeTemplate"`
+	NodeTemplate    *NodePoolNodeConfig      `thrift:"NodeTemplate,5,required" validate:"required"`
 	Top             *base.TopParam           `thrift:"Top,254,required" json:"Top"`
 	Base            *base.Base               `thrift:"Base,255" json:"Base,omitempty"`
 }
@@ -36971,8 +39637,13 @@ func (p *CreateNodePoolRequest) GetName() (v string) {
 	return p.Name
 }
 
+var CreateNodePoolRequest_ChargeType_DEFAULT string
+
 func (p *CreateNodePoolRequest) GetChargeType() (v string) {
-	return p.ChargeType
+	if !p.IsSetChargeType() {
+		return CreateNodePoolRequest_ChargeType_DEFAULT
+	}
+	return *p.ChargeType
 }
 
 var CreateNodePoolRequest_NodeAutoscaling_DEFAULT *NodePoolNodeAutoscaling
@@ -37016,7 +39687,7 @@ func (p *CreateNodePoolRequest) SetClusterId(val string) {
 func (p *CreateNodePoolRequest) SetName(val string) {
 	p.Name = val
 }
-func (p *CreateNodePoolRequest) SetChargeType(val string) {
+func (p *CreateNodePoolRequest) SetChargeType(val *string) {
 	p.ChargeType = val
 }
 func (p *CreateNodePoolRequest) SetNodeAutoscaling(val *NodePoolNodeAutoscaling) {
@@ -37042,6 +39713,10 @@ var fieldIDToName_CreateNodePoolRequest = map[int16]string{
 	255: "Base",
 }
 
+func (p *CreateNodePoolRequest) IsSetChargeType() bool {
+	return p.ChargeType != nil
+}
+
 func (p *CreateNodePoolRequest) IsSetNodeAutoscaling() bool {
 	return p.NodeAutoscaling != nil
 }
@@ -37064,7 +39739,6 @@ func (p *CreateNodePoolRequest) Read(iprot thrift.TProtocol) (err error) {
 	var fieldId int16
 	var issetClusterId bool = false
 	var issetName bool = false
-	var issetChargeType bool = false
 	var issetNodeTemplate bool = false
 	var issetTop bool = false
 
@@ -37109,7 +39783,6 @@ func (p *CreateNodePoolRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField3(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetChargeType = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -37181,11 +39854,6 @@ func (p *CreateNodePoolRequest) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetChargeType {
-		fieldId = 3
-		goto RequiredFieldNotSetError
-	}
-
 	if !issetNodeTemplate {
 		fieldId = 5
 		goto RequiredFieldNotSetError
@@ -37235,7 +39903,7 @@ func (p *CreateNodePoolRequest) ReadField3(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.ChargeType = v
+		p.ChargeType = &v
 	}
 	return nil
 }
@@ -37360,14 +40028,16 @@ WriteFieldEndError:
 }
 
 func (p *CreateNodePoolRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("ChargeType", thrift.STRING, 3); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.ChargeType); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+	if p.IsSetChargeType() {
+		if err = oprot.WriteFieldBegin("ChargeType", thrift.STRING, 3); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.ChargeType); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:
@@ -37499,9 +40169,14 @@ func (p *CreateNodePoolRequest) Field2DeepEqual(src string) bool {
 	}
 	return true
 }
-func (p *CreateNodePoolRequest) Field3DeepEqual(src string) bool {
+func (p *CreateNodePoolRequest) Field3DeepEqual(src *string) bool {
 
-	if strings.Compare(p.ChargeType, src) != 0 {
+	if p.ChargeType == src {
+		return true
+	} else if p.ChargeType == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.ChargeType, *src) != 0 {
 		return false
 	}
 	return true
@@ -38163,7 +40838,7 @@ type NodePoolResource struct {
 	FreeGpu             string     `thrift:"FreeGpu,11,required" json:"FreeGpu"`
 	UnSchedulableGpu    string     `thrift:"UnSchedulableGpu,12,required" json:"UnSchedulableGpu"`
 	TotalNode           int32      `thrift:"TotalNode,13,required" json:"TotalNode"`
-	AvaliableNode       int32      `thrift:"AvaliableNode,14,required" json:"AvaliableNode"`
+	AvailableNodeAmount int32      `thrift:"AvailableNodeAmount,14,required" json:"AvailableNodeAmount"`
 	ErrorNode           int32      `thrift:"ErrorNode,15,required" json:"ErrorNode"`
 	OtherNode           int32      `thrift:"OtherNode,16,required" json:"OtherNode"`
 	Base                *base.Base `thrift:"Base,255" json:"Base,omitempty"`
@@ -38225,8 +40900,8 @@ func (p *NodePoolResource) GetTotalNode() (v int32) {
 	return p.TotalNode
 }
 
-func (p *NodePoolResource) GetAvaliableNode() (v int32) {
-	return p.AvaliableNode
+func (p *NodePoolResource) GetAvailableNodeAmount() (v int32) {
+	return p.AvailableNodeAmount
 }
 
 func (p *NodePoolResource) GetErrorNode() (v int32) {
@@ -38284,8 +40959,8 @@ func (p *NodePoolResource) SetUnSchedulableGpu(val string) {
 func (p *NodePoolResource) SetTotalNode(val int32) {
 	p.TotalNode = val
 }
-func (p *NodePoolResource) SetAvaliableNode(val int32) {
-	p.AvaliableNode = val
+func (p *NodePoolResource) SetAvailableNodeAmount(val int32) {
+	p.AvailableNodeAmount = val
 }
 func (p *NodePoolResource) SetErrorNode(val int32) {
 	p.ErrorNode = val
@@ -38311,7 +40986,7 @@ var fieldIDToName_NodePoolResource = map[int16]string{
 	11:  "FreeGpu",
 	12:  "UnSchedulableGpu",
 	13:  "TotalNode",
-	14:  "AvaliableNode",
+	14:  "AvailableNodeAmount",
 	15:  "ErrorNode",
 	16:  "OtherNode",
 	255: "Base",
@@ -38338,7 +41013,7 @@ func (p *NodePoolResource) Read(iprot thrift.TProtocol) (err error) {
 	var issetFreeGpu bool = false
 	var issetUnSchedulableGpu bool = false
 	var issetTotalNode bool = false
-	var issetAvaliableNode bool = false
+	var issetAvailableNodeAmount bool = false
 	var issetErrorNode bool = false
 	var issetOtherNode bool = false
 
@@ -38504,7 +41179,7 @@ func (p *NodePoolResource) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField14(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetAvaliableNode = true
+				issetAvailableNodeAmount = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -38621,7 +41296,7 @@ func (p *NodePoolResource) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetAvaliableNode {
+	if !issetAvailableNodeAmount {
 		fieldId = 14
 		goto RequiredFieldNotSetError
 	}
@@ -38774,7 +41449,7 @@ func (p *NodePoolResource) ReadField14(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
-		p.AvaliableNode = v
+		p.AvailableNodeAmount = v
 	}
 	return nil
 }
@@ -39120,10 +41795,10 @@ WriteFieldEndError:
 }
 
 func (p *NodePoolResource) writeField14(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("AvaliableNode", thrift.I32, 14); err != nil {
+	if err = oprot.WriteFieldBegin("AvailableNodeAmount", thrift.I32, 14); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI32(p.AvaliableNode); err != nil {
+	if err := oprot.WriteI32(p.AvailableNodeAmount); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -39241,7 +41916,7 @@ func (p *NodePoolResource) DeepEqual(ano *NodePoolResource) bool {
 	if !p.Field13DeepEqual(ano.TotalNode) {
 		return false
 	}
-	if !p.Field14DeepEqual(ano.AvaliableNode) {
+	if !p.Field14DeepEqual(ano.AvailableNodeAmount) {
 		return false
 	}
 	if !p.Field15DeepEqual(ano.ErrorNode) {
@@ -39349,7 +42024,7 @@ func (p *NodePoolResource) Field13DeepEqual(src int32) bool {
 }
 func (p *NodePoolResource) Field14DeepEqual(src int32) bool {
 
-	if p.AvaliableNode != src {
+	if p.AvailableNodeAmount != src {
 		return false
 	}
 	return true
@@ -39381,10 +42056,11 @@ type GetNodePoolResponse struct {
 	Name            string                   `thrift:"Name,2,required" json:"Name"`
 	ClusterId       string                   `thrift:"ClusterId,3,required" json:"ClusterId"`
 	ChargeType      string                   `thrift:"ChargeType,4,required" validate:"required,oneof=PostPaid"`
-	Resource        *NodePoolResource        `thrift:"Resource,5" json:"Resource"`
+	Resource        *NodePoolResource        `thrift:"Resource,5,required" json:"Resource"`
 	NodeAutoscaling *NodePoolNodeAutoscaling `thrift:"NodeAutoscaling,6,required" json:"NodeAutoscaling"`
 	NodeTemplate    *NodePoolNode            `thrift:"NodeTemplate,7,required" json:"NodeTemplate"`
 	Status          string                   `thrift:"Status,8,required" json:"Status"`
+	EnableFullSync  bool                     `thrift:"EnableFullSync,9,required" json:"EnableFullSync"`
 	Base            *base.Base               `thrift:"Base,255" json:"Base,omitempty"`
 }
 
@@ -39439,6 +42115,10 @@ func (p *GetNodePoolResponse) GetStatus() (v string) {
 	return p.Status
 }
 
+func (p *GetNodePoolResponse) GetEnableFullSync() (v bool) {
+	return p.EnableFullSync
+}
+
 var GetNodePoolResponse_Base_DEFAULT *base.Base
 
 func (p *GetNodePoolResponse) GetBase() (v *base.Base) {
@@ -39471,6 +42151,9 @@ func (p *GetNodePoolResponse) SetNodeTemplate(val *NodePoolNode) {
 func (p *GetNodePoolResponse) SetStatus(val string) {
 	p.Status = val
 }
+func (p *GetNodePoolResponse) SetEnableFullSync(val bool) {
+	p.EnableFullSync = val
+}
 func (p *GetNodePoolResponse) SetBase(val *base.Base) {
 	p.Base = val
 }
@@ -39484,6 +42167,7 @@ var fieldIDToName_GetNodePoolResponse = map[int16]string{
 	6:   "NodeAutoscaling",
 	7:   "NodeTemplate",
 	8:   "Status",
+	9:   "EnableFullSync",
 	255: "Base",
 }
 
@@ -39511,9 +42195,11 @@ func (p *GetNodePoolResponse) Read(iprot thrift.TProtocol) (err error) {
 	var issetName bool = false
 	var issetClusterId bool = false
 	var issetChargeType bool = false
+	var issetResource bool = false
 	var issetNodeAutoscaling bool = false
 	var issetNodeTemplate bool = false
 	var issetStatus bool = false
+	var issetEnableFullSync bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -39578,6 +42264,7 @@ func (p *GetNodePoolResponse) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField5(iprot); err != nil {
 					goto ReadFieldError
 				}
+				issetResource = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -39611,6 +42298,17 @@ func (p *GetNodePoolResponse) Read(iprot thrift.TProtocol) (err error) {
 					goto ReadFieldError
 				}
 				issetStatus = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 9:
+			if fieldTypeId == thrift.BOOL {
+				if err = p.ReadField9(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetEnableFullSync = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -39660,6 +42358,11 @@ func (p *GetNodePoolResponse) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
+	if !issetResource {
+		fieldId = 5
+		goto RequiredFieldNotSetError
+	}
+
 	if !issetNodeAutoscaling {
 		fieldId = 6
 		goto RequiredFieldNotSetError
@@ -39672,6 +42375,11 @@ func (p *GetNodePoolResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetStatus {
 		fieldId = 8
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetEnableFullSync {
+		fieldId = 9
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -39761,6 +42469,15 @@ func (p *GetNodePoolResponse) ReadField8(iprot thrift.TProtocol) error {
 	return nil
 }
 
+func (p *GetNodePoolResponse) ReadField9(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadBool(); err != nil {
+		return err
+	} else {
+		p.EnableFullSync = v
+	}
+	return nil
+}
+
 func (p *GetNodePoolResponse) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
@@ -39805,6 +42522,10 @@ func (p *GetNodePoolResponse) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField8(oprot); err != nil {
 			fieldId = 8
+			goto WriteFieldError
+		}
+		if err = p.writeField9(oprot); err != nil {
+			fieldId = 9
 			goto WriteFieldError
 		}
 		if err = p.writeField255(oprot); err != nil {
@@ -39966,6 +42687,23 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 8 end error: ", p), err)
 }
 
+func (p *GetNodePoolResponse) writeField9(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("EnableFullSync", thrift.BOOL, 9); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteBool(p.EnableFullSync); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 9 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 9 end error: ", p), err)
+}
+
 func (p *GetNodePoolResponse) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
@@ -40020,6 +42758,9 @@ func (p *GetNodePoolResponse) DeepEqual(ano *GetNodePoolResponse) bool {
 		return false
 	}
 	if !p.Field8DeepEqual(ano.Status) {
+		return false
+	}
+	if !p.Field9DeepEqual(ano.EnableFullSync) {
 		return false
 	}
 	if !p.Field255DeepEqual(ano.Base) {
@@ -40084,6 +42825,13 @@ func (p *GetNodePoolResponse) Field8DeepEqual(src string) bool {
 	}
 	return true
 }
+func (p *GetNodePoolResponse) Field9DeepEqual(src bool) bool {
+
+	if p.EnableFullSync != src {
+		return false
+	}
+	return true
+}
 func (p *GetNodePoolResponse) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
@@ -40096,10 +42844,11 @@ type UpdateNodePoolRequest struct {
 	ClusterId       string                   `thrift:"ClusterId,1,required" validate:"required"`
 	Id              string                   `thrift:"Id,2,required" validate:"required"`
 	Name            *string                  `thrift:"Name,3" json:"Name,omitempty"`
-	Count           *int32                   `thrift:"Count,4" json:"Count,omitempty"`
+	Amount          *int32                   `thrift:"Amount,4" json:"Amount,omitempty"`
 	NodeAutoscaling *NodePoolNodeAutoscaling `thrift:"NodeAutoscaling,5" json:"NodeAutoscaling,omitempty"`
 	Labels          []*helper.Label          `thrift:"Labels,6" validate:"k8sLabel"`
 	Taints          []*helper.Taint          `thrift:"Taints,7" json:"Taints,omitempty"`
+	EnableFullSync  *bool                    `thrift:"EnableFullSync,8" json:"EnableFullSync,omitempty"`
 	Top             *base.TopParam           `thrift:"Top,254,required" json:"Top"`
 	Base            *base.Base               `thrift:"Base,255" json:"Base,omitempty"`
 }
@@ -40125,13 +42874,13 @@ func (p *UpdateNodePoolRequest) GetName() (v string) {
 	return *p.Name
 }
 
-var UpdateNodePoolRequest_Count_DEFAULT int32
+var UpdateNodePoolRequest_Amount_DEFAULT int32
 
-func (p *UpdateNodePoolRequest) GetCount() (v int32) {
-	if !p.IsSetCount() {
-		return UpdateNodePoolRequest_Count_DEFAULT
+func (p *UpdateNodePoolRequest) GetAmount() (v int32) {
+	if !p.IsSetAmount() {
+		return UpdateNodePoolRequest_Amount_DEFAULT
 	}
-	return *p.Count
+	return *p.Amount
 }
 
 var UpdateNodePoolRequest_NodeAutoscaling_DEFAULT *NodePoolNodeAutoscaling
@@ -40161,6 +42910,15 @@ func (p *UpdateNodePoolRequest) GetTaints() (v []*helper.Taint) {
 	return p.Taints
 }
 
+var UpdateNodePoolRequest_EnableFullSync_DEFAULT bool
+
+func (p *UpdateNodePoolRequest) GetEnableFullSync() (v bool) {
+	if !p.IsSetEnableFullSync() {
+		return UpdateNodePoolRequest_EnableFullSync_DEFAULT
+	}
+	return *p.EnableFullSync
+}
+
 var UpdateNodePoolRequest_Top_DEFAULT *base.TopParam
 
 func (p *UpdateNodePoolRequest) GetTop() (v *base.TopParam) {
@@ -40187,8 +42945,8 @@ func (p *UpdateNodePoolRequest) SetId(val string) {
 func (p *UpdateNodePoolRequest) SetName(val *string) {
 	p.Name = val
 }
-func (p *UpdateNodePoolRequest) SetCount(val *int32) {
-	p.Count = val
+func (p *UpdateNodePoolRequest) SetAmount(val *int32) {
+	p.Amount = val
 }
 func (p *UpdateNodePoolRequest) SetNodeAutoscaling(val *NodePoolNodeAutoscaling) {
 	p.NodeAutoscaling = val
@@ -40198,6 +42956,9 @@ func (p *UpdateNodePoolRequest) SetLabels(val []*helper.Label) {
 }
 func (p *UpdateNodePoolRequest) SetTaints(val []*helper.Taint) {
 	p.Taints = val
+}
+func (p *UpdateNodePoolRequest) SetEnableFullSync(val *bool) {
+	p.EnableFullSync = val
 }
 func (p *UpdateNodePoolRequest) SetTop(val *base.TopParam) {
 	p.Top = val
@@ -40210,10 +42971,11 @@ var fieldIDToName_UpdateNodePoolRequest = map[int16]string{
 	1:   "ClusterId",
 	2:   "Id",
 	3:   "Name",
-	4:   "Count",
+	4:   "Amount",
 	5:   "NodeAutoscaling",
 	6:   "Labels",
 	7:   "Taints",
+	8:   "EnableFullSync",
 	254: "Top",
 	255: "Base",
 }
@@ -40222,8 +42984,8 @@ func (p *UpdateNodePoolRequest) IsSetName() bool {
 	return p.Name != nil
 }
 
-func (p *UpdateNodePoolRequest) IsSetCount() bool {
-	return p.Count != nil
+func (p *UpdateNodePoolRequest) IsSetAmount() bool {
+	return p.Amount != nil
 }
 
 func (p *UpdateNodePoolRequest) IsSetNodeAutoscaling() bool {
@@ -40236,6 +42998,10 @@ func (p *UpdateNodePoolRequest) IsSetLabels() bool {
 
 func (p *UpdateNodePoolRequest) IsSetTaints() bool {
 	return p.Taints != nil
+}
+
+func (p *UpdateNodePoolRequest) IsSetEnableFullSync() bool {
+	return p.EnableFullSync != nil
 }
 
 func (p *UpdateNodePoolRequest) IsSetTop() bool {
@@ -40333,6 +43099,16 @@ func (p *UpdateNodePoolRequest) Read(iprot thrift.TProtocol) (err error) {
 		case 7:
 			if fieldTypeId == thrift.LIST {
 				if err = p.ReadField7(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 8:
+			if fieldTypeId == thrift.BOOL {
+				if err = p.ReadField8(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else {
@@ -40438,7 +43214,7 @@ func (p *UpdateNodePoolRequest) ReadField4(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
-		p.Count = &v
+		p.Amount = &v
 	}
 	return nil
 }
@@ -40491,6 +43267,15 @@ func (p *UpdateNodePoolRequest) ReadField7(iprot thrift.TProtocol) error {
 	return nil
 }
 
+func (p *UpdateNodePoolRequest) ReadField8(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadBool(); err != nil {
+		return err
+	} else {
+		p.EnableFullSync = &v
+	}
+	return nil
+}
+
 func (p *UpdateNodePoolRequest) ReadField254(iprot thrift.TProtocol) error {
 	p.Top = base.NewTopParam()
 	if err := p.Top.Read(iprot); err != nil {
@@ -40539,6 +43324,10 @@ func (p *UpdateNodePoolRequest) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField7(oprot); err != nil {
 			fieldId = 7
+			goto WriteFieldError
+		}
+		if err = p.writeField8(oprot); err != nil {
+			fieldId = 8
 			goto WriteFieldError
 		}
 		if err = p.writeField254(oprot); err != nil {
@@ -40622,11 +43411,11 @@ WriteFieldEndError:
 }
 
 func (p *UpdateNodePoolRequest) writeField4(oprot thrift.TProtocol) (err error) {
-	if p.IsSetCount() {
-		if err = oprot.WriteFieldBegin("Count", thrift.I32, 4); err != nil {
+	if p.IsSetAmount() {
+		if err = oprot.WriteFieldBegin("Amount", thrift.I32, 4); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteI32(*p.Count); err != nil {
+		if err := oprot.WriteI32(*p.Amount); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -40713,6 +43502,25 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 7 end error: ", p), err)
 }
 
+func (p *UpdateNodePoolRequest) writeField8(oprot thrift.TProtocol) (err error) {
+	if p.IsSetEnableFullSync() {
+		if err = oprot.WriteFieldBegin("EnableFullSync", thrift.BOOL, 8); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteBool(*p.EnableFullSync); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 8 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 8 end error: ", p), err)
+}
+
 func (p *UpdateNodePoolRequest) writeField254(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Top", thrift.STRUCT, 254); err != nil {
 		goto WriteFieldBeginError
@@ -40771,7 +43579,7 @@ func (p *UpdateNodePoolRequest) DeepEqual(ano *UpdateNodePoolRequest) bool {
 	if !p.Field3DeepEqual(ano.Name) {
 		return false
 	}
-	if !p.Field4DeepEqual(ano.Count) {
+	if !p.Field4DeepEqual(ano.Amount) {
 		return false
 	}
 	if !p.Field5DeepEqual(ano.NodeAutoscaling) {
@@ -40781,6 +43589,9 @@ func (p *UpdateNodePoolRequest) DeepEqual(ano *UpdateNodePoolRequest) bool {
 		return false
 	}
 	if !p.Field7DeepEqual(ano.Taints) {
+		return false
+	}
+	if !p.Field8DeepEqual(ano.EnableFullSync) {
 		return false
 	}
 	if !p.Field254DeepEqual(ano.Top) {
@@ -40820,12 +43631,12 @@ func (p *UpdateNodePoolRequest) Field3DeepEqual(src *string) bool {
 }
 func (p *UpdateNodePoolRequest) Field4DeepEqual(src *int32) bool {
 
-	if p.Count == src {
+	if p.Amount == src {
 		return true
-	} else if p.Count == nil || src == nil {
+	} else if p.Amount == nil || src == nil {
 		return false
 	}
-	if *p.Count != *src {
+	if *p.Amount != *src {
 		return false
 	}
 	return true
@@ -40860,6 +43671,18 @@ func (p *UpdateNodePoolRequest) Field7DeepEqual(src []*helper.Taint) bool {
 		if !v.DeepEqual(_src) {
 			return false
 		}
+	}
+	return true
+}
+func (p *UpdateNodePoolRequest) Field8DeepEqual(src *bool) bool {
+
+	if p.EnableFullSync == src {
+		return true
+	} else if p.EnableFullSync == nil || src == nil {
+		return false
+	}
+	if *p.EnableFullSync != *src {
+		return false
 	}
 	return true
 }
@@ -41116,11 +43939,11 @@ func (p *UpdateNodePoolResponse) Field255DeepEqual(src *base.Base) bool {
 }
 
 type DeleteNodePoolRequest struct {
-	ClusterId  string         `thrift:"ClusterId,1,required" validate:"required"`
-	Id         string         `thrift:"Id,2,required" validate:"required"`
-	DeleteFlag *bool          `thrift:"DeleteFlag,3" json:"DeleteFlag,omitempty"`
-	Top        *base.TopParam `thrift:"Top,254,required" json:"Top"`
-	Base       *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
+	ClusterId             string         `thrift:"ClusterId,1,required" validate:"required"`
+	Id                    string         `thrift:"Id,2,required" validate:"required"`
+	SyncDeleteEcsInstance *bool          `thrift:"SyncDeleteEcsInstance,3" json:"SyncDeleteEcsInstance,omitempty"`
+	Top                   *base.TopParam `thrift:"Top,254,required" json:"Top"`
+	Base                  *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
 }
 
 func NewDeleteNodePoolRequest() *DeleteNodePoolRequest {
@@ -41135,13 +43958,13 @@ func (p *DeleteNodePoolRequest) GetId() (v string) {
 	return p.Id
 }
 
-var DeleteNodePoolRequest_DeleteFlag_DEFAULT bool
+var DeleteNodePoolRequest_SyncDeleteEcsInstance_DEFAULT bool
 
-func (p *DeleteNodePoolRequest) GetDeleteFlag() (v bool) {
-	if !p.IsSetDeleteFlag() {
-		return DeleteNodePoolRequest_DeleteFlag_DEFAULT
+func (p *DeleteNodePoolRequest) GetSyncDeleteEcsInstance() (v bool) {
+	if !p.IsSetSyncDeleteEcsInstance() {
+		return DeleteNodePoolRequest_SyncDeleteEcsInstance_DEFAULT
 	}
-	return *p.DeleteFlag
+	return *p.SyncDeleteEcsInstance
 }
 
 var DeleteNodePoolRequest_Top_DEFAULT *base.TopParam
@@ -41167,8 +43990,8 @@ func (p *DeleteNodePoolRequest) SetClusterId(val string) {
 func (p *DeleteNodePoolRequest) SetId(val string) {
 	p.Id = val
 }
-func (p *DeleteNodePoolRequest) SetDeleteFlag(val *bool) {
-	p.DeleteFlag = val
+func (p *DeleteNodePoolRequest) SetSyncDeleteEcsInstance(val *bool) {
+	p.SyncDeleteEcsInstance = val
 }
 func (p *DeleteNodePoolRequest) SetTop(val *base.TopParam) {
 	p.Top = val
@@ -41180,13 +44003,13 @@ func (p *DeleteNodePoolRequest) SetBase(val *base.Base) {
 var fieldIDToName_DeleteNodePoolRequest = map[int16]string{
 	1:   "ClusterId",
 	2:   "Id",
-	3:   "DeleteFlag",
+	3:   "SyncDeleteEcsInstance",
 	254: "Top",
 	255: "Base",
 }
 
-func (p *DeleteNodePoolRequest) IsSetDeleteFlag() bool {
-	return p.DeleteFlag != nil
+func (p *DeleteNodePoolRequest) IsSetSyncDeleteEcsInstance() bool {
+	return p.SyncDeleteEcsInstance != nil
 }
 
 func (p *DeleteNodePoolRequest) IsSetTop() bool {
@@ -41340,7 +44163,7 @@ func (p *DeleteNodePoolRequest) ReadField3(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadBool(); err != nil {
 		return err
 	} else {
-		p.DeleteFlag = &v
+		p.SyncDeleteEcsInstance = &v
 	}
 	return nil
 }
@@ -41441,11 +44264,11 @@ WriteFieldEndError:
 }
 
 func (p *DeleteNodePoolRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if p.IsSetDeleteFlag() {
-		if err = oprot.WriteFieldBegin("DeleteFlag", thrift.BOOL, 3); err != nil {
+	if p.IsSetSyncDeleteEcsInstance() {
+		if err = oprot.WriteFieldBegin("SyncDeleteEcsInstance", thrift.BOOL, 3); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteBool(*p.DeleteFlag); err != nil {
+		if err := oprot.WriteBool(*p.SyncDeleteEcsInstance); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -41514,7 +44337,7 @@ func (p *DeleteNodePoolRequest) DeepEqual(ano *DeleteNodePoolRequest) bool {
 	if !p.Field2DeepEqual(ano.Id) {
 		return false
 	}
-	if !p.Field3DeepEqual(ano.DeleteFlag) {
+	if !p.Field3DeepEqual(ano.SyncDeleteEcsInstance) {
 		return false
 	}
 	if !p.Field254DeepEqual(ano.Top) {
@@ -41542,12 +44365,12 @@ func (p *DeleteNodePoolRequest) Field2DeepEqual(src string) bool {
 }
 func (p *DeleteNodePoolRequest) Field3DeepEqual(src *bool) bool {
 
-	if p.DeleteFlag == src {
+	if p.SyncDeleteEcsInstance == src {
 		return true
-	} else if p.DeleteFlag == nil || src == nil {
+	} else if p.SyncDeleteEcsInstance == nil || src == nil {
 		return false
 	}
-	if *p.DeleteFlag != *src {
+	if *p.SyncDeleteEcsInstance != *src {
 		return false
 	}
 	return true
@@ -41737,147 +44560,380 @@ func (p *DeleteNodePoolResponse) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
-type ListNodePoolScalingRecordRequest struct {
-	ClusterId string         `thrift:"ClusterId,1,required" validate:"required"`
-	Id        string         `thrift:"Id,2,required" validate:"required"`
-	StartTime *string        `thrift:"StartTime,3" json:"StartTime,omitempty"`
-	EndTime   *string        `thrift:"EndTime,4" json:"EndTime,omitempty"`
-	Start     int32          `thrift:"Start,5" validate:"gte=0"`
-	Limit     int32          `thrift:"Limit,6" validate:"gte=0"`
-	Top       *base.TopParam `thrift:"Top,254,required" json:"Top"`
-	Base      *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
+type ListNodePoolScalingRecordsFilter struct {
+	StartTime *string `thrift:"StartTime,1" json:"StartTime,omitempty"`
+	EndTime   *string `thrift:"EndTime,2" json:"EndTime,omitempty"`
 }
 
-func NewListNodePoolScalingRecordRequest() *ListNodePoolScalingRecordRequest {
-	return &ListNodePoolScalingRecordRequest{
-
-		Start: 0,
-		Limit: 10,
-	}
+func NewListNodePoolScalingRecordsFilter() *ListNodePoolScalingRecordsFilter {
+	return &ListNodePoolScalingRecordsFilter{}
 }
 
-func (p *ListNodePoolScalingRecordRequest) GetClusterId() (v string) {
-	return p.ClusterId
-}
+var ListNodePoolScalingRecordsFilter_StartTime_DEFAULT string
 
-func (p *ListNodePoolScalingRecordRequest) GetId() (v string) {
-	return p.Id
-}
-
-var ListNodePoolScalingRecordRequest_StartTime_DEFAULT string
-
-func (p *ListNodePoolScalingRecordRequest) GetStartTime() (v string) {
+func (p *ListNodePoolScalingRecordsFilter) GetStartTime() (v string) {
 	if !p.IsSetStartTime() {
-		return ListNodePoolScalingRecordRequest_StartTime_DEFAULT
+		return ListNodePoolScalingRecordsFilter_StartTime_DEFAULT
 	}
 	return *p.StartTime
 }
 
-var ListNodePoolScalingRecordRequest_EndTime_DEFAULT string
+var ListNodePoolScalingRecordsFilter_EndTime_DEFAULT string
 
-func (p *ListNodePoolScalingRecordRequest) GetEndTime() (v string) {
+func (p *ListNodePoolScalingRecordsFilter) GetEndTime() (v string) {
 	if !p.IsSetEndTime() {
-		return ListNodePoolScalingRecordRequest_EndTime_DEFAULT
+		return ListNodePoolScalingRecordsFilter_EndTime_DEFAULT
 	}
 	return *p.EndTime
 }
-
-var ListNodePoolScalingRecordRequest_Start_DEFAULT int32 = 0
-
-func (p *ListNodePoolScalingRecordRequest) GetStart() (v int32) {
-	if !p.IsSetStart() {
-		return ListNodePoolScalingRecordRequest_Start_DEFAULT
-	}
-	return p.Start
+func (p *ListNodePoolScalingRecordsFilter) SetStartTime(val *string) {
+	p.StartTime = val
+}
+func (p *ListNodePoolScalingRecordsFilter) SetEndTime(val *string) {
+	p.EndTime = val
 }
 
-var ListNodePoolScalingRecordRequest_Limit_DEFAULT int32 = 10
-
-func (p *ListNodePoolScalingRecordRequest) GetLimit() (v int32) {
-	if !p.IsSetLimit() {
-		return ListNodePoolScalingRecordRequest_Limit_DEFAULT
-	}
-	return p.Limit
+var fieldIDToName_ListNodePoolScalingRecordsFilter = map[int16]string{
+	1: "StartTime",
+	2: "EndTime",
 }
 
-var ListNodePoolScalingRecordRequest_Top_DEFAULT *base.TopParam
+func (p *ListNodePoolScalingRecordsFilter) IsSetStartTime() bool {
+	return p.StartTime != nil
+}
 
-func (p *ListNodePoolScalingRecordRequest) GetTop() (v *base.TopParam) {
+func (p *ListNodePoolScalingRecordsFilter) IsSetEndTime() bool {
+	return p.EndTime != nil
+}
+
+func (p *ListNodePoolScalingRecordsFilter) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 2:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListNodePoolScalingRecordsFilter[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ListNodePoolScalingRecordsFilter) ReadField1(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.StartTime = &v
+	}
+	return nil
+}
+
+func (p *ListNodePoolScalingRecordsFilter) ReadField2(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.EndTime = &v
+	}
+	return nil
+}
+
+func (p *ListNodePoolScalingRecordsFilter) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ListNodePoolScalingRecordsFilter"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ListNodePoolScalingRecordsFilter) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetStartTime() {
+		if err = oprot.WriteFieldBegin("StartTime", thrift.STRING, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.StartTime); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ListNodePoolScalingRecordsFilter) writeField2(oprot thrift.TProtocol) (err error) {
+	if p.IsSetEndTime() {
+		if err = oprot.WriteFieldBegin("EndTime", thrift.STRING, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.EndTime); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *ListNodePoolScalingRecordsFilter) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ListNodePoolScalingRecordsFilter(%+v)", *p)
+}
+
+func (p *ListNodePoolScalingRecordsFilter) DeepEqual(ano *ListNodePoolScalingRecordsFilter) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.StartTime) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.EndTime) {
+		return false
+	}
+	return true
+}
+
+func (p *ListNodePoolScalingRecordsFilter) Field1DeepEqual(src *string) bool {
+
+	if p.StartTime == src {
+		return true
+	} else if p.StartTime == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.StartTime, *src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *ListNodePoolScalingRecordsFilter) Field2DeepEqual(src *string) bool {
+
+	if p.EndTime == src {
+		return true
+	} else if p.EndTime == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.EndTime, *src) != 0 {
+		return false
+	}
+	return true
+}
+
+type ListNodePoolScalingRecordsRequest struct {
+	ClusterId  string                            `thrift:"ClusterId,1,required" validate:"required"`
+	Id         string                            `thrift:"Id,2,required" validate:"required"`
+	PageNumber int32                             `thrift:"PageNumber,3" json:"PageNumber" default:"1"`
+	PageSize   int32                             `thrift:"PageSize,4" json:"PageSize" default:"100"`
+	Filter     *ListNodePoolScalingRecordsFilter `thrift:"Filter,5" json:"Filter,omitempty"`
+	Top        *base.TopParam                    `thrift:"Top,254,required" json:"Top"`
+	Base       *base.Base                        `thrift:"Base,255" json:"Base,omitempty"`
+}
+
+func NewListNodePoolScalingRecordsRequest() *ListNodePoolScalingRecordsRequest {
+	return &ListNodePoolScalingRecordsRequest{
+
+		PageNumber: 1,
+		PageSize:   100,
+	}
+}
+
+func (p *ListNodePoolScalingRecordsRequest) GetClusterId() (v string) {
+	return p.ClusterId
+}
+
+func (p *ListNodePoolScalingRecordsRequest) GetId() (v string) {
+	return p.Id
+}
+
+var ListNodePoolScalingRecordsRequest_PageNumber_DEFAULT int32 = 1
+
+func (p *ListNodePoolScalingRecordsRequest) GetPageNumber() (v int32) {
+	if !p.IsSetPageNumber() {
+		return ListNodePoolScalingRecordsRequest_PageNumber_DEFAULT
+	}
+	return p.PageNumber
+}
+
+var ListNodePoolScalingRecordsRequest_PageSize_DEFAULT int32 = 100
+
+func (p *ListNodePoolScalingRecordsRequest) GetPageSize() (v int32) {
+	if !p.IsSetPageSize() {
+		return ListNodePoolScalingRecordsRequest_PageSize_DEFAULT
+	}
+	return p.PageSize
+}
+
+var ListNodePoolScalingRecordsRequest_Filter_DEFAULT *ListNodePoolScalingRecordsFilter
+
+func (p *ListNodePoolScalingRecordsRequest) GetFilter() (v *ListNodePoolScalingRecordsFilter) {
+	if !p.IsSetFilter() {
+		return ListNodePoolScalingRecordsRequest_Filter_DEFAULT
+	}
+	return p.Filter
+}
+
+var ListNodePoolScalingRecordsRequest_Top_DEFAULT *base.TopParam
+
+func (p *ListNodePoolScalingRecordsRequest) GetTop() (v *base.TopParam) {
 	if !p.IsSetTop() {
-		return ListNodePoolScalingRecordRequest_Top_DEFAULT
+		return ListNodePoolScalingRecordsRequest_Top_DEFAULT
 	}
 	return p.Top
 }
 
-var ListNodePoolScalingRecordRequest_Base_DEFAULT *base.Base
+var ListNodePoolScalingRecordsRequest_Base_DEFAULT *base.Base
 
-func (p *ListNodePoolScalingRecordRequest) GetBase() (v *base.Base) {
+func (p *ListNodePoolScalingRecordsRequest) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return ListNodePoolScalingRecordRequest_Base_DEFAULT
+		return ListNodePoolScalingRecordsRequest_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *ListNodePoolScalingRecordRequest) SetClusterId(val string) {
+func (p *ListNodePoolScalingRecordsRequest) SetClusterId(val string) {
 	p.ClusterId = val
 }
-func (p *ListNodePoolScalingRecordRequest) SetId(val string) {
+func (p *ListNodePoolScalingRecordsRequest) SetId(val string) {
 	p.Id = val
 }
-func (p *ListNodePoolScalingRecordRequest) SetStartTime(val *string) {
-	p.StartTime = val
+func (p *ListNodePoolScalingRecordsRequest) SetPageNumber(val int32) {
+	p.PageNumber = val
 }
-func (p *ListNodePoolScalingRecordRequest) SetEndTime(val *string) {
-	p.EndTime = val
+func (p *ListNodePoolScalingRecordsRequest) SetPageSize(val int32) {
+	p.PageSize = val
 }
-func (p *ListNodePoolScalingRecordRequest) SetStart(val int32) {
-	p.Start = val
+func (p *ListNodePoolScalingRecordsRequest) SetFilter(val *ListNodePoolScalingRecordsFilter) {
+	p.Filter = val
 }
-func (p *ListNodePoolScalingRecordRequest) SetLimit(val int32) {
-	p.Limit = val
-}
-func (p *ListNodePoolScalingRecordRequest) SetTop(val *base.TopParam) {
+func (p *ListNodePoolScalingRecordsRequest) SetTop(val *base.TopParam) {
 	p.Top = val
 }
-func (p *ListNodePoolScalingRecordRequest) SetBase(val *base.Base) {
+func (p *ListNodePoolScalingRecordsRequest) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_ListNodePoolScalingRecordRequest = map[int16]string{
+var fieldIDToName_ListNodePoolScalingRecordsRequest = map[int16]string{
 	1:   "ClusterId",
 	2:   "Id",
-	3:   "StartTime",
-	4:   "EndTime",
-	5:   "Start",
-	6:   "Limit",
+	3:   "PageNumber",
+	4:   "PageSize",
+	5:   "Filter",
 	254: "Top",
 	255: "Base",
 }
 
-func (p *ListNodePoolScalingRecordRequest) IsSetStartTime() bool {
-	return p.StartTime != nil
+func (p *ListNodePoolScalingRecordsRequest) IsSetPageNumber() bool {
+	return p.PageNumber != ListNodePoolScalingRecordsRequest_PageNumber_DEFAULT
 }
 
-func (p *ListNodePoolScalingRecordRequest) IsSetEndTime() bool {
-	return p.EndTime != nil
+func (p *ListNodePoolScalingRecordsRequest) IsSetPageSize() bool {
+	return p.PageSize != ListNodePoolScalingRecordsRequest_PageSize_DEFAULT
 }
 
-func (p *ListNodePoolScalingRecordRequest) IsSetStart() bool {
-	return p.Start != ListNodePoolScalingRecordRequest_Start_DEFAULT
+func (p *ListNodePoolScalingRecordsRequest) IsSetFilter() bool {
+	return p.Filter != nil
 }
 
-func (p *ListNodePoolScalingRecordRequest) IsSetLimit() bool {
-	return p.Limit != ListNodePoolScalingRecordRequest_Limit_DEFAULT
-}
-
-func (p *ListNodePoolScalingRecordRequest) IsSetTop() bool {
+func (p *ListNodePoolScalingRecordsRequest) IsSetTop() bool {
 	return p.Top != nil
 }
 
-func (p *ListNodePoolScalingRecordRequest) IsSetBase() bool {
+func (p *ListNodePoolScalingRecordsRequest) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *ListNodePoolScalingRecordRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *ListNodePoolScalingRecordsRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -41922,7 +44978,7 @@ func (p *ListNodePoolScalingRecordRequest) Read(iprot thrift.TProtocol) (err err
 				}
 			}
 		case 3:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.I32 {
 				if err = p.ReadField3(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -41932,7 +44988,7 @@ func (p *ListNodePoolScalingRecordRequest) Read(iprot thrift.TProtocol) (err err
 				}
 			}
 		case 4:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.I32 {
 				if err = p.ReadField4(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -41942,18 +44998,8 @@ func (p *ListNodePoolScalingRecordRequest) Read(iprot thrift.TProtocol) (err err
 				}
 			}
 		case 5:
-			if fieldTypeId == thrift.I32 {
+			if fieldTypeId == thrift.STRUCT {
 				if err = p.ReadField5(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else {
-				if err = iprot.Skip(fieldTypeId); err != nil {
-					goto SkipFieldError
-				}
-			}
-		case 6:
-			if fieldTypeId == thrift.I32 {
-				if err = p.ReadField6(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else {
@@ -42016,7 +45062,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListNodePoolScalingRecordRequest[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListNodePoolScalingRecordsRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -42025,10 +45071,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListNodePoolScalingRecordRequest[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListNodePoolScalingRecordsRequest[fieldId]))
 }
 
-func (p *ListNodePoolScalingRecordRequest) ReadField1(iprot thrift.TProtocol) error {
+func (p *ListNodePoolScalingRecordsRequest) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -42037,7 +45083,7 @@ func (p *ListNodePoolScalingRecordRequest) ReadField1(iprot thrift.TProtocol) er
 	return nil
 }
 
-func (p *ListNodePoolScalingRecordRequest) ReadField2(iprot thrift.TProtocol) error {
+func (p *ListNodePoolScalingRecordsRequest) ReadField2(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -42046,43 +45092,33 @@ func (p *ListNodePoolScalingRecordRequest) ReadField2(iprot thrift.TProtocol) er
 	return nil
 }
 
-func (p *ListNodePoolScalingRecordRequest) ReadField3(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		p.StartTime = &v
-	}
-	return nil
-}
-
-func (p *ListNodePoolScalingRecordRequest) ReadField4(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		p.EndTime = &v
-	}
-	return nil
-}
-
-func (p *ListNodePoolScalingRecordRequest) ReadField5(iprot thrift.TProtocol) error {
+func (p *ListNodePoolScalingRecordsRequest) ReadField3(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
-		p.Start = v
+		p.PageNumber = v
 	}
 	return nil
 }
 
-func (p *ListNodePoolScalingRecordRequest) ReadField6(iprot thrift.TProtocol) error {
+func (p *ListNodePoolScalingRecordsRequest) ReadField4(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
-		p.Limit = v
+		p.PageSize = v
 	}
 	return nil
 }
 
-func (p *ListNodePoolScalingRecordRequest) ReadField254(iprot thrift.TProtocol) error {
+func (p *ListNodePoolScalingRecordsRequest) ReadField5(iprot thrift.TProtocol) error {
+	p.Filter = NewListNodePoolScalingRecordsFilter()
+	if err := p.Filter.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ListNodePoolScalingRecordsRequest) ReadField254(iprot thrift.TProtocol) error {
 	p.Top = base.NewTopParam()
 	if err := p.Top.Read(iprot); err != nil {
 		return err
@@ -42090,7 +45126,7 @@ func (p *ListNodePoolScalingRecordRequest) ReadField254(iprot thrift.TProtocol) 
 	return nil
 }
 
-func (p *ListNodePoolScalingRecordRequest) ReadField255(iprot thrift.TProtocol) error {
+func (p *ListNodePoolScalingRecordsRequest) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -42098,9 +45134,9 @@ func (p *ListNodePoolScalingRecordRequest) ReadField255(iprot thrift.TProtocol) 
 	return nil
 }
 
-func (p *ListNodePoolScalingRecordRequest) Write(oprot thrift.TProtocol) (err error) {
+func (p *ListNodePoolScalingRecordsRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListNodePoolScalingRecordRequest"); err != nil {
+	if err = oprot.WriteStructBegin("ListNodePoolScalingRecordsRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -42122,10 +45158,6 @@ func (p *ListNodePoolScalingRecordRequest) Write(oprot thrift.TProtocol) (err er
 		}
 		if err = p.writeField5(oprot); err != nil {
 			fieldId = 5
-			goto WriteFieldError
-		}
-		if err = p.writeField6(oprot); err != nil {
-			fieldId = 6
 			goto WriteFieldError
 		}
 		if err = p.writeField254(oprot); err != nil {
@@ -42155,7 +45187,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ListNodePoolScalingRecordRequest) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ListNodePoolScalingRecordsRequest) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("ClusterId", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -42172,7 +45204,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ListNodePoolScalingRecordRequest) writeField2(oprot thrift.TProtocol) (err error) {
+func (p *ListNodePoolScalingRecordsRequest) writeField2(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Id", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -42189,12 +45221,12 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *ListNodePoolScalingRecordRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if p.IsSetStartTime() {
-		if err = oprot.WriteFieldBegin("StartTime", thrift.STRING, 3); err != nil {
+func (p *ListNodePoolScalingRecordsRequest) writeField3(oprot thrift.TProtocol) (err error) {
+	if p.IsSetPageNumber() {
+		if err = oprot.WriteFieldBegin("PageNumber", thrift.I32, 3); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteString(*p.StartTime); err != nil {
+		if err := oprot.WriteI32(p.PageNumber); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -42208,12 +45240,12 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
-func (p *ListNodePoolScalingRecordRequest) writeField4(oprot thrift.TProtocol) (err error) {
-	if p.IsSetEndTime() {
-		if err = oprot.WriteFieldBegin("EndTime", thrift.STRING, 4); err != nil {
+func (p *ListNodePoolScalingRecordsRequest) writeField4(oprot thrift.TProtocol) (err error) {
+	if p.IsSetPageSize() {
+		if err = oprot.WriteFieldBegin("PageSize", thrift.I32, 4); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteString(*p.EndTime); err != nil {
+		if err := oprot.WriteI32(p.PageSize); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -42227,12 +45259,12 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
 }
 
-func (p *ListNodePoolScalingRecordRequest) writeField5(oprot thrift.TProtocol) (err error) {
-	if p.IsSetStart() {
-		if err = oprot.WriteFieldBegin("Start", thrift.I32, 5); err != nil {
+func (p *ListNodePoolScalingRecordsRequest) writeField5(oprot thrift.TProtocol) (err error) {
+	if p.IsSetFilter() {
+		if err = oprot.WriteFieldBegin("Filter", thrift.STRUCT, 5); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteI32(p.Start); err != nil {
+		if err := p.Filter.Write(oprot); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -42246,26 +45278,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
 }
 
-func (p *ListNodePoolScalingRecordRequest) writeField6(oprot thrift.TProtocol) (err error) {
-	if p.IsSetLimit() {
-		if err = oprot.WriteFieldBegin("Limit", thrift.I32, 6); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteI32(p.Limit); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 6 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
-}
-
-func (p *ListNodePoolScalingRecordRequest) writeField254(oprot thrift.TProtocol) (err error) {
+func (p *ListNodePoolScalingRecordsRequest) writeField254(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Top", thrift.STRUCT, 254); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -42282,7 +45295,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 254 end error: ", p), err)
 }
 
-func (p *ListNodePoolScalingRecordRequest) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *ListNodePoolScalingRecordsRequest) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -42301,14 +45314,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *ListNodePoolScalingRecordRequest) String() string {
+func (p *ListNodePoolScalingRecordsRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ListNodePoolScalingRecordRequest(%+v)", *p)
+	return fmt.Sprintf("ListNodePoolScalingRecordsRequest(%+v)", *p)
 }
 
-func (p *ListNodePoolScalingRecordRequest) DeepEqual(ano *ListNodePoolScalingRecordRequest) bool {
+func (p *ListNodePoolScalingRecordsRequest) DeepEqual(ano *ListNodePoolScalingRecordsRequest) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -42320,16 +45333,13 @@ func (p *ListNodePoolScalingRecordRequest) DeepEqual(ano *ListNodePoolScalingRec
 	if !p.Field2DeepEqual(ano.Id) {
 		return false
 	}
-	if !p.Field3DeepEqual(ano.StartTime) {
+	if !p.Field3DeepEqual(ano.PageNumber) {
 		return false
 	}
-	if !p.Field4DeepEqual(ano.EndTime) {
+	if !p.Field4DeepEqual(ano.PageSize) {
 		return false
 	}
-	if !p.Field5DeepEqual(ano.Start) {
-		return false
-	}
-	if !p.Field6DeepEqual(ano.Limit) {
+	if !p.Field5DeepEqual(ano.Filter) {
 		return false
 	}
 	if !p.Field254DeepEqual(ano.Top) {
@@ -42341,66 +45351,49 @@ func (p *ListNodePoolScalingRecordRequest) DeepEqual(ano *ListNodePoolScalingRec
 	return true
 }
 
-func (p *ListNodePoolScalingRecordRequest) Field1DeepEqual(src string) bool {
+func (p *ListNodePoolScalingRecordsRequest) Field1DeepEqual(src string) bool {
 
 	if strings.Compare(p.ClusterId, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *ListNodePoolScalingRecordRequest) Field2DeepEqual(src string) bool {
+func (p *ListNodePoolScalingRecordsRequest) Field2DeepEqual(src string) bool {
 
 	if strings.Compare(p.Id, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *ListNodePoolScalingRecordRequest) Field3DeepEqual(src *string) bool {
+func (p *ListNodePoolScalingRecordsRequest) Field3DeepEqual(src int32) bool {
 
-	if p.StartTime == src {
-		return true
-	} else if p.StartTime == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.StartTime, *src) != 0 {
+	if p.PageNumber != src {
 		return false
 	}
 	return true
 }
-func (p *ListNodePoolScalingRecordRequest) Field4DeepEqual(src *string) bool {
+func (p *ListNodePoolScalingRecordsRequest) Field4DeepEqual(src int32) bool {
 
-	if p.EndTime == src {
-		return true
-	} else if p.EndTime == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.EndTime, *src) != 0 {
+	if p.PageSize != src {
 		return false
 	}
 	return true
 }
-func (p *ListNodePoolScalingRecordRequest) Field5DeepEqual(src int32) bool {
+func (p *ListNodePoolScalingRecordsRequest) Field5DeepEqual(src *ListNodePoolScalingRecordsFilter) bool {
 
-	if p.Start != src {
+	if !p.Filter.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ListNodePoolScalingRecordRequest) Field6DeepEqual(src int32) bool {
-
-	if p.Limit != src {
-		return false
-	}
-	return true
-}
-func (p *ListNodePoolScalingRecordRequest) Field254DeepEqual(src *base.TopParam) bool {
+func (p *ListNodePoolScalingRecordsRequest) Field254DeepEqual(src *base.TopParam) bool {
 
 	if !p.Top.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ListNodePoolScalingRecordRequest) Field255DeepEqual(src *base.Base) bool {
+func (p *ListNodePoolScalingRecordsRequest) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -43047,53 +46040,53 @@ func (p *NodePoolScalingRecord) Field8DeepEqual(src string) bool {
 	return true
 }
 
-type ListNodePoolScalingRecordResponse struct {
+type ListNodePoolScalingRecordsResponse struct {
 	Items []*NodePoolScalingRecord `thrift:"Items,1,required" json:"Items"`
 	Total int32                    `thrift:"Total,2,required" json:"Total"`
 	Base  *base.Base               `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewListNodePoolScalingRecordResponse() *ListNodePoolScalingRecordResponse {
-	return &ListNodePoolScalingRecordResponse{}
+func NewListNodePoolScalingRecordsResponse() *ListNodePoolScalingRecordsResponse {
+	return &ListNodePoolScalingRecordsResponse{}
 }
 
-func (p *ListNodePoolScalingRecordResponse) GetItems() (v []*NodePoolScalingRecord) {
+func (p *ListNodePoolScalingRecordsResponse) GetItems() (v []*NodePoolScalingRecord) {
 	return p.Items
 }
 
-func (p *ListNodePoolScalingRecordResponse) GetTotal() (v int32) {
+func (p *ListNodePoolScalingRecordsResponse) GetTotal() (v int32) {
 	return p.Total
 }
 
-var ListNodePoolScalingRecordResponse_Base_DEFAULT *base.Base
+var ListNodePoolScalingRecordsResponse_Base_DEFAULT *base.Base
 
-func (p *ListNodePoolScalingRecordResponse) GetBase() (v *base.Base) {
+func (p *ListNodePoolScalingRecordsResponse) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return ListNodePoolScalingRecordResponse_Base_DEFAULT
+		return ListNodePoolScalingRecordsResponse_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *ListNodePoolScalingRecordResponse) SetItems(val []*NodePoolScalingRecord) {
+func (p *ListNodePoolScalingRecordsResponse) SetItems(val []*NodePoolScalingRecord) {
 	p.Items = val
 }
-func (p *ListNodePoolScalingRecordResponse) SetTotal(val int32) {
+func (p *ListNodePoolScalingRecordsResponse) SetTotal(val int32) {
 	p.Total = val
 }
-func (p *ListNodePoolScalingRecordResponse) SetBase(val *base.Base) {
+func (p *ListNodePoolScalingRecordsResponse) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_ListNodePoolScalingRecordResponse = map[int16]string{
+var fieldIDToName_ListNodePoolScalingRecordsResponse = map[int16]string{
 	1:   "Items",
 	2:   "Total",
 	255: "Base",
 }
 
-func (p *ListNodePoolScalingRecordResponse) IsSetBase() bool {
+func (p *ListNodePoolScalingRecordsResponse) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *ListNodePoolScalingRecordResponse) Read(iprot thrift.TProtocol) (err error) {
+func (p *ListNodePoolScalingRecordsResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -43175,7 +46168,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListNodePoolScalingRecordResponse[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListNodePoolScalingRecordsResponse[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -43184,10 +46177,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListNodePoolScalingRecordResponse[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListNodePoolScalingRecordsResponse[fieldId]))
 }
 
-func (p *ListNodePoolScalingRecordResponse) ReadField1(iprot thrift.TProtocol) error {
+func (p *ListNodePoolScalingRecordsResponse) ReadField1(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
@@ -43207,7 +46200,7 @@ func (p *ListNodePoolScalingRecordResponse) ReadField1(iprot thrift.TProtocol) e
 	return nil
 }
 
-func (p *ListNodePoolScalingRecordResponse) ReadField2(iprot thrift.TProtocol) error {
+func (p *ListNodePoolScalingRecordsResponse) ReadField2(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
@@ -43216,7 +46209,7 @@ func (p *ListNodePoolScalingRecordResponse) ReadField2(iprot thrift.TProtocol) e
 	return nil
 }
 
-func (p *ListNodePoolScalingRecordResponse) ReadField255(iprot thrift.TProtocol) error {
+func (p *ListNodePoolScalingRecordsResponse) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -43224,9 +46217,9 @@ func (p *ListNodePoolScalingRecordResponse) ReadField255(iprot thrift.TProtocol)
 	return nil
 }
 
-func (p *ListNodePoolScalingRecordResponse) Write(oprot thrift.TProtocol) (err error) {
+func (p *ListNodePoolScalingRecordsResponse) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListNodePoolScalingRecordResponse"); err != nil {
+	if err = oprot.WriteStructBegin("ListNodePoolScalingRecordsResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -43261,7 +46254,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ListNodePoolScalingRecordResponse) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ListNodePoolScalingRecordsResponse) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Items", thrift.LIST, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -43286,7 +46279,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ListNodePoolScalingRecordResponse) writeField2(oprot thrift.TProtocol) (err error) {
+func (p *ListNodePoolScalingRecordsResponse) writeField2(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Total", thrift.I32, 2); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -43303,7 +46296,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *ListNodePoolScalingRecordResponse) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *ListNodePoolScalingRecordsResponse) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -43322,14 +46315,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *ListNodePoolScalingRecordResponse) String() string {
+func (p *ListNodePoolScalingRecordsResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ListNodePoolScalingRecordResponse(%+v)", *p)
+	return fmt.Sprintf("ListNodePoolScalingRecordsResponse(%+v)", *p)
 }
 
-func (p *ListNodePoolScalingRecordResponse) DeepEqual(ano *ListNodePoolScalingRecordResponse) bool {
+func (p *ListNodePoolScalingRecordsResponse) DeepEqual(ano *ListNodePoolScalingRecordsResponse) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -43347,7 +46340,7 @@ func (p *ListNodePoolScalingRecordResponse) DeepEqual(ano *ListNodePoolScalingRe
 	return true
 }
 
-func (p *ListNodePoolScalingRecordResponse) Field1DeepEqual(src []*NodePoolScalingRecord) bool {
+func (p *ListNodePoolScalingRecordsResponse) Field1DeepEqual(src []*NodePoolScalingRecord) bool {
 
 	if len(p.Items) != len(src) {
 		return false
@@ -43360,14 +46353,14 @@ func (p *ListNodePoolScalingRecordResponse) Field1DeepEqual(src []*NodePoolScali
 	}
 	return true
 }
-func (p *ListNodePoolScalingRecordResponse) Field2DeepEqual(src int32) bool {
+func (p *ListNodePoolScalingRecordsResponse) Field2DeepEqual(src int32) bool {
 
 	if p.Total != src {
 		return false
 	}
 	return true
 }
-func (p *ListNodePoolScalingRecordResponse) Field255DeepEqual(src *base.Base) bool {
+func (p *ListNodePoolScalingRecordsResponse) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -43375,129 +46368,129 @@ func (p *ListNodePoolScalingRecordResponse) Field255DeepEqual(src *base.Base) bo
 	return true
 }
 
-type ListNodePoolNodeRequest struct {
-	ClusterId string              `thrift:"ClusterId,1,required" validate:"required"`
-	Id        string              `thrift:"Id,2,required" validate:"required"`
-	Start     int32               `thrift:"Start,3" validate:"gte=0"`
-	Limit     int32               `thrift:"Limit,4" validate:"gte=0"`
-	Filters   map[string][]string `thrift:"Filters,5" json:"Filters,omitempty"`
-	Top       *base.TopParam      `thrift:"Top,254,required" json:"Top"`
-	Base      *base.Base          `thrift:"Base,255" json:"Base,omitempty"`
+type ListNodePoolNodesRequest struct {
+	ClusterId  string           `thrift:"ClusterId,1,required" validate:"required"`
+	Id         string           `thrift:"Id,2,required" validate:"required"`
+	PageNumber int32            `thrift:"PageNumber,3" json:"PageNumber" default:"1"`
+	PageSize   int32            `thrift:"PageSize,4" json:"PageSize" default:"100"`
+	Filter     *ListNodesFilter `thrift:"Filter,5" json:"Filter,omitempty"`
+	Top        *base.TopParam   `thrift:"Top,254,required" json:"Top"`
+	Base       *base.Base       `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewListNodePoolNodeRequest() *ListNodePoolNodeRequest {
-	return &ListNodePoolNodeRequest{
+func NewListNodePoolNodesRequest() *ListNodePoolNodesRequest {
+	return &ListNodePoolNodesRequest{
 
-		Start: 0,
-		Limit: 10,
+		PageNumber: 1,
+		PageSize:   100,
 	}
 }
 
-func (p *ListNodePoolNodeRequest) GetClusterId() (v string) {
+func (p *ListNodePoolNodesRequest) GetClusterId() (v string) {
 	return p.ClusterId
 }
 
-func (p *ListNodePoolNodeRequest) GetId() (v string) {
+func (p *ListNodePoolNodesRequest) GetId() (v string) {
 	return p.Id
 }
 
-var ListNodePoolNodeRequest_Start_DEFAULT int32 = 0
+var ListNodePoolNodesRequest_PageNumber_DEFAULT int32 = 1
 
-func (p *ListNodePoolNodeRequest) GetStart() (v int32) {
-	if !p.IsSetStart() {
-		return ListNodePoolNodeRequest_Start_DEFAULT
+func (p *ListNodePoolNodesRequest) GetPageNumber() (v int32) {
+	if !p.IsSetPageNumber() {
+		return ListNodePoolNodesRequest_PageNumber_DEFAULT
 	}
-	return p.Start
+	return p.PageNumber
 }
 
-var ListNodePoolNodeRequest_Limit_DEFAULT int32 = 10
+var ListNodePoolNodesRequest_PageSize_DEFAULT int32 = 100
 
-func (p *ListNodePoolNodeRequest) GetLimit() (v int32) {
-	if !p.IsSetLimit() {
-		return ListNodePoolNodeRequest_Limit_DEFAULT
+func (p *ListNodePoolNodesRequest) GetPageSize() (v int32) {
+	if !p.IsSetPageSize() {
+		return ListNodePoolNodesRequest_PageSize_DEFAULT
 	}
-	return p.Limit
+	return p.PageSize
 }
 
-var ListNodePoolNodeRequest_Filters_DEFAULT map[string][]string
+var ListNodePoolNodesRequest_Filter_DEFAULT *ListNodesFilter
 
-func (p *ListNodePoolNodeRequest) GetFilters() (v map[string][]string) {
-	if !p.IsSetFilters() {
-		return ListNodePoolNodeRequest_Filters_DEFAULT
+func (p *ListNodePoolNodesRequest) GetFilter() (v *ListNodesFilter) {
+	if !p.IsSetFilter() {
+		return ListNodePoolNodesRequest_Filter_DEFAULT
 	}
-	return p.Filters
+	return p.Filter
 }
 
-var ListNodePoolNodeRequest_Top_DEFAULT *base.TopParam
+var ListNodePoolNodesRequest_Top_DEFAULT *base.TopParam
 
-func (p *ListNodePoolNodeRequest) GetTop() (v *base.TopParam) {
+func (p *ListNodePoolNodesRequest) GetTop() (v *base.TopParam) {
 	if !p.IsSetTop() {
-		return ListNodePoolNodeRequest_Top_DEFAULT
+		return ListNodePoolNodesRequest_Top_DEFAULT
 	}
 	return p.Top
 }
 
-var ListNodePoolNodeRequest_Base_DEFAULT *base.Base
+var ListNodePoolNodesRequest_Base_DEFAULT *base.Base
 
-func (p *ListNodePoolNodeRequest) GetBase() (v *base.Base) {
+func (p *ListNodePoolNodesRequest) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return ListNodePoolNodeRequest_Base_DEFAULT
+		return ListNodePoolNodesRequest_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *ListNodePoolNodeRequest) SetClusterId(val string) {
+func (p *ListNodePoolNodesRequest) SetClusterId(val string) {
 	p.ClusterId = val
 }
-func (p *ListNodePoolNodeRequest) SetId(val string) {
+func (p *ListNodePoolNodesRequest) SetId(val string) {
 	p.Id = val
 }
-func (p *ListNodePoolNodeRequest) SetStart(val int32) {
-	p.Start = val
+func (p *ListNodePoolNodesRequest) SetPageNumber(val int32) {
+	p.PageNumber = val
 }
-func (p *ListNodePoolNodeRequest) SetLimit(val int32) {
-	p.Limit = val
+func (p *ListNodePoolNodesRequest) SetPageSize(val int32) {
+	p.PageSize = val
 }
-func (p *ListNodePoolNodeRequest) SetFilters(val map[string][]string) {
-	p.Filters = val
+func (p *ListNodePoolNodesRequest) SetFilter(val *ListNodesFilter) {
+	p.Filter = val
 }
-func (p *ListNodePoolNodeRequest) SetTop(val *base.TopParam) {
+func (p *ListNodePoolNodesRequest) SetTop(val *base.TopParam) {
 	p.Top = val
 }
-func (p *ListNodePoolNodeRequest) SetBase(val *base.Base) {
+func (p *ListNodePoolNodesRequest) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_ListNodePoolNodeRequest = map[int16]string{
+var fieldIDToName_ListNodePoolNodesRequest = map[int16]string{
 	1:   "ClusterId",
 	2:   "Id",
-	3:   "Start",
-	4:   "Limit",
-	5:   "Filters",
+	3:   "PageNumber",
+	4:   "PageSize",
+	5:   "Filter",
 	254: "Top",
 	255: "Base",
 }
 
-func (p *ListNodePoolNodeRequest) IsSetStart() bool {
-	return p.Start != ListNodePoolNodeRequest_Start_DEFAULT
+func (p *ListNodePoolNodesRequest) IsSetPageNumber() bool {
+	return p.PageNumber != ListNodePoolNodesRequest_PageNumber_DEFAULT
 }
 
-func (p *ListNodePoolNodeRequest) IsSetLimit() bool {
-	return p.Limit != ListNodePoolNodeRequest_Limit_DEFAULT
+func (p *ListNodePoolNodesRequest) IsSetPageSize() bool {
+	return p.PageSize != ListNodePoolNodesRequest_PageSize_DEFAULT
 }
 
-func (p *ListNodePoolNodeRequest) IsSetFilters() bool {
-	return p.Filters != nil
+func (p *ListNodePoolNodesRequest) IsSetFilter() bool {
+	return p.Filter != nil
 }
 
-func (p *ListNodePoolNodeRequest) IsSetTop() bool {
+func (p *ListNodePoolNodesRequest) IsSetTop() bool {
 	return p.Top != nil
 }
 
-func (p *ListNodePoolNodeRequest) IsSetBase() bool {
+func (p *ListNodePoolNodesRequest) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *ListNodePoolNodeRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *ListNodePoolNodesRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -43562,7 +46555,7 @@ func (p *ListNodePoolNodeRequest) Read(iprot thrift.TProtocol) (err error) {
 				}
 			}
 		case 5:
-			if fieldTypeId == thrift.MAP {
+			if fieldTypeId == thrift.STRUCT {
 				if err = p.ReadField5(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -43626,7 +46619,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListNodePoolNodeRequest[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListNodePoolNodesRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -43635,10 +46628,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListNodePoolNodeRequest[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListNodePoolNodesRequest[fieldId]))
 }
 
-func (p *ListNodePoolNodeRequest) ReadField1(iprot thrift.TProtocol) error {
+func (p *ListNodePoolNodesRequest) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -43647,7 +46640,7 @@ func (p *ListNodePoolNodeRequest) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListNodePoolNodeRequest) ReadField2(iprot thrift.TProtocol) error {
+func (p *ListNodePoolNodesRequest) ReadField2(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -43656,66 +46649,33 @@ func (p *ListNodePoolNodeRequest) ReadField2(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListNodePoolNodeRequest) ReadField3(iprot thrift.TProtocol) error {
+func (p *ListNodePoolNodesRequest) ReadField3(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
-		p.Start = v
+		p.PageNumber = v
 	}
 	return nil
 }
 
-func (p *ListNodePoolNodeRequest) ReadField4(iprot thrift.TProtocol) error {
+func (p *ListNodePoolNodesRequest) ReadField4(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
-		p.Limit = v
+		p.PageSize = v
 	}
 	return nil
 }
 
-func (p *ListNodePoolNodeRequest) ReadField5(iprot thrift.TProtocol) error {
-	_, _, size, err := iprot.ReadMapBegin()
-	if err != nil {
-		return err
-	}
-	p.Filters = make(map[string][]string, size)
-	for i := 0; i < size; i++ {
-		var _key string
-		if v, err := iprot.ReadString(); err != nil {
-			return err
-		} else {
-			_key = v
-		}
-
-		_, size, err := iprot.ReadListBegin()
-		if err != nil {
-			return err
-		}
-		_val := make([]string, 0, size)
-		for i := 0; i < size; i++ {
-			var _elem string
-			if v, err := iprot.ReadString(); err != nil {
-				return err
-			} else {
-				_elem = v
-			}
-
-			_val = append(_val, _elem)
-		}
-		if err := iprot.ReadListEnd(); err != nil {
-			return err
-		}
-
-		p.Filters[_key] = _val
-	}
-	if err := iprot.ReadMapEnd(); err != nil {
+func (p *ListNodePoolNodesRequest) ReadField5(iprot thrift.TProtocol) error {
+	p.Filter = NewListNodesFilter()
+	if err := p.Filter.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ListNodePoolNodeRequest) ReadField254(iprot thrift.TProtocol) error {
+func (p *ListNodePoolNodesRequest) ReadField254(iprot thrift.TProtocol) error {
 	p.Top = base.NewTopParam()
 	if err := p.Top.Read(iprot); err != nil {
 		return err
@@ -43723,7 +46683,7 @@ func (p *ListNodePoolNodeRequest) ReadField254(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListNodePoolNodeRequest) ReadField255(iprot thrift.TProtocol) error {
+func (p *ListNodePoolNodesRequest) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -43731,9 +46691,9 @@ func (p *ListNodePoolNodeRequest) ReadField255(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListNodePoolNodeRequest) Write(oprot thrift.TProtocol) (err error) {
+func (p *ListNodePoolNodesRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListNodePoolNodeRequest"); err != nil {
+	if err = oprot.WriteStructBegin("ListNodePoolNodesRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -43784,7 +46744,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ListNodePoolNodeRequest) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ListNodePoolNodesRequest) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("ClusterId", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -43801,7 +46761,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ListNodePoolNodeRequest) writeField2(oprot thrift.TProtocol) (err error) {
+func (p *ListNodePoolNodesRequest) writeField2(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Id", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -43818,12 +46778,12 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *ListNodePoolNodeRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if p.IsSetStart() {
-		if err = oprot.WriteFieldBegin("Start", thrift.I32, 3); err != nil {
+func (p *ListNodePoolNodesRequest) writeField3(oprot thrift.TProtocol) (err error) {
+	if p.IsSetPageNumber() {
+		if err = oprot.WriteFieldBegin("PageNumber", thrift.I32, 3); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteI32(p.Start); err != nil {
+		if err := oprot.WriteI32(p.PageNumber); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -43837,12 +46797,12 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
-func (p *ListNodePoolNodeRequest) writeField4(oprot thrift.TProtocol) (err error) {
-	if p.IsSetLimit() {
-		if err = oprot.WriteFieldBegin("Limit", thrift.I32, 4); err != nil {
+func (p *ListNodePoolNodesRequest) writeField4(oprot thrift.TProtocol) (err error) {
+	if p.IsSetPageSize() {
+		if err = oprot.WriteFieldBegin("PageSize", thrift.I32, 4); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteI32(p.Limit); err != nil {
+		if err := oprot.WriteI32(p.PageSize); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -43856,33 +46816,12 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
 }
 
-func (p *ListNodePoolNodeRequest) writeField5(oprot thrift.TProtocol) (err error) {
-	if p.IsSetFilters() {
-		if err = oprot.WriteFieldBegin("Filters", thrift.MAP, 5); err != nil {
+func (p *ListNodePoolNodesRequest) writeField5(oprot thrift.TProtocol) (err error) {
+	if p.IsSetFilter() {
+		if err = oprot.WriteFieldBegin("Filter", thrift.STRUCT, 5); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteMapBegin(thrift.STRING, thrift.LIST, len(p.Filters)); err != nil {
-			return err
-		}
-		for k, v := range p.Filters {
-
-			if err := oprot.WriteString(k); err != nil {
-				return err
-			}
-
-			if err := oprot.WriteListBegin(thrift.STRING, len(v)); err != nil {
-				return err
-			}
-			for _, v := range v {
-				if err := oprot.WriteString(v); err != nil {
-					return err
-				}
-			}
-			if err := oprot.WriteListEnd(); err != nil {
-				return err
-			}
-		}
-		if err := oprot.WriteMapEnd(); err != nil {
+		if err := p.Filter.Write(oprot); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -43896,7 +46835,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
 }
 
-func (p *ListNodePoolNodeRequest) writeField254(oprot thrift.TProtocol) (err error) {
+func (p *ListNodePoolNodesRequest) writeField254(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Top", thrift.STRUCT, 254); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -43913,7 +46852,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 254 end error: ", p), err)
 }
 
-func (p *ListNodePoolNodeRequest) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *ListNodePoolNodesRequest) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -43932,14 +46871,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *ListNodePoolNodeRequest) String() string {
+func (p *ListNodePoolNodesRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ListNodePoolNodeRequest(%+v)", *p)
+	return fmt.Sprintf("ListNodePoolNodesRequest(%+v)", *p)
 }
 
-func (p *ListNodePoolNodeRequest) DeepEqual(ano *ListNodePoolNodeRequest) bool {
+func (p *ListNodePoolNodesRequest) DeepEqual(ano *ListNodePoolNodesRequest) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -43951,13 +46890,13 @@ func (p *ListNodePoolNodeRequest) DeepEqual(ano *ListNodePoolNodeRequest) bool {
 	if !p.Field2DeepEqual(ano.Id) {
 		return false
 	}
-	if !p.Field3DeepEqual(ano.Start) {
+	if !p.Field3DeepEqual(ano.PageNumber) {
 		return false
 	}
-	if !p.Field4DeepEqual(ano.Limit) {
+	if !p.Field4DeepEqual(ano.PageSize) {
 		return false
 	}
-	if !p.Field5DeepEqual(ano.Filters) {
+	if !p.Field5DeepEqual(ano.Filter) {
 		return false
 	}
 	if !p.Field254DeepEqual(ano.Top) {
@@ -43969,61 +46908,49 @@ func (p *ListNodePoolNodeRequest) DeepEqual(ano *ListNodePoolNodeRequest) bool {
 	return true
 }
 
-func (p *ListNodePoolNodeRequest) Field1DeepEqual(src string) bool {
+func (p *ListNodePoolNodesRequest) Field1DeepEqual(src string) bool {
 
 	if strings.Compare(p.ClusterId, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *ListNodePoolNodeRequest) Field2DeepEqual(src string) bool {
+func (p *ListNodePoolNodesRequest) Field2DeepEqual(src string) bool {
 
 	if strings.Compare(p.Id, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *ListNodePoolNodeRequest) Field3DeepEqual(src int32) bool {
+func (p *ListNodePoolNodesRequest) Field3DeepEqual(src int32) bool {
 
-	if p.Start != src {
+	if p.PageNumber != src {
 		return false
 	}
 	return true
 }
-func (p *ListNodePoolNodeRequest) Field4DeepEqual(src int32) bool {
+func (p *ListNodePoolNodesRequest) Field4DeepEqual(src int32) bool {
 
-	if p.Limit != src {
+	if p.PageSize != src {
 		return false
 	}
 	return true
 }
-func (p *ListNodePoolNodeRequest) Field5DeepEqual(src map[string][]string) bool {
+func (p *ListNodePoolNodesRequest) Field5DeepEqual(src *ListNodesFilter) bool {
 
-	if len(p.Filters) != len(src) {
+	if !p.Filter.DeepEqual(src) {
 		return false
-	}
-	for k, v := range p.Filters {
-		_src := src[k]
-		if len(v) != len(_src) {
-			return false
-		}
-		for i, v := range v {
-			_src1 := _src[i]
-			if strings.Compare(v, _src1) != 0 {
-				return false
-			}
-		}
 	}
 	return true
 }
-func (p *ListNodePoolNodeRequest) Field254DeepEqual(src *base.TopParam) bool {
+func (p *ListNodePoolNodesRequest) Field254DeepEqual(src *base.TopParam) bool {
 
 	if !p.Top.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ListNodePoolNodeRequest) Field255DeepEqual(src *base.Base) bool {
+func (p *ListNodePoolNodesRequest) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -44031,53 +46958,53 @@ func (p *ListNodePoolNodeRequest) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
-type ListNodePoolNodeResponse struct {
+type ListNodePoolNodesResponse struct {
 	Items []*ClusterNodeItem `thrift:"Items,1,required" json:"Items"`
 	Total int32              `thrift:"Total,2,required" json:"Total"`
 	Base  *base.Base         `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewListNodePoolNodeResponse() *ListNodePoolNodeResponse {
-	return &ListNodePoolNodeResponse{}
+func NewListNodePoolNodesResponse() *ListNodePoolNodesResponse {
+	return &ListNodePoolNodesResponse{}
 }
 
-func (p *ListNodePoolNodeResponse) GetItems() (v []*ClusterNodeItem) {
+func (p *ListNodePoolNodesResponse) GetItems() (v []*ClusterNodeItem) {
 	return p.Items
 }
 
-func (p *ListNodePoolNodeResponse) GetTotal() (v int32) {
+func (p *ListNodePoolNodesResponse) GetTotal() (v int32) {
 	return p.Total
 }
 
-var ListNodePoolNodeResponse_Base_DEFAULT *base.Base
+var ListNodePoolNodesResponse_Base_DEFAULT *base.Base
 
-func (p *ListNodePoolNodeResponse) GetBase() (v *base.Base) {
+func (p *ListNodePoolNodesResponse) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return ListNodePoolNodeResponse_Base_DEFAULT
+		return ListNodePoolNodesResponse_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *ListNodePoolNodeResponse) SetItems(val []*ClusterNodeItem) {
+func (p *ListNodePoolNodesResponse) SetItems(val []*ClusterNodeItem) {
 	p.Items = val
 }
-func (p *ListNodePoolNodeResponse) SetTotal(val int32) {
+func (p *ListNodePoolNodesResponse) SetTotal(val int32) {
 	p.Total = val
 }
-func (p *ListNodePoolNodeResponse) SetBase(val *base.Base) {
+func (p *ListNodePoolNodesResponse) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_ListNodePoolNodeResponse = map[int16]string{
+var fieldIDToName_ListNodePoolNodesResponse = map[int16]string{
 	1:   "Items",
 	2:   "Total",
 	255: "Base",
 }
 
-func (p *ListNodePoolNodeResponse) IsSetBase() bool {
+func (p *ListNodePoolNodesResponse) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *ListNodePoolNodeResponse) Read(iprot thrift.TProtocol) (err error) {
+func (p *ListNodePoolNodesResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -44159,7 +47086,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListNodePoolNodeResponse[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListNodePoolNodesResponse[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -44168,10 +47095,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListNodePoolNodeResponse[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListNodePoolNodesResponse[fieldId]))
 }
 
-func (p *ListNodePoolNodeResponse) ReadField1(iprot thrift.TProtocol) error {
+func (p *ListNodePoolNodesResponse) ReadField1(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
@@ -44191,7 +47118,7 @@ func (p *ListNodePoolNodeResponse) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListNodePoolNodeResponse) ReadField2(iprot thrift.TProtocol) error {
+func (p *ListNodePoolNodesResponse) ReadField2(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
@@ -44200,7 +47127,7 @@ func (p *ListNodePoolNodeResponse) ReadField2(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListNodePoolNodeResponse) ReadField255(iprot thrift.TProtocol) error {
+func (p *ListNodePoolNodesResponse) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -44208,9 +47135,9 @@ func (p *ListNodePoolNodeResponse) ReadField255(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListNodePoolNodeResponse) Write(oprot thrift.TProtocol) (err error) {
+func (p *ListNodePoolNodesResponse) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListNodePoolNodeResponse"); err != nil {
+	if err = oprot.WriteStructBegin("ListNodePoolNodesResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -44245,7 +47172,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ListNodePoolNodeResponse) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ListNodePoolNodesResponse) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Items", thrift.LIST, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -44270,7 +47197,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ListNodePoolNodeResponse) writeField2(oprot thrift.TProtocol) (err error) {
+func (p *ListNodePoolNodesResponse) writeField2(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Total", thrift.I32, 2); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -44287,7 +47214,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *ListNodePoolNodeResponse) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *ListNodePoolNodesResponse) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -44306,14 +47233,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *ListNodePoolNodeResponse) String() string {
+func (p *ListNodePoolNodesResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ListNodePoolNodeResponse(%+v)", *p)
+	return fmt.Sprintf("ListNodePoolNodesResponse(%+v)", *p)
 }
 
-func (p *ListNodePoolNodeResponse) DeepEqual(ano *ListNodePoolNodeResponse) bool {
+func (p *ListNodePoolNodesResponse) DeepEqual(ano *ListNodePoolNodesResponse) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -44331,7 +47258,7 @@ func (p *ListNodePoolNodeResponse) DeepEqual(ano *ListNodePoolNodeResponse) bool
 	return true
 }
 
-func (p *ListNodePoolNodeResponse) Field1DeepEqual(src []*ClusterNodeItem) bool {
+func (p *ListNodePoolNodesResponse) Field1DeepEqual(src []*ClusterNodeItem) bool {
 
 	if len(p.Items) != len(src) {
 		return false
@@ -44344,14 +47271,14 @@ func (p *ListNodePoolNodeResponse) Field1DeepEqual(src []*ClusterNodeItem) bool 
 	}
 	return true
 }
-func (p *ListNodePoolNodeResponse) Field2DeepEqual(src int32) bool {
+func (p *ListNodePoolNodesResponse) Field2DeepEqual(src int32) bool {
 
 	if p.Total != src {
 		return false
 	}
 	return true
 }
-func (p *ListNodePoolNodeResponse) Field255DeepEqual(src *base.Base) bool {
+func (p *ListNodePoolNodesResponse) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -55000,7 +57927,7 @@ func (p *ListResourceQuotaResponse) Field255DeepEqual(src *base.Base) bool {
 }
 
 type CheckCidrConflictRequest struct {
-	ClusterType string         `thrift:"ClusterType,1,required" validate:"required,oneof=Standard Managed"`
+	ClusterType string         `thrift:"ClusterType,1,required" validate:"required,oneof=Managed"`
 	VpcId       string         `thrift:"VpcId,2,required" json:"VpcId"`
 	PodCidr     string         `thrift:"PodCidr,3,required" json:"PodCidr"`
 	ServiceCidr string         `thrift:"ServiceCidr,4,required" json:"ServiceCidr"`
@@ -55509,9 +58436,10 @@ func (p *CheckCidrConflictRequest) Field255DeepEqual(src *base.Base) bool {
 }
 
 type CheckCidrConflictResponse struct {
-	IsConflict bool       `thrift:"IsConflict,1,required" json:"IsConflict"`
-	Reason     string     `thrift:"Reason,2,required" json:"Reason"`
-	Base       *base.Base `thrift:"Base,255" json:"Base,omitempty"`
+	IsConflict   bool       `thrift:"IsConflict,1,required" json:"IsConflict"`
+	Reason       string     `thrift:"Reason,2,required" json:"Reason"`
+	ConflictType string     `thrift:"ConflictType,3,required" json:"ConflictType"`
+	Base         *base.Base `thrift:"Base,255" json:"Base,omitempty"`
 }
 
 func NewCheckCidrConflictResponse() *CheckCidrConflictResponse {
@@ -55524,6 +58452,10 @@ func (p *CheckCidrConflictResponse) GetIsConflict() (v bool) {
 
 func (p *CheckCidrConflictResponse) GetReason() (v string) {
 	return p.Reason
+}
+
+func (p *CheckCidrConflictResponse) GetConflictType() (v string) {
+	return p.ConflictType
 }
 
 var CheckCidrConflictResponse_Base_DEFAULT *base.Base
@@ -55540,6 +58472,9 @@ func (p *CheckCidrConflictResponse) SetIsConflict(val bool) {
 func (p *CheckCidrConflictResponse) SetReason(val string) {
 	p.Reason = val
 }
+func (p *CheckCidrConflictResponse) SetConflictType(val string) {
+	p.ConflictType = val
+}
 func (p *CheckCidrConflictResponse) SetBase(val *base.Base) {
 	p.Base = val
 }
@@ -55547,6 +58482,7 @@ func (p *CheckCidrConflictResponse) SetBase(val *base.Base) {
 var fieldIDToName_CheckCidrConflictResponse = map[int16]string{
 	1:   "IsConflict",
 	2:   "Reason",
+	3:   "ConflictType",
 	255: "Base",
 }
 
@@ -55560,6 +58496,7 @@ func (p *CheckCidrConflictResponse) Read(iprot thrift.TProtocol) (err error) {
 	var fieldId int16
 	var issetIsConflict bool = false
 	var issetReason bool = false
+	var issetConflictType bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -55592,6 +58529,17 @@ func (p *CheckCidrConflictResponse) Read(iprot thrift.TProtocol) (err error) {
 					goto ReadFieldError
 				}
 				issetReason = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 3:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetConflictType = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -55630,6 +58578,11 @@ func (p *CheckCidrConflictResponse) Read(iprot thrift.TProtocol) (err error) {
 		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
+
+	if !issetConflictType {
+		fieldId = 3
+		goto RequiredFieldNotSetError
+	}
 	return nil
 ReadStructBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
@@ -55666,6 +58619,15 @@ func (p *CheckCidrConflictResponse) ReadField2(iprot thrift.TProtocol) error {
 	return nil
 }
 
+func (p *CheckCidrConflictResponse) ReadField3(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.ConflictType = v
+	}
+	return nil
+}
+
 func (p *CheckCidrConflictResponse) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
@@ -55686,6 +58648,10 @@ func (p *CheckCidrConflictResponse) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField2(oprot); err != nil {
 			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
 			goto WriteFieldError
 		}
 		if err = p.writeField255(oprot); err != nil {
@@ -55745,6 +58711,23 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
+func (p *CheckCidrConflictResponse) writeField3(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("ConflictType", thrift.STRING, 3); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.ConflictType); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
+}
+
 func (p *CheckCidrConflictResponse) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
@@ -55783,6 +58766,9 @@ func (p *CheckCidrConflictResponse) DeepEqual(ano *CheckCidrConflictResponse) bo
 	if !p.Field2DeepEqual(ano.Reason) {
 		return false
 	}
+	if !p.Field3DeepEqual(ano.ConflictType) {
+		return false
+	}
 	if !p.Field255DeepEqual(ano.Base) {
 		return false
 	}
@@ -55803,6 +58789,13 @@ func (p *CheckCidrConflictResponse) Field2DeepEqual(src string) bool {
 	}
 	return true
 }
+func (p *CheckCidrConflictResponse) Field3DeepEqual(src string) bool {
+
+	if strings.Compare(p.ConflictType, src) != 0 {
+		return false
+	}
+	return true
+}
 func (p *CheckCidrConflictResponse) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
@@ -55812,7 +58805,7 @@ func (p *CheckCidrConflictResponse) Field255DeepEqual(src *base.Base) bool {
 }
 
 type RecommendCidrRequest struct {
-	ClusterType string         `thrift:"ClusterType,1,required" validate:"required,oneof=Standard Managed"`
+	ClusterType string         `thrift:"ClusterType,1,required" validate:"required,oneof=Managed"`
 	VpcId       string         `thrift:"VpcId,2,required" json:"VpcId"`
 	Mask        *int32         `thrift:"Mask,3" json:"Mask,omitempty"`
 	Top         *base.TopParam `thrift:"Top,254,required" json:"Top"`
@@ -56559,6 +59552,1316 @@ func (p *RecommendCidrResponse) Field2DeepEqual(src string) bool {
 	return true
 }
 func (p *RecommendCidrResponse) Field255DeepEqual(src *base.Base) bool {
+
+	if !p.Base.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type AddVciSubnetsRequest struct {
+	AccountId  int64          `thrift:"AccountId,1,required" validate:"required,gt=0"`
+	ClusterId  string         `thrift:"ClusterId,2,required" validate:"required,k8sName"`
+	VciSubnets []string       `thrift:"VciSubnets,3,required" validate:"required,gt=0"`
+	Top        *base.TopParam `thrift:"Top,254,required" json:"Top"`
+	Base       *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
+}
+
+func NewAddVciSubnetsRequest() *AddVciSubnetsRequest {
+	return &AddVciSubnetsRequest{}
+}
+
+func (p *AddVciSubnetsRequest) GetAccountId() (v int64) {
+	return p.AccountId
+}
+
+func (p *AddVciSubnetsRequest) GetClusterId() (v string) {
+	return p.ClusterId
+}
+
+func (p *AddVciSubnetsRequest) GetVciSubnets() (v []string) {
+	return p.VciSubnets
+}
+
+var AddVciSubnetsRequest_Top_DEFAULT *base.TopParam
+
+func (p *AddVciSubnetsRequest) GetTop() (v *base.TopParam) {
+	if !p.IsSetTop() {
+		return AddVciSubnetsRequest_Top_DEFAULT
+	}
+	return p.Top
+}
+
+var AddVciSubnetsRequest_Base_DEFAULT *base.Base
+
+func (p *AddVciSubnetsRequest) GetBase() (v *base.Base) {
+	if !p.IsSetBase() {
+		return AddVciSubnetsRequest_Base_DEFAULT
+	}
+	return p.Base
+}
+func (p *AddVciSubnetsRequest) SetAccountId(val int64) {
+	p.AccountId = val
+}
+func (p *AddVciSubnetsRequest) SetClusterId(val string) {
+	p.ClusterId = val
+}
+func (p *AddVciSubnetsRequest) SetVciSubnets(val []string) {
+	p.VciSubnets = val
+}
+func (p *AddVciSubnetsRequest) SetTop(val *base.TopParam) {
+	p.Top = val
+}
+func (p *AddVciSubnetsRequest) SetBase(val *base.Base) {
+	p.Base = val
+}
+
+var fieldIDToName_AddVciSubnetsRequest = map[int16]string{
+	1:   "AccountId",
+	2:   "ClusterId",
+	3:   "VciSubnets",
+	254: "Top",
+	255: "Base",
+}
+
+func (p *AddVciSubnetsRequest) IsSetTop() bool {
+	return p.Top != nil
+}
+
+func (p *AddVciSubnetsRequest) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *AddVciSubnetsRequest) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	var issetAccountId bool = false
+	var issetClusterId bool = false
+	var issetVciSubnets bool = false
+	var issetTop bool = false
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetAccountId = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 2:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetClusterId = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 3:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetVciSubnets = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 254:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField254(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetTop = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 255:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField255(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	if !issetAccountId {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetClusterId {
+		fieldId = 2
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetVciSubnets {
+		fieldId = 3
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetTop {
+		fieldId = 254
+		goto RequiredFieldNotSetError
+	}
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_AddVciSubnetsRequest[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_AddVciSubnetsRequest[fieldId]))
+}
+
+func (p *AddVciSubnetsRequest) ReadField1(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		p.AccountId = v
+	}
+	return nil
+}
+
+func (p *AddVciSubnetsRequest) ReadField2(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.ClusterId = v
+	}
+	return nil
+}
+
+func (p *AddVciSubnetsRequest) ReadField3(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.VciSubnets = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		p.VciSubnets = append(p.VciSubnets, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *AddVciSubnetsRequest) ReadField254(iprot thrift.TProtocol) error {
+	p.Top = base.NewTopParam()
+	if err := p.Top.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *AddVciSubnetsRequest) ReadField255(iprot thrift.TProtocol) error {
+	p.Base = base.NewBase()
+	if err := p.Base.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *AddVciSubnetsRequest) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("AddVciSubnetsRequest"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
+			goto WriteFieldError
+		}
+		if err = p.writeField254(oprot); err != nil {
+			fieldId = 254
+			goto WriteFieldError
+		}
+		if err = p.writeField255(oprot); err != nil {
+			fieldId = 255
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *AddVciSubnetsRequest) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("AccountId", thrift.I64, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.AccountId); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *AddVciSubnetsRequest) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("ClusterId", thrift.STRING, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.ClusterId); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *AddVciSubnetsRequest) writeField3(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("VciSubnets", thrift.LIST, 3); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteListBegin(thrift.STRING, len(p.VciSubnets)); err != nil {
+		return err
+	}
+	for _, v := range p.VciSubnets {
+		if err := oprot.WriteString(v); err != nil {
+			return err
+		}
+	}
+	if err := oprot.WriteListEnd(); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
+}
+
+func (p *AddVciSubnetsRequest) writeField254(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("Top", thrift.STRUCT, 254); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Top.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 254 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 254 end error: ", p), err)
+}
+
+func (p *AddVciSubnetsRequest) writeField255(oprot thrift.TProtocol) (err error) {
+	if p.IsSetBase() {
+		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Base.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 255 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
+}
+
+func (p *AddVciSubnetsRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("AddVciSubnetsRequest(%+v)", *p)
+}
+
+func (p *AddVciSubnetsRequest) DeepEqual(ano *AddVciSubnetsRequest) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.AccountId) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.ClusterId) {
+		return false
+	}
+	if !p.Field3DeepEqual(ano.VciSubnets) {
+		return false
+	}
+	if !p.Field254DeepEqual(ano.Top) {
+		return false
+	}
+	if !p.Field255DeepEqual(ano.Base) {
+		return false
+	}
+	return true
+}
+
+func (p *AddVciSubnetsRequest) Field1DeepEqual(src int64) bool {
+
+	if p.AccountId != src {
+		return false
+	}
+	return true
+}
+func (p *AddVciSubnetsRequest) Field2DeepEqual(src string) bool {
+
+	if strings.Compare(p.ClusterId, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *AddVciSubnetsRequest) Field3DeepEqual(src []string) bool {
+
+	if len(p.VciSubnets) != len(src) {
+		return false
+	}
+	for i, v := range p.VciSubnets {
+		_src := src[i]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
+	}
+	return true
+}
+func (p *AddVciSubnetsRequest) Field254DeepEqual(src *base.TopParam) bool {
+
+	if !p.Top.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+func (p *AddVciSubnetsRequest) Field255DeepEqual(src *base.Base) bool {
+
+	if !p.Base.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type AddVciSubnetsResponse struct {
+	VciSubnets []string   `thrift:"VciSubnets,1,required" json:"VciSubnets"`
+	Base       *base.Base `thrift:"Base,255" json:"Base,omitempty"`
+}
+
+func NewAddVciSubnetsResponse() *AddVciSubnetsResponse {
+	return &AddVciSubnetsResponse{}
+}
+
+func (p *AddVciSubnetsResponse) GetVciSubnets() (v []string) {
+	return p.VciSubnets
+}
+
+var AddVciSubnetsResponse_Base_DEFAULT *base.Base
+
+func (p *AddVciSubnetsResponse) GetBase() (v *base.Base) {
+	if !p.IsSetBase() {
+		return AddVciSubnetsResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+func (p *AddVciSubnetsResponse) SetVciSubnets(val []string) {
+	p.VciSubnets = val
+}
+func (p *AddVciSubnetsResponse) SetBase(val *base.Base) {
+	p.Base = val
+}
+
+var fieldIDToName_AddVciSubnetsResponse = map[int16]string{
+	1:   "VciSubnets",
+	255: "Base",
+}
+
+func (p *AddVciSubnetsResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *AddVciSubnetsResponse) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	var issetVciSubnets bool = false
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetVciSubnets = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 255:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField255(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	if !issetVciSubnets {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_AddVciSubnetsResponse[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_AddVciSubnetsResponse[fieldId]))
+}
+
+func (p *AddVciSubnetsResponse) ReadField1(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.VciSubnets = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		p.VciSubnets = append(p.VciSubnets, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *AddVciSubnetsResponse) ReadField255(iprot thrift.TProtocol) error {
+	p.Base = base.NewBase()
+	if err := p.Base.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *AddVciSubnetsResponse) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("AddVciSubnetsResponse"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField255(oprot); err != nil {
+			fieldId = 255
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *AddVciSubnetsResponse) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("VciSubnets", thrift.LIST, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteListBegin(thrift.STRING, len(p.VciSubnets)); err != nil {
+		return err
+	}
+	for _, v := range p.VciSubnets {
+		if err := oprot.WriteString(v); err != nil {
+			return err
+		}
+	}
+	if err := oprot.WriteListEnd(); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *AddVciSubnetsResponse) writeField255(oprot thrift.TProtocol) (err error) {
+	if p.IsSetBase() {
+		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Base.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 255 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
+}
+
+func (p *AddVciSubnetsResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("AddVciSubnetsResponse(%+v)", *p)
+}
+
+func (p *AddVciSubnetsResponse) DeepEqual(ano *AddVciSubnetsResponse) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.VciSubnets) {
+		return false
+	}
+	if !p.Field255DeepEqual(ano.Base) {
+		return false
+	}
+	return true
+}
+
+func (p *AddVciSubnetsResponse) Field1DeepEqual(src []string) bool {
+
+	if len(p.VciSubnets) != len(src) {
+		return false
+	}
+	for i, v := range p.VciSubnets {
+		_src := src[i]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
+	}
+	return true
+}
+func (p *AddVciSubnetsResponse) Field255DeepEqual(src *base.Base) bool {
+
+	if !p.Base.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type ListNodeZonesRequest struct {
+	ClusterId string         `thrift:"ClusterId,1,required" validate:"required,k8sName"`
+	Top       *base.TopParam `thrift:"Top,254,required" json:"Top"`
+	Base      *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
+}
+
+func NewListNodeZonesRequest() *ListNodeZonesRequest {
+	return &ListNodeZonesRequest{}
+}
+
+func (p *ListNodeZonesRequest) GetClusterId() (v string) {
+	return p.ClusterId
+}
+
+var ListNodeZonesRequest_Top_DEFAULT *base.TopParam
+
+func (p *ListNodeZonesRequest) GetTop() (v *base.TopParam) {
+	if !p.IsSetTop() {
+		return ListNodeZonesRequest_Top_DEFAULT
+	}
+	return p.Top
+}
+
+var ListNodeZonesRequest_Base_DEFAULT *base.Base
+
+func (p *ListNodeZonesRequest) GetBase() (v *base.Base) {
+	if !p.IsSetBase() {
+		return ListNodeZonesRequest_Base_DEFAULT
+	}
+	return p.Base
+}
+func (p *ListNodeZonesRequest) SetClusterId(val string) {
+	p.ClusterId = val
+}
+func (p *ListNodeZonesRequest) SetTop(val *base.TopParam) {
+	p.Top = val
+}
+func (p *ListNodeZonesRequest) SetBase(val *base.Base) {
+	p.Base = val
+}
+
+var fieldIDToName_ListNodeZonesRequest = map[int16]string{
+	1:   "ClusterId",
+	254: "Top",
+	255: "Base",
+}
+
+func (p *ListNodeZonesRequest) IsSetTop() bool {
+	return p.Top != nil
+}
+
+func (p *ListNodeZonesRequest) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *ListNodeZonesRequest) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	var issetClusterId bool = false
+	var issetTop bool = false
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetClusterId = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 254:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField254(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetTop = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 255:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField255(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	if !issetClusterId {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetTop {
+		fieldId = 254
+		goto RequiredFieldNotSetError
+	}
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListNodeZonesRequest[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListNodeZonesRequest[fieldId]))
+}
+
+func (p *ListNodeZonesRequest) ReadField1(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.ClusterId = v
+	}
+	return nil
+}
+
+func (p *ListNodeZonesRequest) ReadField254(iprot thrift.TProtocol) error {
+	p.Top = base.NewTopParam()
+	if err := p.Top.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ListNodeZonesRequest) ReadField255(iprot thrift.TProtocol) error {
+	p.Base = base.NewBase()
+	if err := p.Base.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ListNodeZonesRequest) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ListNodeZonesRequest"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField254(oprot); err != nil {
+			fieldId = 254
+			goto WriteFieldError
+		}
+		if err = p.writeField255(oprot); err != nil {
+			fieldId = 255
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ListNodeZonesRequest) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("ClusterId", thrift.STRING, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.ClusterId); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ListNodeZonesRequest) writeField254(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("Top", thrift.STRUCT, 254); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Top.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 254 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 254 end error: ", p), err)
+}
+
+func (p *ListNodeZonesRequest) writeField255(oprot thrift.TProtocol) (err error) {
+	if p.IsSetBase() {
+		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Base.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 255 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
+}
+
+func (p *ListNodeZonesRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ListNodeZonesRequest(%+v)", *p)
+}
+
+func (p *ListNodeZonesRequest) DeepEqual(ano *ListNodeZonesRequest) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.ClusterId) {
+		return false
+	}
+	if !p.Field254DeepEqual(ano.Top) {
+		return false
+	}
+	if !p.Field255DeepEqual(ano.Base) {
+		return false
+	}
+	return true
+}
+
+func (p *ListNodeZonesRequest) Field1DeepEqual(src string) bool {
+
+	if strings.Compare(p.ClusterId, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *ListNodeZonesRequest) Field254DeepEqual(src *base.TopParam) bool {
+
+	if !p.Top.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+func (p *ListNodeZonesRequest) Field255DeepEqual(src *base.Base) bool {
+
+	if !p.Base.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type ListNodeZonesResponse struct {
+	Zones []*iaas.Zone `thrift:"Zones,1" json:"Zones,omitempty"`
+	Base  *base.Base   `thrift:"Base,255" json:"Base,omitempty"`
+}
+
+func NewListNodeZonesResponse() *ListNodeZonesResponse {
+	return &ListNodeZonesResponse{}
+}
+
+var ListNodeZonesResponse_Zones_DEFAULT []*iaas.Zone
+
+func (p *ListNodeZonesResponse) GetZones() (v []*iaas.Zone) {
+	if !p.IsSetZones() {
+		return ListNodeZonesResponse_Zones_DEFAULT
+	}
+	return p.Zones
+}
+
+var ListNodeZonesResponse_Base_DEFAULT *base.Base
+
+func (p *ListNodeZonesResponse) GetBase() (v *base.Base) {
+	if !p.IsSetBase() {
+		return ListNodeZonesResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+func (p *ListNodeZonesResponse) SetZones(val []*iaas.Zone) {
+	p.Zones = val
+}
+func (p *ListNodeZonesResponse) SetBase(val *base.Base) {
+	p.Base = val
+}
+
+var fieldIDToName_ListNodeZonesResponse = map[int16]string{
+	1:   "Zones",
+	255: "Base",
+}
+
+func (p *ListNodeZonesResponse) IsSetZones() bool {
+	return p.Zones != nil
+}
+
+func (p *ListNodeZonesResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *ListNodeZonesResponse) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 255:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField255(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListNodeZonesResponse[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ListNodeZonesResponse) ReadField1(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.Zones = make([]*iaas.Zone, 0, size)
+	for i := 0; i < size; i++ {
+		_elem := iaas.NewZone()
+		if err := _elem.Read(iprot); err != nil {
+			return err
+		}
+
+		p.Zones = append(p.Zones, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ListNodeZonesResponse) ReadField255(iprot thrift.TProtocol) error {
+	p.Base = base.NewBase()
+	if err := p.Base.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ListNodeZonesResponse) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ListNodeZonesResponse"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField255(oprot); err != nil {
+			fieldId = 255
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ListNodeZonesResponse) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetZones() {
+		if err = oprot.WriteFieldBegin("Zones", thrift.LIST, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRUCT, len(p.Zones)); err != nil {
+			return err
+		}
+		for _, v := range p.Zones {
+			if err := v.Write(oprot); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ListNodeZonesResponse) writeField255(oprot thrift.TProtocol) (err error) {
+	if p.IsSetBase() {
+		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Base.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 255 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
+}
+
+func (p *ListNodeZonesResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ListNodeZonesResponse(%+v)", *p)
+}
+
+func (p *ListNodeZonesResponse) DeepEqual(ano *ListNodeZonesResponse) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Zones) {
+		return false
+	}
+	if !p.Field255DeepEqual(ano.Base) {
+		return false
+	}
+	return true
+}
+
+func (p *ListNodeZonesResponse) Field1DeepEqual(src []*iaas.Zone) bool {
+
+	if len(p.Zones) != len(src) {
+		return false
+	}
+	for i, v := range p.Zones {
+		_src := src[i]
+		if !v.DeepEqual(_src) {
+			return false
+		}
+	}
+	return true
+}
+func (p *ListNodeZonesResponse) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false

@@ -21,14 +21,18 @@ const (
 	StatusAddonFailed = "Failed"
 
 	StatusAddonError = "Error"
+
+	StatusAddonUpgradeFailed = "UpgradeFailed"
+
+	StatusAddonUpgrading = "Upgrading"
 )
 
 type SupportedAddon struct {
-	Name      string `thrift:"Name,1,required" json:"Name"`
-	Type      string `thrift:"Type,2,required" json:"Type"`
-	Version   string `thrift:"Version,3,required" json:"Version"`
-	IsSystem  bool   `thrift:"IsSystem,4,required" json:"IsSystem"`
-	Recommend *bool  `thrift:"Recommend,5" json:"Recommend,omitempty"`
+	Name        string `thrift:"Name,1,required" json:"Name"`
+	Type        string `thrift:"Type,2,required" json:"Type"`
+	Version     string `thrift:"Version,3,required" json:"Version"`
+	IsSystem    bool   `thrift:"IsSystem,4,required" json:"IsSystem"`
+	IsRecommend *bool  `thrift:"IsRecommend,5" json:"IsRecommend,omitempty"`
 }
 
 func NewSupportedAddon() *SupportedAddon {
@@ -51,13 +55,13 @@ func (p *SupportedAddon) GetIsSystem() (v bool) {
 	return p.IsSystem
 }
 
-var SupportedAddon_Recommend_DEFAULT bool
+var SupportedAddon_IsRecommend_DEFAULT bool
 
-func (p *SupportedAddon) GetRecommend() (v bool) {
-	if !p.IsSetRecommend() {
-		return SupportedAddon_Recommend_DEFAULT
+func (p *SupportedAddon) GetIsRecommend() (v bool) {
+	if !p.IsSetIsRecommend() {
+		return SupportedAddon_IsRecommend_DEFAULT
 	}
-	return *p.Recommend
+	return *p.IsRecommend
 }
 func (p *SupportedAddon) SetName(val string) {
 	p.Name = val
@@ -71,8 +75,8 @@ func (p *SupportedAddon) SetVersion(val string) {
 func (p *SupportedAddon) SetIsSystem(val bool) {
 	p.IsSystem = val
 }
-func (p *SupportedAddon) SetRecommend(val *bool) {
-	p.Recommend = val
+func (p *SupportedAddon) SetIsRecommend(val *bool) {
+	p.IsRecommend = val
 }
 
 var fieldIDToName_SupportedAddon = map[int16]string{
@@ -80,11 +84,11 @@ var fieldIDToName_SupportedAddon = map[int16]string{
 	2: "Type",
 	3: "Version",
 	4: "IsSystem",
-	5: "Recommend",
+	5: "IsRecommend",
 }
 
-func (p *SupportedAddon) IsSetRecommend() bool {
-	return p.Recommend != nil
+func (p *SupportedAddon) IsSetIsRecommend() bool {
+	return p.IsRecommend != nil
 }
 
 func (p *SupportedAddon) Read(iprot thrift.TProtocol) (err error) {
@@ -255,7 +259,7 @@ func (p *SupportedAddon) ReadField5(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadBool(); err != nil {
 		return err
 	} else {
-		p.Recommend = &v
+		p.IsRecommend = &v
 	}
 	return nil
 }
@@ -374,11 +378,11 @@ WriteFieldEndError:
 }
 
 func (p *SupportedAddon) writeField5(oprot thrift.TProtocol) (err error) {
-	if p.IsSetRecommend() {
-		if err = oprot.WriteFieldBegin("Recommend", thrift.BOOL, 5); err != nil {
+	if p.IsSetIsRecommend() {
+		if err = oprot.WriteFieldBegin("IsRecommend", thrift.BOOL, 5); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteBool(*p.Recommend); err != nil {
+		if err := oprot.WriteBool(*p.IsRecommend); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -417,7 +421,7 @@ func (p *SupportedAddon) DeepEqual(ano *SupportedAddon) bool {
 	if !p.Field4DeepEqual(ano.IsSystem) {
 		return false
 	}
-	if !p.Field5DeepEqual(ano.Recommend) {
+	if !p.Field5DeepEqual(ano.IsRecommend) {
 		return false
 	}
 	return true
@@ -453,122 +457,377 @@ func (p *SupportedAddon) Field4DeepEqual(src bool) bool {
 }
 func (p *SupportedAddon) Field5DeepEqual(src *bool) bool {
 
-	if p.Recommend == src {
+	if p.IsRecommend == src {
 		return true
-	} else if p.Recommend == nil || src == nil {
+	} else if p.IsRecommend == nil || src == nil {
 		return false
 	}
-	if *p.Recommend != *src {
+	if *p.IsRecommend != *src {
 		return false
 	}
 	return true
 }
 
-type ListSupportedAddonRequest struct {
-	Start   int32               `thrift:"Start,1" validate:"gte=0"`
-	Limit   int32               `thrift:"Limit,2" json:"Limit,omitempty"`
-	Filters map[string][]string `thrift:"Filters,3" json:"Filters,omitempty"`
-	Top     *base.TopParam      `thrift:"Top,254,required" json:"Top"`
-	Base    *base.Base          `thrift:"Base,255" json:"Base,omitempty"`
+type ListSupportedAddonsFilter struct {
+	ClusterTypes []string `thrift:"ClusterTypes,1" json:"ClusterTypes,omitempty"`
+	CloudTypes   []string `thrift:"CloudTypes,2" json:"CloudTypes,omitempty"`
 }
 
-func NewListSupportedAddonRequest() *ListSupportedAddonRequest {
-	return &ListSupportedAddonRequest{
+func NewListSupportedAddonsFilter() *ListSupportedAddonsFilter {
+	return &ListSupportedAddonsFilter{}
+}
 
-		Start: 0,
-		Limit: 100,
+var ListSupportedAddonsFilter_ClusterTypes_DEFAULT []string
+
+func (p *ListSupportedAddonsFilter) GetClusterTypes() (v []string) {
+	if !p.IsSetClusterTypes() {
+		return ListSupportedAddonsFilter_ClusterTypes_DEFAULT
 	}
+	return p.ClusterTypes
 }
 
-var ListSupportedAddonRequest_Start_DEFAULT int32 = 0
+var ListSupportedAddonsFilter_CloudTypes_DEFAULT []string
 
-func (p *ListSupportedAddonRequest) GetStart() (v int32) {
-	if !p.IsSetStart() {
-		return ListSupportedAddonRequest_Start_DEFAULT
+func (p *ListSupportedAddonsFilter) GetCloudTypes() (v []string) {
+	if !p.IsSetCloudTypes() {
+		return ListSupportedAddonsFilter_CloudTypes_DEFAULT
 	}
-	return p.Start
+	return p.CloudTypes
+}
+func (p *ListSupportedAddonsFilter) SetClusterTypes(val []string) {
+	p.ClusterTypes = val
+}
+func (p *ListSupportedAddonsFilter) SetCloudTypes(val []string) {
+	p.CloudTypes = val
 }
 
-var ListSupportedAddonRequest_Limit_DEFAULT int32 = 100
+var fieldIDToName_ListSupportedAddonsFilter = map[int16]string{
+	1: "ClusterTypes",
+	2: "CloudTypes",
+}
 
-func (p *ListSupportedAddonRequest) GetLimit() (v int32) {
-	if !p.IsSetLimit() {
-		return ListSupportedAddonRequest_Limit_DEFAULT
+func (p *ListSupportedAddonsFilter) IsSetClusterTypes() bool {
+	return p.ClusterTypes != nil
+}
+
+func (p *ListSupportedAddonsFilter) IsSetCloudTypes() bool {
+	return p.CloudTypes != nil
+}
+
+func (p *ListSupportedAddonsFilter) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
 	}
-	return p.Limit
-}
 
-var ListSupportedAddonRequest_Filters_DEFAULT map[string][]string
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
 
-func (p *ListSupportedAddonRequest) GetFilters() (v map[string][]string) {
-	if !p.IsSetFilters() {
-		return ListSupportedAddonRequest_Filters_DEFAULT
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 2:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
 	}
-	return p.Filters
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListSupportedAddonsFilter[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-var ListSupportedAddonRequest_Top_DEFAULT *base.TopParam
+func (p *ListSupportedAddonsFilter) ReadField1(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.ClusterTypes = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
 
-func (p *ListSupportedAddonRequest) GetTop() (v *base.TopParam) {
+		p.ClusterTypes = append(p.ClusterTypes, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ListSupportedAddonsFilter) ReadField2(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.CloudTypes = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		p.CloudTypes = append(p.CloudTypes, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ListSupportedAddonsFilter) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ListSupportedAddonsFilter"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ListSupportedAddonsFilter) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetClusterTypes() {
+		if err = oprot.WriteFieldBegin("ClusterTypes", thrift.LIST, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRING, len(p.ClusterTypes)); err != nil {
+			return err
+		}
+		for _, v := range p.ClusterTypes {
+			if err := oprot.WriteString(v); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ListSupportedAddonsFilter) writeField2(oprot thrift.TProtocol) (err error) {
+	if p.IsSetCloudTypes() {
+		if err = oprot.WriteFieldBegin("CloudTypes", thrift.LIST, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRING, len(p.CloudTypes)); err != nil {
+			return err
+		}
+		for _, v := range p.CloudTypes {
+			if err := oprot.WriteString(v); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *ListSupportedAddonsFilter) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ListSupportedAddonsFilter(%+v)", *p)
+}
+
+func (p *ListSupportedAddonsFilter) DeepEqual(ano *ListSupportedAddonsFilter) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.ClusterTypes) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.CloudTypes) {
+		return false
+	}
+	return true
+}
+
+func (p *ListSupportedAddonsFilter) Field1DeepEqual(src []string) bool {
+
+	if len(p.ClusterTypes) != len(src) {
+		return false
+	}
+	for i, v := range p.ClusterTypes {
+		_src := src[i]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
+	}
+	return true
+}
+func (p *ListSupportedAddonsFilter) Field2DeepEqual(src []string) bool {
+
+	if len(p.CloudTypes) != len(src) {
+		return false
+	}
+	for i, v := range p.CloudTypes {
+		_src := src[i]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
+	}
+	return true
+}
+
+type ListSupportedAddonsRequest struct {
+	Filter *ListSupportedAddonsFilter `thrift:"Filter,1" json:"Filter,omitempty"`
+	Top    *base.TopParam             `thrift:"Top,254,required" json:"Top"`
+	Base   *base.Base                 `thrift:"Base,255" json:"Base,omitempty"`
+}
+
+func NewListSupportedAddonsRequest() *ListSupportedAddonsRequest {
+	return &ListSupportedAddonsRequest{}
+}
+
+var ListSupportedAddonsRequest_Filter_DEFAULT *ListSupportedAddonsFilter
+
+func (p *ListSupportedAddonsRequest) GetFilter() (v *ListSupportedAddonsFilter) {
+	if !p.IsSetFilter() {
+		return ListSupportedAddonsRequest_Filter_DEFAULT
+	}
+	return p.Filter
+}
+
+var ListSupportedAddonsRequest_Top_DEFAULT *base.TopParam
+
+func (p *ListSupportedAddonsRequest) GetTop() (v *base.TopParam) {
 	if !p.IsSetTop() {
-		return ListSupportedAddonRequest_Top_DEFAULT
+		return ListSupportedAddonsRequest_Top_DEFAULT
 	}
 	return p.Top
 }
 
-var ListSupportedAddonRequest_Base_DEFAULT *base.Base
+var ListSupportedAddonsRequest_Base_DEFAULT *base.Base
 
-func (p *ListSupportedAddonRequest) GetBase() (v *base.Base) {
+func (p *ListSupportedAddonsRequest) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return ListSupportedAddonRequest_Base_DEFAULT
+		return ListSupportedAddonsRequest_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *ListSupportedAddonRequest) SetStart(val int32) {
-	p.Start = val
+func (p *ListSupportedAddonsRequest) SetFilter(val *ListSupportedAddonsFilter) {
+	p.Filter = val
 }
-func (p *ListSupportedAddonRequest) SetLimit(val int32) {
-	p.Limit = val
-}
-func (p *ListSupportedAddonRequest) SetFilters(val map[string][]string) {
-	p.Filters = val
-}
-func (p *ListSupportedAddonRequest) SetTop(val *base.TopParam) {
+func (p *ListSupportedAddonsRequest) SetTop(val *base.TopParam) {
 	p.Top = val
 }
-func (p *ListSupportedAddonRequest) SetBase(val *base.Base) {
+func (p *ListSupportedAddonsRequest) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_ListSupportedAddonRequest = map[int16]string{
-	1:   "Start",
-	2:   "Limit",
-	3:   "Filters",
+var fieldIDToName_ListSupportedAddonsRequest = map[int16]string{
+	1:   "Filter",
 	254: "Top",
 	255: "Base",
 }
 
-func (p *ListSupportedAddonRequest) IsSetStart() bool {
-	return p.Start != ListSupportedAddonRequest_Start_DEFAULT
+func (p *ListSupportedAddonsRequest) IsSetFilter() bool {
+	return p.Filter != nil
 }
 
-func (p *ListSupportedAddonRequest) IsSetLimit() bool {
-	return p.Limit != ListSupportedAddonRequest_Limit_DEFAULT
-}
-
-func (p *ListSupportedAddonRequest) IsSetFilters() bool {
-	return p.Filters != nil
-}
-
-func (p *ListSupportedAddonRequest) IsSetTop() bool {
+func (p *ListSupportedAddonsRequest) IsSetTop() bool {
 	return p.Top != nil
 }
 
-func (p *ListSupportedAddonRequest) IsSetBase() bool {
+func (p *ListSupportedAddonsRequest) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *ListSupportedAddonRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *ListSupportedAddonsRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -589,28 +848,8 @@ func (p *ListSupportedAddonRequest) Read(iprot thrift.TProtocol) (err error) {
 
 		switch fieldId {
 		case 1:
-			if fieldTypeId == thrift.I32 {
+			if fieldTypeId == thrift.STRUCT {
 				if err = p.ReadField1(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else {
-				if err = iprot.Skip(fieldTypeId); err != nil {
-					goto SkipFieldError
-				}
-			}
-		case 2:
-			if fieldTypeId == thrift.I32 {
-				if err = p.ReadField2(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else {
-				if err = iprot.Skip(fieldTypeId); err != nil {
-					goto SkipFieldError
-				}
-			}
-		case 3:
-			if fieldTypeId == thrift.MAP {
-				if err = p.ReadField3(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else {
@@ -663,7 +902,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListSupportedAddonRequest[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListSupportedAddonsRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -672,69 +911,18 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListSupportedAddonRequest[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListSupportedAddonsRequest[fieldId]))
 }
 
-func (p *ListSupportedAddonRequest) ReadField1(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadI32(); err != nil {
-		return err
-	} else {
-		p.Start = v
-	}
-	return nil
-}
-
-func (p *ListSupportedAddonRequest) ReadField2(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadI32(); err != nil {
-		return err
-	} else {
-		p.Limit = v
-	}
-	return nil
-}
-
-func (p *ListSupportedAddonRequest) ReadField3(iprot thrift.TProtocol) error {
-	_, _, size, err := iprot.ReadMapBegin()
-	if err != nil {
-		return err
-	}
-	p.Filters = make(map[string][]string, size)
-	for i := 0; i < size; i++ {
-		var _key string
-		if v, err := iprot.ReadString(); err != nil {
-			return err
-		} else {
-			_key = v
-		}
-
-		_, size, err := iprot.ReadListBegin()
-		if err != nil {
-			return err
-		}
-		_val := make([]string, 0, size)
-		for i := 0; i < size; i++ {
-			var _elem string
-			if v, err := iprot.ReadString(); err != nil {
-				return err
-			} else {
-				_elem = v
-			}
-
-			_val = append(_val, _elem)
-		}
-		if err := iprot.ReadListEnd(); err != nil {
-			return err
-		}
-
-		p.Filters[_key] = _val
-	}
-	if err := iprot.ReadMapEnd(); err != nil {
+func (p *ListSupportedAddonsRequest) ReadField1(iprot thrift.TProtocol) error {
+	p.Filter = NewListSupportedAddonsFilter()
+	if err := p.Filter.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ListSupportedAddonRequest) ReadField254(iprot thrift.TProtocol) error {
+func (p *ListSupportedAddonsRequest) ReadField254(iprot thrift.TProtocol) error {
 	p.Top = base.NewTopParam()
 	if err := p.Top.Read(iprot); err != nil {
 		return err
@@ -742,7 +930,7 @@ func (p *ListSupportedAddonRequest) ReadField254(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListSupportedAddonRequest) ReadField255(iprot thrift.TProtocol) error {
+func (p *ListSupportedAddonsRequest) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -750,22 +938,14 @@ func (p *ListSupportedAddonRequest) ReadField255(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListSupportedAddonRequest) Write(oprot thrift.TProtocol) (err error) {
+func (p *ListSupportedAddonsRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListSupportedAddonRequest"); err != nil {
+	if err = oprot.WriteStructBegin("ListSupportedAddonsRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
 		if err = p.writeField1(oprot); err != nil {
 			fieldId = 1
-			goto WriteFieldError
-		}
-		if err = p.writeField2(oprot); err != nil {
-			fieldId = 2
-			goto WriteFieldError
-		}
-		if err = p.writeField3(oprot); err != nil {
-			fieldId = 3
 			goto WriteFieldError
 		}
 		if err = p.writeField254(oprot); err != nil {
@@ -795,12 +975,12 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ListSupportedAddonRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if p.IsSetStart() {
-		if err = oprot.WriteFieldBegin("Start", thrift.I32, 1); err != nil {
+func (p *ListSupportedAddonsRequest) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetFilter() {
+		if err = oprot.WriteFieldBegin("Filter", thrift.STRUCT, 1); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteI32(p.Start); err != nil {
+		if err := p.Filter.Write(oprot); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -814,66 +994,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ListSupportedAddonRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if p.IsSetLimit() {
-		if err = oprot.WriteFieldBegin("Limit", thrift.I32, 2); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteI32(p.Limit); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
-}
-
-func (p *ListSupportedAddonRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if p.IsSetFilters() {
-		if err = oprot.WriteFieldBegin("Filters", thrift.MAP, 3); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteMapBegin(thrift.STRING, thrift.LIST, len(p.Filters)); err != nil {
-			return err
-		}
-		for k, v := range p.Filters {
-
-			if err := oprot.WriteString(k); err != nil {
-				return err
-			}
-
-			if err := oprot.WriteListBegin(thrift.STRING, len(v)); err != nil {
-				return err
-			}
-			for _, v := range v {
-				if err := oprot.WriteString(v); err != nil {
-					return err
-				}
-			}
-			if err := oprot.WriteListEnd(); err != nil {
-				return err
-			}
-		}
-		if err := oprot.WriteMapEnd(); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
-}
-
-func (p *ListSupportedAddonRequest) writeField254(oprot thrift.TProtocol) (err error) {
+func (p *ListSupportedAddonsRequest) writeField254(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Top", thrift.STRUCT, 254); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -890,7 +1011,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 254 end error: ", p), err)
 }
 
-func (p *ListSupportedAddonRequest) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *ListSupportedAddonsRequest) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -909,26 +1030,20 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *ListSupportedAddonRequest) String() string {
+func (p *ListSupportedAddonsRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ListSupportedAddonRequest(%+v)", *p)
+	return fmt.Sprintf("ListSupportedAddonsRequest(%+v)", *p)
 }
 
-func (p *ListSupportedAddonRequest) DeepEqual(ano *ListSupportedAddonRequest) bool {
+func (p *ListSupportedAddonsRequest) DeepEqual(ano *ListSupportedAddonsRequest) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.Start) {
-		return false
-	}
-	if !p.Field2DeepEqual(ano.Limit) {
-		return false
-	}
-	if !p.Field3DeepEqual(ano.Filters) {
+	if !p.Field1DeepEqual(ano.Filter) {
 		return false
 	}
 	if !p.Field254DeepEqual(ano.Top) {
@@ -940,47 +1055,21 @@ func (p *ListSupportedAddonRequest) DeepEqual(ano *ListSupportedAddonRequest) bo
 	return true
 }
 
-func (p *ListSupportedAddonRequest) Field1DeepEqual(src int32) bool {
+func (p *ListSupportedAddonsRequest) Field1DeepEqual(src *ListSupportedAddonsFilter) bool {
 
-	if p.Start != src {
+	if !p.Filter.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ListSupportedAddonRequest) Field2DeepEqual(src int32) bool {
-
-	if p.Limit != src {
-		return false
-	}
-	return true
-}
-func (p *ListSupportedAddonRequest) Field3DeepEqual(src map[string][]string) bool {
-
-	if len(p.Filters) != len(src) {
-		return false
-	}
-	for k, v := range p.Filters {
-		_src := src[k]
-		if len(v) != len(_src) {
-			return false
-		}
-		for i, v := range v {
-			_src1 := _src[i]
-			if strings.Compare(v, _src1) != 0 {
-				return false
-			}
-		}
-	}
-	return true
-}
-func (p *ListSupportedAddonRequest) Field254DeepEqual(src *base.TopParam) bool {
+func (p *ListSupportedAddonsRequest) Field254DeepEqual(src *base.TopParam) bool {
 
 	if !p.Top.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ListSupportedAddonRequest) Field255DeepEqual(src *base.Base) bool {
+func (p *ListSupportedAddonsRequest) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -988,44 +1077,44 @@ func (p *ListSupportedAddonRequest) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
-type ListSupportedAddonResponse struct {
+type ListSupportedAddonsResponse struct {
 	Items []*SupportedAddon `thrift:"Items,1,required" json:"Items"`
 	Base  *base.Base        `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewListSupportedAddonResponse() *ListSupportedAddonResponse {
-	return &ListSupportedAddonResponse{}
+func NewListSupportedAddonsResponse() *ListSupportedAddonsResponse {
+	return &ListSupportedAddonsResponse{}
 }
 
-func (p *ListSupportedAddonResponse) GetItems() (v []*SupportedAddon) {
+func (p *ListSupportedAddonsResponse) GetItems() (v []*SupportedAddon) {
 	return p.Items
 }
 
-var ListSupportedAddonResponse_Base_DEFAULT *base.Base
+var ListSupportedAddonsResponse_Base_DEFAULT *base.Base
 
-func (p *ListSupportedAddonResponse) GetBase() (v *base.Base) {
+func (p *ListSupportedAddonsResponse) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return ListSupportedAddonResponse_Base_DEFAULT
+		return ListSupportedAddonsResponse_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *ListSupportedAddonResponse) SetItems(val []*SupportedAddon) {
+func (p *ListSupportedAddonsResponse) SetItems(val []*SupportedAddon) {
 	p.Items = val
 }
-func (p *ListSupportedAddonResponse) SetBase(val *base.Base) {
+func (p *ListSupportedAddonsResponse) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_ListSupportedAddonResponse = map[int16]string{
+var fieldIDToName_ListSupportedAddonsResponse = map[int16]string{
 	1:   "Items",
 	255: "Base",
 }
 
-func (p *ListSupportedAddonResponse) IsSetBase() bool {
+func (p *ListSupportedAddonsResponse) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *ListSupportedAddonResponse) Read(iprot thrift.TProtocol) (err error) {
+func (p *ListSupportedAddonsResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -1090,7 +1179,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListSupportedAddonResponse[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListSupportedAddonsResponse[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -1099,10 +1188,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListSupportedAddonResponse[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListSupportedAddonsResponse[fieldId]))
 }
 
-func (p *ListSupportedAddonResponse) ReadField1(iprot thrift.TProtocol) error {
+func (p *ListSupportedAddonsResponse) ReadField1(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
@@ -1122,7 +1211,7 @@ func (p *ListSupportedAddonResponse) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListSupportedAddonResponse) ReadField255(iprot thrift.TProtocol) error {
+func (p *ListSupportedAddonsResponse) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -1130,9 +1219,9 @@ func (p *ListSupportedAddonResponse) ReadField255(iprot thrift.TProtocol) error 
 	return nil
 }
 
-func (p *ListSupportedAddonResponse) Write(oprot thrift.TProtocol) (err error) {
+func (p *ListSupportedAddonsResponse) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListSupportedAddonResponse"); err != nil {
+	if err = oprot.WriteStructBegin("ListSupportedAddonsResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -1163,7 +1252,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ListSupportedAddonResponse) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ListSupportedAddonsResponse) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Items", thrift.LIST, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -1188,7 +1277,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ListSupportedAddonResponse) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *ListSupportedAddonsResponse) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -1207,14 +1296,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *ListSupportedAddonResponse) String() string {
+func (p *ListSupportedAddonsResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ListSupportedAddonResponse(%+v)", *p)
+	return fmt.Sprintf("ListSupportedAddonsResponse(%+v)", *p)
 }
 
-func (p *ListSupportedAddonResponse) DeepEqual(ano *ListSupportedAddonResponse) bool {
+func (p *ListSupportedAddonsResponse) DeepEqual(ano *ListSupportedAddonsResponse) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -1229,7 +1318,7 @@ func (p *ListSupportedAddonResponse) DeepEqual(ano *ListSupportedAddonResponse) 
 	return true
 }
 
-func (p *ListSupportedAddonResponse) Field1DeepEqual(src []*SupportedAddon) bool {
+func (p *ListSupportedAddonsResponse) Field1DeepEqual(src []*SupportedAddon) bool {
 
 	if len(p.Items) != len(src) {
 		return false
@@ -1242,7 +1331,7 @@ func (p *ListSupportedAddonResponse) Field1DeepEqual(src []*SupportedAddon) bool
 	}
 	return true
 }
-func (p *ListSupportedAddonResponse) Field255DeepEqual(src *base.Base) bool {
+func (p *ListSupportedAddonsResponse) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -1256,10 +1345,11 @@ type Addon struct {
 	Version       string  `thrift:"Version,3,required" json:"Version"`
 	LatestVersion *string `thrift:"LatestVersion,4" json:"LatestVersion,omitempty"`
 	IsSystem      bool    `thrift:"IsSystem,5,required" json:"IsSystem"`
-	Recommend     *bool   `thrift:"Recommend,6" json:"Recommend,omitempty"`
+	IsRecommend   *bool   `thrift:"IsRecommend,6" json:"IsRecommend,omitempty"`
 	Config        *string `thrift:"Config,7" json:"Config,omitempty"`
 	Status        string  `thrift:"Status,8,required" json:"Status"`
 	ErrorMessage  string  `thrift:"ErrorMessage,9,required" json:"ErrorMessage"`
+	Upgradable    bool    `thrift:"Upgradable,10,required" json:"Upgradable"`
 }
 
 func NewAddon() *Addon {
@@ -1291,13 +1381,13 @@ func (p *Addon) GetIsSystem() (v bool) {
 	return p.IsSystem
 }
 
-var Addon_Recommend_DEFAULT bool
+var Addon_IsRecommend_DEFAULT bool
 
-func (p *Addon) GetRecommend() (v bool) {
-	if !p.IsSetRecommend() {
-		return Addon_Recommend_DEFAULT
+func (p *Addon) GetIsRecommend() (v bool) {
+	if !p.IsSetIsRecommend() {
+		return Addon_IsRecommend_DEFAULT
 	}
-	return *p.Recommend
+	return *p.IsRecommend
 }
 
 var Addon_Config_DEFAULT string
@@ -1316,6 +1406,10 @@ func (p *Addon) GetStatus() (v string) {
 func (p *Addon) GetErrorMessage() (v string) {
 	return p.ErrorMessage
 }
+
+func (p *Addon) GetUpgradable() (v bool) {
+	return p.Upgradable
+}
 func (p *Addon) SetName(val string) {
 	p.Name = val
 }
@@ -1331,8 +1425,8 @@ func (p *Addon) SetLatestVersion(val *string) {
 func (p *Addon) SetIsSystem(val bool) {
 	p.IsSystem = val
 }
-func (p *Addon) SetRecommend(val *bool) {
-	p.Recommend = val
+func (p *Addon) SetIsRecommend(val *bool) {
+	p.IsRecommend = val
 }
 func (p *Addon) SetConfig(val *string) {
 	p.Config = val
@@ -1343,25 +1437,29 @@ func (p *Addon) SetStatus(val string) {
 func (p *Addon) SetErrorMessage(val string) {
 	p.ErrorMessage = val
 }
+func (p *Addon) SetUpgradable(val bool) {
+	p.Upgradable = val
+}
 
 var fieldIDToName_Addon = map[int16]string{
-	1: "Name",
-	2: "Type",
-	3: "Version",
-	4: "LatestVersion",
-	5: "IsSystem",
-	6: "Recommend",
-	7: "Config",
-	8: "Status",
-	9: "ErrorMessage",
+	1:  "Name",
+	2:  "Type",
+	3:  "Version",
+	4:  "LatestVersion",
+	5:  "IsSystem",
+	6:  "IsRecommend",
+	7:  "Config",
+	8:  "Status",
+	9:  "ErrorMessage",
+	10: "Upgradable",
 }
 
 func (p *Addon) IsSetLatestVersion() bool {
 	return p.LatestVersion != nil
 }
 
-func (p *Addon) IsSetRecommend() bool {
-	return p.Recommend != nil
+func (p *Addon) IsSetIsRecommend() bool {
+	return p.IsRecommend != nil
 }
 
 func (p *Addon) IsSetConfig() bool {
@@ -1378,6 +1476,7 @@ func (p *Addon) Read(iprot thrift.TProtocol) (err error) {
 	var issetIsSystem bool = false
 	var issetStatus bool = false
 	var issetErrorMessage bool = false
+	var issetUpgradable bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -1489,6 +1588,17 @@ func (p *Addon) Read(iprot thrift.TProtocol) (err error) {
 					goto SkipFieldError
 				}
 			}
+		case 10:
+			if fieldTypeId == thrift.BOOL {
+				if err = p.ReadField10(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetUpgradable = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
 		default:
 			if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
@@ -1530,6 +1640,11 @@ func (p *Addon) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetErrorMessage {
 		fieldId = 9
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetUpgradable {
+		fieldId = 10
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -1599,7 +1714,7 @@ func (p *Addon) ReadField6(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadBool(); err != nil {
 		return err
 	} else {
-		p.Recommend = &v
+		p.IsRecommend = &v
 	}
 	return nil
 }
@@ -1627,6 +1742,15 @@ func (p *Addon) ReadField9(iprot thrift.TProtocol) error {
 		return err
 	} else {
 		p.ErrorMessage = v
+	}
+	return nil
+}
+
+func (p *Addon) ReadField10(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadBool(); err != nil {
+		return err
+	} else {
+		p.Upgradable = v
 	}
 	return nil
 }
@@ -1671,6 +1795,10 @@ func (p *Addon) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField9(oprot); err != nil {
 			fieldId = 9
+			goto WriteFieldError
+		}
+		if err = p.writeField10(oprot); err != nil {
+			fieldId = 10
 			goto WriteFieldError
 		}
 
@@ -1780,11 +1908,11 @@ WriteFieldEndError:
 }
 
 func (p *Addon) writeField6(oprot thrift.TProtocol) (err error) {
-	if p.IsSetRecommend() {
-		if err = oprot.WriteFieldBegin("Recommend", thrift.BOOL, 6); err != nil {
+	if p.IsSetIsRecommend() {
+		if err = oprot.WriteFieldBegin("IsRecommend", thrift.BOOL, 6); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteBool(*p.Recommend); err != nil {
+		if err := oprot.WriteBool(*p.IsRecommend); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -1851,6 +1979,23 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 9 end error: ", p), err)
 }
 
+func (p *Addon) writeField10(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("Upgradable", thrift.BOOL, 10); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteBool(p.Upgradable); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 10 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 10 end error: ", p), err)
+}
+
 func (p *Addon) String() string {
 	if p == nil {
 		return "<nil>"
@@ -1879,7 +2024,7 @@ func (p *Addon) DeepEqual(ano *Addon) bool {
 	if !p.Field5DeepEqual(ano.IsSystem) {
 		return false
 	}
-	if !p.Field6DeepEqual(ano.Recommend) {
+	if !p.Field6DeepEqual(ano.IsRecommend) {
 		return false
 	}
 	if !p.Field7DeepEqual(ano.Config) {
@@ -1889,6 +2034,9 @@ func (p *Addon) DeepEqual(ano *Addon) bool {
 		return false
 	}
 	if !p.Field9DeepEqual(ano.ErrorMessage) {
+		return false
+	}
+	if !p.Field10DeepEqual(ano.Upgradable) {
 		return false
 	}
 	return true
@@ -1936,12 +2084,12 @@ func (p *Addon) Field5DeepEqual(src bool) bool {
 }
 func (p *Addon) Field6DeepEqual(src *bool) bool {
 
-	if p.Recommend == src {
+	if p.IsRecommend == src {
 		return true
-	} else if p.Recommend == nil || src == nil {
+	} else if p.IsRecommend == nil || src == nil {
 		return false
 	}
-	if *p.Recommend != *src {
+	if *p.IsRecommend != *src {
 		return false
 	}
 	return true
@@ -1972,121 +2120,383 @@ func (p *Addon) Field9DeepEqual(src string) bool {
 	}
 	return true
 }
+func (p *Addon) Field10DeepEqual(src bool) bool {
 
-type ListAddonRequest struct {
-	ClusterId string              `thrift:"ClusterId,1,required" json:"ClusterId"`
-	Start     int32               `thrift:"Start,2" validate:"gte=0"`
-	Limit     int32               `thrift:"Limit,3" json:"Limit,omitempty"`
-	Filters   map[string][]string `thrift:"Filters,4" json:"Filters,omitempty"`
-	Top       *base.TopParam      `thrift:"Top,254,required" json:"Top"`
-	Base      *base.Base          `thrift:"Base,255" json:"Base,omitempty"`
-}
-
-func NewListAddonRequest() *ListAddonRequest {
-	return &ListAddonRequest{
-
-		Start: 0,
-		Limit: 100,
+	if p.Upgradable != src {
+		return false
 	}
+	return true
 }
 
-func (p *ListAddonRequest) GetClusterId() (v string) {
+type ListAddonsFilter struct {
+	Names    []string `thrift:"Names,1" json:"Names,omitempty"`
+	Statuses []string `thrift:"Statuses,2" json:"Statuses,omitempty"`
+}
+
+func NewListAddonsFilter() *ListAddonsFilter {
+	return &ListAddonsFilter{}
+}
+
+var ListAddonsFilter_Names_DEFAULT []string
+
+func (p *ListAddonsFilter) GetNames() (v []string) {
+	if !p.IsSetNames() {
+		return ListAddonsFilter_Names_DEFAULT
+	}
+	return p.Names
+}
+
+var ListAddonsFilter_Statuses_DEFAULT []string
+
+func (p *ListAddonsFilter) GetStatuses() (v []string) {
+	if !p.IsSetStatuses() {
+		return ListAddonsFilter_Statuses_DEFAULT
+	}
+	return p.Statuses
+}
+func (p *ListAddonsFilter) SetNames(val []string) {
+	p.Names = val
+}
+func (p *ListAddonsFilter) SetStatuses(val []string) {
+	p.Statuses = val
+}
+
+var fieldIDToName_ListAddonsFilter = map[int16]string{
+	1: "Names",
+	2: "Statuses",
+}
+
+func (p *ListAddonsFilter) IsSetNames() bool {
+	return p.Names != nil
+}
+
+func (p *ListAddonsFilter) IsSetStatuses() bool {
+	return p.Statuses != nil
+}
+
+func (p *ListAddonsFilter) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 2:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListAddonsFilter[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ListAddonsFilter) ReadField1(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.Names = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		p.Names = append(p.Names, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ListAddonsFilter) ReadField2(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.Statuses = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		p.Statuses = append(p.Statuses, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ListAddonsFilter) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ListAddonsFilter"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ListAddonsFilter) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetNames() {
+		if err = oprot.WriteFieldBegin("Names", thrift.LIST, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRING, len(p.Names)); err != nil {
+			return err
+		}
+		for _, v := range p.Names {
+			if err := oprot.WriteString(v); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ListAddonsFilter) writeField2(oprot thrift.TProtocol) (err error) {
+	if p.IsSetStatuses() {
+		if err = oprot.WriteFieldBegin("Statuses", thrift.LIST, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRING, len(p.Statuses)); err != nil {
+			return err
+		}
+		for _, v := range p.Statuses {
+			if err := oprot.WriteString(v); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *ListAddonsFilter) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ListAddonsFilter(%+v)", *p)
+}
+
+func (p *ListAddonsFilter) DeepEqual(ano *ListAddonsFilter) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Names) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.Statuses) {
+		return false
+	}
+	return true
+}
+
+func (p *ListAddonsFilter) Field1DeepEqual(src []string) bool {
+
+	if len(p.Names) != len(src) {
+		return false
+	}
+	for i, v := range p.Names {
+		_src := src[i]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
+	}
+	return true
+}
+func (p *ListAddonsFilter) Field2DeepEqual(src []string) bool {
+
+	if len(p.Statuses) != len(src) {
+		return false
+	}
+	for i, v := range p.Statuses {
+		_src := src[i]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
+	}
+	return true
+}
+
+type ListAddonsRequest struct {
+	ClusterId string            `thrift:"ClusterId,1,required" json:"ClusterId"`
+	Filter    *ListAddonsFilter `thrift:"Filter,2" json:"Filter,omitempty"`
+	Top       *base.TopParam    `thrift:"Top,254,required" json:"Top"`
+	Base      *base.Base        `thrift:"Base,255" json:"Base,omitempty"`
+}
+
+func NewListAddonsRequest() *ListAddonsRequest {
+	return &ListAddonsRequest{}
+}
+
+func (p *ListAddonsRequest) GetClusterId() (v string) {
 	return p.ClusterId
 }
 
-var ListAddonRequest_Start_DEFAULT int32 = 0
+var ListAddonsRequest_Filter_DEFAULT *ListAddonsFilter
 
-func (p *ListAddonRequest) GetStart() (v int32) {
-	if !p.IsSetStart() {
-		return ListAddonRequest_Start_DEFAULT
+func (p *ListAddonsRequest) GetFilter() (v *ListAddonsFilter) {
+	if !p.IsSetFilter() {
+		return ListAddonsRequest_Filter_DEFAULT
 	}
-	return p.Start
+	return p.Filter
 }
 
-var ListAddonRequest_Limit_DEFAULT int32 = 100
+var ListAddonsRequest_Top_DEFAULT *base.TopParam
 
-func (p *ListAddonRequest) GetLimit() (v int32) {
-	if !p.IsSetLimit() {
-		return ListAddonRequest_Limit_DEFAULT
-	}
-	return p.Limit
-}
-
-var ListAddonRequest_Filters_DEFAULT map[string][]string
-
-func (p *ListAddonRequest) GetFilters() (v map[string][]string) {
-	if !p.IsSetFilters() {
-		return ListAddonRequest_Filters_DEFAULT
-	}
-	return p.Filters
-}
-
-var ListAddonRequest_Top_DEFAULT *base.TopParam
-
-func (p *ListAddonRequest) GetTop() (v *base.TopParam) {
+func (p *ListAddonsRequest) GetTop() (v *base.TopParam) {
 	if !p.IsSetTop() {
-		return ListAddonRequest_Top_DEFAULT
+		return ListAddonsRequest_Top_DEFAULT
 	}
 	return p.Top
 }
 
-var ListAddonRequest_Base_DEFAULT *base.Base
+var ListAddonsRequest_Base_DEFAULT *base.Base
 
-func (p *ListAddonRequest) GetBase() (v *base.Base) {
+func (p *ListAddonsRequest) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return ListAddonRequest_Base_DEFAULT
+		return ListAddonsRequest_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *ListAddonRequest) SetClusterId(val string) {
+func (p *ListAddonsRequest) SetClusterId(val string) {
 	p.ClusterId = val
 }
-func (p *ListAddonRequest) SetStart(val int32) {
-	p.Start = val
+func (p *ListAddonsRequest) SetFilter(val *ListAddonsFilter) {
+	p.Filter = val
 }
-func (p *ListAddonRequest) SetLimit(val int32) {
-	p.Limit = val
-}
-func (p *ListAddonRequest) SetFilters(val map[string][]string) {
-	p.Filters = val
-}
-func (p *ListAddonRequest) SetTop(val *base.TopParam) {
+func (p *ListAddonsRequest) SetTop(val *base.TopParam) {
 	p.Top = val
 }
-func (p *ListAddonRequest) SetBase(val *base.Base) {
+func (p *ListAddonsRequest) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_ListAddonRequest = map[int16]string{
+var fieldIDToName_ListAddonsRequest = map[int16]string{
 	1:   "ClusterId",
-	2:   "Start",
-	3:   "Limit",
-	4:   "Filters",
+	2:   "Filter",
 	254: "Top",
 	255: "Base",
 }
 
-func (p *ListAddonRequest) IsSetStart() bool {
-	return p.Start != ListAddonRequest_Start_DEFAULT
+func (p *ListAddonsRequest) IsSetFilter() bool {
+	return p.Filter != nil
 }
 
-func (p *ListAddonRequest) IsSetLimit() bool {
-	return p.Limit != ListAddonRequest_Limit_DEFAULT
-}
-
-func (p *ListAddonRequest) IsSetFilters() bool {
-	return p.Filters != nil
-}
-
-func (p *ListAddonRequest) IsSetTop() bool {
+func (p *ListAddonsRequest) IsSetTop() bool {
 	return p.Top != nil
 }
 
-func (p *ListAddonRequest) IsSetBase() bool {
+func (p *ListAddonsRequest) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *ListAddonRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *ListAddonsRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -2119,28 +2529,8 @@ func (p *ListAddonRequest) Read(iprot thrift.TProtocol) (err error) {
 				}
 			}
 		case 2:
-			if fieldTypeId == thrift.I32 {
+			if fieldTypeId == thrift.STRUCT {
 				if err = p.ReadField2(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else {
-				if err = iprot.Skip(fieldTypeId); err != nil {
-					goto SkipFieldError
-				}
-			}
-		case 3:
-			if fieldTypeId == thrift.I32 {
-				if err = p.ReadField3(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else {
-				if err = iprot.Skip(fieldTypeId); err != nil {
-					goto SkipFieldError
-				}
-			}
-		case 4:
-			if fieldTypeId == thrift.MAP {
-				if err = p.ReadField4(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else {
@@ -2198,7 +2588,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListAddonRequest[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListAddonsRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -2207,10 +2597,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListAddonRequest[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListAddonsRequest[fieldId]))
 }
 
-func (p *ListAddonRequest) ReadField1(iprot thrift.TProtocol) error {
+func (p *ListAddonsRequest) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -2219,66 +2609,15 @@ func (p *ListAddonRequest) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListAddonRequest) ReadField2(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadI32(); err != nil {
-		return err
-	} else {
-		p.Start = v
-	}
-	return nil
-}
-
-func (p *ListAddonRequest) ReadField3(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadI32(); err != nil {
-		return err
-	} else {
-		p.Limit = v
-	}
-	return nil
-}
-
-func (p *ListAddonRequest) ReadField4(iprot thrift.TProtocol) error {
-	_, _, size, err := iprot.ReadMapBegin()
-	if err != nil {
-		return err
-	}
-	p.Filters = make(map[string][]string, size)
-	for i := 0; i < size; i++ {
-		var _key string
-		if v, err := iprot.ReadString(); err != nil {
-			return err
-		} else {
-			_key = v
-		}
-
-		_, size, err := iprot.ReadListBegin()
-		if err != nil {
-			return err
-		}
-		_val := make([]string, 0, size)
-		for i := 0; i < size; i++ {
-			var _elem string
-			if v, err := iprot.ReadString(); err != nil {
-				return err
-			} else {
-				_elem = v
-			}
-
-			_val = append(_val, _elem)
-		}
-		if err := iprot.ReadListEnd(); err != nil {
-			return err
-		}
-
-		p.Filters[_key] = _val
-	}
-	if err := iprot.ReadMapEnd(); err != nil {
+func (p *ListAddonsRequest) ReadField2(iprot thrift.TProtocol) error {
+	p.Filter = NewListAddonsFilter()
+	if err := p.Filter.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ListAddonRequest) ReadField254(iprot thrift.TProtocol) error {
+func (p *ListAddonsRequest) ReadField254(iprot thrift.TProtocol) error {
 	p.Top = base.NewTopParam()
 	if err := p.Top.Read(iprot); err != nil {
 		return err
@@ -2286,7 +2625,7 @@ func (p *ListAddonRequest) ReadField254(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListAddonRequest) ReadField255(iprot thrift.TProtocol) error {
+func (p *ListAddonsRequest) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -2294,9 +2633,9 @@ func (p *ListAddonRequest) ReadField255(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListAddonRequest) Write(oprot thrift.TProtocol) (err error) {
+func (p *ListAddonsRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListAddonRequest"); err != nil {
+	if err = oprot.WriteStructBegin("ListAddonsRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -2306,14 +2645,6 @@ func (p *ListAddonRequest) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField2(oprot); err != nil {
 			fieldId = 2
-			goto WriteFieldError
-		}
-		if err = p.writeField3(oprot); err != nil {
-			fieldId = 3
-			goto WriteFieldError
-		}
-		if err = p.writeField4(oprot); err != nil {
-			fieldId = 4
 			goto WriteFieldError
 		}
 		if err = p.writeField254(oprot); err != nil {
@@ -2343,7 +2674,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ListAddonRequest) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ListAddonsRequest) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("ClusterId", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -2360,12 +2691,12 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ListAddonRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if p.IsSetStart() {
-		if err = oprot.WriteFieldBegin("Start", thrift.I32, 2); err != nil {
+func (p *ListAddonsRequest) writeField2(oprot thrift.TProtocol) (err error) {
+	if p.IsSetFilter() {
+		if err = oprot.WriteFieldBegin("Filter", thrift.STRUCT, 2); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteI32(p.Start); err != nil {
+		if err := p.Filter.Write(oprot); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -2379,66 +2710,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *ListAddonRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if p.IsSetLimit() {
-		if err = oprot.WriteFieldBegin("Limit", thrift.I32, 3); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteI32(p.Limit); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
-}
-
-func (p *ListAddonRequest) writeField4(oprot thrift.TProtocol) (err error) {
-	if p.IsSetFilters() {
-		if err = oprot.WriteFieldBegin("Filters", thrift.MAP, 4); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteMapBegin(thrift.STRING, thrift.LIST, len(p.Filters)); err != nil {
-			return err
-		}
-		for k, v := range p.Filters {
-
-			if err := oprot.WriteString(k); err != nil {
-				return err
-			}
-
-			if err := oprot.WriteListBegin(thrift.STRING, len(v)); err != nil {
-				return err
-			}
-			for _, v := range v {
-				if err := oprot.WriteString(v); err != nil {
-					return err
-				}
-			}
-			if err := oprot.WriteListEnd(); err != nil {
-				return err
-			}
-		}
-		if err := oprot.WriteMapEnd(); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
-}
-
-func (p *ListAddonRequest) writeField254(oprot thrift.TProtocol) (err error) {
+func (p *ListAddonsRequest) writeField254(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Top", thrift.STRUCT, 254); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -2455,7 +2727,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 254 end error: ", p), err)
 }
 
-func (p *ListAddonRequest) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *ListAddonsRequest) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -2474,14 +2746,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *ListAddonRequest) String() string {
+func (p *ListAddonsRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ListAddonRequest(%+v)", *p)
+	return fmt.Sprintf("ListAddonsRequest(%+v)", *p)
 }
 
-func (p *ListAddonRequest) DeepEqual(ano *ListAddonRequest) bool {
+func (p *ListAddonsRequest) DeepEqual(ano *ListAddonsRequest) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -2490,13 +2762,7 @@ func (p *ListAddonRequest) DeepEqual(ano *ListAddonRequest) bool {
 	if !p.Field1DeepEqual(ano.ClusterId) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.Start) {
-		return false
-	}
-	if !p.Field3DeepEqual(ano.Limit) {
-		return false
-	}
-	if !p.Field4DeepEqual(ano.Filters) {
+	if !p.Field2DeepEqual(ano.Filter) {
 		return false
 	}
 	if !p.Field254DeepEqual(ano.Top) {
@@ -2508,54 +2774,28 @@ func (p *ListAddonRequest) DeepEqual(ano *ListAddonRequest) bool {
 	return true
 }
 
-func (p *ListAddonRequest) Field1DeepEqual(src string) bool {
+func (p *ListAddonsRequest) Field1DeepEqual(src string) bool {
 
 	if strings.Compare(p.ClusterId, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *ListAddonRequest) Field2DeepEqual(src int32) bool {
+func (p *ListAddonsRequest) Field2DeepEqual(src *ListAddonsFilter) bool {
 
-	if p.Start != src {
+	if !p.Filter.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ListAddonRequest) Field3DeepEqual(src int32) bool {
-
-	if p.Limit != src {
-		return false
-	}
-	return true
-}
-func (p *ListAddonRequest) Field4DeepEqual(src map[string][]string) bool {
-
-	if len(p.Filters) != len(src) {
-		return false
-	}
-	for k, v := range p.Filters {
-		_src := src[k]
-		if len(v) != len(_src) {
-			return false
-		}
-		for i, v := range v {
-			_src1 := _src[i]
-			if strings.Compare(v, _src1) != 0 {
-				return false
-			}
-		}
-	}
-	return true
-}
-func (p *ListAddonRequest) Field254DeepEqual(src *base.TopParam) bool {
+func (p *ListAddonsRequest) Field254DeepEqual(src *base.TopParam) bool {
 
 	if !p.Top.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ListAddonRequest) Field255DeepEqual(src *base.Base) bool {
+func (p *ListAddonsRequest) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -2563,44 +2803,44 @@ func (p *ListAddonRequest) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
-type ListAddonResponse struct {
+type ListAddonsResponse struct {
 	Items []*Addon   `thrift:"Items,1,required" json:"Items"`
 	Base  *base.Base `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewListAddonResponse() *ListAddonResponse {
-	return &ListAddonResponse{}
+func NewListAddonsResponse() *ListAddonsResponse {
+	return &ListAddonsResponse{}
 }
 
-func (p *ListAddonResponse) GetItems() (v []*Addon) {
+func (p *ListAddonsResponse) GetItems() (v []*Addon) {
 	return p.Items
 }
 
-var ListAddonResponse_Base_DEFAULT *base.Base
+var ListAddonsResponse_Base_DEFAULT *base.Base
 
-func (p *ListAddonResponse) GetBase() (v *base.Base) {
+func (p *ListAddonsResponse) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return ListAddonResponse_Base_DEFAULT
+		return ListAddonsResponse_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *ListAddonResponse) SetItems(val []*Addon) {
+func (p *ListAddonsResponse) SetItems(val []*Addon) {
 	p.Items = val
 }
-func (p *ListAddonResponse) SetBase(val *base.Base) {
+func (p *ListAddonsResponse) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_ListAddonResponse = map[int16]string{
+var fieldIDToName_ListAddonsResponse = map[int16]string{
 	1:   "Items",
 	255: "Base",
 }
 
-func (p *ListAddonResponse) IsSetBase() bool {
+func (p *ListAddonsResponse) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *ListAddonResponse) Read(iprot thrift.TProtocol) (err error) {
+func (p *ListAddonsResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -2665,7 +2905,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListAddonResponse[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListAddonsResponse[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -2674,10 +2914,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListAddonResponse[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ListAddonsResponse[fieldId]))
 }
 
-func (p *ListAddonResponse) ReadField1(iprot thrift.TProtocol) error {
+func (p *ListAddonsResponse) ReadField1(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
@@ -2697,7 +2937,7 @@ func (p *ListAddonResponse) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListAddonResponse) ReadField255(iprot thrift.TProtocol) error {
+func (p *ListAddonsResponse) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -2705,9 +2945,9 @@ func (p *ListAddonResponse) ReadField255(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ListAddonResponse) Write(oprot thrift.TProtocol) (err error) {
+func (p *ListAddonsResponse) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListAddonResponse"); err != nil {
+	if err = oprot.WriteStructBegin("ListAddonsResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -2738,7 +2978,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ListAddonResponse) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ListAddonsResponse) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Items", thrift.LIST, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -2763,7 +3003,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ListAddonResponse) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *ListAddonsResponse) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -2782,14 +3022,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *ListAddonResponse) String() string {
+func (p *ListAddonsResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ListAddonResponse(%+v)", *p)
+	return fmt.Sprintf("ListAddonsResponse(%+v)", *p)
 }
 
-func (p *ListAddonResponse) DeepEqual(ano *ListAddonResponse) bool {
+func (p *ListAddonsResponse) DeepEqual(ano *ListAddonsResponse) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -2804,7 +3044,7 @@ func (p *ListAddonResponse) DeepEqual(ano *ListAddonResponse) bool {
 	return true
 }
 
-func (p *ListAddonResponse) Field1DeepEqual(src []*Addon) bool {
+func (p *ListAddonsResponse) Field1DeepEqual(src []*Addon) bool {
 
 	if len(p.Items) != len(src) {
 		return false
@@ -2817,7 +3057,7 @@ func (p *ListAddonResponse) Field1DeepEqual(src []*Addon) bool {
 	}
 	return true
 }
-func (p *ListAddonResponse) Field255DeepEqual(src *base.Base) bool {
+func (p *ListAddonsResponse) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -2826,32 +3066,22 @@ func (p *ListAddonResponse) Field255DeepEqual(src *base.Base) bool {
 }
 
 type UpgradeAddonRequest struct {
-	Name           string         `thrift:"Name,1,required" json:"Name"`
-	DesiredVersion string         `thrift:"DesiredVersion,2,required" json:"DesiredVersion"`
-	Config         *string        `thrift:"Config,3" json:"Config,omitempty"`
-	Top            *base.TopParam `thrift:"Top,254,required" json:"Top"`
-	Base           *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
+	ClusterId string         `thrift:"ClusterId,1,required" json:"ClusterId"`
+	Name      string         `thrift:"Name,2,required" json:"Name"`
+	Top       *base.TopParam `thrift:"Top,254,required" json:"Top"`
+	Base      *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
 }
 
 func NewUpgradeAddonRequest() *UpgradeAddonRequest {
 	return &UpgradeAddonRequest{}
 }
 
+func (p *UpgradeAddonRequest) GetClusterId() (v string) {
+	return p.ClusterId
+}
+
 func (p *UpgradeAddonRequest) GetName() (v string) {
 	return p.Name
-}
-
-func (p *UpgradeAddonRequest) GetDesiredVersion() (v string) {
-	return p.DesiredVersion
-}
-
-var UpgradeAddonRequest_Config_DEFAULT string
-
-func (p *UpgradeAddonRequest) GetConfig() (v string) {
-	if !p.IsSetConfig() {
-		return UpgradeAddonRequest_Config_DEFAULT
-	}
-	return *p.Config
 }
 
 var UpgradeAddonRequest_Top_DEFAULT *base.TopParam
@@ -2871,14 +3101,11 @@ func (p *UpgradeAddonRequest) GetBase() (v *base.Base) {
 	}
 	return p.Base
 }
+func (p *UpgradeAddonRequest) SetClusterId(val string) {
+	p.ClusterId = val
+}
 func (p *UpgradeAddonRequest) SetName(val string) {
 	p.Name = val
-}
-func (p *UpgradeAddonRequest) SetDesiredVersion(val string) {
-	p.DesiredVersion = val
-}
-func (p *UpgradeAddonRequest) SetConfig(val *string) {
-	p.Config = val
 }
 func (p *UpgradeAddonRequest) SetTop(val *base.TopParam) {
 	p.Top = val
@@ -2888,15 +3115,10 @@ func (p *UpgradeAddonRequest) SetBase(val *base.Base) {
 }
 
 var fieldIDToName_UpgradeAddonRequest = map[int16]string{
-	1:   "Name",
-	2:   "DesiredVersion",
-	3:   "Config",
+	1:   "ClusterId",
+	2:   "Name",
 	254: "Top",
 	255: "Base",
-}
-
-func (p *UpgradeAddonRequest) IsSetConfig() bool {
-	return p.Config != nil
 }
 
 func (p *UpgradeAddonRequest) IsSetTop() bool {
@@ -2911,8 +3133,8 @@ func (p *UpgradeAddonRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
+	var issetClusterId bool = false
 	var issetName bool = false
-	var issetDesiredVersion bool = false
 	var issetTop bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
@@ -2934,7 +3156,7 @@ func (p *UpgradeAddonRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetName = true
+				issetClusterId = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -2945,17 +3167,7 @@ func (p *UpgradeAddonRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetDesiredVersion = true
-			} else {
-				if err = iprot.Skip(fieldTypeId); err != nil {
-					goto SkipFieldError
-				}
-			}
-		case 3:
-			if fieldTypeId == thrift.STRING {
-				if err = p.ReadField3(iprot); err != nil {
-					goto ReadFieldError
-				}
+				issetName = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -2996,12 +3208,12 @@ func (p *UpgradeAddonRequest) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
-	if !issetName {
+	if !issetClusterId {
 		fieldId = 1
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetDesiredVersion {
+	if !issetName {
 		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
@@ -3032,7 +3244,7 @@ func (p *UpgradeAddonRequest) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.Name = v
+		p.ClusterId = v
 	}
 	return nil
 }
@@ -3041,16 +3253,7 @@ func (p *UpgradeAddonRequest) ReadField2(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.DesiredVersion = v
-	}
-	return nil
-}
-
-func (p *UpgradeAddonRequest) ReadField3(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		p.Config = &v
+		p.Name = v
 	}
 	return nil
 }
@@ -3085,10 +3288,6 @@ func (p *UpgradeAddonRequest) Write(oprot thrift.TProtocol) (err error) {
 			fieldId = 2
 			goto WriteFieldError
 		}
-		if err = p.writeField3(oprot); err != nil {
-			fieldId = 3
-			goto WriteFieldError
-		}
 		if err = p.writeField254(oprot); err != nil {
 			fieldId = 254
 			goto WriteFieldError
@@ -3117,10 +3316,10 @@ WriteStructEndError:
 }
 
 func (p *UpgradeAddonRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("Name", thrift.STRING, 1); err != nil {
+	if err = oprot.WriteFieldBegin("ClusterId", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Name); err != nil {
+	if err := oprot.WriteString(p.ClusterId); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -3134,10 +3333,10 @@ WriteFieldEndError:
 }
 
 func (p *UpgradeAddonRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("DesiredVersion", thrift.STRING, 2); err != nil {
+	if err = oprot.WriteFieldBegin("Name", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.DesiredVersion); err != nil {
+	if err := oprot.WriteString(p.Name); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -3148,25 +3347,6 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
-}
-
-func (p *UpgradeAddonRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if p.IsSetConfig() {
-		if err = oprot.WriteFieldBegin("Config", thrift.STRING, 3); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.Config); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
 func (p *UpgradeAddonRequest) writeField254(oprot thrift.TProtocol) (err error) {
@@ -3218,13 +3398,10 @@ func (p *UpgradeAddonRequest) DeepEqual(ano *UpgradeAddonRequest) bool {
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.Name) {
+	if !p.Field1DeepEqual(ano.ClusterId) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.DesiredVersion) {
-		return false
-	}
-	if !p.Field3DeepEqual(ano.Config) {
+	if !p.Field2DeepEqual(ano.Name) {
 		return false
 	}
 	if !p.Field254DeepEqual(ano.Top) {
@@ -3238,26 +3415,14 @@ func (p *UpgradeAddonRequest) DeepEqual(ano *UpgradeAddonRequest) bool {
 
 func (p *UpgradeAddonRequest) Field1DeepEqual(src string) bool {
 
-	if strings.Compare(p.Name, src) != 0 {
+	if strings.Compare(p.ClusterId, src) != 0 {
 		return false
 	}
 	return true
 }
 func (p *UpgradeAddonRequest) Field2DeepEqual(src string) bool {
 
-	if strings.Compare(p.DesiredVersion, src) != 0 {
-		return false
-	}
-	return true
-}
-func (p *UpgradeAddonRequest) Field3DeepEqual(src *string) bool {
-
-	if p.Config == src {
-		return true
-	} else if p.Config == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.Config, *src) != 0 {
+	if strings.Compare(p.Name, src) != 0 {
 		return false
 	}
 	return true
@@ -3447,14 +3612,569 @@ func (p *UpgradeAddonResponse) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
+type ReinstallAddonRequest struct {
+	ClusterId string         `thrift:"ClusterId,1,required" json:"ClusterId"`
+	Name      string         `thrift:"Name,2,required" json:"Name"`
+	Top       *base.TopParam `thrift:"Top,254,required" json:"Top"`
+	Base      *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
+}
+
+func NewReinstallAddonRequest() *ReinstallAddonRequest {
+	return &ReinstallAddonRequest{}
+}
+
+func (p *ReinstallAddonRequest) GetClusterId() (v string) {
+	return p.ClusterId
+}
+
+func (p *ReinstallAddonRequest) GetName() (v string) {
+	return p.Name
+}
+
+var ReinstallAddonRequest_Top_DEFAULT *base.TopParam
+
+func (p *ReinstallAddonRequest) GetTop() (v *base.TopParam) {
+	if !p.IsSetTop() {
+		return ReinstallAddonRequest_Top_DEFAULT
+	}
+	return p.Top
+}
+
+var ReinstallAddonRequest_Base_DEFAULT *base.Base
+
+func (p *ReinstallAddonRequest) GetBase() (v *base.Base) {
+	if !p.IsSetBase() {
+		return ReinstallAddonRequest_Base_DEFAULT
+	}
+	return p.Base
+}
+func (p *ReinstallAddonRequest) SetClusterId(val string) {
+	p.ClusterId = val
+}
+func (p *ReinstallAddonRequest) SetName(val string) {
+	p.Name = val
+}
+func (p *ReinstallAddonRequest) SetTop(val *base.TopParam) {
+	p.Top = val
+}
+func (p *ReinstallAddonRequest) SetBase(val *base.Base) {
+	p.Base = val
+}
+
+var fieldIDToName_ReinstallAddonRequest = map[int16]string{
+	1:   "ClusterId",
+	2:   "Name",
+	254: "Top",
+	255: "Base",
+}
+
+func (p *ReinstallAddonRequest) IsSetTop() bool {
+	return p.Top != nil
+}
+
+func (p *ReinstallAddonRequest) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *ReinstallAddonRequest) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	var issetClusterId bool = false
+	var issetName bool = false
+	var issetTop bool = false
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetClusterId = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 2:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetName = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 254:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField254(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetTop = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 255:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField255(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	if !issetClusterId {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetName {
+		fieldId = 2
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetTop {
+		fieldId = 254
+		goto RequiredFieldNotSetError
+	}
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ReinstallAddonRequest[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_ReinstallAddonRequest[fieldId]))
+}
+
+func (p *ReinstallAddonRequest) ReadField1(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.ClusterId = v
+	}
+	return nil
+}
+
+func (p *ReinstallAddonRequest) ReadField2(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.Name = v
+	}
+	return nil
+}
+
+func (p *ReinstallAddonRequest) ReadField254(iprot thrift.TProtocol) error {
+	p.Top = base.NewTopParam()
+	if err := p.Top.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ReinstallAddonRequest) ReadField255(iprot thrift.TProtocol) error {
+	p.Base = base.NewBase()
+	if err := p.Base.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ReinstallAddonRequest) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ReinstallAddonRequest"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField254(oprot); err != nil {
+			fieldId = 254
+			goto WriteFieldError
+		}
+		if err = p.writeField255(oprot); err != nil {
+			fieldId = 255
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ReinstallAddonRequest) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("ClusterId", thrift.STRING, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.ClusterId); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ReinstallAddonRequest) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("Name", thrift.STRING, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Name); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *ReinstallAddonRequest) writeField254(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("Top", thrift.STRUCT, 254); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Top.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 254 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 254 end error: ", p), err)
+}
+
+func (p *ReinstallAddonRequest) writeField255(oprot thrift.TProtocol) (err error) {
+	if p.IsSetBase() {
+		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Base.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 255 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
+}
+
+func (p *ReinstallAddonRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ReinstallAddonRequest(%+v)", *p)
+}
+
+func (p *ReinstallAddonRequest) DeepEqual(ano *ReinstallAddonRequest) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.ClusterId) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.Name) {
+		return false
+	}
+	if !p.Field254DeepEqual(ano.Top) {
+		return false
+	}
+	if !p.Field255DeepEqual(ano.Base) {
+		return false
+	}
+	return true
+}
+
+func (p *ReinstallAddonRequest) Field1DeepEqual(src string) bool {
+
+	if strings.Compare(p.ClusterId, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *ReinstallAddonRequest) Field2DeepEqual(src string) bool {
+
+	if strings.Compare(p.Name, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *ReinstallAddonRequest) Field254DeepEqual(src *base.TopParam) bool {
+
+	if !p.Top.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+func (p *ReinstallAddonRequest) Field255DeepEqual(src *base.Base) bool {
+
+	if !p.Base.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type ReinstallAddonResponse struct {
+	Base *base.Base `thrift:"Base,255" json:"Base,omitempty"`
+}
+
+func NewReinstallAddonResponse() *ReinstallAddonResponse {
+	return &ReinstallAddonResponse{}
+}
+
+var ReinstallAddonResponse_Base_DEFAULT *base.Base
+
+func (p *ReinstallAddonResponse) GetBase() (v *base.Base) {
+	if !p.IsSetBase() {
+		return ReinstallAddonResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+func (p *ReinstallAddonResponse) SetBase(val *base.Base) {
+	p.Base = val
+}
+
+var fieldIDToName_ReinstallAddonResponse = map[int16]string{
+	255: "Base",
+}
+
+func (p *ReinstallAddonResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *ReinstallAddonResponse) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 255:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField255(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ReinstallAddonResponse[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ReinstallAddonResponse) ReadField255(iprot thrift.TProtocol) error {
+	p.Base = base.NewBase()
+	if err := p.Base.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ReinstallAddonResponse) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ReinstallAddonResponse"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField255(oprot); err != nil {
+			fieldId = 255
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ReinstallAddonResponse) writeField255(oprot thrift.TProtocol) (err error) {
+	if p.IsSetBase() {
+		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Base.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 255 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
+}
+
+func (p *ReinstallAddonResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ReinstallAddonResponse(%+v)", *p)
+}
+
+func (p *ReinstallAddonResponse) DeepEqual(ano *ReinstallAddonResponse) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field255DeepEqual(ano.Base) {
+		return false
+	}
+	return true
+}
+
+func (p *ReinstallAddonResponse) Field255DeepEqual(src *base.Base) bool {
+
+	if !p.Base.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
 type AddonConfig struct {
-	Name    string  `thrift:"Name,1,required" json:"Name"`
-	Version string  `thrift:"Version,2,required" json:"Version"`
-	Config  *string `thrift:"Config,3" json:"Config,omitempty"`
+	Name            string  `thrift:"Name,1,required" json:"Name"`
+	Version         string  `thrift:"Version,2,required" json:"Version"`
+	Config          *string `thrift:"Config,3" json:"Config,omitempty"`
+	NodeType        string  `thrift:"NodeType,4" json:"NodeType" validate:"oneof=ECS VCI" default:"ECS"`
+	AccessKeyId     string  `thrift:"AccessKeyId,5" json:"AccessKeyId,omitempty"`
+	AccessSecretKey string  `thrift:"AccessSecretKey,6" json:"AccessSecretKey,omitempty"`
 }
 
 func NewAddonConfig() *AddonConfig {
-	return &AddonConfig{}
+	return &AddonConfig{
+
+		NodeType:        "ECS",
+		AccessKeyId:     "",
+		AccessSecretKey: "",
+	}
 }
 
 func (p *AddonConfig) GetName() (v string) {
@@ -3473,6 +4193,33 @@ func (p *AddonConfig) GetConfig() (v string) {
 	}
 	return *p.Config
 }
+
+var AddonConfig_NodeType_DEFAULT string = "ECS"
+
+func (p *AddonConfig) GetNodeType() (v string) {
+	if !p.IsSetNodeType() {
+		return AddonConfig_NodeType_DEFAULT
+	}
+	return p.NodeType
+}
+
+var AddonConfig_AccessKeyId_DEFAULT string = ""
+
+func (p *AddonConfig) GetAccessKeyId() (v string) {
+	if !p.IsSetAccessKeyId() {
+		return AddonConfig_AccessKeyId_DEFAULT
+	}
+	return p.AccessKeyId
+}
+
+var AddonConfig_AccessSecretKey_DEFAULT string = ""
+
+func (p *AddonConfig) GetAccessSecretKey() (v string) {
+	if !p.IsSetAccessSecretKey() {
+		return AddonConfig_AccessSecretKey_DEFAULT
+	}
+	return p.AccessSecretKey
+}
 func (p *AddonConfig) SetName(val string) {
 	p.Name = val
 }
@@ -3482,15 +4229,39 @@ func (p *AddonConfig) SetVersion(val string) {
 func (p *AddonConfig) SetConfig(val *string) {
 	p.Config = val
 }
+func (p *AddonConfig) SetNodeType(val string) {
+	p.NodeType = val
+}
+func (p *AddonConfig) SetAccessKeyId(val string) {
+	p.AccessKeyId = val
+}
+func (p *AddonConfig) SetAccessSecretKey(val string) {
+	p.AccessSecretKey = val
+}
 
 var fieldIDToName_AddonConfig = map[int16]string{
 	1: "Name",
 	2: "Version",
 	3: "Config",
+	4: "NodeType",
+	5: "AccessKeyId",
+	6: "AccessSecretKey",
 }
 
 func (p *AddonConfig) IsSetConfig() bool {
 	return p.Config != nil
+}
+
+func (p *AddonConfig) IsSetNodeType() bool {
+	return p.NodeType != AddonConfig_NodeType_DEFAULT
+}
+
+func (p *AddonConfig) IsSetAccessKeyId() bool {
+	return p.AccessKeyId != AddonConfig_AccessKeyId_DEFAULT
+}
+
+func (p *AddonConfig) IsSetAccessSecretKey() bool {
+	return p.AccessSecretKey != AddonConfig_AccessSecretKey_DEFAULT
 }
 
 func (p *AddonConfig) Read(iprot thrift.TProtocol) (err error) {
@@ -3539,6 +4310,36 @@ func (p *AddonConfig) Read(iprot thrift.TProtocol) (err error) {
 		case 3:
 			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 4:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField4(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 5:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField5(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 6:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField6(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else {
@@ -3614,6 +4415,33 @@ func (p *AddonConfig) ReadField3(iprot thrift.TProtocol) error {
 	return nil
 }
 
+func (p *AddonConfig) ReadField4(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.NodeType = v
+	}
+	return nil
+}
+
+func (p *AddonConfig) ReadField5(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.AccessKeyId = v
+	}
+	return nil
+}
+
+func (p *AddonConfig) ReadField6(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.AccessSecretKey = v
+	}
+	return nil
+}
+
 func (p *AddonConfig) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
 	if err = oprot.WriteStructBegin("AddonConfig"); err != nil {
@@ -3630,6 +4458,18 @@ func (p *AddonConfig) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField3(oprot); err != nil {
 			fieldId = 3
+			goto WriteFieldError
+		}
+		if err = p.writeField4(oprot); err != nil {
+			fieldId = 4
+			goto WriteFieldError
+		}
+		if err = p.writeField5(oprot); err != nil {
+			fieldId = 5
+			goto WriteFieldError
+		}
+		if err = p.writeField6(oprot); err != nil {
+			fieldId = 6
 			goto WriteFieldError
 		}
 
@@ -3704,6 +4544,63 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
+func (p *AddonConfig) writeField4(oprot thrift.TProtocol) (err error) {
+	if p.IsSetNodeType() {
+		if err = oprot.WriteFieldBegin("NodeType", thrift.STRING, 4); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(p.NodeType); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
+}
+
+func (p *AddonConfig) writeField5(oprot thrift.TProtocol) (err error) {
+	if p.IsSetAccessKeyId() {
+		if err = oprot.WriteFieldBegin("AccessKeyId", thrift.STRING, 5); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(p.AccessKeyId); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 5 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
+}
+
+func (p *AddonConfig) writeField6(oprot thrift.TProtocol) (err error) {
+	if p.IsSetAccessSecretKey() {
+		if err = oprot.WriteFieldBegin("AccessSecretKey", thrift.STRING, 6); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(p.AccessSecretKey); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 6 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
+}
+
 func (p *AddonConfig) String() string {
 	if p == nil {
 		return "<nil>"
@@ -3724,6 +4621,15 @@ func (p *AddonConfig) DeepEqual(ano *AddonConfig) bool {
 		return false
 	}
 	if !p.Field3DeepEqual(ano.Config) {
+		return false
+	}
+	if !p.Field4DeepEqual(ano.NodeType) {
+		return false
+	}
+	if !p.Field5DeepEqual(ano.AccessKeyId) {
+		return false
+	}
+	if !p.Field6DeepEqual(ano.AccessSecretKey) {
 		return false
 	}
 	return true
@@ -3755,72 +4661,93 @@ func (p *AddonConfig) Field3DeepEqual(src *string) bool {
 	}
 	return true
 }
+func (p *AddonConfig) Field4DeepEqual(src string) bool {
 
-type InstallAddonRequest struct {
+	if strings.Compare(p.NodeType, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *AddonConfig) Field5DeepEqual(src string) bool {
+
+	if strings.Compare(p.AccessKeyId, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *AddonConfig) Field6DeepEqual(src string) bool {
+
+	if strings.Compare(p.AccessSecretKey, src) != 0 {
+		return false
+	}
+	return true
+}
+
+type InstallAddonsRequest struct {
 	ClusterId string         `thrift:"ClusterId,1,required" json:"ClusterId"`
 	Addons    []*AddonConfig `thrift:"Addons,2,required" json:"Addons"`
 	Top       *base.TopParam `thrift:"Top,254,required" json:"Top"`
 	Base      *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewInstallAddonRequest() *InstallAddonRequest {
-	return &InstallAddonRequest{}
+func NewInstallAddonsRequest() *InstallAddonsRequest {
+	return &InstallAddonsRequest{}
 }
 
-func (p *InstallAddonRequest) GetClusterId() (v string) {
+func (p *InstallAddonsRequest) GetClusterId() (v string) {
 	return p.ClusterId
 }
 
-func (p *InstallAddonRequest) GetAddons() (v []*AddonConfig) {
+func (p *InstallAddonsRequest) GetAddons() (v []*AddonConfig) {
 	return p.Addons
 }
 
-var InstallAddonRequest_Top_DEFAULT *base.TopParam
+var InstallAddonsRequest_Top_DEFAULT *base.TopParam
 
-func (p *InstallAddonRequest) GetTop() (v *base.TopParam) {
+func (p *InstallAddonsRequest) GetTop() (v *base.TopParam) {
 	if !p.IsSetTop() {
-		return InstallAddonRequest_Top_DEFAULT
+		return InstallAddonsRequest_Top_DEFAULT
 	}
 	return p.Top
 }
 
-var InstallAddonRequest_Base_DEFAULT *base.Base
+var InstallAddonsRequest_Base_DEFAULT *base.Base
 
-func (p *InstallAddonRequest) GetBase() (v *base.Base) {
+func (p *InstallAddonsRequest) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return InstallAddonRequest_Base_DEFAULT
+		return InstallAddonsRequest_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *InstallAddonRequest) SetClusterId(val string) {
+func (p *InstallAddonsRequest) SetClusterId(val string) {
 	p.ClusterId = val
 }
-func (p *InstallAddonRequest) SetAddons(val []*AddonConfig) {
+func (p *InstallAddonsRequest) SetAddons(val []*AddonConfig) {
 	p.Addons = val
 }
-func (p *InstallAddonRequest) SetTop(val *base.TopParam) {
+func (p *InstallAddonsRequest) SetTop(val *base.TopParam) {
 	p.Top = val
 }
-func (p *InstallAddonRequest) SetBase(val *base.Base) {
+func (p *InstallAddonsRequest) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_InstallAddonRequest = map[int16]string{
+var fieldIDToName_InstallAddonsRequest = map[int16]string{
 	1:   "ClusterId",
 	2:   "Addons",
 	254: "Top",
 	255: "Base",
 }
 
-func (p *InstallAddonRequest) IsSetTop() bool {
+func (p *InstallAddonsRequest) IsSetTop() bool {
 	return p.Top != nil
 }
 
-func (p *InstallAddonRequest) IsSetBase() bool {
+func (p *InstallAddonsRequest) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *InstallAddonRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *InstallAddonsRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -3919,7 +4846,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_InstallAddonRequest[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_InstallAddonsRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -3928,10 +4855,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_InstallAddonRequest[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_InstallAddonsRequest[fieldId]))
 }
 
-func (p *InstallAddonRequest) ReadField1(iprot thrift.TProtocol) error {
+func (p *InstallAddonsRequest) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -3940,7 +4867,7 @@ func (p *InstallAddonRequest) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *InstallAddonRequest) ReadField2(iprot thrift.TProtocol) error {
+func (p *InstallAddonsRequest) ReadField2(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
@@ -3960,7 +4887,7 @@ func (p *InstallAddonRequest) ReadField2(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *InstallAddonRequest) ReadField254(iprot thrift.TProtocol) error {
+func (p *InstallAddonsRequest) ReadField254(iprot thrift.TProtocol) error {
 	p.Top = base.NewTopParam()
 	if err := p.Top.Read(iprot); err != nil {
 		return err
@@ -3968,7 +4895,7 @@ func (p *InstallAddonRequest) ReadField254(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *InstallAddonRequest) ReadField255(iprot thrift.TProtocol) error {
+func (p *InstallAddonsRequest) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -3976,9 +4903,9 @@ func (p *InstallAddonRequest) ReadField255(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *InstallAddonRequest) Write(oprot thrift.TProtocol) (err error) {
+func (p *InstallAddonsRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("InstallAddonRequest"); err != nil {
+	if err = oprot.WriteStructBegin("InstallAddonsRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -4017,7 +4944,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *InstallAddonRequest) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *InstallAddonsRequest) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("ClusterId", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -4034,7 +4961,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *InstallAddonRequest) writeField2(oprot thrift.TProtocol) (err error) {
+func (p *InstallAddonsRequest) writeField2(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Addons", thrift.LIST, 2); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -4059,7 +4986,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *InstallAddonRequest) writeField254(oprot thrift.TProtocol) (err error) {
+func (p *InstallAddonsRequest) writeField254(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Top", thrift.STRUCT, 254); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -4076,7 +5003,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 254 end error: ", p), err)
 }
 
-func (p *InstallAddonRequest) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *InstallAddonsRequest) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -4095,14 +5022,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *InstallAddonRequest) String() string {
+func (p *InstallAddonsRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("InstallAddonRequest(%+v)", *p)
+	return fmt.Sprintf("InstallAddonsRequest(%+v)", *p)
 }
 
-func (p *InstallAddonRequest) DeepEqual(ano *InstallAddonRequest) bool {
+func (p *InstallAddonsRequest) DeepEqual(ano *InstallAddonsRequest) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -4123,14 +5050,14 @@ func (p *InstallAddonRequest) DeepEqual(ano *InstallAddonRequest) bool {
 	return true
 }
 
-func (p *InstallAddonRequest) Field1DeepEqual(src string) bool {
+func (p *InstallAddonsRequest) Field1DeepEqual(src string) bool {
 
 	if strings.Compare(p.ClusterId, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *InstallAddonRequest) Field2DeepEqual(src []*AddonConfig) bool {
+func (p *InstallAddonsRequest) Field2DeepEqual(src []*AddonConfig) bool {
 
 	if len(p.Addons) != len(src) {
 		return false
@@ -4143,14 +5070,14 @@ func (p *InstallAddonRequest) Field2DeepEqual(src []*AddonConfig) bool {
 	}
 	return true
 }
-func (p *InstallAddonRequest) Field254DeepEqual(src *base.TopParam) bool {
+func (p *InstallAddonsRequest) Field254DeepEqual(src *base.TopParam) bool {
 
 	if !p.Top.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *InstallAddonRequest) Field255DeepEqual(src *base.Base) bool {
+func (p *InstallAddonsRequest) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -4158,35 +5085,35 @@ func (p *InstallAddonRequest) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
-type InstallAddonResponse struct {
+type InstallAddonsResponse struct {
 	Base *base.Base `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewInstallAddonResponse() *InstallAddonResponse {
-	return &InstallAddonResponse{}
+func NewInstallAddonsResponse() *InstallAddonsResponse {
+	return &InstallAddonsResponse{}
 }
 
-var InstallAddonResponse_Base_DEFAULT *base.Base
+var InstallAddonsResponse_Base_DEFAULT *base.Base
 
-func (p *InstallAddonResponse) GetBase() (v *base.Base) {
+func (p *InstallAddonsResponse) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return InstallAddonResponse_Base_DEFAULT
+		return InstallAddonsResponse_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *InstallAddonResponse) SetBase(val *base.Base) {
+func (p *InstallAddonsResponse) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_InstallAddonResponse = map[int16]string{
+var fieldIDToName_InstallAddonsResponse = map[int16]string{
 	255: "Base",
 }
 
-func (p *InstallAddonResponse) IsSetBase() bool {
+func (p *InstallAddonsResponse) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *InstallAddonResponse) Read(iprot thrift.TProtocol) (err error) {
+func (p *InstallAddonsResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -4235,7 +5162,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_InstallAddonResponse[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_InstallAddonsResponse[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -4245,7 +5172,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *InstallAddonResponse) ReadField255(iprot thrift.TProtocol) error {
+func (p *InstallAddonsResponse) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -4253,9 +5180,9 @@ func (p *InstallAddonResponse) ReadField255(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *InstallAddonResponse) Write(oprot thrift.TProtocol) (err error) {
+func (p *InstallAddonsResponse) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("InstallAddonResponse"); err != nil {
+	if err = oprot.WriteStructBegin("InstallAddonsResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -4282,7 +5209,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *InstallAddonResponse) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *InstallAddonsResponse) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -4301,14 +5228,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *InstallAddonResponse) String() string {
+func (p *InstallAddonsResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("InstallAddonResponse(%+v)", *p)
+	return fmt.Sprintf("InstallAddonsResponse(%+v)", *p)
 }
 
-func (p *InstallAddonResponse) DeepEqual(ano *InstallAddonResponse) bool {
+func (p *InstallAddonsResponse) DeepEqual(ano *InstallAddonsResponse) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -4320,7 +5247,7 @@ func (p *InstallAddonResponse) DeepEqual(ano *InstallAddonResponse) bool {
 	return true
 }
 
-func (p *InstallAddonResponse) Field255DeepEqual(src *base.Base) bool {
+func (p *InstallAddonsResponse) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -4328,76 +5255,363 @@ func (p *InstallAddonResponse) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
-type UninstallAddonRequest struct {
-	ClusterId string         `thrift:"ClusterId,1,required" json:"ClusterId"`
-	Addons    []string       `thrift:"Addons,2,required" json:"Addons"`
-	Top       *base.TopParam `thrift:"Top,254,required" json:"Top"`
-	Base      *base.Base     `thrift:"Base,255" json:"Base,omitempty"`
+type UninstallAddonConfig struct {
+	Name                     string   `thrift:"Name,1,required" json:"Name"`
+	CascadingDeleteResources []string `thrift:"CascadingDeleteResources,2,required" json:"CascadingDeleteResources"`
 }
 
-func NewUninstallAddonRequest() *UninstallAddonRequest {
-	return &UninstallAddonRequest{}
+func NewUninstallAddonConfig() *UninstallAddonConfig {
+	return &UninstallAddonConfig{}
 }
 
-func (p *UninstallAddonRequest) GetClusterId() (v string) {
+func (p *UninstallAddonConfig) GetName() (v string) {
+	return p.Name
+}
+
+func (p *UninstallAddonConfig) GetCascadingDeleteResources() (v []string) {
+	return p.CascadingDeleteResources
+}
+func (p *UninstallAddonConfig) SetName(val string) {
+	p.Name = val
+}
+func (p *UninstallAddonConfig) SetCascadingDeleteResources(val []string) {
+	p.CascadingDeleteResources = val
+}
+
+var fieldIDToName_UninstallAddonConfig = map[int16]string{
+	1: "Name",
+	2: "CascadingDeleteResources",
+}
+
+func (p *UninstallAddonConfig) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	var issetName bool = false
+	var issetCascadingDeleteResources bool = false
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetName = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 2:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetCascadingDeleteResources = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	if !issetName {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetCascadingDeleteResources {
+		fieldId = 2
+		goto RequiredFieldNotSetError
+	}
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UninstallAddonConfig[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_UninstallAddonConfig[fieldId]))
+}
+
+func (p *UninstallAddonConfig) ReadField1(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.Name = v
+	}
+	return nil
+}
+
+func (p *UninstallAddonConfig) ReadField2(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.CascadingDeleteResources = make([]string, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		p.CascadingDeleteResources = append(p.CascadingDeleteResources, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *UninstallAddonConfig) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("UninstallAddonConfig"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *UninstallAddonConfig) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("Name", thrift.STRING, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Name); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *UninstallAddonConfig) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("CascadingDeleteResources", thrift.LIST, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteListBegin(thrift.STRING, len(p.CascadingDeleteResources)); err != nil {
+		return err
+	}
+	for _, v := range p.CascadingDeleteResources {
+		if err := oprot.WriteString(v); err != nil {
+			return err
+		}
+	}
+	if err := oprot.WriteListEnd(); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *UninstallAddonConfig) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UninstallAddonConfig(%+v)", *p)
+}
+
+func (p *UninstallAddonConfig) DeepEqual(ano *UninstallAddonConfig) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Name) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.CascadingDeleteResources) {
+		return false
+	}
+	return true
+}
+
+func (p *UninstallAddonConfig) Field1DeepEqual(src string) bool {
+
+	if strings.Compare(p.Name, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *UninstallAddonConfig) Field2DeepEqual(src []string) bool {
+
+	if len(p.CascadingDeleteResources) != len(src) {
+		return false
+	}
+	for i, v := range p.CascadingDeleteResources {
+		_src := src[i]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
+	}
+	return true
+}
+
+type UninstallAddonsRequest struct {
+	ClusterId       string                  `thrift:"ClusterId,1,required" json:"ClusterId"`
+	Addons          []string                `thrift:"Addons,2" json:"Addons,omitempty"`
+	UninstallAddons []*UninstallAddonConfig `thrift:"UninstallAddons,3" json:"UninstallAddons,omitempty"`
+	Top             *base.TopParam          `thrift:"Top,254,required" json:"Top"`
+	Base            *base.Base              `thrift:"Base,255" json:"Base,omitempty"`
+}
+
+func NewUninstallAddonsRequest() *UninstallAddonsRequest {
+	return &UninstallAddonsRequest{}
+}
+
+func (p *UninstallAddonsRequest) GetClusterId() (v string) {
 	return p.ClusterId
 }
 
-func (p *UninstallAddonRequest) GetAddons() (v []string) {
+var UninstallAddonsRequest_Addons_DEFAULT []string
+
+func (p *UninstallAddonsRequest) GetAddons() (v []string) {
+	if !p.IsSetAddons() {
+		return UninstallAddonsRequest_Addons_DEFAULT
+	}
 	return p.Addons
 }
 
-var UninstallAddonRequest_Top_DEFAULT *base.TopParam
+var UninstallAddonsRequest_UninstallAddons_DEFAULT []*UninstallAddonConfig
 
-func (p *UninstallAddonRequest) GetTop() (v *base.TopParam) {
+func (p *UninstallAddonsRequest) GetUninstallAddons() (v []*UninstallAddonConfig) {
+	if !p.IsSetUninstallAddons() {
+		return UninstallAddonsRequest_UninstallAddons_DEFAULT
+	}
+	return p.UninstallAddons
+}
+
+var UninstallAddonsRequest_Top_DEFAULT *base.TopParam
+
+func (p *UninstallAddonsRequest) GetTop() (v *base.TopParam) {
 	if !p.IsSetTop() {
-		return UninstallAddonRequest_Top_DEFAULT
+		return UninstallAddonsRequest_Top_DEFAULT
 	}
 	return p.Top
 }
 
-var UninstallAddonRequest_Base_DEFAULT *base.Base
+var UninstallAddonsRequest_Base_DEFAULT *base.Base
 
-func (p *UninstallAddonRequest) GetBase() (v *base.Base) {
+func (p *UninstallAddonsRequest) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return UninstallAddonRequest_Base_DEFAULT
+		return UninstallAddonsRequest_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *UninstallAddonRequest) SetClusterId(val string) {
+func (p *UninstallAddonsRequest) SetClusterId(val string) {
 	p.ClusterId = val
 }
-func (p *UninstallAddonRequest) SetAddons(val []string) {
+func (p *UninstallAddonsRequest) SetAddons(val []string) {
 	p.Addons = val
 }
-func (p *UninstallAddonRequest) SetTop(val *base.TopParam) {
+func (p *UninstallAddonsRequest) SetUninstallAddons(val []*UninstallAddonConfig) {
+	p.UninstallAddons = val
+}
+func (p *UninstallAddonsRequest) SetTop(val *base.TopParam) {
 	p.Top = val
 }
-func (p *UninstallAddonRequest) SetBase(val *base.Base) {
+func (p *UninstallAddonsRequest) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_UninstallAddonRequest = map[int16]string{
+var fieldIDToName_UninstallAddonsRequest = map[int16]string{
 	1:   "ClusterId",
 	2:   "Addons",
+	3:   "UninstallAddons",
 	254: "Top",
 	255: "Base",
 }
 
-func (p *UninstallAddonRequest) IsSetTop() bool {
+func (p *UninstallAddonsRequest) IsSetAddons() bool {
+	return p.Addons != nil
+}
+
+func (p *UninstallAddonsRequest) IsSetUninstallAddons() bool {
+	return p.UninstallAddons != nil
+}
+
+func (p *UninstallAddonsRequest) IsSetTop() bool {
 	return p.Top != nil
 }
 
-func (p *UninstallAddonRequest) IsSetBase() bool {
+func (p *UninstallAddonsRequest) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *UninstallAddonRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *UninstallAddonsRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetClusterId bool = false
-	var issetAddons bool = false
 	var issetTop bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
@@ -4430,7 +5644,16 @@ func (p *UninstallAddonRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetAddons = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 3:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -4476,11 +5699,6 @@ func (p *UninstallAddonRequest) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetAddons {
-		fieldId = 2
-		goto RequiredFieldNotSetError
-	}
-
 	if !issetTop {
 		fieldId = 254
 		goto RequiredFieldNotSetError
@@ -4491,7 +5709,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UninstallAddonRequest[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UninstallAddonsRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -4500,10 +5718,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_UninstallAddonRequest[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("Required field %s is not set", fieldIDToName_UninstallAddonsRequest[fieldId]))
 }
 
-func (p *UninstallAddonRequest) ReadField1(iprot thrift.TProtocol) error {
+func (p *UninstallAddonsRequest) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -4512,7 +5730,7 @@ func (p *UninstallAddonRequest) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UninstallAddonRequest) ReadField2(iprot thrift.TProtocol) error {
+func (p *UninstallAddonsRequest) ReadField2(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
@@ -4534,7 +5752,27 @@ func (p *UninstallAddonRequest) ReadField2(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UninstallAddonRequest) ReadField254(iprot thrift.TProtocol) error {
+func (p *UninstallAddonsRequest) ReadField3(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.UninstallAddons = make([]*UninstallAddonConfig, 0, size)
+	for i := 0; i < size; i++ {
+		_elem := NewUninstallAddonConfig()
+		if err := _elem.Read(iprot); err != nil {
+			return err
+		}
+
+		p.UninstallAddons = append(p.UninstallAddons, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *UninstallAddonsRequest) ReadField254(iprot thrift.TProtocol) error {
 	p.Top = base.NewTopParam()
 	if err := p.Top.Read(iprot); err != nil {
 		return err
@@ -4542,7 +5780,7 @@ func (p *UninstallAddonRequest) ReadField254(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UninstallAddonRequest) ReadField255(iprot thrift.TProtocol) error {
+func (p *UninstallAddonsRequest) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -4550,9 +5788,9 @@ func (p *UninstallAddonRequest) ReadField255(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UninstallAddonRequest) Write(oprot thrift.TProtocol) (err error) {
+func (p *UninstallAddonsRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("UninstallAddonRequest"); err != nil {
+	if err = oprot.WriteStructBegin("UninstallAddonsRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -4562,6 +5800,10 @@ func (p *UninstallAddonRequest) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField2(oprot); err != nil {
 			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
 			goto WriteFieldError
 		}
 		if err = p.writeField254(oprot); err != nil {
@@ -4591,7 +5833,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UninstallAddonRequest) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *UninstallAddonsRequest) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("ClusterId", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -4608,23 +5850,25 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *UninstallAddonRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("Addons", thrift.LIST, 2); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteListBegin(thrift.STRING, len(p.Addons)); err != nil {
-		return err
-	}
-	for _, v := range p.Addons {
-		if err := oprot.WriteString(v); err != nil {
+func (p *UninstallAddonsRequest) writeField2(oprot thrift.TProtocol) (err error) {
+	if p.IsSetAddons() {
+		if err = oprot.WriteFieldBegin("Addons", thrift.LIST, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRING, len(p.Addons)); err != nil {
 			return err
 		}
-	}
-	if err := oprot.WriteListEnd(); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+		for _, v := range p.Addons {
+			if err := oprot.WriteString(v); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:
@@ -4633,7 +5877,34 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *UninstallAddonRequest) writeField254(oprot thrift.TProtocol) (err error) {
+func (p *UninstallAddonsRequest) writeField3(oprot thrift.TProtocol) (err error) {
+	if p.IsSetUninstallAddons() {
+		if err = oprot.WriteFieldBegin("UninstallAddons", thrift.LIST, 3); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRUCT, len(p.UninstallAddons)); err != nil {
+			return err
+		}
+		for _, v := range p.UninstallAddons {
+			if err := v.Write(oprot); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
+}
+
+func (p *UninstallAddonsRequest) writeField254(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("Top", thrift.STRUCT, 254); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -4650,7 +5921,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 254 end error: ", p), err)
 }
 
-func (p *UninstallAddonRequest) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *UninstallAddonsRequest) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -4669,14 +5940,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *UninstallAddonRequest) String() string {
+func (p *UninstallAddonsRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UninstallAddonRequest(%+v)", *p)
+	return fmt.Sprintf("UninstallAddonsRequest(%+v)", *p)
 }
 
-func (p *UninstallAddonRequest) DeepEqual(ano *UninstallAddonRequest) bool {
+func (p *UninstallAddonsRequest) DeepEqual(ano *UninstallAddonsRequest) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -4688,6 +5959,9 @@ func (p *UninstallAddonRequest) DeepEqual(ano *UninstallAddonRequest) bool {
 	if !p.Field2DeepEqual(ano.Addons) {
 		return false
 	}
+	if !p.Field3DeepEqual(ano.UninstallAddons) {
+		return false
+	}
 	if !p.Field254DeepEqual(ano.Top) {
 		return false
 	}
@@ -4697,14 +5971,14 @@ func (p *UninstallAddonRequest) DeepEqual(ano *UninstallAddonRequest) bool {
 	return true
 }
 
-func (p *UninstallAddonRequest) Field1DeepEqual(src string) bool {
+func (p *UninstallAddonsRequest) Field1DeepEqual(src string) bool {
 
 	if strings.Compare(p.ClusterId, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *UninstallAddonRequest) Field2DeepEqual(src []string) bool {
+func (p *UninstallAddonsRequest) Field2DeepEqual(src []string) bool {
 
 	if len(p.Addons) != len(src) {
 		return false
@@ -4717,14 +5991,27 @@ func (p *UninstallAddonRequest) Field2DeepEqual(src []string) bool {
 	}
 	return true
 }
-func (p *UninstallAddonRequest) Field254DeepEqual(src *base.TopParam) bool {
+func (p *UninstallAddonsRequest) Field3DeepEqual(src []*UninstallAddonConfig) bool {
+
+	if len(p.UninstallAddons) != len(src) {
+		return false
+	}
+	for i, v := range p.UninstallAddons {
+		_src := src[i]
+		if !v.DeepEqual(_src) {
+			return false
+		}
+	}
+	return true
+}
+func (p *UninstallAddonsRequest) Field254DeepEqual(src *base.TopParam) bool {
 
 	if !p.Top.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *UninstallAddonRequest) Field255DeepEqual(src *base.Base) bool {
+func (p *UninstallAddonsRequest) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
@@ -4732,35 +6019,35 @@ func (p *UninstallAddonRequest) Field255DeepEqual(src *base.Base) bool {
 	return true
 }
 
-type UninstallAddonResponse struct {
+type UninstallAddonsResponse struct {
 	Base *base.Base `thrift:"Base,255" json:"Base,omitempty"`
 }
 
-func NewUninstallAddonResponse() *UninstallAddonResponse {
-	return &UninstallAddonResponse{}
+func NewUninstallAddonsResponse() *UninstallAddonsResponse {
+	return &UninstallAddonsResponse{}
 }
 
-var UninstallAddonResponse_Base_DEFAULT *base.Base
+var UninstallAddonsResponse_Base_DEFAULT *base.Base
 
-func (p *UninstallAddonResponse) GetBase() (v *base.Base) {
+func (p *UninstallAddonsResponse) GetBase() (v *base.Base) {
 	if !p.IsSetBase() {
-		return UninstallAddonResponse_Base_DEFAULT
+		return UninstallAddonsResponse_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *UninstallAddonResponse) SetBase(val *base.Base) {
+func (p *UninstallAddonsResponse) SetBase(val *base.Base) {
 	p.Base = val
 }
 
-var fieldIDToName_UninstallAddonResponse = map[int16]string{
+var fieldIDToName_UninstallAddonsResponse = map[int16]string{
 	255: "Base",
 }
 
-func (p *UninstallAddonResponse) IsSetBase() bool {
+func (p *UninstallAddonsResponse) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *UninstallAddonResponse) Read(iprot thrift.TProtocol) (err error) {
+func (p *UninstallAddonsResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -4809,7 +6096,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UninstallAddonResponse[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UninstallAddonsResponse[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -4819,7 +6106,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *UninstallAddonResponse) ReadField255(iprot thrift.TProtocol) error {
+func (p *UninstallAddonsResponse) ReadField255(iprot thrift.TProtocol) error {
 	p.Base = base.NewBase()
 	if err := p.Base.Read(iprot); err != nil {
 		return err
@@ -4827,9 +6114,9 @@ func (p *UninstallAddonResponse) ReadField255(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UninstallAddonResponse) Write(oprot thrift.TProtocol) (err error) {
+func (p *UninstallAddonsResponse) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("UninstallAddonResponse"); err != nil {
+	if err = oprot.WriteStructBegin("UninstallAddonsResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -4856,7 +6143,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UninstallAddonResponse) writeField255(oprot thrift.TProtocol) (err error) {
+func (p *UninstallAddonsResponse) writeField255(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBase() {
 		if err = oprot.WriteFieldBegin("Base", thrift.STRUCT, 255); err != nil {
 			goto WriteFieldBeginError
@@ -4875,14 +6162,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
 }
 
-func (p *UninstallAddonResponse) String() string {
+func (p *UninstallAddonsResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UninstallAddonResponse(%+v)", *p)
+	return fmt.Sprintf("UninstallAddonsResponse(%+v)", *p)
 }
 
-func (p *UninstallAddonResponse) DeepEqual(ano *UninstallAddonResponse) bool {
+func (p *UninstallAddonsResponse) DeepEqual(ano *UninstallAddonsResponse) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -4894,7 +6181,7 @@ func (p *UninstallAddonResponse) DeepEqual(ano *UninstallAddonResponse) bool {
 	return true
 }
 
-func (p *UninstallAddonResponse) Field255DeepEqual(src *base.Base) bool {
+func (p *UninstallAddonsResponse) Field255DeepEqual(src *base.Base) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false

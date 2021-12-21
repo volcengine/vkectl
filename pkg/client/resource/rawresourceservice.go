@@ -13,9 +13,12 @@ import (
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/instance"
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/network"
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/overview"
+	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/publicverify"
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/quota"
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/rbac"
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/storage"
+	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/trade"
+	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/vci"
 	"github.com/volcengine/vkectl/pkg/model/resource/kitex_gen/vpc"
 )
 
@@ -51,16 +54,23 @@ func (p *ResourceserviceRawApi) GetKubeConfig(body string, query url.Values) (r 
 	return r, statusCode, err
 }
 
-func (p *ResourceserviceRawApi) RevokeKubeConfig(body string, query url.Values) (r *cluster.RevokeKubeConfigResponse, statusCode int, err error) {
-	action := "RevokeKubeConfig"
-	r = &cluster.RevokeKubeConfigResponse{}
+func (p *ResourceserviceRawApi) GetKubeconfig(body string, query url.Values) (r *cluster.GetKubeconfigResponse, statusCode int, err error) {
+	action := "GetKubeconfig"
+	r = &cluster.GetKubeconfigResponse{}
 	statusCode, err = p.Client.CommonHandler(action, query, body, r)
 	return r, statusCode, err
 }
 
-func (p *ResourceserviceRawApi) ListKubeConfig(body string, query url.Values) (r *cluster.ListKubeConfigResponse, statusCode int, err error) {
-	action := "ListKubeConfig"
-	r = &cluster.ListKubeConfigResponse{}
+func (p *ResourceserviceRawApi) RevokeKubeconfig(body string, query url.Values) (r *cluster.RevokeKubeconfigResponse, statusCode int, err error) {
+	action := "RevokeKubeconfig"
+	r = &cluster.RevokeKubeconfigResponse{}
+	statusCode, err = p.Client.CommonHandler(action, query, body, r)
+	return r, statusCode, err
+}
+
+func (p *ResourceserviceRawApi) ListKubeconfigUsers(body string, query url.Values) (r *cluster.ListKubeconfigUsersResponse, statusCode int, err error) {
+	action := "ListKubeconfigUsers"
+	r = &cluster.ListKubeconfigUsersResponse{}
 	statusCode, err = p.Client.CommonHandler(action, query, body, r)
 	return r, statusCode, err
 }
@@ -107,9 +117,9 @@ func (p *ResourceserviceRawApi) GetCluster(body string, query url.Values) (r *cl
 	return r, statusCode, err
 }
 
-func (p *ResourceserviceRawApi) ListCluster(body string, query url.Values) (r *cluster.ListClusterResponse, statusCode int, err error) {
-	action := "ListCluster"
-	r = &cluster.ListClusterResponse{}
+func (p *ResourceserviceRawApi) ListClusters(body string, query url.Values) (r *cluster.ListClustersResponse, statusCode int, err error) {
+	action := "ListClusters"
+	r = &cluster.ListClustersResponse{}
 	statusCode, err = p.Client.CommonHandler(action, query, body, r)
 	return r, statusCode, err
 }
@@ -121,100 +131,100 @@ func (p *ResourceserviceRawApi) GetClusterDeployProgress(body string, query url.
 	return r, statusCode, err
 }
 
-func (p *ResourceserviceRawApi) ListClusterKubernetesVersion(body string, query url.Values) (r *cluster.ListClusterKubernetesVersionResponse, statusCode int, err error) {
-	action := "ListClusterKubernetesVersion"
-	r = &cluster.ListClusterKubernetesVersionResponse{}
+func (p *ResourceserviceRawApi) ListSupportedKubernetesVersions(body string, query url.Values) (r *cluster.ListSupportedKubernetesVersionsResponse, statusCode int, err error) {
+	action := "ListSupportedKubernetesVersions"
+	r = &cluster.ListSupportedKubernetesVersionsResponse{}
 	statusCode, err = p.Client.CommonHandler(action, query, body, r)
 	return r, statusCode, err
 }
 
-func (p *ResourceserviceRawApi) ListClusterNetworkCidr(body string, query url.Values) (r *cluster.ListClusterNetworkCidrResponse, statusCode int, err error) {
-	action := "ListClusterNetworkCidr"
-	r = &cluster.ListClusterNetworkCidrResponse{}
+func (p *ResourceserviceRawApi) ListClusterNetworkCidrs(body string, query url.Values) (r *cluster.ListClusterNetworkCidrsResponse, statusCode int, err error) {
+	action := "ListClusterNetworkCidrs"
+	r = &cluster.ListClusterNetworkCidrsResponse{}
 	statusCode, err = p.Client.CommonHandler(action, query, body, r)
 	return r, statusCode, err
 }
 
-func (p *ResourceserviceRawApi) ListSupportGpuModel(body string, query url.Values) (r *cluster.ListSupportGpuModelResponse, statusCode int, err error) {
-	action := "ListSupportGpuModel"
-	r = &cluster.ListSupportGpuModelResponse{}
+func (p *ResourceserviceRawApi) ListSupportedGpuModels(body string, query url.Values) (r *cluster.ListSupportedGpuModelsResponse, statusCode int, err error) {
+	action := "ListSupportedGpuModels"
+	r = &cluster.ListSupportedGpuModelsResponse{}
 	statusCode, err = p.Client.CommonHandler(action, query, body, r)
 	return r, statusCode, err
 }
 
-func (p *ResourceserviceRawApi) ListClusterNode(body string, query url.Values) (r *cluster.ListClusterNodeResponse, statusCode int, err error) {
-	action := "ListClusterNode"
-	r = &cluster.ListClusterNodeResponse{}
+func (p *ResourceserviceRawApi) ListNodes(body string, query url.Values) (r *cluster.ListNodesResponse, statusCode int, err error) {
+	action := "ListNodes"
+	r = &cluster.ListNodesResponse{}
 	statusCode, err = p.Client.CommonHandler(action, query, body, r)
 	return r, statusCode, err
 }
 
-func (p *ResourceserviceRawApi) AddClusterNode(body string, query url.Values) (r *cluster.AddClusterNodeResponse, statusCode int, err error) {
-	action := "AddClusterNode"
-	r = &cluster.AddClusterNodeResponse{}
+func (p *ResourceserviceRawApi) AddNodes(body string, query url.Values) (r *cluster.AddNodesResponse, statusCode int, err error) {
+	action := "AddNodes"
+	r = &cluster.AddNodesResponse{}
 	statusCode, err = p.Client.CommonHandler(action, query, body, r)
 	return r, statusCode, err
 }
 
-func (p *ResourceserviceRawApi) GetClusterNode(body string, query url.Values) (r *cluster.GetClusterNodeResponse, statusCode int, err error) {
-	action := "GetClusterNode"
-	r = &cluster.GetClusterNodeResponse{}
+func (p *ResourceserviceRawApi) GetNode(body string, query url.Values) (r *cluster.GetNodeResponse, statusCode int, err error) {
+	action := "GetNode"
+	r = &cluster.GetNodeResponse{}
 	statusCode, err = p.Client.CommonHandler(action, query, body, r)
 	return r, statusCode, err
 }
 
-func (p *ResourceserviceRawApi) DeleteClusterNode(body string, query url.Values) (r *cluster.DeleteClusterNodeResponse, statusCode int, err error) {
-	action := "DeleteClusterNode"
-	r = &cluster.DeleteClusterNodeResponse{}
+func (p *ResourceserviceRawApi) DeleteNodes(body string, query url.Values) (r *cluster.DeleteNodesResponse, statusCode int, err error) {
+	action := "DeleteNodes"
+	r = &cluster.DeleteNodesResponse{}
 	statusCode, err = p.Client.CommonHandler(action, query, body, r)
 	return r, statusCode, err
 }
 
-func (p *ResourceserviceRawApi) ListClusterNodeLabel(body string, query url.Values) (r *cluster.ListClusterNodeLabelResponse, statusCode int, err error) {
-	action := "ListClusterNodeLabel"
-	r = &cluster.ListClusterNodeLabelResponse{}
+func (p *ResourceserviceRawApi) ListNodeLabels(body string, query url.Values) (r *cluster.ListNodeLabelsResponse, statusCode int, err error) {
+	action := "ListNodeLabels"
+	r = &cluster.ListNodeLabelsResponse{}
 	statusCode, err = p.Client.CommonHandler(action, query, body, r)
 	return r, statusCode, err
 }
 
-func (p *ResourceserviceRawApi) UpdateClusterNode(body string, query url.Values) (r *cluster.UpdateClusterNodeResponse, statusCode int, err error) {
-	action := "UpdateClusterNode"
-	r = &cluster.UpdateClusterNodeResponse{}
+func (p *ResourceserviceRawApi) UpdateNode(body string, query url.Values) (r *cluster.UpdateNodeResponse, statusCode int, err error) {
+	action := "UpdateNode"
+	r = &cluster.UpdateNodeResponse{}
 	statusCode, err = p.Client.CommonHandler(action, query, body, r)
 	return r, statusCode, err
 }
 
-func (p *ResourceserviceRawApi) GetAutoScalingRule(body string, query url.Values) (r *cluster.GetAutoScalingRuleResponse, statusCode int, err error) {
-	action := "GetAutoScalingRule"
-	r = &cluster.GetAutoScalingRuleResponse{}
+func (p *ResourceserviceRawApi) GetClusterAutoScalingRule(body string, query url.Values) (r *cluster.GetClusterAutoScalingRuleResponse, statusCode int, err error) {
+	action := "GetClusterAutoScalingRule"
+	r = &cluster.GetClusterAutoScalingRuleResponse{}
 	statusCode, err = p.Client.CommonHandler(action, query, body, r)
 	return r, statusCode, err
 }
 
-func (p *ResourceserviceRawApi) UpdateAutoScalingRule(body string, query url.Values) (r *cluster.UpdateAutoScalingRuleResponse, statusCode int, err error) {
-	action := "UpdateAutoScalingRule"
-	r = &cluster.UpdateAutoScalingRuleResponse{}
+func (p *ResourceserviceRawApi) UpdateClusterAutoScalingRule(body string, query url.Values) (r *cluster.UpdateClusterAutoScalingRuleResponse, statusCode int, err error) {
+	action := "UpdateClusterAutoScalingRule"
+	r = &cluster.UpdateClusterAutoScalingRuleResponse{}
 	statusCode, err = p.Client.CommonHandler(action, query, body, r)
 	return r, statusCode, err
 }
 
-func (p *ResourceserviceRawApi) NodePoolScaleUp(body string, query url.Values) (r *cluster.NodePoolScaleUpResponse, statusCode int, err error) {
-	action := "NodePoolScaleUp"
-	r = &cluster.NodePoolScaleUpResponse{}
+func (p *ResourceserviceRawApi) ScaleUpNodePool(body string, query url.Values) (r *cluster.ScaleUpNodePoolResponse, statusCode int, err error) {
+	action := "ScaleUpNodePool"
+	r = &cluster.ScaleUpNodePoolResponse{}
 	statusCode, err = p.Client.CommonHandler(action, query, body, r)
 	return r, statusCode, err
 }
 
-func (p *ResourceserviceRawApi) NodePoolScaleDown(body string, query url.Values) (r *cluster.NodePoolScaleDownResponse, statusCode int, err error) {
-	action := "NodePoolScaleDown"
-	r = &cluster.NodePoolScaleDownResponse{}
+func (p *ResourceserviceRawApi) ScaleDownNodePool(body string, query url.Values) (r *cluster.ScaleDownNodePoolResponse, statusCode int, err error) {
+	action := "ScaleDownNodePool"
+	r = &cluster.ScaleDownNodePoolResponse{}
 	statusCode, err = p.Client.CommonHandler(action, query, body, r)
 	return r, statusCode, err
 }
 
-func (p *ResourceserviceRawApi) ListNodePool(body string, query url.Values) (r *cluster.ListNodePoolResponse, statusCode int, err error) {
-	action := "ListNodePool"
-	r = &cluster.ListNodePoolResponse{}
+func (p *ResourceserviceRawApi) ListNodePools(body string, query url.Values) (r *cluster.ListNodePoolsResponse, statusCode int, err error) {
+	action := "ListNodePools"
+	r = &cluster.ListNodePoolsResponse{}
 	statusCode, err = p.Client.CommonHandler(action, query, body, r)
 	return r, statusCode, err
 }
@@ -247,16 +257,16 @@ func (p *ResourceserviceRawApi) DeleteNodePool(body string, query url.Values) (r
 	return r, statusCode, err
 }
 
-func (p *ResourceserviceRawApi) ListNodePoolScalingRecords(body string, query url.Values) (r *cluster.ListNodePoolScalingRecordResponse, statusCode int, err error) {
+func (p *ResourceserviceRawApi) ListNodePoolScalingRecords(body string, query url.Values) (r *cluster.ListNodePoolScalingRecordsResponse, statusCode int, err error) {
 	action := "ListNodePoolScalingRecords"
-	r = &cluster.ListNodePoolScalingRecordResponse{}
+	r = &cluster.ListNodePoolScalingRecordsResponse{}
 	statusCode, err = p.Client.CommonHandler(action, query, body, r)
 	return r, statusCode, err
 }
 
-func (p *ResourceserviceRawApi) ListNodePoolNode(body string, query url.Values) (r *cluster.ListNodePoolNodeResponse, statusCode int, err error) {
-	action := "ListNodePoolNode"
-	r = &cluster.ListNodePoolNodeResponse{}
+func (p *ResourceserviceRawApi) ListNodePoolNodes(body string, query url.Values) (r *cluster.ListNodePoolNodesResponse, statusCode int, err error) {
+	action := "ListNodePoolNodes"
+	r = &cluster.ListNodePoolNodesResponse{}
 	statusCode, err = p.Client.CommonHandler(action, query, body, r)
 	return r, statusCode, err
 }
@@ -499,30 +509,37 @@ func (p *ResourceserviceRawApi) ListCustomRoles(body string, query url.Values) (
 	return r, statusCode, err
 }
 
-func (p *ResourceserviceRawApi) ListSupportedAddons(body string, query url.Values) (r *addon.ListSupportedAddonResponse, statusCode int, err error) {
+func (p *ResourceserviceRawApi) ListSupportedAddons(body string, query url.Values) (r *addon.ListSupportedAddonsResponse, statusCode int, err error) {
 	action := "ListSupportedAddons"
-	r = &addon.ListSupportedAddonResponse{}
+	r = &addon.ListSupportedAddonsResponse{}
 	statusCode, err = p.Client.CommonHandler(action, query, body, r)
 	return r, statusCode, err
 }
 
-func (p *ResourceserviceRawApi) ListAddons(body string, query url.Values) (r *addon.ListAddonResponse, statusCode int, err error) {
+func (p *ResourceserviceRawApi) ListAddons(body string, query url.Values) (r *addon.ListAddonsResponse, statusCode int, err error) {
 	action := "ListAddons"
-	r = &addon.ListAddonResponse{}
+	r = &addon.ListAddonsResponse{}
 	statusCode, err = p.Client.CommonHandler(action, query, body, r)
 	return r, statusCode, err
 }
 
-func (p *ResourceserviceRawApi) InstallAddon(body string, query url.Values) (r *addon.InstallAddonResponse, statusCode int, err error) {
-	action := "InstallAddon"
-	r = &addon.InstallAddonResponse{}
+func (p *ResourceserviceRawApi) InstallAddons(body string, query url.Values) (r *addon.InstallAddonsResponse, statusCode int, err error) {
+	action := "InstallAddons"
+	r = &addon.InstallAddonsResponse{}
 	statusCode, err = p.Client.CommonHandler(action, query, body, r)
 	return r, statusCode, err
 }
 
-func (p *ResourceserviceRawApi) UninstallAddon(body string, query url.Values) (r *addon.UninstallAddonResponse, statusCode int, err error) {
-	action := "UninstallAddon"
-	r = &addon.UninstallAddonResponse{}
+func (p *ResourceserviceRawApi) ReinstallAddon(body string, query url.Values) (r *addon.ReinstallAddonResponse, statusCode int, err error) {
+	action := "ReinstallAddon"
+	r = &addon.ReinstallAddonResponse{}
+	statusCode, err = p.Client.CommonHandler(action, query, body, r)
+	return r, statusCode, err
+}
+
+func (p *ResourceserviceRawApi) UninstallAddons(body string, query url.Values) (r *addon.UninstallAddonsResponse, statusCode int, err error) {
+	action := "UninstallAddons"
+	r = &addon.UninstallAddonsResponse{}
 	statusCode, err = p.Client.CommonHandler(action, query, body, r)
 	return r, statusCode, err
 }
@@ -583,6 +600,13 @@ func (p *ResourceserviceRawApi) ListVolumes(body string, query url.Values) (r *i
 	return r, statusCode, err
 }
 
+func (p *ResourceserviceRawApi) ListKeyPairs(body string, query url.Values) (r *instance.ListKeyPairsResponse, statusCode int, err error) {
+	action := "ListKeyPairs"
+	r = &instance.ListKeyPairsResponse{}
+	statusCode, err = p.Client.CommonHandler(action, query, body, r)
+	return r, statusCode, err
+}
+
 func (p *ResourceserviceRawApi) ListSubnets(body string, query url.Values) (r *vpc.ListSubnetsResponse, statusCode int, err error) {
 	action := "ListSubnets"
 	r = &vpc.ListSubnetsResponse{}
@@ -590,9 +614,9 @@ func (p *ResourceserviceRawApi) ListSubnets(body string, query url.Values) (r *v
 	return r, statusCode, err
 }
 
-func (p *ResourceserviceRawApi) ListElasticIPPools(body string, query url.Values) (r *vpc.ListElasticIPPoolsResponse, statusCode int, err error) {
-	action := "ListElasticIPPools"
-	r = &vpc.ListElasticIPPoolsResponse{}
+func (p *ResourceserviceRawApi) ListElasticIpPools(body string, query url.Values) (r *vpc.ListElasticIpPoolsResponse, statusCode int, err error) {
+	action := "ListElasticIpPools"
+	r = &vpc.ListElasticIpPoolsResponse{}
 	statusCode, err = p.Client.CommonHandler(action, query, body, r)
 	return r, statusCode, err
 }
@@ -611,9 +635,16 @@ func (p *ResourceserviceRawApi) ListSecurityGroups(body string, query url.Values
 	return r, statusCode, err
 }
 
-func (p *ResourceserviceRawApi) ListClbs(body string, query url.Values) (r *clb.ListClbResponse, statusCode int, err error) {
+func (p *ResourceserviceRawApi) ListClbs(body string, query url.Values) (r *clb.ListClbsResponse, statusCode int, err error) {
 	action := "ListClbs"
-	r = &clb.ListClbResponse{}
+	r = &clb.ListClbsResponse{}
+	statusCode, err = p.Client.CommonHandler(action, query, body, r)
+	return r, statusCode, err
+}
+
+func (p *ResourceserviceRawApi) ListClbListeners(body string, query url.Values) (r *clb.ListClbListenersResponse, statusCode int, err error) {
+	action := "ListClbListeners"
+	r = &clb.ListClbListenersResponse{}
 	statusCode, err = p.Client.CommonHandler(action, query, body, r)
 	return r, statusCode, err
 }
@@ -698,6 +729,41 @@ func (p *ResourceserviceRawApi) CheckCidrConflict(body string, query url.Values)
 func (p *ResourceserviceRawApi) RecommendCidr(body string, query url.Values) (r *cluster.RecommendCidrResponse, statusCode int, err error) {
 	action := "RecommendCidr"
 	r = &cluster.RecommendCidrResponse{}
+	statusCode, err = p.Client.CommonHandler(action, query, body, r)
+	return r, statusCode, err
+}
+
+func (p *ResourceserviceRawApi) AddVciSubnets(body string, query url.Values) (r *cluster.AddVciSubnetsResponse, statusCode int, err error) {
+	action := "AddVciSubnets"
+	r = &cluster.AddVciSubnetsResponse{}
+	statusCode, err = p.Client.CommonHandler(action, query, body, r)
+	return r, statusCode, err
+}
+
+func (p *ResourceserviceRawApi) IsInShortTermWhiteList(body string, query url.Values) (r *trade.IsInShortTermWhiteListResponse, statusCode int, err error) {
+	action := "IsInShortTermWhiteList"
+	r = &trade.IsInShortTermWhiteListResponse{}
+	statusCode, err = p.Client.CommonHandler(action, query, body, r)
+	return r, statusCode, err
+}
+
+func (p *ResourceserviceRawApi) AllowUserPublicTest(body string, query url.Values) (r *publicverify.PublicTestAllowedResp, statusCode int, err error) {
+	action := "AllowUserPublicTest"
+	r = &publicverify.PublicTestAllowedResp{}
+	statusCode, err = p.Client.CommonHandler(action, query, body, r)
+	return r, statusCode, err
+}
+
+func (p *ResourceserviceRawApi) ListVciAvailabilityZones(body string, query url.Values) (r *vci.ListVciAvailabilityZonesResponse, statusCode int, err error) {
+	action := "ListVciAvailabilityZones"
+	r = &vci.ListVciAvailabilityZonesResponse{}
+	statusCode, err = p.Client.CommonHandler(action, query, body, r)
+	return r, statusCode, err
+}
+
+func (p *ResourceserviceRawApi) ListNodeZones(body string, query url.Values) (r *cluster.ListNodeZonesResponse, statusCode int, err error) {
+	action := "ListNodeZones"
+	r = &cluster.ListNodeZonesResponse{}
 	statusCode, err = p.Client.CommonHandler(action, query, body, r)
 	return r, statusCode, err
 }

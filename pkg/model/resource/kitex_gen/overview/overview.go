@@ -2118,7 +2118,7 @@ type GetClusterOverviewResponse struct {
 	ClusterStatistics  *ClusterStatistics   `thrift:"ClusterStatistics,1,required" json:"ClusterStatistics"`
 	NodeStatistics     *NodeStatistics      `thrift:"NodeStatistics,2,required" json:"NodeStatistics"`
 	WorkloadStatistics *WorkloadStatistics  `thrift:"WorkloadStatistics,3,required" json:"WorkloadStatistics"`
-	ClusterDetais      []*ClusterDetailItem `thrift:"ClusterDetais,4,required" json:"ClusterDetais"`
+	ClusterDetails     []*ClusterDetailItem `thrift:"ClusterDetails,4,required" json:"ClusterDetails"`
 	Base               *base.Base           `thrift:"Base,255" json:"Base,omitempty"`
 }
 
@@ -2153,8 +2153,8 @@ func (p *GetClusterOverviewResponse) GetWorkloadStatistics() (v *WorkloadStatist
 	return p.WorkloadStatistics
 }
 
-func (p *GetClusterOverviewResponse) GetClusterDetais() (v []*ClusterDetailItem) {
-	return p.ClusterDetais
+func (p *GetClusterOverviewResponse) GetClusterDetails() (v []*ClusterDetailItem) {
+	return p.ClusterDetails
 }
 
 var GetClusterOverviewResponse_Base_DEFAULT *base.Base
@@ -2174,8 +2174,8 @@ func (p *GetClusterOverviewResponse) SetNodeStatistics(val *NodeStatistics) {
 func (p *GetClusterOverviewResponse) SetWorkloadStatistics(val *WorkloadStatistics) {
 	p.WorkloadStatistics = val
 }
-func (p *GetClusterOverviewResponse) SetClusterDetais(val []*ClusterDetailItem) {
-	p.ClusterDetais = val
+func (p *GetClusterOverviewResponse) SetClusterDetails(val []*ClusterDetailItem) {
+	p.ClusterDetails = val
 }
 func (p *GetClusterOverviewResponse) SetBase(val *base.Base) {
 	p.Base = val
@@ -2185,7 +2185,7 @@ var fieldIDToName_GetClusterOverviewResponse = map[int16]string{
 	1:   "ClusterStatistics",
 	2:   "NodeStatistics",
 	3:   "WorkloadStatistics",
-	4:   "ClusterDetais",
+	4:   "ClusterDetails",
 	255: "Base",
 }
 
@@ -2212,7 +2212,7 @@ func (p *GetClusterOverviewResponse) Read(iprot thrift.TProtocol) (err error) {
 	var issetClusterStatistics bool = false
 	var issetNodeStatistics bool = false
 	var issetWorkloadStatistics bool = false
-	var issetClusterDetais bool = false
+	var issetClusterDetails bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -2266,7 +2266,7 @@ func (p *GetClusterOverviewResponse) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField4(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetClusterDetais = true
+				issetClusterDetails = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -2311,7 +2311,7 @@ func (p *GetClusterOverviewResponse) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetClusterDetais {
+	if !issetClusterDetails {
 		fieldId = 4
 		goto RequiredFieldNotSetError
 	}
@@ -2362,14 +2362,14 @@ func (p *GetClusterOverviewResponse) ReadField4(iprot thrift.TProtocol) error {
 	if err != nil {
 		return err
 	}
-	p.ClusterDetais = make([]*ClusterDetailItem, 0, size)
+	p.ClusterDetails = make([]*ClusterDetailItem, 0, size)
 	for i := 0; i < size; i++ {
 		_elem := NewClusterDetailItem()
 		if err := _elem.Read(iprot); err != nil {
 			return err
 		}
 
-		p.ClusterDetais = append(p.ClusterDetais, _elem)
+		p.ClusterDetails = append(p.ClusterDetails, _elem)
 	}
 	if err := iprot.ReadListEnd(); err != nil {
 		return err
@@ -2482,13 +2482,13 @@ WriteFieldEndError:
 }
 
 func (p *GetClusterOverviewResponse) writeField4(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("ClusterDetais", thrift.LIST, 4); err != nil {
+	if err = oprot.WriteFieldBegin("ClusterDetails", thrift.LIST, 4); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteListBegin(thrift.STRUCT, len(p.ClusterDetais)); err != nil {
+	if err := oprot.WriteListBegin(thrift.STRUCT, len(p.ClusterDetails)); err != nil {
 		return err
 	}
-	for _, v := range p.ClusterDetais {
+	for _, v := range p.ClusterDetails {
 		if err := v.Write(oprot); err != nil {
 			return err
 		}
@@ -2547,7 +2547,7 @@ func (p *GetClusterOverviewResponse) DeepEqual(ano *GetClusterOverviewResponse) 
 	if !p.Field3DeepEqual(ano.WorkloadStatistics) {
 		return false
 	}
-	if !p.Field4DeepEqual(ano.ClusterDetais) {
+	if !p.Field4DeepEqual(ano.ClusterDetails) {
 		return false
 	}
 	if !p.Field255DeepEqual(ano.Base) {
@@ -2579,10 +2579,10 @@ func (p *GetClusterOverviewResponse) Field3DeepEqual(src *WorkloadStatistics) bo
 }
 func (p *GetClusterOverviewResponse) Field4DeepEqual(src []*ClusterDetailItem) bool {
 
-	if len(p.ClusterDetais) != len(src) {
+	if len(p.ClusterDetails) != len(src) {
 		return false
 	}
-	for i, v := range p.ClusterDetais {
+	for i, v := range p.ClusterDetails {
 		_src := src[i]
 		if !v.DeepEqual(_src) {
 			return false
