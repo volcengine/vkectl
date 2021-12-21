@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"os"
@@ -10,7 +11,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	"github.com/volcengine/vkectl/pkg/client/app"
 	"github.com/volcengine/vkectl/pkg/client/resource"
 	"github.com/volcengine/vkectl/pkg/client/security"
 	"github.com/volcengine/vkectl/pkg/version"
@@ -39,7 +39,7 @@ vkectl resource GetCluster`,
 		cmd := &cobra.Command{
 			Use:     module + " ACTION",
 			Short:   "VKE " + module + " module actions",
-			Example: "vkectl -d '{}' " + module + " ACTION",
+			Example: "vkectl " + module + " ACTION",
 		}
 		val := reflect.ValueOf(client)
 		tpe := reflect.TypeOf(client)
@@ -70,10 +70,14 @@ vkectl resource GetCluster`,
 						logrus.SetLevel(logrus.PanicLevel)
 					}
 					ret := mval.Call([]reflect.Value{reflect.ValueOf(*data), reflect.ValueOf(url.Values{})})
-					if err := ret[2].Interface().(error); err != nil {
-						fmt.Printf("call api: %v", err)
+					if err, ok := ret[2].Interface().(error); ok && err != nil {
+						return errors.WithMessage(err, "call api")
 					} else {
-						fmt.Println(ret[0].Interface())
+						output, err := json.MarshalIndent(ret[0].Interface(), "", "\t")
+						if err != nil {
+							return errors.WithMessage(err, "marshal output")
+						}
+						fmt.Println(string(output))
 					}
 					return nil
 				},
@@ -83,7 +87,6 @@ vkectl resource GetCluster`,
 		rootCmd.AddCommand(cmd)
 	}
 
-	addModuleCmd("app", app.NewAPIClient(ak, sk, host, "vke", region))
 	addModuleCmd("resource", resource.NewAPIClient(ak, sk, host, "vke", region))
 	addModuleCmd("security", security.NewAPIClient(ak, sk, host, "vke", region))
 
@@ -97,6 +100,7 @@ vkectl resource GetCluster`,
 		},
 	)
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Printf("excute error: %v", err)
+		logrus.Debugf("excute error: %v", err)
+		os.Exit(1)
 	}
 }
