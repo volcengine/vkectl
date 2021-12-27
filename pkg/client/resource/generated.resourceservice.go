@@ -30,7 +30,7 @@ type Resourceservice struct {
 	Client *client.Client
 }
 
-// NewAPIClient 生成一个客户端
+// NewAPIClient returns an api client object
 func NewAPIClient(ak, sk, host, service, region string) *Resourceservice {
 	c := client.NewBaseClient()
 	c.ServiceInfo = client.NewServiceInfo()
