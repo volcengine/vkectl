@@ -1,0 +1,27 @@
+style: gitlab
+template: CHANGELOG.tpl.md
+info:
+  title: CHANGELOG
+  repository_url: https://github.com/volcengine/vkectl
+options:
+  tag_filter_pattern: '^v'
+  commit_groups:
+    title_maps:
+      feat: Features
+      fix: Bug Fixes
+      docs: Documentation
+      style: Style changes
+      refactor: Code Refactoring
+      perf: Performance Improvements
+      test: Tests
+      chore: Chores
+      api: API changes
+  header:
+    pattern: "^(\\w*)(?:\\(([\\w\\$\\.\\-\\*\\s]*)\\))?\\:\\s(.*)$"
+    pattern_maps:
+    - Type
+    - Scope
+    - Subject
+  notes:
+    keywords:
+    - BREAKING CHANGE

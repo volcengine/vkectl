@@ -88,3 +88,8 @@ build_linux_arm64:
 	    -X $(ROOT)/pkg/version.buildDate=$(BUILDDATE)"                     \
 	  $(CMD_DIR);
 	tar zcvf $(OUTPUT_DIR)/$(NAME)-linux-${VERSION}-arm64.tgz -C $(OUTPUT_DIR) $(NAME)
+
+.PHONY: changelog
+changelog:
+	@git fetch --prune-tags
+	@git-chglog --next-tag $(VERSION) -o CHANGELOG.md
