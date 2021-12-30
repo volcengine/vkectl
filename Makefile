@@ -19,7 +19,7 @@ CMD_DIR := ./main
 
 all: build
 
-publish: clean build_mac build_linux_amd64 build_windows build_linux_arm64
+publish: clean build_debian build_mac build_linux_amd64 build_windows build_linux_arm64
 
 build:
 	@go build -v -o $(OUTPUT_DIR)/$(NAME)                                  \
@@ -39,7 +39,8 @@ clean:
 	rm -f $(OUTPUT_DIR)/$(NAME)*
 
 install: build
-	cp $(OUTPUT_DIR)/$(NAME) /usr/local/bin
+	mkdir -p ${DESTDIR}/usr/bin
+	cp $(OUTPUT_DIR)/$(NAME) ${DESTDIR}/usr/bin
 
 build_mac:
 	@CGO_ENABLED=0 GOOS=darwin GOARCH=amd64                                \
@@ -88,6 +89,9 @@ build_linux_arm64:
 	    -X $(ROOT)/pkg/version.buildDate=$(BUILDDATE)"                     \
 	  $(CMD_DIR);
 	tar zcvf $(OUTPUT_DIR)/$(NAME)-linux-${VERSION}-arm64.tgz -C $(OUTPUT_DIR) $(NAME)
+
+build_debian:
+	hack/build/build_debian.sh
 
 .PHONY: changelog
 changelog:
