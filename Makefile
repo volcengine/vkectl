@@ -19,7 +19,7 @@ CMD_DIR := ./main
 
 all: build
 
-publish: clean build_debian build_mac build_linux_amd64 build_windows build_linux_arm64
+publish: clean build_debian build_mac build_linux_amd64 build_windows_amd64 build_windows_386 build_linux_arm64
 
 build:
 	@go build -v -o $(OUTPUT_DIR)/$(NAME)                                  \
@@ -66,7 +66,7 @@ build_linux_amd64:
 	  $(CMD_DIR);
 	tar zcvf $(OUTPUT_DIR)/$(NAME)-linux-${VERSION}-amd64.tgz -C $(OUTPUT_DIR) $(NAME)
 
-build_windows:
+build_windows_amd64:
 	@CGO_ENABLED=0 GOOS=windows GOARCH=amd64                               \
 	  go build -v -o $(OUTPUT_DIR)/$(NAME).exe                             \
 	  -ldflags "-s -w -X $(ROOT)/pkg/version.module=$(NAME)                \
@@ -77,6 +77,18 @@ build_windows:
 	    -X $(ROOT)/pkg/version.buildDate=$(BUILDDATE)"                     \
 	  $(CMD_DIR);
 	cd $(OUTPUT_DIR); zip $(NAME)-windows-${VERSION}-amd64.zip $(NAME).exe; cd -
+
+build_windows_386:
+	@CGO_ENABLED=0 GOOS=windows GOARCH=386                                 \
+	  go build -v -o $(OUTPUT_DIR)/$(NAME).exe                             \
+	  -ldflags "-s -w -X $(ROOT)/pkg/version.module=$(NAME)                \
+	    -X $(ROOT)/pkg/version.version=$(VERSION)                          \
+	    -X $(ROOT)/pkg/version.branch=$(BRANCH)                            \
+	    -X $(ROOT)/pkg/version.gitCommit=$(GITCOMMIT)                      \
+	    -X $(ROOT)/pkg/version.gitTreeState=$(GITTREESTATE)                \
+	    -X $(ROOT)/pkg/version.buildDate=$(BUILDDATE)"                     \
+	  $(CMD_DIR);
+	cd $(OUTPUT_DIR); zip $(NAME)-windows-${VERSION}-386.zip $(NAME).exe; cd -
 
 build_linux_arm64:
 	@CGO_ENABLED=0 GOOS=linux GOARCH=arm64                                 \
