@@ -27,19 +27,23 @@ import (
 
 // Resourceservice is a base client
 type Resourceservice struct {
-	Client *client.Client
+	Client client.Client
 }
 
 // NewAPIClient returns an api client object
-func NewAPIClient(ak, sk, host, service, region string) *Resourceservice {
-	c := client.NewBaseClient()
-	c.ServiceInfo = client.NewServiceInfo()
-	c.ServiceInfo.Host = host
-	c.ServiceInfo.Credentials.AccessKeyID = ak
-	c.ServiceInfo.Credentials.SecretAccessKey = sk
-	c.ServiceInfo.Credentials.Service = service
-	c.ServiceInfo.Credentials.Region = region
-	c.SdkVersion = client.DefaultSdkVersion
+func NewAPIClient(ak, sk, host, service, region string, fake bool) *Resourceservice {
+	if fake {
+		return &Resourceservice{Client: client.NewFakeClient()}
+	}
+	
+	serviceInfo := client.NewServiceInfo()
+	serviceInfo.Host = host
+	serviceInfo.Credentials.AccessKeyID = ak
+	serviceInfo.Credentials.SecretAccessKey = sk
+	serviceInfo.Credentials.Service = service
+	serviceInfo.Credentials.Region = region
+
+	c := client.NewBaseClient(client.DefaultSdkVersion, serviceInfo)
 
 	return &Resourceservice{Client: c}
 }
