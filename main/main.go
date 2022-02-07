@@ -29,11 +29,18 @@ vkectl resource GetCluster`,
 
 	data := rootCmd.PersistentFlags().StringP("data", "d", "", "json data of action")
 	verbose := rootCmd.PersistentFlags().BoolP("verbose", "v", false, "verbose output")
+	indent := rootCmd.PersistentFlags().BoolP("indent", "i", false, "indent output")
 
 	ak := os.Getenv("AK")
 	sk := os.Getenv("SK")
 	host := os.Getenv("HOST")
 	region := os.Getenv("REGION")
+	var fake bool
+
+	if ak == "" && sk == "" && host == "" && region == "" {
+		fake = true
+		fmt.Println("non of AK, SK, HOST, REGION specified, fake mode enabled")
+	}
 
 	addModuleCmd := func(module string, client interface{}) {
 		cmd := &cobra.Command{
@@ -49,16 +56,16 @@ vkectl resource GetCluster`,
 			actionCmd := &cobra.Command{
 				Use: mtpe.Name,
 				PreRunE: func(cmd *cobra.Command, args []string) error {
-					if ak == "" {
+					if !fake && ak == "" {
 						return errors.New("AK is not set, can set by \"export AK=YOUR AK\"")
 					}
-					if sk == "" {
+					if !fake && sk == "" {
 						return errors.New("SK is not set, can set by \"export SK=YOUR SK\"")
 					}
-					if host == "" {
+					if !fake && host == "" {
 						return errors.New("HOST is not set, can set by \"export AK=YOUR HOST\"")
 					}
-					if region == "" {
+					if !fake && region == "" {
 						return errors.New("REGION is not set, can set by \"export REGION=YOUR REGION\"")
 					}
 					return nil
@@ -73,7 +80,13 @@ vkectl resource GetCluster`,
 					if err, ok := ret[2].Interface().(error); ok && err != nil {
 						return errors.WithMessage(err, "call api")
 					} else {
-						output, err := json.MarshalIndent(ret[0].Interface(), "", "\t")
+						var output []byte
+						var err error
+						if *indent {
+							output, err = json.MarshalIndent(ret[0].Interface(), "", "\t")
+						} else {
+							output, err = json.Marshal(ret[0].Interface())
+						}
 						if err != nil {
 							return errors.WithMessage(err, "marshal output")
 						}
@@ -87,8 +100,8 @@ vkectl resource GetCluster`,
 		rootCmd.AddCommand(cmd)
 	}
 
-	addModuleCmd("resource", resource.NewAPIClient(ak, sk, host, "vke", region))
-	addModuleCmd("security", security.NewAPIClient(ak, sk, host, "vke", region))
+	addModuleCmd("resource", resource.NewAPIClient(ak, sk, host, "vke", region, fake))
+	addModuleCmd("security", security.NewAPIClient(ak, sk, host, "vke", region, fake))
 
 	rootCmd.AddCommand(
 		&cobra.Command{

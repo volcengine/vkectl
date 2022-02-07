@@ -24,15 +24,14 @@ const (
 	DefaultSdkVersion = "2021-03-03"
 )
 
-// Client defines base client struct
-type Client struct {
+type baseClient struct {
 	Client      http.Client
-	SdkVersion  string
-	ServiceInfo *base.ServiceInfo
+	sdkVersion  string
+	serviceInfo *base.ServiceInfo
 	headers     http.Header
 }
 
-// NewServiceInfo return base ServiceInfo.
+// NewServiceInfo return base serviceInfo.
 func NewServiceInfo() *base.ServiceInfo {
 	return &base.ServiceInfo{
 		Timeout:     120 * time.Second, // TOP gateway timeout
@@ -41,17 +40,19 @@ func NewServiceInfo() *base.ServiceInfo {
 	}
 }
 
-// NewBaseClient return a base Client
-func NewBaseClient() *Client {
+// NewBaseClient return a base baseClient
+func NewBaseClient(sdkVersion string, serviceInfo *base.ServiceInfo) Client {
 	transport := &http.Transport{
 		MaxIdleConns:        1000,
 		MaxIdleConnsPerHost: 100,
 		IdleConnTimeout:     10 * time.Second,
 	}
 
-	c := &Client{
-		Client:  http.Client{Transport: transport},
-		headers: http.Header{},
+	c := &baseClient{
+		Client:      http.Client{Transport: transport},
+		sdkVersion:  sdkVersion,
+		serviceInfo: serviceInfo,
+		headers:     http.Header{},
 	}
 
 	header := http.Header{
@@ -64,7 +65,7 @@ func NewBaseClient() *Client {
 }
 
 // AddExtraHeaders add custom headers into request
-func (client *Client) AddExtraHeaders(h map[string]string) {
+func (client *baseClient) AddExtraHeaders(h map[string]string) {
 	if client.headers == nil {
 		client.headers = http.Header{}
 	}
@@ -76,7 +77,7 @@ func (client *Client) AddExtraHeaders(h map[string]string) {
 }
 
 // CommonHandler handle http request and response.
-func (client *Client) CommonHandler(action string, query url.Values, body string, resp interface{}) (int, error) {
+func (client *baseClient) CommonHandler(action string, query url.Values, body string, resp interface{}) (int, error) {
 	respBody, statusCode, err := client.JSON(action, query, body)
 	if err != nil {
 		return statusCode, errors.WithMessage(err, "client send json")
@@ -98,18 +99,18 @@ func (client *Client) CommonHandler(action string, query url.Values, body string
 }
 
 // JSON send a post json request
-func (client *Client) JSON(action string, query url.Values, body string) ([]byte, int, error) {
-	timeout := client.ServiceInfo.Timeout
+func (client *baseClient) JSON(action string, query url.Values, body string) ([]byte, int, error) {
+	timeout := client.serviceInfo.Timeout
 
 	if query == nil {
 		query = url.Values{}
 	}
 	query.Add("Action", action)
-	query.Add("Version", client.SdkVersion)
+	query.Add("Version", client.sdkVersion)
 
 	u := url.URL{
-		Scheme:   client.ServiceInfo.Scheme,
-		Host:     client.ServiceInfo.Host,
+		Scheme:   client.serviceInfo.Scheme,
+		Host:     client.serviceInfo.Host,
 		Path:     "/",
 		RawQuery: query.Encode(),
 	}
@@ -122,8 +123,8 @@ func (client *Client) JSON(action string, query url.Values, body string) ([]byte
 	return client.makeRequest(action, req, body, timeout)
 }
 
-func (client *Client) makeRequest(action string, req *http.Request, reqBody string, timeout time.Duration) ([]byte, int, error) {
-	req = client.ServiceInfo.Credentials.Sign(req)
+func (client *baseClient) makeRequest(action string, req *http.Request, reqBody string, timeout time.Duration) ([]byte, int, error) {
+	req = client.serviceInfo.Credentials.Sign(req)
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	req = req.WithContext(ctx)

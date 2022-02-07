@@ -86,19 +86,23 @@ import (
 
 // {{.Service}} is a base client
 type {{.Service}} struct {
-	Client *client.Client
+	Client client.Client
 }
 
 // NewAPIClient returns an api client object
-func NewAPIClient(ak, sk, host, service, region string) *{{.Service}} {
-	c := client.NewBaseClient()
-	c.ServiceInfo = client.NewServiceInfo()
-	c.ServiceInfo.Host = host
-	c.ServiceInfo.Credentials.AccessKeyID = ak
-	c.ServiceInfo.Credentials.SecretAccessKey = sk
-	c.ServiceInfo.Credentials.Service = service
-	c.ServiceInfo.Credentials.Region = region
-	c.SdkVersion = client.DefaultSdkVersion
+func NewAPIClient(ak, sk, host, service, region string, fake bool) *{{.Service}} {
+	if fake {
+		return &{{.Service}}{Client: client.NewFakeClient()}
+	}
+	
+	serviceInfo := client.NewServiceInfo()
+	serviceInfo.Host = host
+	serviceInfo.Credentials.AccessKeyID = ak
+	serviceInfo.Credentials.SecretAccessKey = sk
+	serviceInfo.Credentials.Service = service
+	serviceInfo.Credentials.Region = region
+
+	c := client.NewBaseClient(client.DefaultSdkVersion, serviceInfo)
 
 	return &{{.Service}}{Client: c}
 }
