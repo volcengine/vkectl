@@ -1,4 +1,17 @@
 
+<a name="v0.1.1"></a>
+## v0.1.1 (2022-02-07)
+
+### Chores
+
+* add choco build for project ([#2](https://github.com/volcengine/vkectl/issues/2)) [6a62363](https://github.com/volcengine/vkectl/commit/6a62363b8d2d89a4d009d6c4545451e40416af28)
+* add debian build for project [910f9ea](https://github.com/volcengine/vkectl/commit/910f9ea49d13b0d429bb2e29cc96aa5294961d2b)
+
+### Features
+
+* fake mode enabled when non of AK,SK,HOST,REGION specified ([#3](https://github.com/volcengine/vkectl/issues/3)) [6b2654f](https://github.com/volcengine/vkectl/commit/6b2654fdb65c521209df4cc21e7bf7e317661cd2)
+
+
 <a name="v0.1.0"></a>
 ## v0.1.0 (2021-12-27)
 
@@ -14,6 +27,7 @@
 * add publish command to makefile [70f3571](https://github.com/volcengine/vkectl/commit/70f35716e5777d126a30f99648890d4763350069)
 * convert chinese description to english [a97b872](https://github.com/volcengine/vkectl/commit/a97b87228f94a5dfea8d2dd2afeb1158a6f7c936)
 * add README [0eca9b7](https://github.com/volcengine/vkectl/commit/0eca9b78aba3aafd88df80e160aad7b18533708b)
+* **changelog:** add changelog for v0.1.0 [80af8cd](https://github.com/volcengine/vkectl/commit/80af8cd3ff3b58ddb22052725ae859a1aa342d22)
 
 ### Features
 
